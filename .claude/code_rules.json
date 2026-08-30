@@ -1,0 +1,219 @@
+{
+  "$schema_note": "Machine-readable C# code quality rules, consumed by scripts/code_rule_checker.py. Each rule's 'source' says whether it was reverse-engineered from actual patterns in this codebase ('observed') or is a generic C# best practice applied because the codebase is silent on it ('best_practice'). Never blend the two silently — a reader must be able to tell this project's real contract from filler. Run the code-convention-miner agent against the target codebase to refill 'evidence' and to add project-specific rules.",
+  "version": "1.0.0",
+  "generated_from": "TEMPLATE — not yet mined from any codebase. Run code-convention-miner and replace this string with the sampled paths.",
+
+  "scope": {
+    "root": ".",
+    "include_globs": ["**/*.cs"],
+    "exclude_path_parts": ["bin", "obj", "Library", "Temp", "node_modules"],
+    "vendor_detection": {
+      "_note": "How to recognise third-party code living inside the tree. Vendor code must never be linted — mixing it in produces false violations and erodes trust in the whole report. 'type_prefix' is the strongest signal when the project prefixes its own types (e.g. every first-party class starts with 'FG' / 'Acme'); leave it null if it doesn't, and rely on paths alone.",
+      "type_prefix": null,
+      "path_contains_any": []
+    },
+    "unit_discovery": {
+      "_note": "How the checker splits the codebase into reportable units. 'directories_with_matching_manifest': a unit is any directory holding a file named after itself (foo/foo.json) — the convention in manifest-per-module codebases. 'top_level_directories': each immediate child of root is a unit. 'single_unit': the whole tree is one unit.",
+      "strategy": "top_level_directories",
+      "root": ".",
+      "manifest_suffix": ".json",
+      "exclude_dir_names": ["bin", "obj", "Library", "Temp", "node_modules", ".git"]
+    }
+  },
+
+  "rules": [
+    {
+      "id": "indentation-4-spaces",
+      "category": "formatting",
+      "severity": "error",
+      "source": "best_practice",
+      "description": "Indentation is 4 spaces. No tabs.",
+      "evidence": "",
+      "check": { "type": "no_tabs_and_indent_multiple_of", "indent_size": 4 }
+    },
+    {
+      "id": "brace-style-allman",
+      "category": "formatting",
+      "severity": "warning",
+      "source": "best_practice",
+      "description": "Opening braces for types, methods, and control-flow blocks go on their own line (Allman style). Never '){' or '} else {' on one line. Single-statement expression bodies using '=>' are exempt.",
+      "evidence": "",
+      "check": { "type": "regex_forbidden", "pattern": "\\)[ \\t]*\\{[ \\t]*$", "note": "character class deliberately excludes \\n — with \\s this would match legitimate Allman code where ')' ends one line and '{' begins the next" }
+    },
+    {
+      "id": "max-line-length",
+      "category": "formatting",
+      "severity": "warning",
+      "source": "best_practice",
+      "description": "Soft cap per line, plus a hard cap well above it. A line beyond the hard cap is almost always a bug (an accidentally minified or collapsed file), not a style choice. Set warn_over from the observed max across clean first-party files rather than from a habit.",
+      "evidence": "",
+      "check": { "type": "line_length", "warn_over": 130, "error_over": 200 }
+    },
+    {
+      "id": "max-file-lines",
+      "category": "file-organization",
+      "severity": "warning",
+      "source": "best_practice",
+      "description": "Soft cap of 400 lines per file; hard cap of 600. A file between the two should be justified, not routine.",
+      "evidence": "",
+      "check": { "type": "line_count", "warn_over": 400, "error_over": 600 }
+    },
+    {
+      "id": "one-public-type-per-file-filename-match",
+      "category": "file-organization",
+      "severity": "error",
+      "source": "best_practice",
+      "description": "Exactly one public top-level type per file, and the filename matches the type name exactly (Foo.cs -> class Foo). A nested 'Builder' class living alongside its outer class is exempt — splitting the standard C# Builder-pattern nested type into its own file separates two things that are conceptually one unit.",
+      "evidence": "",
+      "check": { "type": "filename_matches_public_type", "known_exceptions": ["Builder"] }
+    },
+    {
+      "id": "namespace-mirrors-folder",
+      "category": "file-organization",
+      "severity": "warning",
+      "source": "best_practice",
+      "description": "Namespace segments mirror the folder path under the source root. Set 'root' to the source root and 'namespace_root' to the top-level namespace; a file at <root>/A/B/thing/*.cs must then declare a namespace at or under '<namespace_root>.A.B'.",
+      "evidence": "",
+      "enabled": false,
+      "check": { "type": "namespace_matches_path", "root": ".", "namespace_root": "CHANGEME" }
+    },
+    {
+      "id": "class-naming-prefix",
+      "category": "naming",
+      "severity": "error",
+      "source": "observed",
+      "description": "First-party classes/structs are PascalCase and carry the project's own type prefix. Enable this ONLY if the project genuinely has such a prefix, and set the pattern accordingly (e.g. '^AC[A-Z]' for an 'AC' prefix). A nested 'Builder' class is exempt — it is already qualified by its outer class, so prefixing it again is stutter.",
+      "evidence": "",
+      "enabled": false,
+      "check": { "type": "regex_required", "pattern": "^CHANGEME[A-Z]", "applies_to": "public/internal class and struct names", "known_exceptions": ["Builder"] }
+    },
+    {
+      "id": "interface-naming-i-prefix",
+      "category": "naming",
+      "severity": "warning",
+      "source": "best_practice",
+      "description": "Interfaces are PascalCase prefixed with 'I' (IReceiptValidator, IAdProvider). List any legacy interface that predates the convention under known_exceptions rather than renaming it — and say in the description that it is not precedent for new ones.",
+      "evidence": "",
+      "check": { "type": "regex_required", "pattern": "^I[A-Z]", "applies_to": "interface names", "known_exceptions": [] }
+    },
+    {
+      "id": "enum-naming-pascalcase",
+      "category": "naming",
+      "severity": "info",
+      "source": "best_practice",
+      "description": "Enums are PascalCase.",
+      "evidence": "",
+      "check": { "type": "regex_required", "pattern": "^[A-Z][a-zA-Z0-9]*$", "applies_to": "enum names" }
+    },
+    {
+      "id": "private-field-underscore-camelcase",
+      "category": "naming",
+      "severity": "error",
+      "source": "best_practice",
+      "description": "Private (and private-readonly) instance fields are prefixed with a leading underscore, then camelCase: _callbacks, _isInitialized. A private static field whose name already fully matches the constant pattern is exempt — a config-like pseudo-constant declared without the 'const'/'readonly' keyword is the same idiom as the constant rule's exceptions, not a casing mistake.",
+      "evidence": "",
+      "check": { "type": "regex_required", "pattern": "^_[a-z][a-zA-Z0-9]*$", "applies_to": "private instance/static field names", "exempt_name_patterns": ["^[A-Z][A-Z0-9_]*_[A-Z0-9_]*$"] }
+    },
+    {
+      "id": "constant-upper-snake-case",
+      "category": "naming",
+      "severity": "error",
+      "source": "best_practice",
+      "description": "const fields (public or private) are UPPER_SNAKE_CASE. If the project has a large, internally-consistent secondary convention in one subsystem (measured, not assumed), add it to exempt_name_patterns with the count as evidence rather than force-renaming it.",
+      "evidence": "",
+      "check": { "type": "regex_required", "pattern": "^[A-Z][A-Z0-9_]*$", "applies_to": "const field names", "exempt_name_patterns": [] }
+    },
+    {
+      "id": "public-member-pascalcase",
+      "category": "naming",
+      "severity": "error",
+      "source": "best_practice",
+      "description": "Public/protected properties and methods use PascalCase (standard .NET convention). Some names are dictated from outside the codebase and must NOT be renamed: interface members whose name the framework fixes, and members invoked by name across a native bridge (JNI/Objective-C), which break silently at runtime rather than at compile time. List those under known_exceptions with the reason. A member whose name already fully matches the constant pattern is also exempt: C# has no 'abstract const', so base classes commonly fake one with a read-only property named like a constant.",
+      "evidence": "",
+      "check": { "type": "regex_required", "pattern": "^[A-Z][a-zA-Z0-9]*$", "applies_to": "public/protected method and property names", "known_exceptions": [], "exempt_name_patterns": ["^[A-Z][A-Z0-9_]*_[A-Z0-9_]*$"] }
+    },
+    {
+      "id": "local-param-camelcase",
+      "category": "naming",
+      "severity": "info",
+      "source": "best_practice",
+      "description": "Local variables and method parameters use camelCase. Declared here for the record but not automated: locals and parameters cannot be extracted reliably with a line-oriented regex, and a checker that tries produces constant false positives.",
+      "evidence": "",
+      "check": { "type": "manual", "applies_to": "local variable and parameter names" }
+    },
+    {
+      "id": "generic-type-param-single-letter-documented",
+      "category": "naming",
+      "severity": "info",
+      "source": "best_practice",
+      "description": "Generic type parameters on base classes are single uppercase letters, and each is explained in an XML <typeparam> doc comment on the class.",
+      "evidence": "",
+      "check": { "type": "manual", "applies_to": "generic class/interface declarations" }
+    },
+    {
+      "id": "no-bare-console-logging",
+      "category": "architecture",
+      "severity": "warning",
+      "source": "best_practice",
+      "description": "Route logging through the project's own Log/LogWarning/LogError wrappers, not the platform's logger directly, so formatting and log-level policy live in one place. Set 'pattern' to the platform's raw logger (Unity: '\\\\bDebug\\\\.Log(Warning|Error)?\\\\s*\\\\(' — plain .NET: '\\\\bConsole\\\\.(Write|WriteLine)\\\\s*\\\\(') and exempt the units that implement the wrapper itself.",
+      "evidence": "",
+      "check": { "type": "regex_forbidden", "pattern": "\\bConsole\\.(Write|WriteLine)\\s*\\(", "exempt_units": [] }
+    },
+    {
+      "id": "no-commented-out-code",
+      "category": "cleanliness",
+      "severity": "info",
+      "source": "best_practice",
+      "description": "Do not leave commented-out lines of executable code in place; delete it (git history preserves it).",
+      "evidence": "",
+      "check": { "type": "regex_flagged", "pattern": "^\\s*//\\s*(if|for|while|var|return|[A-Za-z_]+\\.[A-Za-z_]+\\()" }
+    },
+    {
+      "id": "no-empty-catch",
+      "category": "error-handling",
+      "severity": "error",
+      "source": "best_practice",
+      "description": "Never swallow an exception silently. Every catch block must at minimum log via the project's LogError/LogCritical wrapper.",
+      "evidence": "",
+      "check": { "type": "regex_forbidden", "pattern": "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}" }
+    },
+    {
+      "id": "no-public-mutable-fields",
+      "category": "encapsulation",
+      "severity": "warning",
+      "source": "best_practice",
+      "description": "Expose state via properties ('=>' expression-bodied where read-only), not public fields. Exempt: 'event' fields (C# events already restrict external access to +=/-=, which is not the uncontrolled-mutation problem this targets) and standalone 'readonly' fields (immutable after construction). In Unity, Inspector-exposed *Settings/ScriptableObject classes idiomatically use public fields — exempt them via exempt_type_suffix rather than annotating each one.",
+      "evidence": "",
+      "check": { "type": "regex_forbidden", "pattern": "public\\s+(?!const\\b|static\\s+readonly\\b|readonly\\b|event\\b|class\\b|struct\\b|enum\\b|interface\\b)[A-Za-z_<>\\[\\],. ]+\\s+[A-Za-z_][A-Za-z0-9_]*\\s*;", "exempt_type_suffix": null }
+    },
+    {
+      "id": "unit-manifest-present",
+      "category": "architecture",
+      "severity": "error",
+      "source": "observed",
+      "description": "Every unit directory must contain its manifest file (id/settings discovered by convention, not hardcoded). Enable only in a codebase that actually has a per-unit manifest, and set 'pattern' to its glob.",
+      "evidence": "",
+      "enabled": false,
+      "check": { "type": "sibling_file_exists", "pattern": "*.json" }
+    },
+    {
+      "id": "public-api-surface-single-entrypoint",
+      "category": "architecture",
+      "severity": "error",
+      "source": "observed",
+      "description": "Each unit's public API must live only on its designated facade class. Manager/Settings/Callbacks/Abstract classes exist to support it but should not themselves be the integration surface exposed to consumers. Enable only in a codebase that has this facade convention.",
+      "evidence": "",
+      "enabled": false,
+      "check": { "type": "manual_or_heuristic", "heuristic": "flag public members on non-facade classes (Manager/Settings/Callbacks/Abstract suffix) that duplicate functionality already exposed on the facade" }
+    },
+    {
+      "id": "no-vendor-patching",
+      "category": "architecture",
+      "severity": "error",
+      "source": "best_practice",
+      "description": "Never modify vendored third-party files in place (see 'scope.vendor_detection'). If a bug looks like it's in vendor code, add or fix the wrapper around it instead. Not automatable from a snapshot — it needs the diff.",
+      "evidence": "",
+      "check": { "type": "manual_diff_review", "applies_to": "git diff against excluded vendor paths" }
+    }
+  ]
+}
