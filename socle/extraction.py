@@ -16,9 +16,11 @@ from __future__ import annotations
 
 import csv
 import html
+import http.client
 import json
 import pathlib
 import re
+import time
 import urllib.request
 import zipfile
 from typing import Iterator
@@ -567,33 +569,54 @@ def lire_reunions(archive: pathlib.Path) -> dict[str, dict]:
     return reunions
 
 
+# Une archive de 297 Mo ne traverse pas toujours le réseau d'un coup. La
+# publication du 2026-08-31 a échoué ainsi : la connexion a été coupée après
+# 2,6 Mo sur 297. Rien n'était cassé — il fallait redemander.
+ESSAIS = 4
+
+
 def telecharger(destination: pathlib.Path, entetes: dict[str, str] | None = None,
-                url: str = URL_ARCHIVE) -> dict:
+                url: str = URL_ARCHIVE, essais: int = ESSAIS,
+                patienter=None) -> dict:
     """Télécharge une archive. Rend un compte rendu, sans jamais lever d'exception HTTP 304.
 
     `entetes` sert au téléchargement conditionnel : en passant l'`ETag` ou le
     `Last-Modified` de la fois précédente, le serveur répond `304` si rien n'a
     changé et l'on économise le transfert.
+
+    Un transfert coupé en cours de route est réessayé, en attendant de plus en
+    plus longtemps. Une réponse HTTP en bonne et due forme — 404, 500 — n'est
+    pas réessayée : redemander ne changerait rien.
     """
+    if patienter is None:
+        patienter = time.sleep
     requete = urllib.request.Request(
         url,
         headers={"User-Agent": "AN-API/socle (recuperation open data)", **(entetes or {})},
     )
-    try:
-        with urllib.request.urlopen(requete, timeout=600) as reponse:
-            contenu = reponse.read()
-            destination.write_bytes(contenu)
-            return {
-                "modifie": True,
-                "octets": len(contenu),
-                "etag": reponse.headers.get("ETag"),
-                "modifieLe": reponse.headers.get("Last-Modified"),
-            }
-    except urllib.error.HTTPError as erreur:
-        if erreur.code == 304:
-            return {"modifie": False, "octets": 0, "etag": entetes.get("If-None-Match"),
-                    "modifieLe": entetes.get("If-Modified-Since")}
-        raise
+    for essai in range(essais):
+        try:
+            with urllib.request.urlopen(requete, timeout=600) as reponse:
+                contenu = reponse.read()
+                destination.write_bytes(contenu)
+                return {
+                    "modifie": True,
+                    "octets": len(contenu),
+                    "etag": reponse.headers.get("ETag"),
+                    "modifieLe": reponse.headers.get("Last-Modified"),
+                }
+        except urllib.error.HTTPError as erreur:
+            if erreur.code == 304:
+                return {"modifie": False, "octets": 0,
+                        "etag": (entetes or {}).get("If-None-Match"),
+                        "modifieLe": (entetes or {}).get("If-Modified-Since")}
+            raise
+        except (http.client.IncompleteRead, urllib.error.URLError,
+                ConnectionError, TimeoutError):
+            if essai == essais - 1:
+                raise
+            patienter(2 ** essai)
+    raise RuntimeError("inatteignable")  # pragma: no cover
 
 
 # ---------------------------------------------------------------------------

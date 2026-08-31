@@ -284,15 +284,6 @@
                        transition: transform .15s; }
   .parcours details[open] > .rang .chevron { transform: rotate(90deg); }
 
-  /* La pastille dit où l'étape se produit : à l'Assemblée, au Sénat, ou
-     ailleurs — commission mixte paritaire, Conseil constitutionnel. */
-  .pastille { font-size: .68rem; padding: .1rem .38rem; border-radius: 5px;
-              border: 1px solid var(--trait); background: var(--doux);
-              color: var(--gris); cursor: pointer; font-family: inherit;
-              white-space: nowrap; }
-  .pastille.assemblee { color: #2a6bb5; border-color: color-mix(in srgb, #2a6bb5 35%, var(--trait)); }
-  .pastille.senat { color: #b5622a; border-color: color-mix(in srgb, #b5622a 35%, var(--trait)); }
-
   /* Ce que l'étape dit d'elle-même. Chaque valeur vient de l'open data.
      Sur un téléphone, l'intitulé passe au-dessus de la valeur : côte à côte,
      il ne resterait que six caractères de large pour la valeur. */
@@ -1106,16 +1097,11 @@ function bloc(titre, ouvert) {
 
 /* ---------- le parcours ---------- */
 
-const CHAMBRE_COURTE = { assemblee: "Assemblée", senat: "Sénat", null: "Hors chambre" };
-
+/* La même étiquette que dans le fil : même forme, mêmes couleurs. Une pastille
+   propre au parcours donnerait deux vocabulaires visuels pour une seule idée. */
 function pastilleChambre(chambre) {
-  const cle = chambre || "null";
-  const p = el("button", "pastille " + (chambre || "mixte"), CHAMBRE_COURTE[cle]);
-  p.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    expliquer(CHAMBRES[cle][0], CHAMBRES[cle][1], "Où cette étape se produit");
-  });
-  return p;
+  return etiquette("chambre-" + (chambre || "aucune"),
+                   CHAMBRES[chambre][0], CHAMBRES[chambre]);
 }
 
 /* Ce que chaque champ publié veut dire. **La valeur affichée, elle, vient des

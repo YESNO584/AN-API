@@ -8,8 +8,11 @@ constaté sur les vraies données ; les cas ci-dessous les reproduisent en petit
     ./test_extraction.py
 """
 
+import pathlib
 import sys
+import tempfile
 import unittest
+import unittest.mock
 
 import extraction
 
@@ -735,6 +738,71 @@ class LectureDesAmendements(unittest.TestCase):
     def test_un_dispositif_absent_ne_produit_aucun_morceau(self):
         self.assertEqual(extraction.colorer_dispositif(""), [])
         self.assertEqual(extraction.colorer_dispositif(None), [])
+
+
+class TransfertCoupe(unittest.TestCase):
+    """Une archive de 297 Mo ne traverse pas toujours le réseau d'un coup.
+
+    La publication du 2026-08-31 a échoué ainsi : connexion coupée après
+    2,6 Mo sur 297. Rien n'était cassé, il fallait redemander.
+    """
+
+    def _repondre(self, *reponses):
+        """Remplace urlopen par une suite de réponses, vraies ou fautives."""
+        suite = list(reponses)
+
+        class Reponse:
+            headers = {"ETag": "e1", "Last-Modified": "hier"}
+            def __enter__(self): return self
+            def __exit__(self, *_): return False
+            def read(self): return b"archive"
+
+        def faux(*_a, **_k):
+            issue = suite.pop(0)
+            if isinstance(issue, Exception):
+                raise issue
+            return Reponse()
+        return faux, suite
+
+    def test_un_transfert_coupe_est_reessaye(self):
+        import http.client
+        coupure = http.client.IncompleteRead(b"", 294080999)
+        faux, reste = self._repondre(coupure, coupure, "ok")
+        attentes = []
+        with unittest.mock.patch("urllib.request.urlopen", faux):
+            r = extraction.telecharger(pathlib.Path(self.fichier), url="http://x",
+                                       patienter=attentes.append)
+        self.assertEqual(r["octets"], len(b"archive"))
+        self.assertEqual(reste, [])
+        self.assertEqual(attentes, [1, 2])
+
+    def test_apres_le_dernier_essai_l_erreur_remonte(self):
+        """Mieux vaut un échec visible qu'une publication de données vides."""
+        import http.client
+        coupure = http.client.IncompleteRead(b"", 1)
+        faux, _ = self._repondre(coupure, coupure, coupure, coupure)
+        with unittest.mock.patch("urllib.request.urlopen", faux):
+            with self.assertRaises(http.client.IncompleteRead):
+                extraction.telecharger(pathlib.Path(self.fichier), url="http://x",
+                                       patienter=lambda _: None)
+
+    def test_une_reponse_http_en_erreur_n_est_pas_reessayee(self):
+        """Redemander un 404 ne changerait rien."""
+        import urllib.error
+        refus = urllib.error.HTTPError("http://x", 404, "absent", {}, None)
+        faux, reste = self._repondre(refus, "ok")
+        with unittest.mock.patch("urllib.request.urlopen", faux):
+            with self.assertRaises(urllib.error.HTTPError):
+                extraction.telecharger(pathlib.Path(self.fichier), url="http://x",
+                                       patienter=lambda _: None)
+        self.assertEqual(reste, ["ok"])   # le second essai n'a pas eu lieu
+
+    def setUp(self):
+        self.repertoire = tempfile.TemporaryDirectory()
+        self.fichier = pathlib.Path(self.repertoire.name) / "archive.zip"
+
+    def tearDown(self):
+        self.repertoire.cleanup()
 
 
 class AuteursEtPhotos(unittest.TestCase):
