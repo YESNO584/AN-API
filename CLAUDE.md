@@ -9,22 +9,35 @@
   confirmation. Only start responding after the reformulation is confirmed.
 
 ## Architecture
-- **The repository is empty.** As of this file's creation the only content is
-  the Claude harness itself (`.claude/` + this file). There is no source code,
-  no build, no tests, no dependency manifest.
-- Because of that, everything below marked *(pending)* is a placeholder that
-  states what is unknown — not a description of something that exists. Do not
-  reason as if any of it were already true.
-- *(pending)* Where first-party code lives — no source folder has been created
-  yet.
-- *(pending)* What the unit of work is (module / package / service / endpoint)
-  and what every unit must implement.
-- *(pending)* Where the public API surface is declared.
-- **First real task rule:** the first session that adds actual code to this
-  repository must replace this section with the real map, and re-run step 3 of
-  `.claude/README.md` (the `code-convention-miner` agent) so `.claude/code_rules.json`
-  stops being a generic template. Until then, treat any architectural claim
-  about this project as unverified.
+
+Le projet suit `docs/PLAN.md`. Il en est à l'**étape 1 : la maquette**. Il n'y
+a pas encore d'application, de base de données ni de dépendances.
+
+| Dossier | Ce qu'il contient |
+|---|---|
+| `docs/` | Le plan, les fiches de sources, la note d'accès réseau. Documents, pas du code |
+| `docs/sources/` | Ce que valent les sources de données, **mesuré** (étape 0, faite le 2026-08-31) |
+| `maquette/` | **Le seul code du dépôt.** `feed.html` (page autonome) + `preparer_donnees.py` (remplit la page). Voir `maquette/README.md` |
+| `.claude/` | La configuration Claude Code |
+
+- **La source de vérité des données est l'open data de l'Assemblée
+  nationale.** Elle contient le parcours d'un texte dans *les deux* chambres,
+  y compris les étapes passées au Sénat. Ne pas écrire de code de rapprochement
+  entre les deux chambres : l'Assemblée publie déjà le lien.
+- **Aucune donnée du Parlement n'est versionnée**, à une exception : le bloc
+  de données inscrit dans `maquette/feed.html`, qui est le livrable. Les
+  archives téléchargées vont dans `maquette/.cache/`, ignoré par git.
+- **Une page web ne peut pas aller chercher ces données elle-même** — les
+  portails n'envoient pas l'en-tête `Access-Control-Allow-Origin`. Toute
+  maquette autonome passe donc par une préparation hors ligne.
+- *(à venir)* Le langage de l'application n'est pas choisi (§7 du plan). Le
+  seul code présent est du Python de préparation et du HTML/CSS/JS sans
+  dépendance.
+- **`.claude/code_rules.json` ne s'applique à rien ici** : il vise `**/*.cs`,
+  et le dépôt ne contient pas de C#. Le faire re-miner (agent
+  `code-convention-miner`) n'aura de sens qu'une fois le langage de
+  l'application choisi. Jusque-là, un rapport « 0 finding » signifie que rien
+  n'a été vérifié, pas que le code est propre.
 
 ## Read these first
 - `.claude/LEARNINGS.md` — cross-session lessons. Read at the start of every

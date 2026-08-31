@@ -7,3 +7,6 @@
 # Python bytecode from .claude/scripts
 __pycache__/
 *.py[cod]
+
+# Archives téléchargées par la maquette — rechargeables, jamais versionnées
+maquette/.cache/

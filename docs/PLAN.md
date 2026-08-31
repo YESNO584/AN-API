@@ -346,7 +346,14 @@ Chaque étape doit être utilisable seule.
 **Livrable :** une fiche par source, ajoutée à ce dossier `docs/`.
 **Sans cette étape, tout le reste est du pari.**
 
-### Étape 1 — La maquette (le premier vrai livrable)
+### Étape 1 — La maquette — **commencée le 2026-08-31**
+
+> **Fait :** le fil des textes en cours, classés par étape du parcours, sur
+> **données réelles** (1 990 textes de la 17e législature). Dans
+> `maquette/` — `feed.html` (page autonome) et `preparer_donnees.py`.
+>
+> **Reste à faire dans cette étape :** l'écran de suivi d'un texte, la
+> recherche, l'étoile « suivre » et l'écran des favoris.
 
 **But :** un écran qu'on peut mettre entre les mains de quelqu'un et
 regarder s'il comprend.
