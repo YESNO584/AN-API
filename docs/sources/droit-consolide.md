@@ -120,6 +120,19 @@ n° 2026-813 — en vigueur au 1er septembre 2026 :
    date de début dans le futur). C'est une information à afficher, pas une
    anomalie : la loi est promulguée, l'article ne s'applique pas encore.
 
+## Ce que ça ne dit pas
+
+Le droit consolidé ne montre que le résultat, **une fois la loi promulguée**.
+Il ne dit rien d'un texte en discussion.
+
+Les deux comparaisons répondent à deux questions différentes, et se
+complètent :
+
+| La question | La source |
+|---|---|
+| Qu'est-ce que les parlementaires ont changé au texte ? | les versions successives du texte — [`monalisa.md`](monalisa.md), [`textes-pdf-assemblee.md`](textes-pdf-assemblee.md) |
+| Qu'est-ce que ça change au droit ? | le droit consolidé, cette fiche |
+
 ## Ce que ça coûte
 
 | | |

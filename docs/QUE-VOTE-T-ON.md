@@ -167,7 +167,7 @@ choses, et **les deux sont calculables** :
 2. **L'avant/après du droit lui-même** — l'article de code avant et après la
    loi. **2 446 paires calculées, 97 % de celles attendues**, avec 94 % de
    texte commun en médiane : des différences courtes et lisibles. Voir
-   [`sources/legi-droit-consolide.md`](sources/legi-droit-consolide.md).
+   [`sources/droit-consolide.md`](sources/droit-consolide.md).
 
 ## Ce que je recommande
 
