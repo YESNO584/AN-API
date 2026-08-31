@@ -696,15 +696,27 @@ premier code** :
 
 ## 12. Prochaine étape immédiate
 
-**L'étape 0 est faite** (2026-08-31, résultats dans `sources/`). Elle a
-tranché les deux questions qui commandaient tout : La Fabrique de la Loi est
-inutilisable, et le rapprochement entre les deux chambres est déjà fait par
-l'Assemblée. La maquette peut donc se construire sur données réelles.
+**Les étapes 0, 1 et 2 sont faites** (2026-08-31).
 
-1. **L'application Flutter**, sur le socle. C'est l'étape 3, et plus rien ne
-   la bloque : les données sont servies, le modèle est stable.
-2. **Trouver où faire tourner le socle** — question 8 du §10. Le programme
-   quotidien existe mais rien ne le déclenche.
+| Étape | État | Où |
+|---|---|---|
+| 0 — Vérifier le terrain | ✅ | `sources/` |
+| 1 — La maquette | ✅ le fil des textes ; les autres écrans restent à faire | `../maquette/` |
+| 2 — Récupérer et stocker | ✅ dossiers législatifs ; scrutins et débats restent à faire | `../socle/` |
+| 3 — L'application | à faire, **en Flutter, mobile d'abord** | — |
+
+L'étape 0 a tranché les deux questions qui commandaient tout : La Fabrique de
+la Loi est inutilisable, et le rapprochement entre les deux chambres est déjà
+fait par l'Assemblée. Rien ne bloque plus l'application, **sauf une chose** :
+le socle ne tourne encore nulle part.
+
+1. **Faire tourner le socle quelque part** — question 8 du §10. Le programme
+   quotidien existe et fonctionne, mais rien ne le déclenche et rien ne le
+   sert. Tant que c'est le cas, l'application n'aurait aucune donnée à lire.
+2. **L'application Flutter**, sur le socle une fois hébergé. **Android
+   d'abord** (décidé le 2026-08-31) : une application iPhone exigerait un Mac
+   et un compte développeur Apple, ce que le développement depuis un
+   téléphone ne permet pas.
 3. **Compléter le socle** si le besoin s'en fait sentir : parlementaires,
    scrutins, puis les débats.
 4. **Si et seulement si le texte consolidé des lois devient nécessaire** :
