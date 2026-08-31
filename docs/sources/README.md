@@ -55,6 +55,7 @@ résumés n'est pas le facteur limitant du projet.**
 | Textes de l'Assemblée en PDF | **Piste ouverte** — lisible à 86 %, porterait la comparaison à 319 textes | Publiés au fil des séances | [`textes-pdf-assemblee.md`](textes-pdf-assemblee.md) |
 | Journal officiel (DILA) | **Piste ouverte** — texte des lois promulguées et censures constitutionnelles | Deux archives par jour | [`journal-officiel.md`](journal-officiel.md) |
 | Droit consolidé (LEGI, DILA) | **Piste ouverte** — l'article de code avant et après la loi qui le modifie, 2 446 articles mesurés | Une archive par jour | [`droit-consolide.md`](droit-consolide.md) |
+| LEGI — droit consolidé (DILA) | **Piste ouverte** — l'avant/après de chaque article de code modifié par une loi | Un incrément par jour | [`legi-droit-consolide.md`](legi-droit-consolide.md) |
 | La Fabrique de la Loi | **À écarter** — figée depuis 2022 | Dernière donnée : janvier 2022 | [`fabrique-de-la-loi.md`](fabrique-de-la-loi.md) |
 | Légifrance via PISTE | **Non vérifié** — demande un compte | inconnue | [`legifrance-piste.md`](legifrance-piste.md) |
 | NosDéputés.fr / NosSénateurs.fr | **Hors service au moment du test** | — | voir `../ACCES-RESEAU.md` |

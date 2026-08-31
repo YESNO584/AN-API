@@ -154,6 +154,21 @@ Le texte publié signale les dispositions censurées :
 C'est la seule source qui dise ce que le Parlement a voté **et** que le
 Conseil constitutionnel a retiré.
 
+## Il y a bien un avant et un après — deux, même
+
+Ma réponse précédente a brouillé un point. « Avant/après » recouvre deux
+choses, et **les deux sont calculables** :
+
+1. **L'avant/après du texte en discussion** — ce que la commission ou la
+   séance ont changé. Marche entre deux versions **consécutives** : c'est le
+   diff Monalisa côté Sénat et le diff PDF côté Assemblée. Ce qui ne marche
+   pas, c'est seulement de sauter toutes les étapes d'un coup (dépôt → loi
+   finale), à cause de la renumérotation.
+2. **L'avant/après du droit lui-même** — l'article de code avant et après la
+   loi. **2 446 paires calculées, 97 % de celles attendues**, avec 94 % de
+   texte commun en médiane : des différences courtes et lisibles. Voir
+   [`sources/legi-droit-consolide.md`](sources/legi-droit-consolide.md).
+
 ## Ce que je recommande
 
 **Par ordre de valeur rendue rapportée à l'effort :**
