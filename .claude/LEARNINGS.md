@@ -19,6 +19,50 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-08-31 — La maquette en colonnes
+
+### La maquette se vérifie dans un vrai navigateur, sans réseau
+
+- **Chromium et Playwright sont installés dans la session** : `playwright` est
+  un module global (`NODE_PATH=/opt/node22/lib/node_modules`), les navigateurs
+  sont dans `/opt/pw-browsers`. *Pourquoi ça compte :* une modification
+  d'affichage de `maquette/feed.html` peut être **mesurée** (largeurs,
+  positions, défilement, erreurs JS) au lieu d'être supposée d'après le diff.
+- **Le socle se remplace par un faux socle local.** La page lit ses données à
+  côté d'elle par une adresse relative : il suffit d'écrire des `textes.json`,
+  `promulgues.json`, `arretes.json`, `etat.json`, `groupes.json` inventés dans
+  un dossier, d'y copier `feed.html`, et de servir le tout avec
+  `python3 -m http.server`. Les portails bloqués ne gênent donc en rien le
+  travail sur l'affichage.
+- **Deux pièges de cette mise en place**, tous deux rencontrés : les variables
+  de proxy doivent être vidées pour que `127.0.0.1` soit joignable ; et
+  `page.setContent()` ne marche pas ici — sans adresse de base, les `fetch`
+  relatifs de la page ne mènent nulle part. Il faut vraiment servir la page
+  (`page.goto`).
+- L'agent `static-page-layout-verifier` a été écrit pour refaire tout ça sans
+  le redécouvrir.
+
+### `hidden` ne résiste pas à `display: flex`
+
+- Passer `main#fil` en `display: flex` casse, en silence, le masquage du fil
+  quand une fiche s'ouvre (`$("fil").hidden = true`) : la règle du navigateur
+  pour `[hidden]` est `display: none`, mais une règle d'auteur l'emporte. D'où
+  `main#fil[hidden] { display: none; }` dans la feuille de style. *Pourquoi ça
+  compte :* le symptôme est le fil qui reste visible sous la fiche, et rien
+  dans la console ne le signale.
+
+### Un défaut d'affichage constaté n'est pas forcément le sien
+
+- Le panneau des filtres s'affiche de travers : les titres de rubrique à
+  gauche, les puces poussées à droite. Ce n'est **pas** dû au passage en
+  colonnes — la même capture prise sur `git show HEAD:maquette/feed.html` est
+  identique. La cause est une **collision de classe CSS dans `feed.html` :
+  `.groupe` désigne à la fois une rubrique du panneau des filtres et une ligne
+  de groupe politique dans le détail d'un vote**, et la seconde règle
+  (`display: flex; align-items: center`) écrase la première. Pas corrigé :
+  hors du sujet demandé. *La leçon de méthode :* rendre l'ancienne version et
+  comparer, avant d'attribuer un défaut à sa propre modification.
+
 ## 2026-08-31 — Initialisation du dépôt, plan v1 et v2
 
 ### Le blocage réseau vient de la session, pas de l'utilisateur

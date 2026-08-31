@@ -12,9 +12,25 @@ simple de la regarder depuis un téléphone, sans rien installer.
 
 ## Ce qu'elle montre
 
-**2 150 textes**, groupés par étape du parcours, **les plus avancés en
-premier** : les **107 lois promulguées** ouvrent le fil, les textes en cours
-suivent, et les **88 textes arrêtés en chemin** le ferment.
+**2 150 textes**, rangés par étape du parcours en **colonnes côte à côte** —
+une catégorie par colonne, **les plus avancées en premier** : les **107 lois
+promulguées** ouvrent le fil, les textes en cours suivent, et les **88 textes
+arrêtés en chemin** le ferment.
+
+**Une seule colonne est visible à la fois.** On passe à la suivante en faisant
+glisser vers la gauche ou la droite, ou avec les flèches **‹ ›** posées à côté
+du nom de la catégorie. Toutes les colonnes commencent en haut, sous
+l'en-tête : les textes restent donc alignés d'une colonne à l'autre, et le
+défilement vertical reste celui de la page. Une catégorie sans texte — ce qui
+arrive dès qu'un filtre est actif — n'a pas de colonne. Chaque colonne charge
+ses textes par paquets de 25, pour elle seule : un compteur commun laisserait
+les dernières colonnes vides tant qu'on n'a pas tout affiché dans les
+premières.
+
+Conséquence assumée de cet alignement : la page est aussi haute que la colonne
+la plus fournie, donc une colonne courte laisse du vide sous elle. La seule
+façon de l'éviter serait de faire défiler chaque colonne séparément, ce qui
+désalignerait les textes.
 
 Un texte arrêté porte le mot de sa source — **rejeté**, **non adopté**,
 **retiré**, **caduc**. **Nulle part la page ne dit qu'un texte est fini pour

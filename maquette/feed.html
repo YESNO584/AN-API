@@ -114,15 +114,49 @@
   }
   .effacer:disabled { opacity: .4; cursor: default; }
 
-  /* ---------- fil ---------- */
-  main { padding: 0 var(--marge) 4rem; }
+  /* ---------- fil : une colonne par catégorie d'étape ---------- */
+  /* Les catégories sont rangées côte à côte au lieu d'être empilées. Une
+     seule est visible ; on passe à la suivante en faisant glisser vers la
+     gauche ou la droite, ou avec les flèches ‹ ›. Le défilement vertical
+     reste celui de la page, et toutes les colonnes commencent en haut : les
+     textes restent donc alignés d'une colonne à l'autre. */
+  main#fil {
+    display: flex; align-items: flex-start; padding: 0 0 4rem;
+    position: relative; overflow-x: auto;
+    scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  main#fil::-webkit-scrollbar { display: none; }
+  /* `hidden` doit l'emporter sur `display: flex` : la fiche masque le fil. */
+  main#fil[hidden] { display: none; }
+  main#fil > .vide { flex: 0 0 auto; margin: .9rem var(--marge);
+                     width: calc(100% - 2 * var(--marge)); }
+  .colonne { flex: 0 0 100%; min-width: 0; scroll-snap-align: start;
+             padding: 0 var(--marge); }
+
+  .tete-colonne { margin: 1.1rem 0 .2rem; }
   .titre-etape {
-    display: flex; align-items: center; gap: .5rem;
-    margin: 1.5rem 0 .1rem; font-size: .78rem; font-weight: 620;
+    display: flex; align-items: center; gap: .4rem; margin: 0;
+    font-size: .78rem; font-weight: 620;
     text-transform: uppercase; letter-spacing: .06em; color: var(--accent);
   }
-  .titre-etape .n { color: var(--faible); font-weight: 500; letter-spacing: 0;
-                    text-transform: none; margin-left: auto; font-size: .76rem; }
+  .titre-etape .nom {
+    flex: 1 1 auto; min-width: 0; font: inherit; color: inherit;
+    text-align: left; background: none; border: none; padding: 0;
+    cursor: pointer; text-transform: inherit; letter-spacing: inherit;
+  }
+  .titre-etape .nom:active { opacity: .6; }
+  /* Alignée sous le nom : la flèche mesure 1.6rem, l'écart .4rem. */
+  .sous-etape { font-size: .74rem; color: var(--faible); margin-top: .1rem;
+                padding-left: 2rem; }
+  .fleche {
+    flex: 0 0 auto; font: inherit; font-size: 1rem; line-height: 1;
+    width: 1.6rem; height: 1.6rem; padding: 0; border-radius: 999px;
+    cursor: pointer; border: 1px solid var(--trait-fort);
+    background: var(--carte); color: var(--gris);
+  }
+  .fleche:disabled { opacity: .3; cursor: default; }
+  .fleche:active:not(:disabled) { border-color: var(--accent); color: var(--accent); }
   .titre-etape.fini { color: var(--ok); }
   .etiq.promulguee { color: var(--ok); background: transparent; border-color: currentColor; }
   .etiq.arrete { color: var(--accent); background: transparent; border-color: currentColor;
@@ -562,7 +596,6 @@ const EXPLICATIONS = {
 let TEXTES = [];
 let GROUPES = new Map();
 let ETAT = {};
-let affiches = 0;
 const filtres = { etapes: new Set(), chambres: new Set(), types: new Set(),
                   activite: null, programme: false, vote: null, etat: null, mots: "" };
 
@@ -1010,46 +1043,95 @@ function dessiner(garderPosition = false) {
     return;
   }
 
-  affiches = 0;
-  ajouter(liste);
+  dessinerColonnes(liste);
   if (!garderPosition) window.scrollTo(0, 0); else window.scrollTo(0, y);
 }
 
-function ajouter(liste) {
+/* ---------- les colonnes ---------- *
+ * Une colonne par catégorie d'étape, côte à côte, dans l'ordre de la liste :
+ * la plus avancée en premier. Une seule colonne est visible ; on passe à la
+ * suivante en faisant glisser, ou avec les flèches.
+ *
+ * Chaque colonne charge ses textes par paquets, pour elle seule. Un compteur
+ * commun à tout le fil ne marcherait plus ici : les dernières colonnes
+ * resteraient vides jusqu'à ce qu'on ait tout affiché dans les premières.
+ * ------------------------------------------------------------------ */
+
+// Les textes rangés par étape. Une Map garde l'ordre d'insertion, donc
+// l'ordre de la liste — qui est déjà trié. Les étapes sans texte n'ont pas
+// d'entrée : une colonne vide ne s'affiche pas.
+function parCategorie(liste) {
+  const paquets = new Map();
+  for (const t of liste) {
+    if (!paquets.has(t.etape)) paquets.set(t.etape, []);
+    paquets.get(t.etape).push(t);
+  }
+  return [...paquets.entries()];
+}
+
+function versColonne(rang) {
   const fil = $("fil");
-  const ancienBouton = fil.querySelector(".plus");
-  if (ancienBouton) ancienBouton.remove();
+  const colonnes = fil.querySelectorAll(".colonne");
+  const cible = colonnes[Math.max(0, Math.min(colonnes.length - 1, rang))];
+  // `offsetLeft` est mesuré depuis le fil, qui est positionné (CSS
+  // `position: relative`) — donc directement utilisable comme défilement.
+  if (cible) fil.scrollTo({ left: cible.offsetLeft, behavior: "smooth" });
+}
 
-  const paquet = liste.slice(affiches, affiches + PAR_PAQUET);
-  let etapePrecedente = affiches ? liste[affiches - 1].etape : null;
-  for (const t of paquet) {
-    if (t.etape !== etapePrecedente) {
-      const e = etapeDe(t.etape);
-      const fini = e.n === PROMULGUEE;
-      const arret = e.n === ARRETE;
-      const titre = el("div", "titre-etape");
-      if (fini) titre.classList.add("fini");
-      if (arret) titre.classList.add("arret");
-      titre.append(el("span", null, e.nom));
-      titre.append(el("span", "n",
-        fini ? "parcours terminé" : arret ? "plus examinés" : `étape ${e.n} sur 6`));
-      titre.style.cursor = "pointer";
-      titre.addEventListener("click", () => expliquer(
-        e.nom, e.quoi, fini ? "Parcours terminé" : `Étape ${e.n} sur 6`));
-      fil.append(titre);
-      etapePrecedente = t.etape;
+function fleche(signe, ou, rang, inactive) {
+  const b = el("button", "fleche", signe);
+  b.setAttribute("aria-label", "Catégorie " + ou);
+  b.disabled = inactive;
+  b.addEventListener("click", () => versColonne(rang));
+  return b;
+}
+
+function colonne(etape, textes, rang, total) {
+  const col = el("section", "colonne");
+  const e = etapeDe(etape);
+  const fini = e.n === PROMULGUEE;
+  const arret = e.n === ARRETE;
+
+  const tete = el("div", "tete-colonne");
+  const titre = el("div", "titre-etape");
+  if (fini) titre.classList.add("fini");
+  if (arret) titre.classList.add("arret");
+  titre.append(fleche("‹", "précédente", rang - 1, rang === 0));
+  const nom = el("button", "nom", e.nom);
+  nom.addEventListener("click", () => expliquer(
+    e.nom, e.quoi,
+    fini ? "Parcours terminé" : arret ? "Plus examinés" : `Étape ${e.n} sur 6`));
+  titre.append(nom);
+  titre.append(fleche("›", "suivante", rang + 1, rang === total - 1));
+  tete.append(titre);
+  tete.append(el("div", "sous-etape",
+    (fini ? "parcours terminé" : arret ? "plus examinés" : `étape ${e.n} sur 6`)
+    + ` · ${nb.format(textes.length)} texte${textes.length > 1 ? "s" : ""}`));
+  col.append(tete);
+
+  let montres = 0;
+  const paquetSuivant = () => {
+    const ancienBouton = col.querySelector(".plus");
+    if (ancienBouton) ancienBouton.remove();
+    for (const t of textes.slice(montres, montres + PAR_PAQUET)) col.append(carte(t));
+    montres = Math.min(montres + PAR_PAQUET, textes.length);
+    const reste = textes.length - montres;
+    if (reste > 0) {
+      const bouton = el("button", "plus",
+        `Afficher ${nb.format(Math.min(reste, PAR_PAQUET))} textes de plus (${nb.format(reste)} restants)`);
+      bouton.addEventListener("click", paquetSuivant);
+      col.append(bouton);
     }
-    fil.append(carte(t));
-  }
-  affiches += paquet.length;
+  };
+  paquetSuivant();
+  return col;
+}
 
-  const reste = liste.length - affiches;
-  if (reste > 0) {
-    const bouton = el("button", "plus",
-      `Afficher ${nb.format(Math.min(reste, PAR_PAQUET))} textes de plus (${nb.format(reste)} restants)`);
-    bouton.addEventListener("click", () => ajouter(liste));
-    fil.append(bouton);
-  }
+function dessinerColonnes(liste) {
+  const fil = $("fil");
+  const categories = parCategorie(liste);
+  categories.forEach(([etape, textes], rang) =>
+    fil.append(colonne(etape, textes, rang, categories.length)));
 }
 
 
