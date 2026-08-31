@@ -608,6 +608,12 @@ const dateLongue = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "lo
 const PARCOURS = ETAPES.filter((e) => e.n !== PROMULGUEE && e.n !== ARRETE)
                        .sort((a, b) => a.n - b.n);
 const etapeDe = (n) => ETAPES.find((e) => e.n === n);
+/* Les huit cases du filtre, dans l'ordre où un texte les traverse : le dépôt
+   d'abord, la promulgation à la fin. « Arrêté en chemin » ferme la marche —
+   ce n'est pas une étape du parcours mais une sortie de route, et elle peut
+   survenir à n'importe quel moment. */
+const ETAPES_EN_ORDRE = [...PARCOURS, etapeDe(PROMULGUEE), etapeDe(ARRETE)]
+                        .filter(Boolean);
 const statutDe = (t) => t.statut || (t.etape === PROMULGUEE ? "promulgue" : "en_cours");
 
 const $ = (id) => document.getElementById(id);
@@ -718,7 +724,7 @@ function dessinerFiltres() {
   const base = retenus();
   const compteur = (predicat) => TEXTES.filter(predicat).length;
 
-  boite.append(groupe("Étape du parcours", ETAPES.map((e) =>
+  boite.append(groupe("Étape du parcours", ETAPES_EN_ORDRE.map((e) =>
     puce(e.nom, filtres.etapes.has(e.n), compteur((t) => t.etape === e.n),
          () => bascule(filtres.etapes, e.n),
          [e.nom, e.quoi, e.n === PROMULGUEE ? "Parcours terminé" : `Étape ${e.n} sur 6`]))));
