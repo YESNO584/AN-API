@@ -12,10 +12,13 @@ simple de la regarder depuis un téléphone, sans rien installer.
 
 ## Ce qu'elle montre
 
-Les **1 990 textes de loi en cours d'examen**, groupés par étape du parcours,
-**les plus avancés en premier** — un texte près d'être promulgué intéresse
-plus qu'une proposition déposée et jamais examinée, et celles-ci sont
-l'immense majorité.
+**2 097 textes**, groupés par étape du parcours, **les plus avancés en
+premier** : les **107 lois promulguées** ouvrent le fil, les 1 990 textes en
+cours suivent, et les propositions déposées et jamais examinées le ferment.
+
+Une application qui s'appelle « Où en sont les lois » doit montrer celles qui
+sont allées au bout : la carte d'une loi promulguée porte son **numéro
+officiel**, sa date et un lien vers le **Journal officiel**.
 
 ### Les filtres
 
@@ -25,6 +28,7 @@ l'immense majorité.
 | **Où le texte se trouve** | Assemblée, Sénat, ou les deux (commission mixte paritaire) |
 | **Nature du texte** | Proposition, projet, loi organique, constitutionnelle, budget, ratification… |
 | **Dernier mouvement** | Cette semaine, ce mois-ci, ces trois mois — ou à l'arrêt depuis plus d'un an |
+| **État** | En cours d'examen, ou déjà promulguée |
 | **Votes** | A fait l'objet d'un vote, voté sur le texte entier, adopté, rejeté |
 | **Calendrier** | Les textes dont une séance est déjà programmée |
 | **Recherche** | Dans les titres |
@@ -90,6 +94,12 @@ Trois précautions, parce que le sujet se prête aux malentendus :
    pour que le chiffre se voie au lieu de se deviner.
 3. **La position des groupes est recalculée** sur le décompte des voix, parce
    que celle annoncée par la source la contredit dans 3 % des cas.
+
+Les groupes sont **rangés comme dans l'hémicycle, de la gauche à la droite**.
+Cet ordre est **mesuré** sur les numéros de siège que l'Assemblée publie, pas
+décidé. Leur **couleur, elle, est une convention** d'affichage — l'open data
+n'en publie aucune — et la page le dit au toucher. Les barres continuent de
+montrer pour / contre / abstention : la couleur dit *qui*, la barre dit *quoi*.
 
 **Il n'y a pas de « votes à venir »**, et la maquette le dit explicitement au
 lieu de laisser une rubrique vide : l'Assemblée ne publie un vote qu'une fois

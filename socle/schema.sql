@@ -108,6 +108,23 @@ CREATE TABLE IF NOT EXISTS vote_groupe (
 
 CREATE INDEX IF NOT EXISTS vote_groupe_par_vote ON vote_groupe (vote_uid);
 
+-- Les groupes politiques, rangés de la gauche à la droite de l'hémicycle.
+--
+-- `siege_median` et `rang` sont **mesurés** : chaque vote publie le numéro de
+-- siège de chaque député, et l'hémicycle est numéroté de la droite vers la
+-- gauche. Rien n'est écrit à la main, donc rien ne se périme.
+--
+-- `couleur` est en revanche une **convention d'affichage** : l'open data n'en
+-- publie aucune. Voir COULEURS_GROUPES dans extraction.py.
+CREATE TABLE IF NOT EXISTS groupe (
+    ref           TEXT PRIMARY KEY,
+    sigle         TEXT NOT NULL,
+    nom           TEXT,
+    rang          INTEGER NOT NULL,   -- 0 = le plus à gauche
+    siege_median  REAL,
+    couleur       TEXT NOT NULL
+);
+
 -- Ce que le socle sait de la source, pour ne rien refaire inutilement.
 --
 -- `empreinte` n'est pas un luxe. L'Assemblée sert cette archive depuis

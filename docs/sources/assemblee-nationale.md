@@ -215,6 +215,41 @@ contrevérité à l'écran.
 **Conséquence pour le code :** `socle/extraction.py` ignore ce champ et
 recalcule la position sur le décompte, qui, lui, ne se contredit pas.
 
+### Les numéros de siège donnent l'ordre de l'hémicycle
+
+Chaque vote publie, pour chaque député, son **numéro de place**
+(`decompteNominatif.….votant.numPlace`). Sur **61 152** numéros relevés le
+2026-08-31, les groupes se rangent sans ambiguïté :
+
+| Groupe | Siège médian |
+|---|---:|
+| RN | 72 |
+| UDR | 103 |
+| DR | 184 |
+| HOR | 231 |
+| EPR | 301 |
+| Dem | 345 |
+| NI | 392 |
+| SOC | 448 |
+| LIOT | 456 |
+| EcoS | 512 |
+| GDR | 586 |
+| LFI-NFP | 603 |
+
+**L'hémicycle est numéroté de la droite vers la gauche.** Trier par numéro
+décroissant donne donc l'ordre politique habituel, gauche → droite, **sans
+qu'aucune liste soit écrite à la main** — ce qui compte, puisque les groupes
+naissent et disparaissent en cours de législature.
+
+Deux réserves : les **non-inscrits** sont dispersés dans tout l'hémicycle
+(places 23 à 486), leur médiane n'a donc pas la même valeur informative ; et
+des identifiants de groupes **dissous** apparaissent dans les votes anciens
+sans figurer dans les données actuelles, qui ne décrivent que les groupes
+existants.
+
+**Aucune couleur n'est publiée.** Toute couleur affichée est une convention
+de l'application, pas une donnée.
+
 ### Les votes à venir n'existent pas
 
 L'agenda de l'Assemblée (`Agenda.json.zip`) a été examiné le 2026-08-31 :

@@ -123,6 +123,11 @@
   }
   .titre-etape .n { color: var(--faible); font-weight: 500; letter-spacing: 0;
                     text-transform: none; margin-left: auto; font-size: .76rem; }
+  .titre-etape.fini { color: var(--ok); }
+  .etiq.promulguee { color: var(--ok); background: transparent; border-color: currentColor; }
+  .etiq.lien { color: var(--gris); background: var(--doux); text-decoration: none;
+               display: inline-block; }
+  .etiq.lien::after { content: " ↗"; }
 
   .carte {
     background: var(--carte); border: 1px solid var(--trait);
@@ -170,7 +175,13 @@
   .legende i.abstention { background: var(--trait-fort); }
   .groupe { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem;
             font-size: .76rem; }
-  .groupe .sigle { width: 4.2rem; flex: 0 0 auto; font-weight: 600; color: var(--texte); }
+  .groupe .teinte { width: .45rem; height: 1rem; border-radius: 2px; flex: 0 0 auto;
+                    background: var(--trait-fort); }
+  .groupe .sigle { width: 4rem; flex: 0 0 auto; font: inherit; font-size: .76rem;
+                   font-weight: 600; color: var(--texte); text-align: left;
+                   background: none; border: none; padding: 0; cursor: pointer; }
+  .groupe .sigle:active { color: var(--accent); }
+  .groupes .convention { font-size: .72rem; color: var(--faible); margin: 0 0 .6rem; }
   .groupe .barre { flex: 1; display: flex; height: 9px; border-radius: 4px;
                    overflow: hidden; background: var(--doux); }
   .groupe .barre i { display: block; }
@@ -281,7 +292,13 @@ const PAR_PAQUET = 25;
  * Les explications. C'est le cœur de cette maquette : chaque élément
  * affiché doit pouvoir dire, en français simple, ce qu'il est.
  * ------------------------------------------------------------------ */
+const PROMULGUEE = 7;
+
 const ETAPES = [
+  { n: PROMULGUEE, nom: "Promulguée", quoi:
+    "Le parcours est terminé : le texte est devenu une loi. Il a été signé par " +
+    "le Président de la République et publié au Journal officiel. C'est à partir " +
+    "de ce moment-là qu'il s'applique." },
   { n: 1, nom: "Dépôt", quoi:
     "Le texte vient d'être déposé au Parlement et confié à une commission, mais " +
     "personne ne l'a encore examiné. C'est le cas de la grande majorité des textes : " +
@@ -402,14 +419,20 @@ const EXPLICATIONS = {
 /* ------------------------------------------------------------------ */
 
 let TEXTES = [];
+let GROUPES = new Map();
 let ETAT = {};
 let affiches = 0;
 const filtres = { etapes: new Set(), chambres: new Set(), types: new Set(),
-                  activite: null, programme: false, vote: null, mots: "" };
+                  activite: null, programme: false, vote: null, etat: null, mots: "" };
 
 const nb = new Intl.NumberFormat("fr-FR");
 const dateCourte = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
 const dateLongue = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+
+// Les six étapes du parcours, pour la frise. « Promulguée » n'en fait pas
+// partie : c'est l'après, pas une septième étape.
+const PARCOURS = ETAPES.filter((e) => e.n !== PROMULGUEE).sort((a, b) => a.n - b.n);
+const etapeDe = (n) => ETAPES.find((e) => e.n === n);
 
 const $ = (id) => document.getElementById(id);
 const enDate = (iso) => { const [a, m, j] = iso.split("-").map(Number); return new Date(a, m - 1, j); };
@@ -449,6 +472,8 @@ const ACTIVITE = {
 function retenus() {
   const mots = filtres.mots.trim().toLowerCase();
   return TEXTES.filter((t) => {
+    if (filtres.etat === "en_cours" && t.etape === PROMULGUEE) return false;
+    if (filtres.etat === "promulgue" && t.etape !== PROMULGUEE) return false;
     if (filtres.etapes.size && !filtres.etapes.has(t.etape)) return false;
     if (filtres.chambres.size && !filtres.chambres.has(t.chambre || "aucune")) return false;
     if (filtres.types.size && !filtres.types.has(t.type)) return false;
@@ -470,7 +495,7 @@ function retenus() {
 function combienActifs() {
   return filtres.etapes.size + filtres.chambres.size + filtres.types.size
        + (filtres.activite ? 1 : 0) + (filtres.programme ? 1 : 0)
-       + (filtres.vote ? 1 : 0);
+       + (filtres.vote ? 1 : 0) + (filtres.etat ? 1 : 0);
 }
 
 /* ---------- panneau des filtres ---------- */
@@ -518,9 +543,23 @@ function dessinerFiltres() {
   const base = retenus();
   const compteur = (predicat) => TEXTES.filter(predicat).length;
 
-  boite.append(groupe("Étape du parcours", ETAPES.slice().reverse().map((e) =>
+  boite.append(groupe("Étape du parcours", ETAPES.map((e) =>
     puce(e.nom, filtres.etapes.has(e.n), compteur((t) => t.etape === e.n),
-         () => bascule(filtres.etapes, e.n), [e.nom, e.quoi, `Étape ${e.n} sur 6`]))));
+         () => bascule(filtres.etapes, e.n),
+         [e.nom, e.quoi, e.n === PROMULGUEE ? "Parcours terminé" : `Étape ${e.n} sur 6`]))));
+
+  boite.append(groupe("État", [
+    puce("En cours d'examen", filtres.etat === "en_cours",
+         compteur((t) => t.etape !== PROMULGUEE),
+         () => { filtres.etat = filtres.etat === "en_cours" ? null : "en_cours"; dessiner(); },
+         ["Un texte encore en chemin",
+          "Il est quelque part entre son dépôt et sa promulgation. Rien ne dit " +
+          "qu'il ira au bout : la plupart s'arrêtent en route."]),
+    puce("Déjà promulguée", filtres.etat === "promulgue",
+         compteur((t) => t.etape === PROMULGUEE),
+         () => { filtres.etat = filtres.etat === "promulgue" ? null : "promulgue"; dessiner(); },
+         etapeDe(PROMULGUEE) && [etapeDe(PROMULGUEE).nom, etapeDe(PROMULGUEE).quoi]),
+  ]));
 
   boite.append(groupe("Où le texte se trouve", ["assemblee", "senat", "aucune"].map((c) =>
     puce(c === "aucune" ? "Les deux" : CHAMBRES[c][0],
@@ -582,7 +621,7 @@ function dessinerFiltres() {
   effacer.addEventListener("click", () => {
     filtres.etapes.clear(); filtres.chambres.clear(); filtres.types.clear();
     filtres.activite = null; filtres.programme = false; filtres.vote = null;
-    filtres.mots = "";
+    filtres.etat = null; filtres.mots = "";
     $("recherche").value = ""; dessiner();
   });
   boite.append(effacer);
@@ -644,6 +683,9 @@ async function detailVotes(t) {
     if (!principal) { zone.append(el("p", "attente", "Aucun détail publié.")); return; }
 
     zone.append(el("p", "objet", principal.objet));
+    const rappel = el("p", "convention");
+    rappel.textContent = "Groupes rangés comme dans l'hémicycle, de la gauche à la droite.";
+    zone.append(rappel);
 
     const legende = el("div", "legende");
     for (const [cle, mot] of [["pour", "pour"], ["contre", "contre"],
@@ -657,7 +699,23 @@ async function detailVotes(t) {
     for (const g of principal.groupes) {
       const total = (g.pour || 0) + (g.contre || 0) + (g.abstentions || 0);
       const ligne = el("div", "groupe");
-      ligne.append(el("span", "sigle", g.sigle));
+      const connu = GROUPES.get(g.sigle);
+      const teinte = g.couleur || connu?.couleur;
+      const pastille = el("i", "teinte");
+      if (teinte) pastille.style.background = teinte;
+      ligne.append(pastille);
+      const sigle = el("button", "sigle", g.sigle);
+      sigle.addEventListener("click", () => expliquer(
+        connu?.nom || g.nom || g.sigle,
+        connu || g.nom
+          ? "Un groupe politique de l'Assemblée nationale. Sa place dans la liste " +
+            "est celle qu'il occupe dans l'hémicycle, calculée sur les numéros de " +
+            "siège de ses députés. Sa couleur, elle, est une convention " +
+            "d'affichage : l'open data n'en publie aucune."
+          : "L'Assemblée ne nomme plus ce groupe — le plus souvent parce qu'il " +
+            "n'existe plus. Seuls les groupes actuels figurent dans ses données.",
+        `${g.pour} pour · ${g.contre} contre · ${g.abstentions} abstentions`));
+      ligne.append(sigle);
       const barre = el("span", "barre");
       for (const [cle, n] of [["pour", g.pour], ["contre", g.contre],
                               ["abstention", g.abstentions]]) {
@@ -717,17 +775,36 @@ function carte(t) {
   }
   c.append(l);
 
+  if (t.etape === PROMULGUEE && t.loiNumero) {
+    const loi = el("div", "lignes");
+    loi.append(etiquette("promulguee", "loi n° " + t.loiNumero,
+      ["Le numéro de la loi",
+       "Une fois promulguée, la loi reçoit un numéro officiel et une date. " +
+       "C'est sous ce numéro qu'on la retrouve au Journal officiel et qu'on la cite."],
+      t.loiDate ? "publiée le " + dateLongue.format(enDate(t.loiDate)) : null));
+    if (t.loiUrlJO) {
+      const jo = el("a", "etiq lien", "texte officiel");
+      jo.href = t.loiUrlJO; jo.target = "_blank"; jo.rel = "noopener";
+      loi.append(jo);
+    }
+    c.append(loi);
+  }
+
   if (t.voteEnsemble || t.votes) c.append(bandeauVote(t));
 
   const f = el("div", "frise");
-  for (const e of ETAPES) {
-    f.append(el("i", e.n < t.etape ? "faite" : e.n === t.etape ? "ici" : ""));
+  const finie = t.etape === PROMULGUEE;
+  for (const e of PARCOURS) {
+    f.append(el("i", finie || e.n < t.etape ? "faite" : e.n === t.etape ? "ici" : ""));
   }
-  f.append(el("span", null, `${t.etape}/6`));
+  f.append(el("span", null, finie ? "terminé" : `${t.etape}/6`));
   f.addEventListener("click", () => {
-    const e = ETAPES[t.etape - 1];
-    expliquer(EXPLICATIONS.frise[0], EXPLICATIONS.frise[1] + "\n\nÉtape actuelle — " + e.nom + " : " + e.quoi,
-              `Étape ${t.etape} sur 6 · ${e.nom}`);
+    const e = etapeDe(t.etape);
+    expliquer(EXPLICATIONS.frise[0],
+              EXPLICATIONS.frise[1] + "\n\n" +
+              (finie ? "Ce texte est allé au bout — " : "Étape actuelle — ") +
+              e.nom + " : " + e.quoi,
+              finie ? "Parcours terminé" : `Étape ${t.etape} sur 6 · ${e.nom}`);
   });
   c.append(f);
   return c;
@@ -740,8 +817,17 @@ function dessiner(garderPosition = false) {
 
   $("compte").innerHTML = "";
   $("compte").append(el("b", null, nb.format(liste.length)));
+  const finies = liste.filter((t) => t.etape === PROMULGUEE).length;
   $("compte").append(document.createTextNode(
-    liste.length > 1 ? " textes en cours d'examen" : " texte en cours d'examen"));
+    liste.length > 1 ? " textes" : " texte"));
+  if (finies && finies !== liste.length) {
+    $("compte").append(document.createTextNode(
+      `, dont ${nb.format(finies)} devenus des lois`));
+  } else if (finies) {
+    $("compte").append(document.createTextNode(" devenus des lois"));
+  } else {
+    $("compte").append(document.createTextNode(" en cours d'examen"));
+  }
   if (liste.length !== TEXTES.length) {
     $("compte").append(el("span", null, ` sur ${nb.format(TEXTES.length)}`));
   }
@@ -775,13 +861,15 @@ function ajouter(liste) {
   let etapePrecedente = affiches ? liste[affiches - 1].etape : null;
   for (const t of paquet) {
     if (t.etape !== etapePrecedente) {
-      const e = ETAPES[t.etape - 1];
+      const e = etapeDe(t.etape);
+      const fini = e.n === PROMULGUEE;
       const titre = el("div", "titre-etape");
-      const nom = el("span", null, e.nom);
-      titre.append(nom);
-      titre.append(el("span", "n", `étape ${e.n} sur 6`));
+      if (fini) titre.classList.add("fini");
+      titre.append(el("span", null, e.nom));
+      titre.append(el("span", "n", fini ? "parcours terminé" : `étape ${e.n} sur 6`));
       titre.style.cursor = "pointer";
-      titre.addEventListener("click", () => expliquer(e.nom, e.quoi, `Étape ${e.n} sur 6`));
+      titre.addEventListener("click", () => expliquer(
+        e.nom, e.quoi, fini ? "Parcours terminé" : `Étape ${e.n} sur 6`));
       fil.append(titre);
       etapePrecedente = t.etape;
     }
@@ -812,17 +900,32 @@ $("recherche").addEventListener("input", (e) => {
   minuterie = setTimeout(() => { filtres.mots = e.target.value; dessiner(); }, 180);
 });
 
+function lire(nom, obligatoire = false) {
+  return fetch(`${SOCLE}/${nom}`).then((r) => {
+    if (!r.ok) throw new Error(nom + " : réponse " + r.status);
+    return r.json();
+  }).catch((e) => { if (obligatoire) throw e; return null; });
+}
+
 async function charger() {
   $("lien-socle").href = new URL(SOCLE + "/textes.json", location.href).href;
   try {
-    const [textes, etat] = await Promise.all([
-      fetch(SOCLE + "/textes.json").then((r) => {
-        if (!r.ok) throw new Error("réponse " + r.status);
-        return r.json();
-      }),
-      fetch(SOCLE + "/etat.json").then((r) => r.ok ? r.json() : null).catch(() => null),
+    const [textes, promulguees, etat, groupes] = await Promise.all([
+      lire("textes.json", true),
+      lire("promulgues.json"),
+      lire("etat.json"),
+      lire("groupes.json"),
     ]);
-    TEXTES = textes.textes;
+    // Les lois promulguées sont dans un fichier à part. Elles rejoignent le
+    // fil sous une case d'affichage à elles : une application qui s'appelle
+    // « Où en sont les lois » doit montrer celles qui sont allées au bout.
+    TEXTES = textes.textes.concat(
+      (promulguees?.textes || []).map((t) => ({ ...t, etape: PROMULGUEE })));
+    // Le plus avancé d'abord — les lois promulguées ouvrent le fil, les textes
+    // déposés et jamais examinés le ferment.
+    TEXTES.sort((a, b) => b.etape - a.etape ||
+                b.date_dernier_mouvement.localeCompare(a.date_dernier_mouvement));
+    GROUPES = new Map((groupes?.groupes || []).map((g) => [g.sigle, g]));
     ETAT = etat || {};
     $("maj").textContent = (ETAT.genereLe || textes.genereLe || "").slice(0, 10)
       ? dateLongue.format(enDate((ETAT.genereLe || textes.genereLe).slice(0, 10)))

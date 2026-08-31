@@ -112,6 +112,29 @@ décompte par groupe politique. Trois choses à savoir avant de s'en servir :
 **Il n'y a pas de votes à venir**, et ce n'est pas un manque du socle :
 l'Assemblée ne publie un vote qu'une fois qu'il a eu lieu.
 
+### L'ordre des groupes est mesuré, leur couleur est une convention
+
+**L'ordre.** Chaque vote publie le **numéro de siège** de chaque député. Sur
+61 152 numéros relevés le 2026-08-31, les groupes se rangent proprement — le
+RN autour de la place 72, LFI autour de la 603. L'hémicycle est numéroté de la
+droite vers la gauche : lu à l'envers, il donne l'ordre politique habituel.
+
+```
+LFI-NFP · GDR · EcoS · LIOT · SOC · NI · Dem · EPR · HOR · DR · UDR · RN
+   603    586   512   456   448  392  345  301  231  184  103   72
+```
+
+Rien n'est écrit à la main : si un groupe naît, disparaît ou change de place,
+l'ordre suit tout seul. Les médianes se calculent sur un histogramme et non
+sur une liste dépliée — les numéros se comptent par millions sur une
+législature.
+
+**La couleur.** L'open data n'en publie aucune. Celles du socle sont une
+**convention d'affichage**, rassemblées dans `COULEURS_GROUPES`
+(`extraction.py`) — **le seul endroit à corriger** si un choix ne convient
+pas. Un groupe absent de cette table, passé ou futur, reçoit une couleur
+calculée sur sa position, du rouge à gauche au bleu à droite.
+
 **La base garde tout**, y compris les dossiers qui ne fabriquent pas de loi et
 les textes promulgués. Les colonnes `est_loi` et `statut` le disent ; c'est à
 l'affichage de trier. Un socle qui jette des données oblige à tout recharger
@@ -178,6 +201,7 @@ signale la panne.
 | `index.html` | 29 Ko | — | **La maquette** (`../maquette/feed.html`, recopiée ici). Publiée à côté des données, elle les lit par une adresse relative |
 | `etat.json` | 581 o | — | D'où viennent les données, de quand, et si le dernier chargement s'est bien passé |
 | `etapes.json` | 846 o | 477 o | Les six étapes du parcours et leurs comptes |
+| `groupes.json` | 1,9 Ko | — | Les groupes politiques, **rangés de la gauche à la droite de l'hémicycle**, avec leur couleur d'affichage |
 | `textes.json` | 829 Ko | **121 Ko** | **Le fichier principal** : les 1 990 textes en cours |
 | `promulgues.json` | 63 Ko | 10 Ko | Les 107 lois déjà promulguées |
 | `textes/<uid>.json` | 2,8 Mo | — | Un fichier par texte, avec tout son parcours (2 097 fichiers, 1,3 Ko en moyenne) |

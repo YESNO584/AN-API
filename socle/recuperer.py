@@ -23,6 +23,7 @@ Usage :
 from __future__ import annotations
 
 import argparse
+import collections
 import datetime as dt
 import hashlib
 import pathlib
@@ -90,11 +91,19 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
 
     # Les scrutins d'abord : on a besoin de savoir, pour chaque dossier, quels
     # votes le concernent — et le lien se lit dans les deux sens.
+    # Les numéros de siège se comptent par millions sur une législature : on
+    # les compte au vol, valeur par valeur, plutôt que de les empiler.
+    sieges: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
+
     votes, par_ref = [], {}
     for brut in extraction.lire_scrutins(archives["scrutins"]):
         v = extraction.analyser_scrutin(brut, groupes)
         votes.append(v)
         par_ref[v["uid"]] = v
+        for ref, place in extraction.places_du_scrutin(brut):
+            sieges[ref][place] += 1
+
+    rangs = extraction.ordonner_groupes(sieges, groupes)
 
     dossiers, etapes = [], []
     for brut in extraction.lire_archive(archives["dossiers"]):
@@ -140,6 +149,11 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
         ) for g in v["groupes"]]
 
     with connexion:                     # une transaction, ouverte et refermée ici
+        connexion.execute("DELETE FROM groupe")
+        connexion.executemany(
+            "INSERT INTO groupe VALUES (?,?,?,?,?,?)",
+            [(g["ref"], g["sigle"], g["nom"], g["rang"], g["siegeMedian"], g["couleur"])
+             for g in rangs])
         connexion.execute("DELETE FROM vote_groupe")
         connexion.execute("DELETE FROM vote")
         connexion.execute("DELETE FROM etape")
@@ -277,6 +291,11 @@ def main() -> int:
         "SELECT COUNT(DISTINCT dossier_uid) n FROM vote WHERE dossier_uid IS NOT NULL"
     ).fetchone()["n"]
     print(f"Scrutins rattachés à {lie} dossiers.", file=sys.stderr)
+    ordre = connexion.execute(
+        "SELECT sigle FROM groupe ORDER BY rang").fetchall()
+    if ordre:
+        print("Groupes, de gauche à droite : "
+              + " · ".join(l["sigle"] for l in ordre), file=sys.stderr)
     print("Textes de loi en cours, par étape :", file=sys.stderr)
     for numero, nom, _ in extraction.ETAPES:
         n = next((l["n"] for l in resume if l["etape"] == numero), 0)

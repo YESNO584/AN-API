@@ -396,5 +396,82 @@ class DecompteDuScrutin(unittest.TestCase):
         self.assertEqual(v["sort"], "adopté")
 
 
+class OrdreDeLHemicycle(unittest.TestCase):
+    """L'ordre des groupes est mesuré sur les numéros de siège publiés.
+
+    L'hémicycle est numéroté de la droite vers la gauche : sur 61 152 numéros
+    relevés le 2026-08-31, le RN se situe autour de la place 72 et LFI autour
+    de la 603. Lu à l'envers, cela donne l'ordre politique habituel.
+    """
+
+    def test_le_plus_grand_numero_de_siege_est_le_plus_a_gauche(self):
+        groupes = extraction.ordonner_groupes(
+            {"A": {600: 50}, "B": {300: 50}, "C": {70: 50}},
+            {"A": ("LFI-NFP", "La France insoumise"), "B": ("EPR", "Ensemble"),
+             "C": ("RN", "Rassemblement National")})
+        self.assertEqual([g["sigle"] for g in groupes], ["LFI-NFP", "EPR", "RN"])
+        self.assertEqual([g["rang"] for g in groupes], [0, 1, 2])
+
+    def test_un_groupe_sans_aucun_siege_connu_est_ecarte(self):
+        groupes = extraction.ordonner_groupes(
+            {"A": {600: 1}, "B": {}}, {"A": ("X", ""), "B": ("Y", "")})
+        self.assertEqual([g["sigle"] for g in groupes], ["X"])
+
+    def test_un_groupe_que_la_source_ne_nomme_plus_garde_son_identifiant(self):
+        groupes = extraction.ordonner_groupes({"PO999": {400: 3}}, {})
+        self.assertEqual(groupes[0]["sigle"], "PO999")
+        self.assertEqual(groupes[0]["nom"], "")
+
+    def test_la_mediane_se_calcule_sans_deplier_les_millions_de_places(self):
+        self.assertEqual(extraction.mediane_depuis_histogramme({10: 1, 20: 1, 30: 1}), 20)
+        self.assertEqual(extraction.mediane_depuis_histogramme({5: 100, 900: 1}), 5)
+        self.assertIsNone(extraction.mediane_depuis_histogramme({}))
+
+    def test_les_places_se_lisent_dans_les_quatre_colonnes_de_vote(self):
+        brut = {"scrutin": {"ventilationVotes": {"organe": {"groupes": {"groupe": [
+            {"organeRef": "A", "vote": {"decompteNominatif": {
+                "pours": {"votant": [{"numPlace": "601"}, {"numPlace": "603"}]},
+                "contres": {"votant": {"numPlace": "605"}},
+                "abstentions": None,
+                "nonVotants": {"votant": {"numPlace": "607"}},
+            }}}]}}}}}
+        self.assertEqual(sorted(extraction.places_du_scrutin(brut)),
+                         [("A", 601), ("A", 603), ("A", 605), ("A", 607)])
+
+    def test_une_place_absente_ou_illisible_est_ignoree(self):
+        brut = {"scrutin": {"ventilationVotes": {"organe": {"groupes": {"groupe": {
+            "organeRef": "A", "vote": {"decompteNominatif": {
+                "pours": {"votant": [{"numPlace": None}, {"numPlace": "hors"},
+                                     {"numPlace": "12"}]}}}}}}}}}
+        self.assertEqual(list(extraction.places_du_scrutin(brut)), [("A", 12)])
+
+
+class CouleursDesGroupes(unittest.TestCase):
+    """Les couleurs sont une convention d'affichage : l'open data n'en publie
+    aucune. Un groupe absent de la table reçoit une couleur calculée sur sa
+    position, pour que rien ne casse quand un groupe naît ou disparaît."""
+
+    def test_un_groupe_connu_garde_sa_couleur_conventionnelle(self):
+        self.assertEqual(extraction.couleur_de_groupe("LFI-NFP", 0, 12),
+                         extraction.COULEURS_GROUPES["LFI-NFP"])
+        self.assertEqual(extraction.couleur_de_groupe("RN", 11, 12),
+                         extraction.COULEURS_GROUPES["RN"])
+
+    def test_un_groupe_inconnu_est_teinte_selon_sa_place(self):
+        gauche = extraction.couleur_de_groupe("PO999", 0, 13)
+        droite = extraction.couleur_de_groupe("PO888", 12, 13)
+        self.assertEqual(gauche, extraction.DEGRADE[0])
+        self.assertEqual(droite, extraction.DEGRADE[-1])
+        self.assertNotEqual(gauche, droite)
+
+    def test_un_groupe_seul_ne_fait_pas_diviser_par_zero(self):
+        self.assertIn(extraction.couleur_de_groupe("PO999", 0, 1), extraction.DEGRADE)
+
+    def test_chaque_groupe_actuel_a_une_couleur_distincte(self):
+        couleurs = list(extraction.COULEURS_GROUPES.values())
+        self.assertEqual(len(couleurs), len(set(couleurs)),
+                         "deux groupes de la même couleur seraient indistinguables")
+
+
 if __name__ == "__main__":
     sys.exit(0 if unittest.main(exit=False, verbosity=2).result.wasSuccessful() else 1)

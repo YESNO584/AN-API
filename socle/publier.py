@@ -83,9 +83,15 @@ def votes_du_texte(cx: sqlite3.Connection, uid: str) -> list[dict]:
     for v in cx.execute(
             f"SELECT {', '.join(CHAMPS_VOTE)} FROM vote WHERE dossier_uid = ?"
             " ORDER BY date DESC, numero DESC", (uid,)):
+        # Rangés comme dans l'hémicycle, de la gauche à la droite. Un groupe
+        # que la source ne nomme plus — un groupe dissous — passe en fin de
+        # liste plutôt que de disparaître.
         groupes = [dict(g) for g in cx.execute(
-            "SELECT sigle, nom, membres, position, pour, contre, abstentions, non_votants"
-            " FROM vote_groupe WHERE vote_uid = ? ORDER BY membres DESC", (v["uid"],))]
+            "SELECT vg.sigle, vg.nom, vg.membres, vg.position, vg.pour, vg.contre,"
+            " vg.abstentions, vg.non_votants, g.rang, g.couleur"
+            " FROM vote_groupe vg LEFT JOIN groupe g ON g.ref = vg.organe_ref"
+            " WHERE vg.vote_uid = ?"
+            " ORDER BY g.rang IS NULL, g.rang, vg.membres DESC", (v["uid"],))]
         votes.append({**dict(v), "groupes": groupes})
     return votes
 
@@ -133,13 +139,30 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "textesAvecVote": cx.execute(
             "SELECT COUNT(DISTINCT d.uid) n FROM dossier d JOIN vote v ON v.dossier_uid = d.uid"
             " WHERE d.est_loi = 1 AND d.statut IN ('en_cours','promulgue')").fetchone()["n"],
-    "fichiers": ["etapes.json", "textes.json", "promulgues.json", "textes/<uid>.json"],
+        "fichiers": ["etapes.json", "groupes.json", "textes.json", "promulgues.json",
+                     "textes/<uid>.json"],
+    })
+
+    # Les groupes, rangés de la gauche à la droite de l'hémicycle. L'ordre est
+    # mesuré sur les numéros de siège publiés ; la couleur est une convention
+    # d'affichage, que la page reprend telle quelle plutôt que d'en inventer.
+    tailles["groupes.json"] = ecrire(sortie / "groupes.json", {
+        "genereLe": genere_le,
+        "ordre": "de la gauche à la droite de l'hémicycle, d'après les numéros"
+                 " de siège publiés par l'Assemblée",
+        "couleurs": "convention d'affichage — l'open data n'en publie aucune",
+        "groupes": [dict(g) for g in cx.execute(
+            "SELECT ref, sigle, nom, rang, siege_median, couleur"
+            " FROM groupe ORDER BY rang")],
     })
 
     tailles["etapes.json"] = ecrire(sortie / "etapes.json", {
         "genereLe": genere_le,
         "etapes": [{"n": n, "nom": nom, "quoi": quoi, "textesEnCours": par_etape.get(n, 0)}
                    for n, nom, quoi in extraction.ETAPES],
+        # Les lois promulguées ne sont pas une septième étape : c'est l'après.
+        # Mais un lecteur qui compte les textes doit les retrouver quelque part.
+        "promulguees": comptes.get(extraction.PROMULGUE, 0),
     })
 
     for nom_fichier, statut in (("textes.json", extraction.EN_COURS),
