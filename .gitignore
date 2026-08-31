@@ -10,3 +10,8 @@ __pycache__/
 
 # Archives téléchargées par la maquette — rechargeables, jamais versionnées
 maquette/.cache/
+
+# Base construite par le socle — rechargeable en une commande, jamais versionnée
+socle/parlement.db
+socle/parlement.db-*
+socle/*.log

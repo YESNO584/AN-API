@@ -17,16 +17,21 @@ a pas encore d'application, de base de données ni de dépendances.
 |---|---|
 | `docs/` | Le plan, les fiches de sources, la note d'accès réseau. Documents, pas du code |
 | `docs/sources/` | Ce que valent les sources de données, **mesuré** (étape 0, faite le 2026-08-31) |
-| `maquette/` | **Le seul code du dépôt.** `feed.html` (page autonome) + `preparer_donnees.py` (remplit la page). Voir `maquette/README.md` |
+| `socle/` | **Le cœur du code.** Récupère, range, sert. `extraction.py` (les règles, testées), `recuperer.py` (le programme quotidien), `serveur.py`, `schema.sql`. Voir `socle/README.md` |
+| `maquette/` | La maquette de l'étape 1 : `feed.html` (page autonome) + `preparer_donnees.py`, qui s'appuie sur `socle/extraction.py`. Voir `maquette/README.md` |
 | `.claude/` | La configuration Claude Code |
 
 - **La source de vérité des données est l'open data de l'Assemblée
   nationale.** Elle contient le parcours d'un texte dans *les deux* chambres,
   y compris les étapes passées au Sénat. Ne pas écrire de code de rapprochement
   entre les deux chambres : l'Assemblée publie déjà le lien.
+- **Les règles de lecture des dossiers vivent dans `socle/extraction.py`, à
+  un seul endroit.** Ne pas les recopier ailleurs : la maquette les importe.
+  Toute modification doit passer par `socle/test_extraction.py`.
 - **Aucune donnée du Parlement n'est versionnée**, à une exception : le bloc
-  de données inscrit dans `maquette/feed.html`, qui est le livrable. Les
-  archives téléchargées vont dans `maquette/.cache/`, ignoré par git.
+  de données inscrit dans `maquette/feed.html`, qui est le livrable. La base
+  `socle/parlement.db` et les archives téléchargées sont ignorées par git —
+  elles se reconstruisent avec `socle/recuperer.py`.
 - **Une page web ne peut pas aller chercher ces données elle-même** — les
   portails n'envoient pas l'en-tête `Access-Control-Allow-Origin`. Toute
   maquette autonome passe donc par une préparation hors ligne.

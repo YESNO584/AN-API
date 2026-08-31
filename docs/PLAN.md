@@ -1,6 +1,6 @@
 # Plan — Application de suivi du Parlement (Assemblée nationale + Sénat)
 
-**Statut :** v3.1 — **étape 0 faite, maquette livrée, technologie choisie (Flutter)**
+**Statut :** v3.2 — **étapes 0, 1 et 2 faites ; l'application Flutter est la suite**
 **Dernière mise à jour :** 2026-08-31
 **Ce document est vivant.** Il est mis à jour à chaque session. Voir le
 « Journal des mises à jour » à la fin.
@@ -373,7 +373,23 @@ C'est donc elle qu'il faut tester en premier, pas la tuyauterie.
 **Piège à éviter :** vouloir des données complètes et à jour pour la
 maquette. Vingt textes figés suffisent à savoir si l'écran fonctionne.
 
-### Étape 2 — Récupérer et stocker (le socle)
+### Étape 2 — Récupérer et stocker (le socle) — **faite le 2026-08-31**
+
+> **Décidé le 2026-08-31 : cette étape passe avant l'application.** Sans elle,
+> un téléphone devrait télécharger et décortiquer une archive de 10 Mo à
+> chaque ouverture, et la future version web ne pourrait lire aucune donnée.
+>
+> **Livré**, dans `../socle/` : le programme quotidien (`recuperer.py`), la
+> base (SQLite, modèle du §3.1), le serveur qui la sert à l'application
+> (`serveur.py`, avec l'en-tête qui débloque le web), et 21 tests sur le
+> classement des étapes.
+>
+> **Périmètre couvert :** les dossiers législatifs, comme le plan le
+> prévoyait. Les parlementaires, les scrutins et les débats restent à faire.
+>
+> **Ce qui manque encore :** le déclenchement quotidien. Le programme est
+> prêt et la ligne de `cron` est documentée, mais il faut une machine qui
+> l'exécute — c'est la question 8 du §10, l'hébergement.
 
 **But :** avoir chez nous, à jour tous les jours, une copie propre des
 données publiques des deux chambres.
@@ -685,12 +701,13 @@ tranché les deux questions qui commandaient tout : La Fabrique de la Loi est
 inutilisable, et le rapprochement entre les deux chambres est déjà fait par
 l'Assemblée. La maquette peut donc se construire sur données réelles.
 
-1. **L'étape 1, la maquette**, sur les dossiers législatifs de l'Assemblée.
-   Commencer par le fil des textes en cours, classés par étape du parcours.
-2. **Trancher l'ordre des étapes 2 et 3.** La technologie est choisie
-   (**Flutter**, mobile d'abord — question 7 du §10) ; reste à décider si le
-   service qui sert les données vient avant l'application ou après.
-3. **Si et seulement si le texte consolidé des lois devient nécessaire** :
+1. **L'application Flutter**, sur le socle. C'est l'étape 3, et plus rien ne
+   la bloque : les données sont servies, le modèle est stable.
+2. **Trouver où faire tourner le socle** — question 8 du §10. Le programme
+   quotidien existe mais rien ne le déclenche.
+3. **Compléter le socle** si le besoin s'en fait sentir : parlementaires,
+   scrutins, puis les débats.
+4. **Si et seulement si le texte consolidé des lois devient nécessaire** :
    créer un compte PISTE et évaluer l'API Légifrance.
 
 ---
@@ -699,6 +716,7 @@ l'Assemblée. La maquette peut donc se construire sur données réelles.
 
 | Date | Version | Ce qui a changé |
 |---|---|---|
+| 2026-08-31 | **v3.2** | **Étape 2 faite, et placée avant l'application** comme décidé. Le socle est dans `socle/` : programme quotidien, base SQLite au modèle du §3.1, serveur JSON avec l'en-tête qui débloquera la version web, 21 tests. Le code de lecture des dossiers, écrit pour la maquette, y a été déplacé — la maquette s'appuie dessus et produit exactement les mêmes données qu'avant. Découverte au passage, inscrite dans la fiche de l'Assemblée : l'archive est servie par plusieurs machines qui ne publient pas la même génération, ce qui oblige à comparer le contenu et pas seulement les en-têtes. |
 | 2026-08-31 | **v3.1** | **Technologie décidée : Flutter**, un seul code pour mobile et web, **le mobile d'abord** (question 7 du §10, qui était la dernière question bloquante). Deux conséquences inscrites au §10 : l'application Flutter *web* butera sur le même refus que la maquette HTML et exigera un serveur, tandis que le mobile n'a pas cette limite ; et l'archive de 10 Mo ne peut pas être décortiquée sur un téléphone à chaque ouverture. D'où une recommandation, non tranchée : faire venir l'étape 2 avant l'application. |
 | 2026-08-31 | **v3** | **Étape 0 faite** : les fichiers des deux chambres ont été téléchargés et comptés. Fiches par source dans `sources/`. Trois conclusions changent le plan — **La Fabrique de la Loi est écartée** (figée depuis 2022, §4.4) ; **le recollement entre les deux chambres n'est pas à faire**, l'Assemblée publie le lien (§3.2) ; **le coût des résumés est de l'ordre de 35 $ par an** pour les deux chambres, mesuré, pas estimé (§9.3). §5 réécrit : ce qui est mesuré, ce qui ne l'est pas. §12 : la maquette peut commencer sur données réelles. |
 | 2026-08-31 | v2 | Décisions prises intégrées (§10) : grand public, mobile + web, favoris, **Assemblée + Sénat**, maquette d'abord. Nouveau §3 sur le parcours d'une loi et le recollement entre les deux chambres. Nouveau §7 sur les favoris et le RGPD. §4 étendu au Sénat, à Légifrance et à La Fabrique de la Loi. §6 réordonné : la maquette passe avant la récupération des données. §8.2 réécrit : « important » devient un choix de l'utilisateur. Tarifs de l'API Claude vérifiés. Accès réseau retesté : toujours bloqué côté session, et la marche à suivre pour le débloquer est désormais dans `ACCES-RESEAU.md`. |

@@ -34,6 +34,24 @@ Loi**, qui obligeait à repartager sous la même licence.
 Le `17` dans l'adresse est le numéro de la législature. Les précédentes sont
 sous `/archives-16e/`, `/archives-anterieures/`.
 
+### Un détail de service à connaître avant d'automatiser
+
+**L'archive est servie par plusieurs machines qui ne publient pas la même
+génération du fichier.** Six appels d'affilée, le 2026-08-31, ont renvoyé en
+alternance :
+
+```
+10 276 665 octets   Last-Modified: Mon, 31 Aug 2026 06:16:30 GMT   ETag "9ccf39-…"
+10 276 672 octets   Last-Modified: Mon, 31 Aug 2026 10:16:26 GMT   ETag "9ccf40-…"
+```
+
+Conséquence pour un programme qui récupère les données tous les jours : le
+téléchargement conditionnel (`If-Modified-Since`) **fonctionne** — le serveur
+répond bien « 304 » — mais seulement quand l'appel tombe sur la machine qui a
+la même copie que nous. Il faut donc aussi comparer le contenu reçu, sans quoi
+on rebâtit sa base pour rien une fois sur deux. C'est ce que fait
+`../../socle/recuperer.py`.
+
 ### Ce que contient un dossier
 
 ```
