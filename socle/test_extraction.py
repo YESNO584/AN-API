@@ -70,6 +70,112 @@ class SaisineDeCommission(unittest.TestCase):
                 self.assertEqual(d["etape"], 2)
 
 
+class DoublonsApparents(unittest.TestCase):
+    """Deux actes du même jour ne sont pas forcément un doublon.
+
+    Mesuré le 2026-08-31 sur les 385 groupes d'actes qui partagent un code et
+    une date : 100 se distinguent par l'heure, 196 par la réunion, et 89 par
+    rien du tout.
+    """
+
+    def test_l_heure_distingue_deux_reunions_de_commission(self):
+        matin = acte("AN1-COM-FOND-REUNION", dateActe="2026-03-05T09:00:00.000+01:00")
+        soir = acte("AN1-COM-FOND-REUNION", dateActe="2026-03-05T21:00:00.000+01:00")
+        self.assertEqual(extraction.precision_acte(matin), "09 h 00")
+        self.assertEqual(extraction.precision_acte(soir), "21 h 00")
+
+    def test_la_seance_publique_est_nommee_par_l_agenda(self):
+        """Elle est datée à minuit : seule la réunion la distingue."""
+        reunions = {"R1": {"debut": "2026-03-17T15:00", "quantieme": "Première"},
+                    "R2": {"debut": "2026-03-17T21:30", "quantieme": "Deuxième"}}
+        a = acte("AN1-DEBATS-SEANCE", "2026-03-17", reunionRef="R1")
+        b = acte("AN1-DEBATS-SEANCE", "2026-03-17", reunionRef="R2")
+        self.assertEqual(extraction.precision_acte(a, reunions), "1re séance")
+        self.assertEqual(extraction.precision_acte(b, reunions), "2e séance")
+
+    def test_un_quantieme_inattendu_est_rendu_tel_quel(self):
+        """Mieux vaut afficher un mot inconnu que perdre la distinction."""
+        reunions = {"R1": {"debut": "2026-03-17T15:00", "quantieme": "Cinquième"}}
+        self.assertEqual(
+            extraction.precision_acte(acte("AN1-DEBATS-SEANCE", "2026-03-17",
+                                           reunionRef="R1"), reunions),
+            "Cinquième")
+
+    def test_deux_points_d_une_meme_reunion_sont_fusionnes(self):
+        """Même réunion, même heure : rien ne les distingue, une seule ligne."""
+        d = extraction.analyser(dossier(
+            acte("AN1-DEPOT", "2026-01-10", xsi="DepotInitiative_Type"),
+            acte("AN1-COM-FOND-REUNION", dateActe="2026-06-08T21:00:00.000+02:00",
+                 reunionRef="R1", odjRef="R1PT1"),
+            acte("AN1-COM-FOND-REUNION", dateActe="2026-06-08T21:00:00.000+02:00",
+                 reunionRef="R1", odjRef="R1PT2"),
+        ), AUJOURDHUI)
+        reunions = [e for e in d["etapes"] if e["code"] == "AN1-COM-FOND-REUNION"]
+        self.assertEqual(len(reunions), 1)
+
+    def test_deux_seances_distinctes_ne_sont_pas_fusionnees(self):
+        reunions = {"R1": {"debut": "2026-03-17T15:00", "quantieme": "Première"},
+                    "R2": {"debut": "2026-03-17T21:30", "quantieme": "Deuxième"}}
+        d = extraction.analyser(dossier(
+            acte("AN1-DEPOT", "2026-01-10", xsi="DepotInitiative_Type"),
+            acte("AN1-DEBATS-SEANCE", "2026-03-17", reunionRef="R1"),
+            acte("AN1-DEBATS-SEANCE", "2026-03-17", reunionRef="R2"),
+        ), AUJOURDHUI, reunions=reunions)
+        seances = [e for e in d["etapes"] if e["code"] == "AN1-DEBATS-SEANCE"]
+        self.assertEqual([e["precision"] for e in seances], ["1re séance", "2e séance"])
+
+
+class DetailsPrisDansLesDonnees(unittest.TestCase):
+    """Ce qui décrit une étape est recopié de la source, jamais rédigé.
+
+    Chaque valeur attendue ici existe telle quelle dans l'open data. Ce test
+    est là pour que personne n'y glisse plus tard une phrase inventée.
+    """
+
+    ORGANES = {"PO59051": {"libelle": "Commission des lois", "abrege": "Lois",
+                           "type": "COMPER"},
+               "PO838901": {"libelle": "Assemblée nationale", "abrege": "AN",
+                            "type": "ASSEMBLEE"}}
+    DOCUMENTS = {"T1": {"type": "Texte de commission", "numero": "1640",
+                        "description": "visant à faciliter le maintien en rétention"}}
+
+    def test_la_commission_est_nommee_par_son_identifiant(self):
+        d = extraction.details_acte(acte("AN1-COM-FOND-REUNION", organeRef="PO59051"),
+                                    self.ORGANES)
+        self.assertEqual(d["organe"], "Commission des lois")
+
+    def test_la_chambre_elle_meme_n_est_pas_repetee(self):
+        """Une pastille dit déjà « Assemblée nationale » : la répéter n'apprend rien."""
+        d = extraction.details_acte(acte("AN1-DEBATS-SEANCE", organeRef="PO838901"),
+                                    self.ORGANES)
+        self.assertNotIn("organe", d)
+
+    def test_le_texte_adopte_garde_son_numero(self):
+        d = extraction.details_acte(acte("AN1-COM-FOND-RAPPORT", texteAdopte="T1"),
+                                    documents=self.DOCUMENTS)
+        self.assertEqual(d["texteAdopte"]["numero"], "1640")
+        self.assertEqual(d["texteAdopte"]["type"], "Texte de commission")
+
+    def test_une_decision_dit_quel_texte_le_vote_a_produit(self):
+        """C'est le fait le plus concret d'une séance : ce qui en sort."""
+        d = extraction.details_acte(acte("AN1-DEBATS-DEC", textesAssocies={
+            "texteAssocie": [{"typeTexte": "BTA", "refTexteAssocie": "T1"},
+                             {"typeTexte": "TAP", "refTexteAssocie": "T2"}]}),
+            documents={"T1": {"type": "Texte adopté", "numero": "163"}})
+        self.assertEqual(d["texteAdopte"]["numero"], "163")
+
+    def test_une_saisine_du_conseil_constitutionnel_dit_qui_et_pourquoi(self):
+        d = extraction.details_acte(acte(
+            "CC-SAISIE-AN",
+            motif="En application de l'article 61§2 de la Constitution",
+            casSaisine={"fam_code": "TSCCONT05", "libelle": "Soixante députés au moins"}))
+        self.assertEqual(d["saisine"], "Soixante députés au moins")
+        self.assertEqual(d["motif"], "En application de l'article 61§2 de la Constitution")
+
+    def test_un_acte_sans_rien_a_dire_ne_dit_rien(self):
+        self.assertEqual(extraction.details_acte(acte("AN1-DEPOT")), {})
+
+
 class ParcoursQuiRepartEnArriere(unittest.TestCase):
     """Le parcours n'est pas une ligne droite.
 

@@ -45,6 +45,9 @@ SOURCES = {
     "groupes": extraction.URL_ORGANES,
     "senat": extraction.URL_SENAT,
     "amendements": extraction.URL_AMENDEMENTS,
+    # L'agenda ne sert qu'à départager deux actes du même jour, mais sans lui
+    # 296 groupes d'actes s'affichent à l'identique. Voir precision_acte.
+    "agenda": extraction.URL_AGENDA,
 }
 def connue(connexion: sqlite3.Connection, url: str) -> sqlite3.Row | None:
     return connexion.execute("SELECT * FROM source WHERE url = ?", (url,)).fetchone()
@@ -69,8 +72,10 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
            aujourdhui: str) -> tuple[int, int, int]:
     """Remplace le contenu de la base par celui des archives. Tout ou rien."""
     groupes = extraction.lire_groupes(archives["groupes"])
+    organes = extraction.lire_organes(archives["groupes"])
     acteurs = extraction.lire_acteurs(archives["groupes"])
     documents = extraction.lire_documents(archives["dossiers"])
+    reunions = extraction.lire_reunions(archives["agenda"])
     etats_senat = extraction.lire_senat(archives["senat"])
     # Les scrutins d'abord : on a besoin de savoir, pour chaque dossier, quels
     # votes le concernent — et le lien se lit dans les deux sens.
@@ -94,7 +99,8 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
         for ref in extraction.refs_de_vote(dp):
             if ref in par_ref and not par_ref[ref]["dossier"]:
                 par_ref[ref]["dossier"] = dp["uid"]
-        d = extraction.analyser(brut, aujourdhui, etats_senat)
+        d = extraction.analyser(brut, aujourdhui, etats_senat,
+                                reunions, organes, documents, acteurs)
         courant = d["etapeCourante"] or {}
         prochaine = next((e for e in d["etapes"] if e["future"]), None)
         # Le document de dépôt porte la description du texte et son auteur.
@@ -118,6 +124,8 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
         etapes += [(
             d["uid"], e["uid"], e["code"], e["lecture"], e["libelle"], e["chambre"],
             e["date"], e["rang"], e["numero"], e["conclusion"], int(e["future"]),
+            e["precision"],
+            json.dumps(e["details"], ensure_ascii=False) if e["details"] else None,
         ) for e in d["etapes"]]
     connus = {d[0] for d in dossiers}
     # Un scrutin peut nommer un dossier d'une autre législature, ou disparu :
@@ -165,7 +173,7 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
         connexion.executemany(
             "INSERT INTO dossier VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", dossiers)
         connexion.executemany(
-            "INSERT INTO etape VALUES (?,?,?,?,?,?,?,?,?,?,?)", etapes)
+            "INSERT INTO etape VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", etapes)
         connexion.executemany(
             "INSERT INTO vote VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", lignes_vote)
         connexion.executemany(

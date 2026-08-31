@@ -50,10 +50,42 @@ partageable et ouvrable directement. Elle contient :
 - son **auteur** — photo, nom, groupe en couleur — et ses **cosignataires** ;
 - les **liens officiels** : dossier à l'Assemblée, dossier au Sénat, et le
   **texte de loi au Journal officiel** quand elle est promulguée ;
-- le **parcours complet**, étape par étape, datée, avec les séances à venir
-  distinguées ;
-- les **votes**, avec le décompte par groupe politique ;
+- le **parcours complet**, étape par étape, datée, **les votes intercalés à
+  leur date** — voir la section suivante ;
 - les **amendements**, chargés à la demande.
+
+Chaque bloc est un dépliant : la fiche s'ouvre sur le parcours, le reste se
+déroule à la demande.
+
+### Le parcours, et pourquoi deux lignes du même jour ne sont pas un doublon
+
+Chaque étape porte **une pastille de chambre** — Assemblée, Sénat, ou « hors
+chambre » pour une commission mixte paritaire et le Conseil constitutionnel —
+et se déplie sur **ce que l'acte dit de lui-même** : la commission qui s'est
+réunie, le rapporteur désigné, le document déposé, **le texte qui sort du
+vote**, le motif d'une saisine.
+
+**Aucune de ces phrases n'est écrite par la maquette.** Elle affiche le nom du
+champ et recopie la valeur publiée par l'Assemblée. Quand la source ne dit
+rien, la fiche le dit : « L'open data ne publie rien de plus sur cette étape
+que sa nature et sa date. »
+
+Une chambre siège plusieurs fois par jour. Deux lignes de même nom et de même
+date sont donc distinguées par ce qui les sépare vraiment — l'heure
+(« 09 h 00 »), ou le nom que l'Assemblée donne à la séance (« 2e séance »).
+Les 89 groupes d'actes que rien ne distingue sont fusionnés en amont, par le
+socle : voir `../socle/README.md`.
+
+### Les votes sont dans le parcours
+
+Un vote n'est pas une liste à part : il se produit à un moment du parcours, et
+c'est ce moment qui l'explique. Les scrutins sont donc intercalés entre les
+étapes, à leur date.
+
+**Ils viennent après les étapes du même jour**, pour une raison mesurée :
+l'open data ne dit pas à quel moment de la journée un scrutin a eu lieu — son
+champ `referenceLegislative` est vide dans les 8 434 scrutins de la
+législature. Les placer ailleurs serait une invention.
 
 ### Les amendements, et ce qu'on n'affiche pas
 

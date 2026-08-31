@@ -14,7 +14,7 @@ lire aucune donnée.
 | `publier.py` | Écrit la base en fichiers tout prêts — **c'est ce qui est mis en ligne** |
 | `serveur.py` | Sert la base en direct. **Outil de développement local**, pas ce qui tourne en production |
 | `schema.sql` | Le modèle de données |
-| `test_extraction.py` | 21 tests sur le classement des étapes |
+| `test_extraction.py` | 76 tests sur les règles de lecture |
 
 ## Démarrer
 
@@ -63,7 +63,7 @@ programme, c'est la source. Le journal montre les deux cas.
 
 ```
 début                      statut     dossiers   étapes  message
-2026-08-31T11:07:30+00:00  succes         2859    10700
+2026-08-31T18:39:12+00:00  succes         2859    10634  8434 scrutins
 ```
 
 Une panne laisse une ligne `echec` avec son message. `GET /api/sante` renvoie
@@ -85,13 +85,46 @@ dossier      uid, titre, type, est_loi, chambre_initiale, statut, etape,
              date_dernier_mouvement, chambre, lecture, dernier_acte,
              conclusion, prochaine_date, url_an, url_senat, loi_numero…
 etape        dossier_uid, code, lecture, libelle, chambre, date, rang,
-             numero (1..6), conclusion, future
+             numero (1..6), conclusion, future, precision, details
 vote         uid, dossier_uid, date, type, portee, objet, sort,
              pour, contre, abstentions, non_votants…
 vote_groupe  vote_uid, sigle, nom, membres, position, pour, contre…
 source       ce qu'on sait de chaque source, pour le téléchargement conditionnel
 journal      une ligne par exécution
 ```
+
+### Deux étapes du même jour ne sont pas un doublon
+
+Une chambre siège plusieurs fois dans la journée. L'open data publie alors
+plusieurs actes de même nom et de même date, que rien ne distingue à l'écran.
+Mesuré le 2026-08-31 sur les **385 groupes d'actes** qui partagent un code et
+une date :
+
+| Ce qui les distingue | Groupes | Ce que le socle en fait |
+|---|---:|---|
+| L'heure — commission le matin, l'après-midi, le soir | 100 | `precision` = « 09 h 00 » |
+| La réunion — la séance publique est datée à minuit | 196 | `precision` = « 2e séance », nom donné par l'agenda |
+| Rien : même réunion, deux points à l'ordre du jour | 89 | fusionnés, une seule ligne |
+
+C'est la raison d'être de la sixième source, `Agenda.json.zip` : elle seule
+nomme les séances. Sur les **382 réunions à départager, 382 y figurent**,
+toutes avec leur heure de début et 369 avec leur quantième.
+
+La fusion ne s'applique qu'aux actes dont **tout ce que la fiche montre** est
+identique — libellé, lecture, conclusion, précision et détails. Deux
+nominations de rapporteur le même jour dans deux commissions différentes
+restent deux lignes : leurs détails les distinguent.
+
+### Ce qu'une étape dit d'elle-même
+
+La colonne `details` porte, en JSON, ce que l'acte publie : la commission qui
+s'est réunie, le texte qui sort du vote, le rapporteur désigné, le motif d'une
+saisine du Conseil constitutionnel, le numéro de la loi.
+
+**Rien n'y est rédigé.** Chaque valeur est recopiée de l'open data ou d'un
+référentiel qu'il désigne. Une clé absente veut dire que la source ne dit
+rien — pas qu'il n'y a rien à dire. `socle/test_extraction.py` en fait un
+test, pour que personne n'y glisse plus tard une phrase inventée.
 
 ### L'issue d'un texte
 

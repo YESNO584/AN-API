@@ -61,7 +61,16 @@ CREATE TABLE IF NOT EXISTS etape (
                                     -- lieu, ce qui départage deux actes du même jour
     numero      INTEGER NOT NULL,   -- l'étape des six à laquelle cet acte appartient
     conclusion  TEXT,               -- adoptée, rejeté, Conforme…
-    future      INTEGER NOT NULL    -- 1 : séance programmée, pas encore tenue
+    future      INTEGER NOT NULL,   -- 1 : séance programmée, pas encore tenue
+    -- Ce qui distingue cet acte d'un autre acte du même jour : « 2e séance »,
+    -- « 15 h 00 ». Sans lui, 296 groupes d'actes s'affichent à l'identique et
+    -- passent pour des doublons. Les 89 groupes qui restent indiscernables
+    -- sont fusionnés avant d'arriver ici. Voir extraction.precision_acte.
+    precision   TEXT,
+    -- Ce que l'acte dit de lui-même, en JSON : la commission qui s'est réunie,
+    -- le texte adopté, le rapporteur, le motif d'une saisine. Chaque valeur
+    -- est recopiée de l'open data — rien n'y est rédigé.
+    details     TEXT
 );
 
 CREATE INDEX IF NOT EXISTS etape_par_dossier ON etape (dossier_uid, date);

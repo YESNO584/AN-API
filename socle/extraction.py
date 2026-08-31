@@ -30,6 +30,11 @@ URL_SCRUTINS = DEPOT + "loi/scrutins/Scrutins.json.zip"
 # (acteur/) : une seule source pour les deux.
 URL_ORGANES = DEPOT + "amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip"
 URL_AMENDEMENTS = DEPOT + "loi/amendements_div_legis/Amendements.json.zip"
+# L'agenda des réunions. Il ne sert qu'à une chose, mais elle est nécessaire :
+# départager deux actes du même jour. Une commission qui se réunit à 9 h puis
+# à 15 h, une séance publique qui est la « Deuxième » du jour — sans cette
+# archive, les deux s'affichent à l'identique et passent pour un doublon.
+URL_AGENDA = DEPOT + "vp/reunions/Agenda.json.zip"
 
 # Les photos des députés. Elles ne sont pas dans l'open data : ce sont des
 # fichiers du site de l'Assemblée, dont l'adresse se déduit de l'identifiant.
@@ -154,6 +159,111 @@ def aplatir(noeud: dict) -> list[dict]:
     return resultat
 
 
+# Le quantième que l'Assemblée donne elle-même à ses séances. Ces quatre
+# valeurs sont les seules relevées sur les 382 réunions à départager
+# (2026-08-31) ; toute autre valeur est rendue telle quelle plutôt que perdue.
+QUANTIEMES = {"Première": "1re séance", "Deuxième": "2e séance",
+              "Troisième": "3e séance", "Quatrième": "4e séance"}
+
+
+def precision_acte(acte: dict, reunions: dict[str, dict] | None = None) -> str | None:
+    """Ce qui distingue cet acte d'un autre acte du même jour.
+
+    Trois cas, mesurés sur les 385 groupes d'actes qui partagent un code et
+    une date (2026-08-31) :
+
+    - **100 groupes** portent des heures différentes : une commission qui
+      siège le matin, l'après-midi et le soir. L'heure suffit.
+    - **196 groupes** ont la même heure — la séance publique est datée à
+      minuit — mais des réunions différentes. C'est l'agenda qui les nomme :
+      « Deuxième séance ».
+    - **89 groupes** n'ont rien qui les distingue : même réunion, deux points
+      à l'ordre du jour. Ceux-là sont fusionnés, faute de quoi la fiche
+      afficherait deux lignes identiques.
+
+    Rend `None` pour le troisième cas, ce qui provoque la fusion.
+    """
+    reunion = (reunions or {}).get(acte.get("reunionRef") or "") or {}
+    quantieme = reunion.get("quantieme")
+    if quantieme:
+        return QUANTIEMES.get(quantieme, quantieme)
+    heure = (reunion.get("debut") or acte.get("dateActe") or "")[11:16]
+    return f"{heure[:2]} h {heure[3:]}" if heure and heure != "00:00" else None
+
+
+def details_acte(acte: dict, organes: dict[str, dict] | None = None,
+                 documents: dict[str, dict] | None = None,
+                 acteurs: dict[str, dict] | None = None) -> dict:
+    """Ce que l'acte dit de lui-même, champ par champ.
+
+    **Rien n'est rédigé ici.** Chaque valeur est recopiée de l'open data ou
+    d'un référentiel qu'il désigne — le nom d'une commission, le numéro d'un
+    texte, le motif d'une saisine. Une clé absente veut dire que la source
+    ne dit rien, pas qu'il n'y a rien à dire.
+    """
+    d: dict = {}
+
+    organe = (organes or {}).get(acte.get("organeRef") or "")
+    if organe and organe.get("type") not in ("ASSEMBLEE", "SENAT"):
+        d["organe"] = organe.get("libelle")
+
+    def document(ref: str) -> dict:
+        doc = (documents or {}).get(ref) or {}
+        return {"ref": ref, "type": doc.get("type"), "numero": doc.get("numero"),
+                "description": doc.get("description")}
+
+    for cle in ("texteAdopte", "texteAssocie"):
+        ref = acte.get(cle)
+        if isinstance(ref, str):
+            d[cle] = document(ref)
+
+    # L'acte de décision ne dit pas « texteAdopte » : il liste ses textes
+    # associés, dont celui que le vote vient de produire (`BTA`). C'est le
+    # fait le plus concret de toute l'étape — ce qui sort du vote.
+    associes = (acte.get("textesAssocies") or {}).get("texteAssocie")
+    if isinstance(associes, dict):
+        associes = [associes]
+    for x in associes or []:
+        if isinstance(x, dict) and x.get("typeTexte") == "BTA" and x.get("refTexteAssocie"):
+            d["texteAdopte"] = document(x["refTexteAssocie"])
+            break
+
+    rapporteurs = (acte.get("rapporteurs") or {}).get("rapporteur")
+    if isinstance(rapporteurs, dict):
+        rapporteurs = [rapporteurs]
+    noms = []
+    for r in rapporteurs or []:
+        ref = ((r.get("acteurRef") if isinstance(r, dict) else None)
+               or ((r.get("acteur") or {}).get("acteurRef") if isinstance(r, dict) else None))
+        personne = (acteurs or {}).get(ref or "")
+        if personne:
+            noms.append(f'{personne.get("prenom", "")} {personne.get("nom", "")}'.strip())
+    if noms:
+        d["rapporteurs"] = noms
+
+    if acte.get("motif"):
+        d["motif"] = acte["motif"]
+    cas = acte.get("casSaisine")
+    if isinstance(cas, dict) and cas.get("libelle"):
+        d["saisine"] = cas["libelle"]
+    if acte.get("provenance"):
+        d["provenance"] = acte["provenance"]
+    if acte.get("codeLoi"):
+        d["loi"] = acte["codeLoi"]
+    info = acte.get("infoJO")
+    if isinstance(info, dict):
+        for source, cible in (("numJO", "journalOfficiel"), ("dateJO", "dateJO")):
+            if info.get(source):
+                d[cible] = info[source]
+    if acte.get("numDecision"):
+        d["decision"] = f'{acte["numDecision"]}'
+        if acte.get("anneeDecision"):
+            d["decision"] = f'{acte["anneeDecision"]}-{acte["numDecision"]}'
+    if acte.get("urlConclusion"):
+        d["urlDecision"] = acte["urlConclusion"]
+    return d
+
+
 def numero_etape(code: str, chambre_initiale: str | None) -> int:
     """Où se situe un acte, sur l'échelle des six étapes.
 
@@ -197,7 +307,31 @@ def statut_final(statut: str, etat_senat: str | None) -> str:
     return FINS_SENAT.get((etat_senat or "").strip(), statut)
 
 
-def analyser(brut: dict, aujourdhui: str, etats_senat: dict[str, str] | None = None) -> dict:
+def fusionner_actes(etapes: list[dict]) -> list[dict]:
+    """Supprime les actes que rien ne distingue les uns des autres.
+
+    Le même texte peut figurer deux fois à l'ordre du jour d'une même réunion :
+    l'open data publie alors deux actes identiques, à un identifiant près. Les
+    afficher tous les deux ferait passer la donnée pour fautive. Deux actes ne
+    sont fusionnés que si **tout ce que la fiche montre** est identique — le
+    reste est conservé, avec ce qui le distingue (voir `precision_acte`).
+    """
+    vus, resultat = set(), []
+    for e in etapes:
+        empreinte = (e["code"], e["date"], e["precision"], e["libelle"],
+                     e["lecture"], e["conclusion"], json.dumps(e["details"], sort_keys=True))
+        if empreinte in vus:
+            continue
+        vus.add(empreinte)
+        resultat.append(e)
+    return resultat
+
+
+def analyser(brut: dict, aujourdhui: str, etats_senat: dict[str, str] | None = None,
+             reunions: dict[str, dict] | None = None,
+             organes: dict[str, dict] | None = None,
+             documents: dict[str, dict] | None = None,
+             acteurs: dict[str, dict] | None = None) -> dict:
     """Un dossier tel que publié → un dossier tel que la base le range.
 
     Rend toujours un résultat, même pour un dossier qui ne fabrique pas de loi
@@ -243,8 +377,11 @@ def analyser(brut: dict, aujourdhui: str, etats_senat: dict[str, str] | None = N
             "numero": numero_etape(code, chambre_initiale),
             "conclusion": conclusion.get("libelle") if isinstance(conclusion, dict) else None,
             "future": date > aujourdhui,
+            "precision": precision_acte(acte, reunions),
+            "details": details_acte(acte, organes, documents, acteurs),
         })
     etapes.sort(key=lambda e: (e["date"], e["rang"]))
+    etapes = fusionner_actes(etapes)
 
     passees = [e for e in etapes if not e["future"]]
     promulgation = next((a for a in actes if (a.get("codeActe") or "") == "PROM-PUB"), None)
@@ -393,6 +530,41 @@ def lire_groupes(archive: pathlib.Path) -> dict[str, tuple[str, str]]:
         if o.get("codeType") == "GP":
             groupes[o["uid"]] = (o.get("libelleAbrege") or o["uid"], o.get("libelle") or "")
     return groupes
+
+
+def lire_organes(archive: pathlib.Path) -> dict[str, dict]:
+    """Tous les organes : identifiant → nom. Pas seulement les groupes.
+
+    Un acte ne dit pas « la commission des lois », il dit « PO59051 ». Sans
+    cette table, une réunion de commission ne peut pas dire laquelle. Les
+    7 126 organes de l'archive sont lus, commissions et assemblées comprises.
+    """
+    organes = {}
+    for brut in _lire(archive, "organe"):
+        o = brut["organe"]
+        organes[o["uid"]] = {"libelle": o.get("libelle") or "",
+                             "abrege": o.get("libelleAbrege") or "",
+                             "type": o.get("codeType") or ""}
+    return organes
+
+
+def lire_reunions(archive: pathlib.Path) -> dict[str, dict]:
+    """Les réunions et séances : leur heure, et le rang que l'Assemblée leur donne.
+
+    Sert uniquement à départager deux actes du même jour — voir
+    `precision_acte`. Mesuré le 2026-08-31 : sur les 382 réunions à
+    départager, **382 sont dans cette archive**, toutes avec leur heure de
+    début, 369 avec leur quantième.
+    """
+    reunions = {}
+    for brut in _lire(archive, "reunion"):
+        r = brut["reunion"]
+        reunions[r["uid"]] = {
+            "debut": (r.get("timeStampDebut") or "")[:16],
+            "quantieme": (r.get("identifiants") or {}).get("quantieme"),
+            "lieu": (r.get("lieu") or {}).get("libelleLong"),
+        }
+    return reunions
 
 
 def telecharger(destination: pathlib.Path, entetes: dict[str, str] | None = None,
@@ -752,6 +924,7 @@ def lire_documents(archive: pathlib.Path) -> dict[str, dict]:
         documents[d["uid"]] = {
             "uid": d["uid"],
             "type": d.get("denominationStructurelle"),
+            "numero": (d.get("notice") or {}).get("numNotice"),
             "titre": (d.get("titres") or {}).get("titrePrincipal"),
             "description": (d.get("notice") or {}).get("formule"),
             "dossier": d.get("dossierRef"),

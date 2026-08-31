@@ -277,8 +277,10 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     for l in cx.execute(
             "SELECT * FROM dossier WHERE est_loi = 1 AND statut != ?",
             (extraction.SANS_ACTE,)):
-        parcours = [dict(e) for e in cx.execute(
-            "SELECT code, lecture, libelle, chambre, date, numero, conclusion, future"
+        parcours = [{**dict(e), "details": json.loads(e["details"] or "{}")}
+                    for e in cx.execute(
+            "SELECT code, lecture, libelle, chambre, date, numero, conclusion,"
+            " future, precision, details"
             " FROM etape WHERE dossier_uid = ? ORDER BY date, rang", (l["uid"],))]
         cosign = json.loads(l["cosignataires"] or "[]")
         details += ecrire(sortie / "textes" / f'{l["uid"]}.json', {
