@@ -1,6 +1,6 @@
 # Plan — Application de suivi du Parlement (Assemblée nationale + Sénat)
 
-**Statut :** brouillon v2 — étude de faisabilité + plan
+**Statut :** v3 — **étape 0 faite, sources vérifiées sur les fichiers réels**
 **Dernière mise à jour :** 2026-08-31
 **Ce document est vivant.** Il est mis à jour à chaque session. Voir le
 « Journal des mises à jour » à la fin.
@@ -93,10 +93,22 @@ oblige à tout refaire plus tard.
 
 ### 3.2 Le problème du recollement
 
-Chaque chambre publie ses propres données, avec ses propres numéros. Rien ne
-garantit qu'un identifiant permette de dire « ce texte au Sénat est le même
-que celui-là à l'Assemblée ». **Ce point n'est pas vérifié** — c'est le
-premier travail de l'étape 0 (§6).
+**Vérifié le 2026-08-31 : le problème n'existe pas.** L'Assemblée publie,
+dans chaque dossier, le champ `senatChemin` — l'adresse du dossier
+correspondant sur `senat.fr`. Rapproché du fichier du Sénat, cela marche sur
+**100 %** des 910 dossiers concernés (901 directement, les 9 autres après
+normalisation d'une ancienne forme d'adresse). Détail dans
+`sources/assemblee-nationale.md`.
+
+**C'est donc la stratégie A qui gagne, mais pas celle qu'on croyait** : ce
+n'est pas La Fabrique de la Loi qui a fait le recollement, c'est l'Assemblée
+nationale elle-même.
+
+Le texte d'origine de cette section, conservé pour mémoire :
+
+> Chaque chambre publie ses propres données, avec ses propres numéros. Rien
+> ne garantit qu'un identifiant permette de dire « ce texte au Sénat est le
+> même que celui-là à l'Assemblée ».
 
 Trois stratégies possibles, de la meilleure à la moins bonne :
 
@@ -106,8 +118,15 @@ Trois stratégies possibles, de la meilleure à la moins bonne :
 | **B — S'appuyer sur Légifrance** | Légifrance publie des « dossiers législatifs » qui couvrent le parcours entier | La couverture est-elle complète et assez fraîche ? |
 | **C — Recoller nous-mêmes** | Rapprocher les données des deux chambres par titre, date et numéro | Coûteux, fragile, et jamais fiable à 100 % |
 
-**Recommandation :** ne pas commencer par C. Vérifier A, puis B, avant
-d'écrire la moindre ligne de recollement.
+**Résultat de la vérification :**
+
+| Stratégie | Verdict |
+|---|---|
+| **A — La Fabrique de la Loi** | **Écartée.** Figée depuis 2022 (§4.4) |
+| **B — Légifrance** | **Sans objet.** Ne servait que de secours ; le rapprochement fonctionne sans elle |
+| **C — Recoller nous-mêmes** | **Inutile.** L'Assemblée fournit le lien |
+
+**Aucune ligne de code de recollement n'est à écrire.**
 
 ---
 
@@ -176,7 +195,20 @@ C'est la **stratégie B** du §3.2 : potentiellement une vue du parcours
 complet, côté État, indépendante des deux chambres. Couverture et fraîcheur
 à vérifier à l'étape 0.
 
-### 4.4 La Fabrique de la Loi (Regards Citoyens)
+### 4.4 La Fabrique de la Loi (Regards Citoyens) — ÉCARTÉE
+
+> **Vérifié le 2026-08-31 : le projet est figé.** Ses données s'arrêtent au
+> 11 janvier 2022 et ne couvrent que la 15e législature. La législature en
+> cours est la 17e : elle est absente en totalité. La source ne peut pas
+> servir à suivre l'actualité législative. Détail et chiffres dans
+> `sources/fabrique-de-la-loi.md`.
+>
+> **Effet secondaire favorable :** la contrainte de licence ODbL décrite
+> ci-dessous disparaît avec elle. L'Assemblée et le Sénat publient sous des
+> licences nettement plus permissives.
+>
+> Ce qui suit décrit le projet tel qu'il a été, et reste utile sur un point :
+> **son modèle d'étapes est bien conçu et vaut d'être repris.**
 
 Un projet associatif mené avec deux laboratoires de Sciences Po Paris.
 **Il fait déjà exactement ce que notre fonctionnalité principale doit
@@ -194,9 +226,8 @@ chaque phase, les amendements et les interventions.
   qu'on redistribue. Utilisable, mais cela contraint un éventuel produit
   commercial. À regarder de près avant d'en faire le socle définitif.
 
-**Deux choses à vérifier avant de compter dessus** (étape 0) : le projet
-est-il encore mis à jour aujourd'hui, et couvre-t-il la législature en
-cours ?
+**Les deux questions posées ici ont reçu leur réponse le 2026-08-31 :
+non, et non.** Voir l'encadré en tête de section.
 
 ### 4.5 Délais de publication (ce qui conditionne la fraîcheur de l'appli)
 
@@ -241,26 +272,30 @@ décisions prises :
 
 Règle du projet : ne pas présenter comme un fait ce qui n'a pas été vérifié.
 
-- **Le réseau de la session de travail bloque l'accès direct** à
-  `data.assemblee-nationale.fr`, `data.senat.fr`, `senat.fr`,
-  `legifrance.gouv.fr`, `data.gouv.fr`, `assemblee-nationale.fr`,
-  `lafabriquedelaloi.fr` et `regardscitoyens.org`. **Retesté le 2026-08-31 :
-  toujours bloqué.** Le blocage vient de l'environnement d'exécution de la
-  session (le proxy refuse la connexion), pas du réseau de l'utilisateur.
-  **Il se corrige** en passant le niveau d'accès réseau de l'environnement
-  à `Custom` — marche à suivre et liste de domaines dans
-  `ACCES-RESEAU.md`.
-- **La recherche web fonctionne.** Tout ce document s'appuie donc sur des
-  recherches et sur les descriptions publiées de ces jeux de données —
-  **jamais sur les fichiers eux-mêmes.**
-- **Non vérifié à ce stade, et à vérifier en premier (étape 0) :** les URL
-  exactes des fichiers, leur taille, la structure précise du XML/JSON, la
-  législature couverte par chaque jeu, le comportement réel de la liste
-  quotidienne des nouveautés, l'existence d'un identifiant commun entre les
-  deux chambres, et l'état de mise à jour de La Fabrique de la Loi.
-- Tant que l'étape 0 n'est pas faite, **aucun chiffre de ce document portant
-  sur les volumes ou les coûts ne doit être cité ailleurs** : ce sont des
-  ordres de grandeur, pas des mesures.
+**L'étape 0 a été faite le 2026-08-31.** Les fichiers ont été téléchargés et
+comptés. Le détail est dans **`sources/`** — une fiche par source, plus un
+`sources/README.md` qui résume ce qui a changé.
+
+Ce qui est désormais **mesuré** :
+
+- Les adresses exactes, formats, tailles et fraîcheur des jeux de données des
+  deux chambres.
+- La structure des dossiers législatifs de l'Assemblée et de la liste du
+  Sénat.
+- **L'identifiant commun entre les deux chambres : il existe** (voir §3.2).
+- **L'état de La Fabrique de la Loi : figée depuis 2022** (voir §4.4).
+- Le volume des débats, et donc le coût des résumés (voir §9.3).
+
+Ce qui reste **non vérifié**, et pourquoi :
+
+- **L'API Légifrance via PISTE.** Elle demande un compte et une clé, qu'une
+  session ne peut pas créer. Voir `sources/legifrance-piste.md`. Ce point
+  n'est plus bloquant : il ne servait que de solution de secours au
+  rapprochement des deux chambres, qui fonctionne.
+- **NosDéputés.fr et NosSénateurs.fr**, hors service au moment du test.
+
+L'accès réseau n'est plus un obstacle : les portails répondent normalement.
+Voir `ACCES-RESEAU.md`.
 
 ---
 
@@ -274,9 +309,20 @@ qu'ensuite.
 
 Chaque étape doit être utilisable seule.
 
-### Étape 0 — Vérifier le terrain (depuis un poste sans blocage réseau)
+### Étape 0 — Vérifier le terrain — **FAITE le 2026-08-31**
 
 **But :** remplacer les suppositions des §3 et §4 par des faits.
+
+**Résultats dans `sources/`.** État de chaque point :
+
+| | Point | État |
+|---|---|---|
+| 1 | La Fabrique de la Loi est-elle vivante ? | ✅ **Non** — figée depuis janvier 2022 |
+| 2 | Identifiant commun entre les deux chambres ? | ✅ **Oui** — l'Assemblée publie le lien vers le Sénat, 100 % de correspondance |
+| 3 | Que vaut Légifrance sur les dossiers législatifs ? | ⬜ **Non fait** — demande un compte PISTE. N'est plus bloquant |
+| 4 | Inventaire des jeux de données des deux chambres | ✅ Fait — adresses, formats, tailles, fraîcheur |
+| 5 | Taille d'une journée de séance | ✅ Mesurée — voir §9.3 |
+| 6 | Nombre de scrutins publics par an | ✅ 4 422 à l'Assemblée en 2025, essentiellement sur des amendements |
 
 **Par ordre d'importance :**
 
@@ -535,15 +581,30 @@ Trois leviers réduisent fortement la facture :
 - **La fenêtre de contexte d'un million de jetons** évite d'avoir à
   découper artificiellement les longs comptes rendus.
 
-**Ordre de grandeur, à confirmer par l'étape 0 :** si une journée de séance
-représente quelques centaines de milliers de jetons de texte, et qu'il y a
-environ 150 jours de séance par an et par chambre, le traitement d'une année
-entière de débats des deux chambres se compte **en centaines d'euros**, pas
-en milliers. Le coût des résumés **n'est pas le facteur limitant du
-projet** — la qualité et la vérification le sont.
+**Mesuré le 2026-08-31**, sur les comptes rendus réellement publiés :
 
-*(Ces chiffres sont des ordres de grandeur. La mesure réelle de la taille
-d'une journée de séance est le livrable clé de l'étape 0.)*
+| | Assemblée | Sénat |
+|---|---:|---:|
+| Texte par unité publiée | 198 000 caractères **par séance** | 462 000 caractères **par journée** |
+| Unités en 2025 | 314 séances | 126 journées |
+| Volume 2025 | 63,1 M caractères | 67,4 M caractères |
+
+**Une année entière de débats des deux chambres : 130,5 millions de
+caractères, soit environ 34,8 millions de jetons.** Au tarif d'entrée, avec
+le traitement par lots :
+
+| Modèle | Coût pour une année de débats |
+|---|---:|
+| Claude Haiku 4.5 | **17 $** |
+| Claude Sonnet 5 | **35 $** |
+| Claude Opus 5 | **87 $** |
+
+**La conclusion de cette section se renforce :** on parle de **dizaines**
+d'euros par an, pas de centaines. Le coût des résumés **n'est pas le facteur
+limitant du projet** — la qualité et la vérification le sont.
+
+*(Détail du calcul dans `sources/README.md`. Le nombre de jetons est estimé à
+3,75 caractères par jeton, ordre de grandeur pour du français.)*
 
 ---
 
@@ -586,11 +647,16 @@ premier code** :
 
 ## 12. Prochaine étape immédiate
 
-1. **Faire l'étape 0 depuis un poste sans blocage réseau**, en commençant par
-   la question 1 : La Fabrique de la Loi est-elle encore à jour ? La réponse
-   change l'ampleur du projet.
-2. Écrire les fiches par source dans ce dossier `docs/`.
-3. Revenir sur ce plan avec les vrais chiffres, puis choisir la technologie.
+**L'étape 0 est faite** (2026-08-31, résultats dans `sources/`). Elle a
+tranché les deux questions qui commandaient tout : La Fabrique de la Loi est
+inutilisable, et le rapprochement entre les deux chambres est déjà fait par
+l'Assemblée. La maquette peut donc se construire sur données réelles.
+
+1. **L'étape 1, la maquette**, sur les dossiers législatifs de l'Assemblée.
+   Commencer par le fil des textes en cours, classés par étape du parcours.
+2. **Choisir la technologie** (§7), maintenant que les volumes sont connus.
+3. **Si et seulement si le texte consolidé des lois devient nécessaire** :
+   créer un compte PISTE et évaluer l'API Légifrance.
 
 ---
 
@@ -598,6 +664,7 @@ premier code** :
 
 | Date | Version | Ce qui a changé |
 |---|---|---|
+| 2026-08-31 | **v3** | **Étape 0 faite** : les fichiers des deux chambres ont été téléchargés et comptés. Fiches par source dans `sources/`. Trois conclusions changent le plan — **La Fabrique de la Loi est écartée** (figée depuis 2022, §4.4) ; **le recollement entre les deux chambres n'est pas à faire**, l'Assemblée publie le lien (§3.2) ; **le coût des résumés est de l'ordre de 35 $ par an** pour les deux chambres, mesuré, pas estimé (§9.3). §5 réécrit : ce qui est mesuré, ce qui ne l'est pas. §12 : la maquette peut commencer sur données réelles. |
 | 2026-08-31 | v2 | Décisions prises intégrées (§10) : grand public, mobile + web, favoris, **Assemblée + Sénat**, maquette d'abord. Nouveau §3 sur le parcours d'une loi et le recollement entre les deux chambres. Nouveau §7 sur les favoris et le RGPD. §4 étendu au Sénat, à Légifrance et à La Fabrique de la Loi. §6 réordonné : la maquette passe avant la récupération des données. §8.2 réécrit : « important » devient un choix de l'utilisateur. Tarifs de l'API Claude vérifiés. Accès réseau retesté : toujours bloqué côté session, et la marche à suivre pour le débloquer est désormais dans `ACCES-RESEAU.md`. |
 | 2026-08-31 | v1 | Création : étude de faisabilité et plan initial. Sources vérifiées par recherche web uniquement — accès direct aux portails bloqué par le réseau. |
 
