@@ -57,6 +57,57 @@ CREATE TABLE IF NOT EXISTS etape (
 
 CREATE INDEX IF NOT EXISTS etape_par_dossier ON etape (dossier_uid, date);
 
+-- Les scrutins publics.
+--
+-- Ils ne couvrent qu'une petite partie des textes : 71 des 1 990 textes en
+-- cours en avaient un le 2026-08-31, soit 3,6 %. Ce n'est pas une lacune de
+-- la récupération — la plupart des textes sont adoptés à main levée, ou
+-- jamais examinés. Et 7 216 des 8 434 scrutins portent sur un amendement,
+-- pas sur un texte entier : d'où la colonne `portee`, sans laquelle un
+-- affichage laisserait croire qu'un texte a été adopté alors qu'un seul de
+-- ses amendements l'a été.
+CREATE TABLE IF NOT EXISTS vote (
+    uid          TEXT PRIMARY KEY,
+    dossier_uid  TEXT REFERENCES dossier(uid) ON DELETE SET NULL,
+    date         TEXT NOT NULL,
+    numero       INTEGER,
+    type         TEXT,               -- scrutin public ordinaire | solennel | motion de censure
+    portee       TEXT NOT NULL,      -- ensemble | article | amendement | motion | autre
+    objet        TEXT,
+    sort         TEXT,               -- adopté | rejeté
+    annonce      TEXT,
+    demandeur    TEXT,
+    votants      INTEGER,
+    requis       INTEGER,
+    pour         INTEGER,
+    contre       INTEGER,
+    abstentions  INTEGER,
+    non_votants  INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS vote_par_dossier ON vote (dossier_uid, date DESC);
+CREATE INDEX IF NOT EXISTS vote_par_portee  ON vote (portee, date DESC);
+
+-- Comment chaque groupe politique a voté.
+--
+-- `position` est **calculée sur le décompte**, pas reprise de la source :
+-- celle-ci contredit son propre décompte dans 3 % des cas. Voir
+-- `position_dominante()` dans extraction.py.
+CREATE TABLE IF NOT EXISTS vote_groupe (
+    vote_uid     TEXT NOT NULL REFERENCES vote(uid) ON DELETE CASCADE,
+    organe_ref   TEXT,
+    sigle        TEXT,
+    nom          TEXT,
+    membres      INTEGER,
+    position     TEXT,               -- pour | contre | abstention | partagé | NULL
+    pour         INTEGER,
+    contre       INTEGER,
+    abstentions  INTEGER,
+    non_votants  INTEGER
+);
+
+CREATE INDEX IF NOT EXISTS vote_groupe_par_vote ON vote_groupe (vote_uid);
+
 -- Ce que le socle sait de la source, pour ne rien refaire inutilement.
 --
 -- `empreinte` n'est pas un luxe. L'Assemblée sert cette archive depuis

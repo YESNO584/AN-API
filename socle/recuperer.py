@@ -48,9 +48,18 @@ def ouvrir(chemin: pathlib.Path) -> sqlite3.Connection:
     return connexion
 
 
-def connue(connexion: sqlite3.Connection) -> sqlite3.Row | None:
-    return connexion.execute(
-        "SELECT * FROM source WHERE url = ?", (extraction.URL_ARCHIVE,)).fetchone()
+# Les trois jeux dont le socle a besoin. Les groupes politiques ne sont pas un
+# supplément : les scrutins ne nomment pas les groupes, ils y renvoient par un
+# identifiant. Sans cette table, « PO845401 a voté contre » n'apprend rien.
+SOURCES = {
+    "dossiers": extraction.URL_ARCHIVE,
+    "scrutins": extraction.URL_SCRUTINS,
+    "groupes": extraction.URL_ORGANES,
+}
+
+
+def connue(connexion: sqlite3.Connection, url: str) -> sqlite3.Row | None:
+    return connexion.execute("SELECT * FROM source WHERE url = ?", (url,)).fetchone()
 
 
 def entetes_conditionnelles(ligne: sqlite3.Row | None) -> dict[str, str]:
@@ -74,10 +83,27 @@ def empreinte(fichier: pathlib.Path) -> str:
     return condensat.hexdigest()
 
 
-def ranger(connexion: sqlite3.Connection, archive: pathlib.Path, aujourdhui: str) -> tuple[int, int]:
-    """Remplace le contenu de la base par celui de l'archive. Tout ou rien."""
+def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
+           aujourdhui: str) -> tuple[int, int, int]:
+    """Remplace le contenu de la base par celui des archives. Tout ou rien."""
+    groupes = extraction.lire_groupes(archives["groupes"])
+
+    # Les scrutins d'abord : on a besoin de savoir, pour chaque dossier, quels
+    # votes le concernent — et le lien se lit dans les deux sens.
+    votes, par_ref = [], {}
+    for brut in extraction.lire_scrutins(archives["scrutins"]):
+        v = extraction.analyser_scrutin(brut, groupes)
+        votes.append(v)
+        par_ref[v["uid"]] = v
+
     dossiers, etapes = [], []
-    for brut in extraction.lire_archive(archive):
+    for brut in extraction.lire_archive(archives["dossiers"]):
+        # Le dossier cite parfois ses scrutins ; le scrutin nomme parfois son
+        # dossier. Aucun des deux sens ne suffit seul : réunis, ils font passer
+        # la couverture de 34 et 68 textes à 71 (mesuré le 2026-08-31).
+        for ref in extraction.refs_de_vote(brut["dossierParlementaire"]):
+            if ref in par_ref and not par_ref[ref]["dossier"]:
+                par_ref[ref]["dossier"] = brut["dossierParlementaire"]["uid"]
         d = extraction.analyser(brut, aujourdhui)
         courant = d["etapeCourante"] or {}
         prochaine = next((e for e in d["etapes"] if e["future"]), None)
@@ -96,14 +122,37 @@ def ranger(connexion: sqlite3.Connection, archive: pathlib.Path, aujourdhui: str
             e["date"], e["rang"], e["numero"], e["conclusion"], int(e["future"]),
         ) for e in d["etapes"]]
 
+    # Un scrutin peut nommer un dossier d'une autre législature, ou disparu :
+    # la clé étrangère refuserait la ligne. On coupe le lien plutôt que de
+    # perdre le vote, qui reste exact en lui-même.
+    connus = {d[0] for d in dossiers}
+    lignes_vote, lignes_groupe = [], []
+    for v in votes:
+        dossier = v["dossier"] if v["dossier"] in connus else None
+        lignes_vote.append((
+            v["uid"], dossier, v["date"], v["numero"], v["type"], v["portee"],
+            v["objet"], v["sort"], v["annonce"], v["demandeur"], v["votants"],
+            v["requis"], v["pour"], v["contre"], v["abstentions"], v["nonVotants"],
+        ))
+        lignes_groupe += [(
+            v["uid"], g["ref"], g["sigle"], g["nom"], g["membres"], g["position"],
+            g["pour"], g["contre"], g["abstentions"], g["nonVotants"],
+        ) for g in v["groupes"]]
+
     with connexion:                     # une transaction, ouverte et refermée ici
+        connexion.execute("DELETE FROM vote_groupe")
+        connexion.execute("DELETE FROM vote")
         connexion.execute("DELETE FROM etape")
         connexion.execute("DELETE FROM dossier")
         connexion.executemany(
             "INSERT INTO dossier VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", dossiers)
         connexion.executemany(
             "INSERT INTO etape VALUES (?,?,?,?,?,?,?,?,?,?,?)", etapes)
-    return len(dossiers), len(etapes)
+        connexion.executemany(
+            "INSERT INTO vote VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", lignes_vote)
+        connexion.executemany(
+            "INSERT INTO vote_groupe VALUES (?,?,?,?,?,?,?,?,?,?)", lignes_groupe)
+    return len(dossiers), len(etapes), len(lignes_vote)
 
 
 def afficher_journal(connexion: sqlite3.Connection, combien: int = 10) -> None:
@@ -123,13 +172,16 @@ def main() -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     analyseur.add_argument("--forcer", action="store_true",
                            help="recharger même si la source est inchangée")
-    analyseur.add_argument("--zip", type=pathlib.Path,
-                           help="lire une archive locale au lieu de la télécharger")
+    analyseur.add_argument("--zip", nargs=3, metavar=("DOSSIERS", "SCRUTINS", "GROUPES"),
+                           type=pathlib.Path,
+                           help="lire trois archives locales au lieu de les télécharger")
     analyseur.add_argument("--base", type=pathlib.Path, default=BASE,
                            help=f"fichier de base de données (défaut : {BASE.name})")
     analyseur.add_argument("--journal", action="store_true",
                            help="afficher les dernières exécutions et s'arrêter")
     options = analyseur.parse_args()
+    if options.zip:
+        options.zip = dict(zip(SOURCES, options.zip))
 
     connexion = ouvrir(options.base)
     if options.journal:
@@ -152,55 +204,63 @@ def main() -> int:
 
     try:
         with tempfile.TemporaryDirectory() as travail:
+            archives, comptes_rendus = {}, {}
             if options.zip:
-                archive = options.zip
-                if not archive.exists():
-                    raise FileNotFoundError(f"archive introuvable : {archive}")
-                compte_rendu = {"modifie": True, "octets": archive.stat().st_size,
-                                "etag": None, "modifieLe": None}
-                print(f"Archive locale : {archive}", file=sys.stderr)
+                for nom, chemin in options.zip.items():
+                    if not chemin.exists():
+                        raise FileNotFoundError(f"archive introuvable : {chemin}")
+                    archives[nom] = chemin
+                    comptes_rendus[nom] = {"octets": chemin.stat().st_size}
+                    print(f"Archive locale ({nom}) : {chemin}", file=sys.stderr)
             else:
-                precedente = None if options.forcer else connue(connexion)
-                archive = pathlib.Path(travail) / "dossiers.zip"
-                compte_rendu = extraction.telecharger(
-                    archive, entetes_conditionnelles(precedente))
+                inchangees = 0
+                for nom, url in SOURCES.items():
+                    precedente = None if options.forcer else connue(connexion, url)
+                    chemin = pathlib.Path(travail) / f"{nom}.zip"
+                    cr = extraction.telecharger(
+                        chemin, entetes_conditionnelles(precedente), url)
 
-                if not compte_rendu["modifie"]:
-                    clore("inchange", octets=0,
-                          message="la source répond « non modifié »")
+                    if not cr["modifie"]:
+                        # Le serveur dit « rien de neuf » : on garde la copie de
+                        # la fois précédente. Elle n'existe pas ici — la machine
+                        # est neuve à chaque exécution — donc on retélécharge
+                        # sans condition plutôt que de travailler sans elle.
+                        cr = extraction.telecharger(chemin, None, url)
+                        inchangees += 1
+                    cr["empreinte"] = empreinte(chemin)
+                    if precedente and cr["empreinte"] == precedente["empreinte"]:
+                        inchangees += 1
+                    archives[nom], comptes_rendus[nom] = chemin, cr
+                    print(f"  {nom:<10} {cr['octets']:>12,} octets", file=sys.stderr)
+
+                if inchangees == len(SOURCES) and not options.forcer:
+                    for nom, url in SOURCES.items():
+                        connexion.execute(
+                            "UPDATE source SET etag=?, modifie_le=?, vu_le=? WHERE url=?",
+                            (comptes_rendus[nom]["etag"], comptes_rendus[nom]["modifieLe"],
+                             maintenant(), url))
+                    clore("inchange",
+                          octets=sum(c["octets"] for c in comptes_rendus.values()),
+                          message="aucune des trois sources n'a changé")
                     print("Rien n'a changé côté Assemblée : base laissée telle quelle.",
                           file=sys.stderr)
                     return 0
-                print(f"Téléchargé : {compte_rendu['octets']:,} octets", file=sys.stderr)
 
-                # Le téléchargement conditionnel ne suffit pas : l'archive est
-                # servie par plusieurs machines qui ne publient pas la même
-                # génération, si bien qu'un contenu identique arrive avec des
-                # en-têtes différents. On compare donc le contenu lui-même.
-                compte_rendu["empreinte"] = empreinte(archive)
-                if precedente and compte_rendu["empreinte"] == precedente["empreinte"]:
-                    connexion.execute(
-                        "UPDATE source SET etag=?, modifie_le=?, vu_le=? WHERE url=?",
-                        (compte_rendu["etag"], compte_rendu["modifieLe"], maintenant(),
-                         extraction.URL_ARCHIVE))
-                    clore("inchange", octets=compte_rendu["octets"],
-                          message="archive téléchargée mais identique à la précédente")
-                    print("Archive identique à la précédente : base laissée telle quelle.",
-                          file=sys.stderr)
-                    return 0
-
-            dossiers, etapes = ranger(connexion, archive, aujourdhui)
+            dossiers, etapes, votes = ranger(connexion, archives, aujourdhui)
 
         if not options.zip:
-            connexion.execute(
-                "INSERT INTO source (url, etag, modifie_le, empreinte, vu_le)"
-                " VALUES (?,?,?,?,?)"
-                " ON CONFLICT(url) DO UPDATE SET etag=excluded.etag,"
-                " modifie_le=excluded.modifie_le, empreinte=excluded.empreinte,"
-                " vu_le=excluded.vu_le",
-                (extraction.URL_ARCHIVE, compte_rendu["etag"], compte_rendu["modifieLe"],
-                 compte_rendu["empreinte"], maintenant()))
-        clore("succes", octets=compte_rendu["octets"], dossiers=dossiers, etapes=etapes)
+            for nom, url in SOURCES.items():
+                cr = comptes_rendus[nom]
+                connexion.execute(
+                    "INSERT INTO source (url, etag, modifie_le, empreinte, vu_le)"
+                    " VALUES (?,?,?,?,?)"
+                    " ON CONFLICT(url) DO UPDATE SET etag=excluded.etag,"
+                    " modifie_le=excluded.modifie_le, empreinte=excluded.empreinte,"
+                    " vu_le=excluded.vu_le",
+                    (url, cr["etag"], cr["modifieLe"], cr["empreinte"], maintenant()))
+        clore("succes", octets=sum(c["octets"] for c in comptes_rendus.values()),
+              dossiers=dossiers, etapes=etapes,
+              message=f"{votes} scrutins")
 
     except Exception as erreur:                       # noqa: BLE001 — on veut tout journaliser
         clore("echec", message=f"{type(erreur).__name__}: {erreur}")
@@ -211,7 +271,12 @@ def main() -> int:
         SELECT etape, COUNT(*) n FROM dossier
          WHERE statut = 'en_cours' AND est_loi = 1 AND etape IS NOT NULL
          GROUP BY etape ORDER BY etape""").fetchall()
-    print(f"\n{dossiers} dossiers rangés, {etapes} étapes.", file=sys.stderr)
+    print(f"\n{dossiers} dossiers, {etapes} étapes, {votes} scrutins rangés.",
+          file=sys.stderr)
+    lie = connexion.execute(
+        "SELECT COUNT(DISTINCT dossier_uid) n FROM vote WHERE dossier_uid IS NOT NULL"
+    ).fetchone()["n"]
+    print(f"Scrutins rattachés à {lie} dossiers.", file=sys.stderr)
     print("Textes de loi en cours, par étape :", file=sys.stderr)
     for numero, nom, _ in extraction.ETAPES:
         n = next((l["n"] for l in resume if l["etape"] == numero), 0)

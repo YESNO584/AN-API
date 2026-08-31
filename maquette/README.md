@@ -25,6 +25,7 @@ l'immense majorité.
 | **Où le texte se trouve** | Assemblée, Sénat, ou les deux (commission mixte paritaire) |
 | **Nature du texte** | Proposition, projet, loi organique, constitutionnelle, budget, ratification… |
 | **Dernier mouvement** | Cette semaine, ce mois-ci, ces trois mois — ou à l'arrêt depuis plus d'un an |
+| **Votes** | A fait l'objet d'un vote, voté sur le texte entier, adopté, rejeté |
 | **Calendrier** | Les textes dont une séance est déjà programmée |
 | **Recherche** | Dans les titres |
 
@@ -71,6 +72,28 @@ cd ../socle && ./publier.py && (cd public && python3 -m http.server 8000)
 
 En ouvrant alors `http://127.0.0.1:8000/feed.html?socle=http://127.0.0.1:8000`
 après y avoir copié la page, tout tient sur une seule adresse.
+
+## Les votes
+
+Quand un texte a été voté, sa carte porte le résultat : **« Adopté — 378 pour,
+7 contre, 173 abstentions »**. Le toucher ouvre le **détail par groupe
+politique**, sous forme de barres, chargé à la demande depuis le fichier de
+détail du texte.
+
+Trois précautions, parce que le sujet se prête aux malentendus :
+
+1. **Un vote sur un amendement n'est pas un vote sur le texte.** La carte
+   distingue les deux : « Adopté » n'apparaît que pour un vote sur l'ensemble.
+   Un texte qui n'a que des votes d'amendements affiche « 140 votes
+   enregistrés — sur des amendements ou des articles ».
+2. **Peu de textes ont un vote** : 71 sur 1 990. Le filtre affiche le compte,
+   pour que le chiffre se voie au lieu de se deviner.
+3. **La position des groupes est recalculée** sur le décompte des voix, parce
+   que celle annoncée par la source la contredit dans 3 % des cas.
+
+**Il n'y a pas de « votes à venir »**, et la maquette le dit explicitement au
+lieu de laisser une rubrique vide : l'Assemblée ne publie un vote qu'une fois
+qu'il a eu lieu. Ce qui existe à l'avance, ce sont les séances programmées.
 
 ## Ce que la maquette ne fait pas
 

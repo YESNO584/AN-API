@@ -81,13 +81,36 @@ une chambre.** C'est la forme dans laquelle l'Assemblée publie — il n'y a rie
 publie elle-même l'adresse du dossier correspondant.
 
 ```
-dossier   uid, titre, type, est_loi, chambre_initiale, statut, etape,
-          date_dernier_mouvement, url_an, url_senat, loi_numero…
-etape     dossier_uid, code, lecture, libelle, chambre, date, rang,
-          numero (1..6), conclusion, future
-source    ce qu'on sait de la source, pour le téléchargement conditionnel
-journal   une ligne par exécution
+dossier      uid, titre, type, est_loi, chambre_initiale, statut, etape,
+             date_dernier_mouvement, chambre, lecture, dernier_acte,
+             conclusion, prochaine_date, url_an, url_senat, loi_numero…
+etape        dossier_uid, code, lecture, libelle, chambre, date, rang,
+             numero (1..6), conclusion, future
+vote         uid, dossier_uid, date, type, portee, objet, sort,
+             pour, contre, abstentions, non_votants…
+vote_groupe  vote_uid, sigle, nom, membres, position, pour, contre…
+source       ce qu'on sait de chaque source, pour le téléchargement conditionnel
+journal      une ligne par exécution
 ```
+
+### Les votes, et ce qu'ils ne disent pas
+
+Le socle récupère les **8 434 scrutins publics** de la législature, avec le
+décompte par groupe politique. Trois choses à savoir avant de s'en servir :
+
+1. **Peu de textes en ont un.** 71 des 1 990 textes en cours, soit 3,6 %. La
+   plupart sont adoptés à main levée, ou jamais examinés.
+2. **7 216 scrutins portent sur un amendement**, 212 seulement sur un texte
+   entier. D'où la colonne `portee` : sans elle, un affichage laisserait
+   croire qu'un texte a été adopté alors qu'un seul de ses amendements l'a
+   été.
+3. **La position annoncée d'un groupe n'est pas fiable** — elle contredit
+   son propre décompte dans 3 % des cas. `vote_groupe.position` est donc
+   **recalculée** sur les voix. Détail et chiffres dans
+   `../docs/sources/assemblee-nationale.md`.
+
+**Il n'y a pas de votes à venir**, et ce n'est pas un manque du socle :
+l'Assemblée ne publie un vote qu'une fois qu'il a eu lieu.
 
 **La base garde tout**, y compris les dossiers qui ne fabriquent pas de loi et
 les textes promulgués. Les colonnes `est_loi` et `statut` le disent ; c'est à

@@ -145,6 +145,42 @@
   .etiq.dormant { color: var(--faible); font-style: italic; }
   .etiq::after { content: " ⓘ"; font-size: .8em; opacity: .5; font-style: normal; }
 
+  .vote {
+    display: flex; align-items: baseline; gap: .45rem; width: 100%; margin-top: .6rem;
+    font: inherit; font-size: .78rem; text-align: left; cursor: pointer;
+    padding: .4rem .55rem; border-radius: 8px;
+    border: 1px solid var(--trait); background: var(--doux); color: var(--gris);
+  }
+  .vote .verdict { font-weight: 640; white-space: nowrap; }
+  .vote.adopte .verdict { color: var(--ok); }
+  .vote.rejete .verdict { color: var(--accent); }
+  .vote .chiffres { flex: 1; min-width: 0; font-variant-numeric: tabular-nums; }
+  .vote .quand, .vote .loupe { color: var(--faible); white-space: nowrap; }
+  .vote:active { border-color: var(--accent); }
+
+  .groupes { margin-top: .9rem; border-top: 1px solid var(--trait); padding-top: .7rem; }
+  .groupes .objet { font-size: .8rem; color: var(--gris); margin: 0 0 .7rem; }
+  .groupes .attente { font-size: .8rem; color: var(--faible); margin: .6rem 0 0; }
+  .legende { display: flex; gap: .8rem; font-size: .72rem; color: var(--faible);
+             margin-bottom: .6rem; }
+  .legende span { display: inline-flex; align-items: center; gap: .25rem; }
+  .legende i { width: .65rem; height: .5rem; border-radius: 2px; display: block; }
+  .legende i.pour { background: var(--ok); }
+  .legende i.contre { background: var(--accent); }
+  .legende i.abstention { background: var(--trait-fort); }
+  .groupe { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem;
+            font-size: .76rem; }
+  .groupe .sigle { width: 4.2rem; flex: 0 0 auto; font-weight: 600; color: var(--texte); }
+  .groupe .barre { flex: 1; display: flex; height: 9px; border-radius: 4px;
+                   overflow: hidden; background: var(--doux); }
+  .groupe .barre i { display: block; }
+  .groupe .barre i.pour { background: var(--ok); }
+  .groupe .barre i.contre { background: var(--accent); }
+  .groupe .barre i.abstention { background: var(--trait-fort); }
+  .groupe .barre i.vide { flex: 1; background: var(--doux); }
+  .groupe .detail { width: 4.6rem; flex: 0 0 auto; text-align: right;
+                    color: var(--faible); font-variant-numeric: tabular-nums; }
+
   .frise { display: flex; gap: .2rem; margin-top: .6rem; cursor: pointer;
            align-items: center; }
   .frise i { height: 4px; flex: 1; border-radius: 2px; background: var(--trait); }
@@ -338,6 +374,23 @@ const EXPLICATIONS = {
   conclusion: ["Le résultat du vote",
     "Ce que la chambre a décidé à l'issue de son examen : adopté, rejeté, ou adopté " +
     "avec des modifications qui obligent le texte à repartir vers l'autre chambre."],
+  vote: ["Un vote enregistré",
+    "Un « scrutin public » : chaque parlementaire vote nominativement et le " +
+    "détail est publié. C'est rare — la plupart des textes sont adoptés à main " +
+    "levée, sans que le vote de chacun soit enregistré. Sur les textes en cours, " +
+    "moins d'un sur vingt en a un."],
+  voteEnsemble: ["Le vote sur le texte entier",
+    "La chambre s'est prononcée sur l'ensemble du texte. C'est ce vote-là qui " +
+    "décide si le texte poursuit son chemin ou s'arrête. Touchez-le pour voir " +
+    "comment chaque groupe politique a voté."],
+  votesAmendements: ["Des votes sur des détails",
+    "Ces votes portent sur des amendements ou des articles, pas sur le texte " +
+    "entier. Un texte débattu peut en compter des centaines. Ils disent comment " +
+    "le texte a été façonné, pas s'il a été adopté."],
+  aucunVote: ["Aucun vote public à venir n'est annoncé",
+    "L'Assemblée ne publie pas ses votes à l'avance : un vote n'apparaît dans " +
+    "les données qu'une fois qu'il a eu lieu. Ce qui est connu à l'avance, ce " +
+    "sont seulement les séances déjà programmées."],
   prochaine: ["Une séance déjà programmée",
     "Le Parlement a inscrit ce texte à son calendrier. C'est la seule information " +
     "tournée vers l'avenir : tout le reste décrit ce qui a déjà eu lieu."],
@@ -352,7 +405,7 @@ let TEXTES = [];
 let ETAT = {};
 let affiches = 0;
 const filtres = { etapes: new Set(), chambres: new Set(), types: new Set(),
-                  activite: null, programme: false, mots: "" };
+                  activite: null, programme: false, vote: null, mots: "" };
 
 const nb = new Intl.NumberFormat("fr-FR");
 const dateCourte = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
@@ -372,6 +425,7 @@ function el(balise, classe, texte) {
 function typeCourt(t) { return (TYPES[t] || [t])[0]; }
 
 function expliquer(titre, texte, valeur) {
+  document.querySelectorAll(".info .groupes").forEach((n) => n.remove());
   $("info-titre").textContent = titre;
   $("info-texte").textContent = texte;
   const v = $("info-valeur");
@@ -399,6 +453,10 @@ function retenus() {
     if (filtres.chambres.size && !filtres.chambres.has(t.chambre || "aucune")) return false;
     if (filtres.types.size && !filtres.types.has(t.type)) return false;
     if (filtres.programme && !t.prochaine_date) return false;
+    if (filtres.vote === "tous" && !t.votes) return false;
+    if (filtres.vote === "ensemble" && !t.voteEnsemble) return false;
+    if (filtres.vote === "adopte" && !(t.voteEnsemble && t.voteEnsemble.sort === "adopté")) return false;
+    if (filtres.vote === "rejete" && !(t.voteEnsemble && t.voteEnsemble.sort !== "adopté")) return false;
     if (filtres.activite) {
       const seuil = ACTIVITE[filtres.activite][1];
       const age = jours(t.date_dernier_mouvement);
@@ -411,7 +469,8 @@ function retenus() {
 
 function combienActifs() {
   return filtres.etapes.size + filtres.chambres.size + filtres.types.size
-       + (filtres.activite ? 1 : 0) + (filtres.programme ? 1 : 0);
+       + (filtres.activite ? 1 : 0) + (filtres.programme ? 1 : 0)
+       + (filtres.vote ? 1 : 0);
 }
 
 /* ---------- panneau des filtres ---------- */
@@ -488,17 +547,42 @@ function dessinerFiltres() {
               "sur quoi le Parlement travaille en ce moment.", nom]
            : EXPLICATIONS.dormant))));
 
+  boite.append(groupe("Votes", [
+    puce("A fait l'objet d'un vote", filtres.vote === "tous",
+         compteur((t) => t.votes > 0),
+         () => { filtres.vote = filtres.vote === "tous" ? null : "tous"; dessiner(); },
+         EXPLICATIONS.vote),
+    puce("Voté sur le texte entier", filtres.vote === "ensemble",
+         compteur((t) => !!t.voteEnsemble),
+         () => { filtres.vote = filtres.vote === "ensemble" ? null : "ensemble"; dessiner(); },
+         EXPLICATIONS.voteEnsemble),
+    puce("Adopté", filtres.vote === "adopte",
+         compteur((t) => t.voteEnsemble && t.voteEnsemble.sort === "adopté"),
+         () => { filtres.vote = filtres.vote === "adopte" ? null : "adopte"; dessiner(); },
+         ["Adopté sur l'ensemble",
+          "La chambre a voté pour le texte entier. Il poursuit son parcours — " +
+          "cela ne veut pas dire qu'il est devenu une loi."]),
+    puce("Rejeté", filtres.vote === "rejete",
+         compteur((t) => t.voteEnsemble && t.voteEnsemble.sort !== "adopté"),
+         () => { filtres.vote = filtres.vote === "rejete" ? null : "rejete"; dessiner(); },
+         ["Rejeté sur l'ensemble",
+          "La chambre a voté contre le texte entier."]),
+  ]));
+
   boite.append(groupe("Calendrier", [
     puce("Séance déjà programmée", filtres.programme,
          compteur((t) => !!t.prochaine_date),
          () => { filtres.programme = !filtres.programme; dessiner(); },
-         EXPLICATIONS.prochaine)]));
+         EXPLICATIONS.prochaine),
+    puce("Vote annoncé", false, 0, () => {},
+         EXPLICATIONS.aucunVote)]));
 
   const effacer = el("button", "effacer", "Tout effacer");
   effacer.disabled = combienActifs() === 0 && !filtres.mots;
   effacer.addEventListener("click", () => {
     filtres.etapes.clear(); filtres.chambres.clear(); filtres.types.clear();
-    filtres.activite = null; filtres.programme = false; filtres.mots = "";
+    filtres.activite = null; filtres.programme = false; filtres.vote = null;
+    filtres.mots = "";
     $("recherche").value = ""; dessiner();
   });
   boite.append(effacer);
@@ -510,6 +594,93 @@ function etiquette(classe, libelle, explication, valeur) {
   const b = el("button", "etiq " + (classe || ""), libelle);
   b.addEventListener("click", () => expliquer(explication[0], explication[1], valeur ?? libelle));
   return b;
+}
+
+
+/* ---------- les votes ---------- */
+const POSITIONS = { pour: "pour", contre: "contre", abstention: "abstention",
+                    "partagé": "partagé" };
+
+function bandeauVote(t) {
+  const b = el("button", "vote");
+  const e = t.voteEnsemble;
+
+  if (e) {
+    b.classList.add(e.sort === "adopté" ? "adopte" : "rejete");
+    b.append(el("span", "verdict", e.sort === "adopté" ? "Adopté" : "Rejeté"));
+    b.append(el("span", "chiffres",
+      `${nb.format(e.pour)} pour · ${nb.format(e.contre)} contre · ${nb.format(e.abstentions)} abst.`));
+    b.append(el("span", "quand", dateCourte.format(enDate(e.date))));
+  } else {
+    b.classList.add("partiel");
+    b.append(el("span", "verdict", nb.format(t.votes) +
+      (t.votes > 1 ? " votes enregistrés" : " vote enregistré")));
+    b.append(el("span", "chiffres", "sur des amendements ou des articles"));
+  }
+  b.append(el("span", "loupe", "ⓘ"));
+  b.addEventListener("click", () => detailVotes(t));
+  return b;
+}
+
+async function detailVotes(t) {
+  const e = t.voteEnsemble;
+  const [titre, quoi] = e ? EXPLICATIONS.voteEnsemble : EXPLICATIONS.votesAmendements;
+  expliquer(titre, quoi, e
+    ? `${e.sort} le ${dateLongue.format(enDate(e.date))}`
+    : `${nb.format(t.votes)} votes, aucun sur le texte entier`);
+
+  const zone = el("div", "groupes");
+  zone.append(el("p", "attente", "Chargement du détail par groupe…"));
+  $("info-texte").after(zone);
+
+  try {
+    const detail = await fetch(`${SOCLE}/textes/${t.uid}.json`).then((r) => {
+      if (!r.ok) throw new Error("réponse " + r.status);
+      return r.json();
+    });
+    const votes = detail.votes || [];
+    const principal = votes.find((v) => v.portee === "ensemble") || votes[0];
+    zone.textContent = "";
+    if (!principal) { zone.append(el("p", "attente", "Aucun détail publié.")); return; }
+
+    zone.append(el("p", "objet", principal.objet));
+
+    const legende = el("div", "legende");
+    for (const [cle, mot] of [["pour", "pour"], ["contre", "contre"],
+                              ["abstention", "abstention"]]) {
+      const item = el("span", null);
+      item.append(el("i", cle));
+      item.append(document.createTextNode(mot));
+      legende.append(item);
+    }
+    zone.append(legende);
+    for (const g of principal.groupes) {
+      const total = (g.pour || 0) + (g.contre || 0) + (g.abstentions || 0);
+      const ligne = el("div", "groupe");
+      ligne.append(el("span", "sigle", g.sigle));
+      const barre = el("span", "barre");
+      for (const [cle, n] of [["pour", g.pour], ["contre", g.contre],
+                              ["abstention", g.abstentions]]) {
+        if (!n) continue;
+        const part = el("i", cle);
+        part.style.flexGrow = String(n);
+        part.title = `${n} ${cle}`;
+        barre.append(part);
+      }
+      if (!total) barre.append(el("i", "vide"));
+      ligne.append(barre);
+      ligne.append(el("span", "detail",
+        total ? `${g.pour}/${g.contre}/${g.abstentions}` : "n'a pas voté"));
+      zone.append(ligne);
+    }
+    if (votes.length > 1) {
+      zone.append(el("p", "attente",
+        `Ce texte compte ${nb.format(votes.length)} votes enregistrés en tout.`));
+    }
+  } catch (erreur) {
+    zone.textContent = "";
+    zone.append(el("p", "attente", "Détail indisponible : " + erreur.message));
+  }
 }
 
 function carte(t) {
@@ -545,6 +716,8 @@ function carte(t) {
       EXPLICATIONS.prochaine, t.prochaine_quoi + ", le " + dateLongue.format(enDate(t.prochaine_date))));
   }
   c.append(l);
+
+  if (t.voteEnsemble || t.votes) c.append(bandeauVote(t));
 
   const f = el("div", "frise");
   for (const e of ETAPES) {

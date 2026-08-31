@@ -45,6 +45,50 @@ CHAMPS_LISTE = ("uid", "titre", "type", "chambre", "chambre_initiale", "etape",
                 "date_dernier_mouvement", "lecture", "dernier_acte", "conclusion",
                 "prochaine_date", "prochaine_quoi", "url_an", "url_senat")
 
+CHAMPS_VOTE = ("uid", "date", "type", "portee", "objet", "sort", "annonce",
+               "demandeur", "votants", "requis", "pour", "contre", "abstentions",
+               "non_votants")
+
+
+def resume_votes(cx: sqlite3.Connection) -> dict[str, dict]:
+    """Par texte, de quoi afficher une carte sans ouvrir son fichier de détail.
+
+    On ne retient que le vote **sur l'ensemble du texte** le plus récent :
+    c'est celui qui décide si le texte poursuit son chemin. Les 7 218 votes
+    sur des amendements comptent, mais ne se résument pas — ils sont dans le
+    fichier de détail.
+    """
+    resume: dict[str, dict] = {}
+    for l in cx.execute(
+            "SELECT dossier_uid, COUNT(*) n,"
+            " SUM(portee = 'ensemble') ensembles,"
+            " MAX(date) derniere"
+            " FROM vote WHERE dossier_uid IS NOT NULL GROUP BY dossier_uid"):
+        resume[l["dossier_uid"]] = {"votes": l["n"], "votesEnsemble": l["ensembles"],
+                                    "dernierVote": l["derniere"], "voteEnsemble": None}
+    for l in cx.execute(
+            "SELECT dossier_uid, date, sort, pour, contre, abstentions, objet"
+            " FROM vote WHERE dossier_uid IS NOT NULL AND portee = 'ensemble'"
+            " ORDER BY date"):
+        resume[l["dossier_uid"]]["voteEnsemble"] = {
+            "date": l["date"], "sort": l["sort"], "pour": l["pour"],
+            "contre": l["contre"], "abstentions": l["abstentions"],
+            "objet": l["objet"],
+        }
+    return resume
+
+
+def votes_du_texte(cx: sqlite3.Connection, uid: str) -> list[dict]:
+    votes = []
+    for v in cx.execute(
+            f"SELECT {', '.join(CHAMPS_VOTE)} FROM vote WHERE dossier_uid = ?"
+            " ORDER BY date DESC, numero DESC", (uid,)):
+        groupes = [dict(g) for g in cx.execute(
+            "SELECT sigle, nom, membres, position, pour, contre, abstentions, non_votants"
+            " FROM vote_groupe WHERE vote_uid = ? ORDER BY membres DESC", (v["uid"],))]
+        votes.append({**dict(v), "groupes": groupes})
+    return votes
+
 
 def ecrire(chemin: pathlib.Path, contenu, brut: bytes | None = None) -> int:
     """Écrit du JSON, ou des octets tels quels si `brut` est fourni."""
@@ -64,6 +108,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
 
     tailles: dict[str, int] = {}
     genere_le = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+    votes = resume_votes(cx)
 
     comptes = {l["statut"]: l["n"] for l in cx.execute(
         "SELECT statut, COUNT(*) n FROM dossier WHERE est_loi = 1 GROUP BY statut")}
@@ -84,6 +129,10 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "etapesEnregistrees": cx.execute("SELECT COUNT(*) n FROM etape").fetchone()["n"],
         "textesEnCours": comptes.get(extraction.EN_COURS, 0),
         "promulgues": comptes.get(extraction.PROMULGUE, 0),
+        "scrutins": cx.execute("SELECT COUNT(*) n FROM vote").fetchone()["n"],
+        "textesAvecVote": cx.execute(
+            "SELECT COUNT(DISTINCT d.uid) n FROM dossier d JOIN vote v ON v.dossier_uid = d.uid"
+            " WHERE d.est_loi = 1 AND d.statut IN ('en_cours','promulgue')").fetchone()["n"],
     "fichiers": ["etapes.json", "textes.json", "promulgues.json", "textes/<uid>.json"],
     })
 
@@ -105,6 +154,8 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         textes = []
         for l in lignes:
             texte = {c: l[c] for c in CHAMPS_LISTE}
+            texte.update(votes.get(l["uid"], {"votes": 0, "votesEnsemble": 0,
+                                              "dernierVote": None, "voteEnsemble": None}))
             if statut == extraction.PROMULGUE:
                 texte.update(loiNumero=l["loi_numero"], loiDate=l["loi_date"],
                              loiUrlJO=l["loi_url_jo"])
@@ -124,7 +175,8 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             "SELECT code, lecture, libelle, chambre, date, numero, conclusion, future"
             " FROM etape WHERE dossier_uid = ? ORDER BY date, rang", (l["uid"],))]
         details += ecrire(sortie / "textes" / f'{l["uid"]}.json',
-                          {**dict(l), "parcours": parcours})
+                          {**dict(l), "parcours": parcours,
+                           "votes": votes_du_texte(cx, l["uid"])})
     tailles["textes/*.json"] = details
 
     # La maquette devient la page d'accueil. Publiée à côté des données, elle

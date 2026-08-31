@@ -168,6 +168,64 @@ de la veille.
   entières. C'est la confirmation du §8.2 du plan : afficher « les votes »
   sans trier n'a aucun intérêt pour un lecteur non spécialiste.
 
+### Sur quoi portent les scrutins (mesuré le 2026-08-31)
+
+| Scrutins | Portée |
+|---:|---|
+| 7 216 | un **amendement** |
+| 866 | un **article** |
+| **212** | **le texte entier** |
+| 81 | une motion (rejet préalable, censure) |
+| 59 | autre chose — une demande de suspension de séance, par exemple |
+
+**212 votes sur un texte entier, sur 8 434 scrutins.** C'est le chiffre à
+retenir avant de promettre « les votes » à un lecteur : ce qu'il cherche
+— « ce texte a-t-il été adopté ? » — n'existe que 212 fois.
+
+### Rattacher un vote à un texte : deux liens, ni l'un ni l'autre suffisant
+
+| Sens du lien | Textes en cours retrouvés |
+|---|---:|
+| Le scrutin nomme son dossier (`objet.dossierLegislatif`) | 34 |
+| Le dossier cite son scrutin (`voteRefs` sur un acte) | 68 |
+| **Les deux réunis** | **71** |
+
+Sur 1 990 textes en cours, **71 ont au moins un vote enregistré — 3,6 %.**
+Ce n'est pas une lacune de la récupération : la plupart des textes sont
+adoptés à main levée, ou jamais examinés.
+
+### Un champ à ne pas croire : la position annoncée d'un groupe
+
+Chaque scrutin donne, pour chaque groupe politique, une
+`positionMajoritaire` — « pour », « contre », « abstention » — **et le
+décompte des voix qui va avec**. Les deux ne concordent pas toujours.
+
+Sur **101 208** positions de groupe examinées le 2026-08-31 :
+
+| | |
+|---|---:|
+| D'accord avec leur décompte | 87 165 (86 %) |
+| **En désaccord** | **3 033 (3 %)** |
+| Indécidables (aucun votant, ou ex æquo) | 11 010 |
+
+Un cas réel : un groupe annoncé **« pour »** dont **2 membres ont voté pour
+et 16 contre**. Afficher cette position reviendrait à écrire une
+contrevérité à l'écran.
+
+**Conséquence pour le code :** `socle/extraction.py` ignore ce champ et
+recalcule la position sur le décompte, qui, lui, ne se contredit pas.
+
+### Les votes à venir n'existent pas
+
+L'agenda de l'Assemblée (`Agenda.json.zip`) a été examiné le 2026-08-31 :
+**26 réunions à venir**, toutes des auditions en commission ou des réunions
+internes. Aucune séance publique, aucun texte à l'ordre du jour, aucun vote
+annoncé — et `pointsODJ` vide dans les 26 cas.
+
+**Un vote n'apparaît dans les données qu'une fois qu'il a eu lieu.** Ce qui
+existe et regarde vers l'avant, ce sont les séances déjà programmées, rien
+de plus. Une rubrique « votes à venir » serait donc vide, ou devinée.
+
 ## Les débats — la mesure qui conditionne les coûts
 
 Mesuré sur les 601 comptes rendus de séance de la 17e législature
