@@ -36,6 +36,7 @@ import extraction
 RACINE = pathlib.Path(__file__).resolve().parent
 BASE = RACINE / "parlement.db"
 SORTIE = RACINE / "public"
+MAQUETTE = RACINE.parent / "maquette" / "feed.html"
 
 # Ce que la liste embarque pour chaque texte. Volontairement court : elle est
 # chargée en entier par l'application, qui filtre et cherche ensuite toute
@@ -45,9 +46,11 @@ CHAMPS_LISTE = ("uid", "titre", "type", "chambre", "chambre_initiale", "etape",
                 "prochaine_date", "prochaine_quoi", "url_an", "url_senat")
 
 
-def ecrire(chemin: pathlib.Path, contenu) -> int:
+def ecrire(chemin: pathlib.Path, contenu, brut: bytes | None = None) -> int:
+    """Écrit du JSON, ou des octets tels quels si `brut` est fourni."""
     chemin.parent.mkdir(parents=True, exist_ok=True)
-    brut = json.dumps(contenu, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    if brut is None:
+        brut = json.dumps(contenu, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     chemin.write_bytes(brut)
     return len(brut)
 
@@ -81,7 +84,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "etapesEnregistrees": cx.execute("SELECT COUNT(*) n FROM etape").fetchone()["n"],
         "textesEnCours": comptes.get(extraction.EN_COURS, 0),
         "promulgues": comptes.get(extraction.PROMULGUE, 0),
-        "fichiers": ["etapes.json", "textes.json", "promulgues.json", "textes/<uid>.json"],
+    "fichiers": ["etapes.json", "textes.json", "promulgues.json", "textes/<uid>.json"],
     })
 
     tailles["etapes.json"] = ecrire(sortie / "etapes.json", {
@@ -123,6 +126,16 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         details += ecrire(sortie / "textes" / f'{l["uid"]}.json',
                           {**dict(l), "parcours": parcours})
     tailles["textes/*.json"] = details
+
+    # La maquette devient la page d'accueil. Publiée à côté des données, elle
+    # les lit par une adresse relative — et l'adresse racine sert enfin à
+    # quelque chose au lieu de renvoyer une erreur.
+    if MAQUETTE.exists():
+        tailles["index.html"] = ecrire(sortie / "index.html", None,
+                                       MAQUETTE.read_bytes())
+    else:
+        print(f"Maquette introuvable ({MAQUETTE}) : pas de page d'accueil.",
+              file=sys.stderr)
 
     # GitHub Pages ne sert pas les dossiers dont le nom commence par un
     # tiret bas, et ajoute sa propre mise en page aux fichiers Markdown.

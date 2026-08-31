@@ -228,11 +228,17 @@
 </div>
 
 <script>
-// D'où viennent les données. `?socle=http://…` permet de viser une copie
-// locale — utile pour travailler sans réseau, ou pour essayer une
-// modification du socle avant de la publier.
+// D'où viennent les données.
+//
+// Par défaut : à côté de la page. La maquette est publiée au même endroit
+// que les fichiers du socle, donc une adresse relative marche partout — en
+// ligne, en local, ou depuis un dossier copié ailleurs.
+//
+// `?socle=http://…` vise un autre socle : utile pour essayer une
+// modification avant de la publier, ou pour ouvrir la page depuis un fichier
+// (`file://`), où il n'y a rien à côté d'elle.
 const SOCLE = new URLSearchParams(location.search).get("socle")
-           || "https://yesno584.github.io/AN-API";
+           || (location.protocol === "file:" ? "https://yesno584.github.io/AN-API" : ".");
 const PAR_PAQUET = 25;
 
 /* ------------------------------------------------------------------ *
@@ -634,7 +640,7 @@ $("recherche").addEventListener("input", (e) => {
 });
 
 async function charger() {
-  $("lien-socle").href = SOCLE + "/textes.json";
+  $("lien-socle").href = new URL(SOCLE + "/textes.json", location.href).href;
   try {
     const [textes, etat] = await Promise.all([
       fetch(SOCLE + "/textes.json").then((r) => {

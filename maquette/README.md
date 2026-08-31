@@ -6,6 +6,10 @@ les mains de quelqu'un pour regarder s'il comprend.
 Un seul fichier : **`feed.html`**. Il s'ouvre dans un navigateur, au format
 téléphone.
 
+**En ligne : <https://yesno584.github.io/AN-API/>** — le socle la publie
+comme page d'accueil à chaque mise à jour des données. C'est la façon la plus
+simple de la regarder depuis un téléphone, sans rien installer.
+
 ## Ce qu'elle montre
 
 Les **1 990 textes de loi en cours d'examen**, groupés par étape du parcours,
@@ -40,10 +44,14 @@ panneau des filtres, un petit **ⓘ** à côté de chaque puce évite de confond
 
 ## D'où viennent les données
 
-De **`https://yesno584.github.io/AN-API/textes.json`**, publié chaque matin
-par le socle (voir `../socle/README.md`). La page les lit en direct, au
-chargement — c'est exactement le chemin que suivra l'application Flutter,
-donc la maquette essaie le dispositif autant que le dessin.
+Du socle (voir `../socle/README.md`), publié chaque matin. La page les lit en
+direct au chargement — c'est exactement le chemin que suivra l'application
+Flutter, donc la maquette essaie le dispositif autant que le dessin.
+
+**Elle lit à côté d'elle**, par une adresse relative : publiée au même
+endroit que les données, elle fonctionne partout où on la copie. Seule
+exception, quand on l'ouvre depuis un fichier (`file://`) : il n'y a alors
+rien à côté d'elle, et elle vise l'adresse publique.
 
 Il n'y a **plus de préparation hors ligne** : le script qui servait à cela a
 disparu, le socle publie tout.

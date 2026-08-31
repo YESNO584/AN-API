@@ -24,6 +24,7 @@ on:
     branches: [main]
     paths:
       - "socle/**"
+      - "maquette/**"        # la maquette est publiée comme page d'accueil
       - ".github/workflows/donnees.yml"
 
 permissions:

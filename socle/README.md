@@ -152,6 +152,7 @@ signale la panne.
 
 | Fichier | Taille | Compressé | Contenu |
 |---|---:|---:|---|
+| `index.html` | 29 Ko | — | **La maquette** (`../maquette/feed.html`, recopiée ici). Publiée à côté des données, elle les lit par une adresse relative |
 | `etat.json` | 581 o | — | D'où viennent les données, de quand, et si le dernier chargement s'est bien passé |
 | `etapes.json` | 846 o | 477 o | Les six étapes du parcours et leurs comptes |
 | `textes.json` | 829 Ko | **121 Ko** | **Le fichier principal** : les 1 990 textes en cours |
@@ -166,10 +167,12 @@ Le dossier `public/` **n'est pas versionné** : il se régénère en une command
 
 ### C'est en ligne
 
-**Adresse : <https://yesno584.github.io/AN-API/>**
+**Adresse : <https://yesno584.github.io/AN-API/>** — la maquette s'y ouvre
+directement, sur téléphone comme sur ordinateur.
 
 | | |
 |---|---|
+| **La maquette** | <https://yesno584.github.io/AN-API/> |
 | L'état | <https://yesno584.github.io/AN-API/etat.json> |
 | Les six étapes | <https://yesno584.github.io/AN-API/etapes.json> |
 | **Les textes en cours** | <https://yesno584.github.io/AN-API/textes.json> |
