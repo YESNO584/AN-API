@@ -13,12 +13,13 @@ simple de la regarder depuis un téléphone, sans rien installer.
 ## Ce qu'elle montre
 
 **2 150 textes**, rangés par étape du parcours en **colonnes côte à côte** —
-une catégorie par colonne, **dans l'ordre où un texte les traverse** : le
-**dépôt** à gauche, puis la commission, la séance publique, la navette, sa
-sortie, et les **107 lois promulguées** à droite. Le fil se lit donc comme une
-frise, de la plus ancienne étape à la plus récente. Les **61 textes arrêtés en
-chemin** ferment la marche : ce n'est pas une étape du parcours mais une
-sortie de route, qui peut survenir à n'importe quel moment.
+une catégorie par colonne, **dans l'ordre où un texte les traverse**. Les
+**61 textes arrêtés en chemin** ouvrent le fil — ce n'est pas une étape du
+parcours mais une sortie de route, et la mettre en tête laisse les six étapes
+se suivre sans être coupées. Viennent ensuite le **dépôt**, la commission, la
+séance publique, la navette, sa sortie, l'après-vote, et les **107 lois
+promulguées** tout à droite. Le fil se lit donc comme une frise, de la plus
+ancienne étape à la plus récente — et la frise du bas en est le reflet exact.
 
 **Le fil s'ouvre sur « Promulguée »**, la catégorie la plus avancée : c'est là
 que se passe l'actualité, et les 1 729 textes restés au dépôt sont à un
@@ -29,15 +30,24 @@ colonne d'ouverture dit l'intérêt — ce sont deux questions différentes.
 glisser vers la gauche ou la droite, ou avec les flèches **‹ ›** posées à côté
 du nom de la catégorie.
 
-**La frise est accrochée en bas de l'écran, une bonne fois.** Sept traits — les
-six étapes du parcours, puis la promulgation — disent où l'on se trouve et
-servent à s'y rendre : toucher un trait mène à sa colonne. Le trait de la
-promulgation **s'allume en vert** quand on y est ; le reste du temps il est
-éteint, comme les autres. Elle ne figure plus sur chaque carte : tous les
-textes d'une colonne étant à la même étape, la répéter n'apprenait rien.
+**La frise est accrochée en bas de l'écran, une bonne fois.** Huit traits, dans
+l'ordre exact des colonnes : **arrêté en chemin**, puis les six étapes du
+parcours, puis **la promulgation**. Ils disent où l'on se trouve et servent à
+s'y rendre : toucher un trait mène à sa colonne. Le trait de la promulgation
+**s'allume en vert** quand on y est ; le reste du temps il est éteint, comme
+les autres. La frise ne figure plus sur chaque carte : tous les textes d'une
+colonne étant à la même étape, la répéter n'apprenait rien.
 
-« Arrêté en chemin » n'a pas de trait — ce n'est pas une étape mais une sortie
-de route. La barre le dit en toutes lettres, et on y va en faisant glisser.
+**Une étape sans texte garde son trait**, en pointillé. « Après le vote » —
+le contrôle du Conseil constitutionnel — est presque toujours vide : un texte
+n'y reste que quelques jours. Le masquer ferait changer la frise de forme d'un
+jour à l'autre, et elle cesserait d'être un repère. Le trait se touche quand
+même, et dit ce qu'il est.
+
+**Changer d'étape ramène en haut.** Sans quoi, en changeant de colonne après
+être descendu dans la liste, on atterrissait au milieu de la suivante. La
+remontée est immédiate, sans déroulé : sur un changement de colonne, une
+animation donnerait l'impression que la page part toute seule.
 
 **Le tour est sans fin** : après « Arrêté en chemin » vient « Dépôt », et
 inversement. Le navigateur refusant de faire défiler au-delà des bords, une

@@ -232,7 +232,7 @@
   /* ---------- la frise, accrochée en bas ---------- */
   .frise-bas {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
-    background: color-mix(in srgb, var(--fond) 92%, transparent);
+    background: color-mix(in srgb, var(--fond) 97%, transparent);
     backdrop-filter: blur(8px);
     border-top: 1px solid var(--trait);
     padding: .5rem var(--marge) calc(.5rem + env(safe-area-inset-bottom));
@@ -255,6 +255,12 @@
   /* Le trait de la promulgation s'allume en vert quand on y est. Le reste du
      temps il reste éteint : c'est un état, pas un décor. */
   .frise-bas .traits button.fini.ici i { background: var(--ok); height: 6px; }
+  /* Une catégorie vide garde son trait, en pointillé : la frise garde la même
+     forme d'un jour à l'autre. Elle ne mène nulle part, mais elle se touche
+     et dit ce qu'elle est. */
+  .frise-bas .traits button.absent i {
+    background: none; border-top: 2px dashed var(--trait); height: 0;
+  }
   .frise-bas .dit {
     display: flex; align-items: baseline; gap: .4rem;
     font-size: .72rem; color: var(--faible);
@@ -650,6 +656,13 @@ const etapeDe = (n) => ETAPES.find((e) => e.n === n);
    survenir à n'importe quel moment. */
 const ETAPES_EN_ORDRE = [...PARCOURS, etapeDe(PROMULGUEE), etapeDe(ARRETE)]
                         .filter(Boolean);
+
+/* L'ordre du fil et de la frise, qui doivent dire la même chose : les textes
+   arrêtés d'abord, puis les six étapes, puis la promulgation. Le fil se lit
+   de gauche à droite, et le premier trait de la frise mène à la première
+   colonne — sans quoi la frise mentirait sur le fil. */
+const FRISE_EN_ORDRE = [etapeDe(ARRETE), ...PARCOURS, etapeDe(PROMULGUEE)]
+                       .filter(Boolean);
 const statutDe = (t) => t.statut || (t.etape === PROMULGUEE ? "promulgue" : "en_cours");
 
 const $ = (id) => document.getElementById(id);
@@ -1096,8 +1109,8 @@ function parCategorie(liste) {
     paquets.get(t.etape).push(t);
   }
   const rangDe = (n) => {
-    const i = ETAPES_EN_ORDRE.findIndex((e) => e.n === n);
-    return i === -1 ? ETAPES_EN_ORDRE.length : i;
+    const i = FRISE_EN_ORDRE.findIndex((e) => e.n === n);
+    return i === -1 ? FRISE_EN_ORDRE.length : i;
   };
   return [...paquets.entries()].sort((a, x) => rangDe(a[0]) - rangDe(x[0]));
 }
@@ -1242,18 +1255,26 @@ function dessinerFriseBas(etape) {
   const rangDe = (n) => CATEGORIES.findIndex(([e]) => e === n);
 
   const traits = el("div", "traits");
-  for (const e of [...PARCOURS, etapeDe(PROMULGUEE)]) {
+  for (const e of FRISE_EN_ORDRE) {
     const estFin = e.n === PROMULGUEE;
-    const passee = !arret && (fini ? !estFin : e.n < etape);
+    const estArret = e.n === ARRETE;
+    const passee = !arret && !estArret && (fini ? !estFin : e.n < etape);
     const ici = e.n === etape;
-    const b = el("button", [estFin ? "fini" : "", passee ? "faite" : "",
-                            ici ? "ici" : ""].filter(Boolean).join(" "));
+    const b = el("button", [estFin ? "fini" : "", estArret ? "arret" : "",
+                            passee ? "faite" : "", ici ? "ici" : ""]
+                           .filter(Boolean).join(" "));
     b.setAttribute("aria-label", e.nom);
     if (ici) b.setAttribute("aria-current", "step");
     const rang = rangDe(e.n);
-    b.disabled = rang === -1;              // catégorie absente : un filtre l'a vidée
+    const vide = rang >= CATEGORIES.length || CATEGORIES[rang]?.[0] !== e.n;
+    // Une catégorie vide garde son trait : la frise doit garder la même forme
+    // d'un jour à l'autre, sinon elle cesse d'être un repère. Elle ne mène
+    // nulle part, mais elle dit ce qu'elle est.
+    b.classList.toggle("absent", vide);
     b.append(el("i"));
-    b.addEventListener("click", () => versColonne(rang));
+    b.addEventListener("click", () => vide
+      ? expliquer(e.nom, e.quoi, "Aucun texte à cette étape en ce moment")
+      : versColonne(rang));
     traits.append(b);
   }
   barre.append(traits);
@@ -1288,9 +1309,23 @@ function categorieVisible() {
   return Number(proche.dataset.etape);
 }
 
-function suivreLaFrise() {
+// La catégorie qu'on regardait au dernier passage. Sert à savoir quand on
+// vient d'en changer — et donc quand remonter en haut.
+let CATEGORIE_VUE = null;
+
+function suivreLaFrise(remonter = true) {
   const etape = categorieVisible();
-  if (etape !== null && !Number.isNaN(etape)) dessinerFriseBas(etape);
+  if (etape === null || Number.isNaN(etape)) return;
+  if (etape !== CATEGORIE_VUE) {
+    // Changer d'étape en étant descendu dans la liste déposait le lecteur au
+    // milieu de la nouvelle colonne. Sans animation : sur un changement de
+    // colonne, un déroulé donne l'impression que la page part toute seule.
+    if (remonter && CATEGORIE_VUE !== null && window.scrollY > 0) {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+    CATEGORIE_VUE = etape;
+  }
+  dessinerFriseBas(etape);
 }
 
 function dessinerColonnes(liste) {
@@ -1302,7 +1337,8 @@ function dessinerColonnes(liste) {
   poserLesCopies(fil);
   const cible = vraiesColonnes()[colonneDOuverture(categories)];
   if (cible) fil.scrollLeft = cible.offsetLeft;
-  suivreLaFrise();
+  CATEGORIE_VUE = null;
+  suivreLaFrise(false);
 }
 
 
