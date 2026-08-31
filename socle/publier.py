@@ -194,8 +194,11 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "SELECT etape, COUNT(*) n FROM dossier"
         " WHERE statut='en_cours' AND est_loi=1 AND etape IS NOT NULL GROUP BY etape")}
 
+    # « partiel » : le rangement a réussi, mais une source facultative a
+    # manqué. C'est un chargement valable, et la page doit pouvoir le dire.
     chargement = cx.execute(
-        "SELECT * FROM journal WHERE statut = 'succes' ORDER BY id DESC LIMIT 1").fetchone()
+        "SELECT * FROM journal WHERE statut IN ('succes', 'partiel')"
+        " ORDER BY id DESC LIMIT 1").fetchone()
 
     tailles["etat.json"] = ecrire(sortie / "etat.json", {
         "genereLe": genere_le,
@@ -205,6 +208,10 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "dernierChargement": dict(chargement) if chargement else None,
         "dossiers": cx.execute("SELECT COUNT(*) n FROM dossier").fetchone()["n"],
         "etapesEnregistrees": cx.execute("SELECT COUNT(*) n FROM etape").fetchone()["n"],
+        # Ce que la page doit savoir taire plutôt que d'afficher un zéro faux :
+        # une rubrique dont la source n'est pas arrivée ce matin.
+        "amendementsIndisponibles":
+            cx.execute("SELECT COUNT(*) n FROM amendement").fetchone()["n"] == 0,
         "textesEnCours": comptes.get(extraction.EN_COURS, 0),
         "promulgues": comptes.get(extraction.PROMULGUE, 0),
         "scrutins": cx.execute("SELECT COUNT(*) n FROM vote").fetchone()["n"],

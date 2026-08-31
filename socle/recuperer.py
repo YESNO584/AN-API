@@ -49,6 +49,17 @@ SOURCES = {
     # 296 groupes d'actes s'affichent à l'identique. Voir precision_acte.
     "agenda": extraction.URL_AGENDA,
 }
+
+# Les amendements pèsent 297 Mo à eux seuls, contre 45 Mo pour les cinq autres
+# sources réunies. Ce sont eux qui cassent : trois publications d'affilée ont
+# échoué dessus le 2026-08-31, le transfert coupé à 2,6 Mo, 51,7 Mo puis
+# 3,2 Mo. Les rendre bloquants revenait à figer tout le site — le parcours des
+# textes, les votes, les lois promulguées — pour une rubrique secondaire.
+#
+# Ils sont donc facultatifs : leur absence est publiée, pas dissimulée. La
+# page dit qu'ils manquent plutôt que d'afficher « 0 amendement », ce qui
+# serait faux.
+FACULTATIVES = frozenset({"amendements"})
 def connue(connexion: sqlite3.Connection, url: str) -> sqlite3.Row | None:
     return connexion.execute("SELECT * FROM source WHERE url = ?", (url,)).fetchone()
 def entetes_conditionnelles(ligne: sqlite3.Row | None) -> dict[str, str]:
@@ -144,8 +155,10 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
             g["pour"], g["contre"], g["abstentions"], g["nonVotants"],
         ) for g in v["groupes"]]
     # Les amendements : 110 000 sur 289 dossiers, lus au vol depuis l'archive.
+    # Elle est facultative — voir FACULTATIVES — donc elle peut manquer.
     lignes_amdt = []
-    for a in extraction.lire_amendements(archives["amendements"]):
+    for a in extraction.lire_amendements(archives["amendements"]) \
+            if "amendements" in archives else ():
         if a["dossier"] not in connus:
             continue
         lignes_amdt.append((
@@ -225,7 +238,7 @@ def main() -> int:
         connexion.commit()
     try:
         with tempfile.TemporaryDirectory() as travail:
-            archives, comptes_rendus = {}, {}
+            archives, comptes_rendus, manquantes = {}, {}, {}
             if options.zip:
                 for nom, chemin in options.zip.items():
                     if not chemin.exists():
@@ -238,8 +251,15 @@ def main() -> int:
                 for nom, url in SOURCES.items():
                     precedente = None if options.forcer else connue(connexion, url)
                     chemin = pathlib.Path(travail) / f"{nom}.zip"
-                    cr = extraction.telecharger(
-                        chemin, entetes_conditionnelles(precedente), url)
+                    try:
+                        cr = extraction.telecharger(
+                            chemin, entetes_conditionnelles(precedente), url)
+                    except Exception as erreur:
+                        if nom not in FACULTATIVES:
+                            raise
+                        manquantes[nom] = f"{type(erreur).__name__}: {erreur}"
+                        print(f"  {nom:<10} indisponible : {erreur}", file=sys.stderr)
+                        continue
                     if not cr["modifie"]:
                         # Le serveur dit « rien de neuf » : on garde la copie de
                         # la fois précédente. Elle n'existe pas ici — la machine
@@ -252,7 +272,7 @@ def main() -> int:
                         inchangees += 1
                     archives[nom], comptes_rendus[nom] = chemin, cr
                     print(f"  {nom:<10} {cr['octets']:>12,} octets", file=sys.stderr)
-                if inchangees == len(SOURCES) and not options.forcer:
+                if inchangees == len(SOURCES) and not manquantes and not options.forcer:
                     for nom, url in SOURCES.items():
                         connexion.execute(
                             "UPDATE source SET etag=?, modifie_le=?, vu_le=? WHERE url=?",
@@ -267,7 +287,9 @@ def main() -> int:
             dossiers, etapes, votes, amendements = ranger(connexion, archives, aujourdhui)
         if not options.zip:
             for nom, url in SOURCES.items():
-                cr = comptes_rendus[nom]
+                cr = comptes_rendus.get(nom)
+                if cr is None:
+                    continue
                 connexion.execute(
                     "INSERT INTO source (url, etag, modifie_le, empreinte, vu_le)"
                     " VALUES (?,?,?,?,?)"
@@ -275,9 +297,12 @@ def main() -> int:
                     " modifie_le=excluded.modifie_le, empreinte=excluded.empreinte,"
                     " vu_le=excluded.vu_le",
                     (url, cr["etag"], cr["modifieLe"], cr["empreinte"], maintenant()))
-        clore("succes", octets=sum(c["octets"] for c in comptes_rendus.values()),
-              dossiers=dossiers, etapes=etapes,
-              message=f"{votes} scrutins, {amendements} amendements")
+        message = f"{votes} scrutins, {amendements} amendements"
+        if manquantes:
+            message += " — source indisponible : " + ", ".join(sorted(manquantes))
+        clore("succes" if not manquantes else "partiel",
+              octets=sum(c["octets"] for c in comptes_rendus.values()),
+              dossiers=dossiers, etapes=etapes, message=message)
     except Exception as erreur:                       # noqa: BLE001 — on veut tout journaliser
         clore("echec", message=f"{type(erreur).__name__}: {erreur}")
         print(f"Échec : {type(erreur).__name__}: {erreur}", file=sys.stderr)

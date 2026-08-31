@@ -1448,7 +1448,19 @@ async function ouvrirFiche(uid) {
   f.append(parcours);
 
   const nbAmdt = (TEXTES.find((t) => t.uid === uid) || {}).amendements || 0;
-  if (nbAmdt) f.append(await blocAmendements(uid, nbAmdt));
+  if (nbAmdt) {
+    f.append(await blocAmendements(uid, nbAmdt));
+  } else if (ETAT.amendementsIndisponibles) {
+    // Ne pas laisser croire qu'un texte n'a pas d'amendements alors que
+    // c'est la source qui a manqué. L'archive pèse 297 Mo et n'arrive pas
+    // toujours ; le reste des données, lui, est à jour.
+    const b = bloc("Amendements");
+    b.append(el("p", "avertissement",
+      "Les amendements n'ont pas pu être récupérés ce matin : leur archive de "
+      + "297 Mo n'est pas arrivée entière. Le reste de la fiche est à jour. "
+      + "La récupération est retentée chaque matin."));
+    f.append(b);
+  }
 }
 
 function fermerFiche() {
