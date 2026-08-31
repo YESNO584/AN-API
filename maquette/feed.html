@@ -121,7 +121,7 @@
      reste celui de la page, et toutes les colonnes commencent en haut : les
      textes restent donc alignés d'une colonne à l'autre. */
   main#fil {
-    display: flex; align-items: flex-start; padding: 0 0 4rem;
+    display: flex; align-items: flex-start; padding: 0 0 5.5rem;
     position: relative; overflow-x: auto;
     scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
     scrollbar-width: none;
@@ -229,12 +229,41 @@
   .groupe .detail { width: 4.6rem; flex: 0 0 auto; text-align: right;
                     color: var(--faible); font-variant-numeric: tabular-nums; }
 
-  .frise { display: flex; gap: .2rem; margin-top: .6rem; cursor: pointer;
-           align-items: center; }
-  .frise i { height: 4px; flex: 1; border-radius: 2px; background: var(--trait); }
-  .frise i.faite { background: var(--trait-fort); }
-  .frise i.ici { background: var(--accent); }
-  .frise span { font-size: .68rem; color: var(--faible); white-space: nowrap; margin-left: .3rem; }
+  /* ---------- la frise, accrochée en bas ---------- */
+  .frise-bas {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: color-mix(in srgb, var(--fond) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--trait);
+    padding: .5rem var(--marge) calc(.5rem + env(safe-area-inset-bottom));
+    display: flex; flex-direction: column; gap: .3rem;
+  }
+  .frise-bas[hidden] { display: none; }
+  .frise-bas .traits { display: flex; gap: .25rem; align-items: center; }
+  .frise-bas .traits button {
+    flex: 1; min-width: 0; height: 16px; padding: 6px 0 6px;   /* la cible du doigt
+       est plus haute que le trait : on vise 16 px, on touche un trait de 4 px */
+    border: none; background: none; cursor: pointer;
+    display: flex; align-items: center;
+  }
+  .frise-bas .traits button i {
+    display: block; width: 100%; height: 4px; border-radius: 2px;
+    background: var(--trait); transition: background .15s;
+  }
+  .frise-bas .traits button.faite i { background: var(--trait-fort); }
+  .frise-bas .traits button.ici i { background: var(--accent); height: 6px; }
+  /* Le trait de la promulgation s'allume en vert quand on y est. Le reste du
+     temps il reste éteint : c'est un état, pas un décor. */
+  .frise-bas .traits button.fini.ici i { background: var(--ok); height: 6px; }
+  .frise-bas .dit {
+    display: flex; align-items: baseline; gap: .4rem;
+    font-size: .72rem; color: var(--faible);
+  }
+  .frise-bas .dit b { font-size: .78rem; font-weight: 620; color: var(--texte); }
+  .frise-bas .dit b.fini { color: var(--ok); }
+  .frise-bas .dit b.arret { color: var(--accent); }
+  .frise-bas .dit .aide { margin-left: auto; background: none; border: none;
+                          font: inherit; color: var(--faible); cursor: pointer; }
 
   .plus, .vide {
     margin-top: .9rem; width: 100%; padding: .7rem; font: inherit; font-size: .85rem;
@@ -374,7 +403,9 @@
              border-radius: var(--rayon); border: 1px dashed var(--trait-fort);
              background: transparent; color: var(--gris); cursor: pointer; }
 
-  footer { padding: 1.5rem var(--marge) 3rem; font-size: .76rem; color: var(--faible);
+  /* Le bas généreux garde le dernier paragraphe au-dessus de la frise fixe. */
+  footer { padding: 1.5rem var(--marge) calc(6rem + env(safe-area-inset-bottom));
+           font-size: .76rem; color: var(--faible);
            border-top: 1px solid var(--trait); margin-top: 2rem; line-height: 1.6; }
   footer a { color: var(--gris); }
 </style>
@@ -399,6 +430,11 @@
   <div class="filtres" id="filtres" hidden></div>
   <main id="fil"></main>
   <section id="fiche" hidden></section>
+
+  <!-- La frise, accrochée en bas une bonne fois : tous les textes d'une
+       colonne sont à la même étape, la répéter sur chaque carte n'apprenait
+       rien. Elle suit la colonne qu'on regarde, et sert à en changer. -->
+  <nav class="frise-bas" id="frise-bas" hidden aria-label="Étape du parcours"></nav>
 
   <footer>
     <p><strong>Source :</strong> dossiers législatifs de l'Assemblée nationale,
@@ -987,26 +1023,8 @@ function carte(t) {
 
   if (t.voteEnsemble || t.votes) c.append(bandeauVote(t));
 
-  const f = el("div", "frise");
-  const finie = t.etape === PROMULGUEE;
-  const arretee = t.etape === ARRETE;
-  for (const e of PARCOURS) {
-    f.append(el("i", finie || (!arretee && e.n < t.etape) ? "faite"
-                  : (!arretee && e.n === t.etape) ? "ici" : ""));
-  }
-  f.append(el("span", null, finie ? "terminé" : arretee ? "arrêté" : `${t.etape}/6`));
-  f.addEventListener("click", () => {
-    const e = etapeDe(t.etape);
-    expliquer(EXPLICATIONS.frise[0],
-              EXPLICATIONS.frise[1] + "\n\n" +
-              (finie ? "Ce texte est allé au bout — "
-                     : arretee ? "Ce texte n'est plus examiné — " : "Étape actuelle — ") +
-              e.nom + " : " + e.quoi,
-              finie ? "Parcours terminé"
-                    : arretee ? (ISSUES[t.statut] || [e.nom])[0]
-                    : `Étape ${t.etape} sur 6 · ${e.nom}`);
-  });
-  c.append(f);
+  // Pas de frise ici : tous les textes d'une colonne sont à la même étape.
+  // Elle est en bas de l'écran, une bonne fois — voir `frise-bas`.
   return c;
 }
 
@@ -1046,6 +1064,8 @@ function dessiner(garderPosition = false) {
   if (!liste.length) {
     fil.append(el("div", "vide",
       "Aucun texte ne correspond. Essayez d'enlever un filtre."));
+    CATEGORIES = [];
+    $("frise-bas").hidden = true;
     return;
   }
 
@@ -1105,6 +1125,7 @@ function fleche(signe, ou, rang) {
 
 function colonne(etape, textes, rang) {
   const col = el("section", "colonne");
+  col.dataset.etape = String(etape);
   const e = etapeDe(etape);
   const fini = e.n === PROMULGUEE;
   const arret = e.n === ARRETE;
@@ -1173,6 +1194,7 @@ function surveillerLeTour(fil) {
   fil.addEventListener("scroll", () => {
     clearTimeout(minuteur);
     // On attend l'immobilité : sauter pendant le geste le couperait net.
+    suivreLaFrise();
     minuteur = setTimeout(() => {
       const colonnes = [...vraiesColonnes()];
       if (colonnes.length < 2) return;
@@ -1197,14 +1219,90 @@ function colonneDOuverture(categories) {
   return 0;
 }
 
+/* ---------- la frise du bas ---------- *
+ * Sept traits : les six étapes du parcours, puis la promulgation, en vert.
+ * Ils disent où l'on est et servent à s'y rendre. « Arrêté en chemin » n'a
+ * pas de trait — ce n'est pas une étape mais une sortie de route ; la barre
+ * le dit en toutes lettres, et on y va en faisant glisser le fil, comme
+ * avant. Toucher un trait ou glisser mène au même endroit.
+ * ------------------------------------------------------------------ */
+
+// Les catégories affichées, dans l'ordre, telles que la dernière construction
+// les a posées. La frise s'en sert pour savoir où mène chaque trait.
+let CATEGORIES = [];
+
+function dessinerFriseBas(etape) {
+  const barre = $("frise-bas");
+  barre.hidden = !CATEGORIES.length;
+  if (barre.hidden) return;
+  barre.textContent = "";
+
+  const fini = etape === PROMULGUEE;
+  const arret = etape === ARRETE;
+  const rangDe = (n) => CATEGORIES.findIndex(([e]) => e === n);
+
+  const traits = el("div", "traits");
+  for (const e of [...PARCOURS, etapeDe(PROMULGUEE)]) {
+    const estFin = e.n === PROMULGUEE;
+    const passee = !arret && (fini ? !estFin : e.n < etape);
+    const ici = e.n === etape;
+    const b = el("button", [estFin ? "fini" : "", passee ? "faite" : "",
+                            ici ? "ici" : ""].filter(Boolean).join(" "));
+    b.setAttribute("aria-label", e.nom);
+    if (ici) b.setAttribute("aria-current", "step");
+    const rang = rangDe(e.n);
+    b.disabled = rang === -1;              // catégorie absente : un filtre l'a vidée
+    b.append(el("i"));
+    b.addEventListener("click", () => versColonne(rang));
+    traits.append(b);
+  }
+  barre.append(traits);
+
+  const e = etapeDe(etape) || {};
+  const dit = el("div", "dit");
+  const nom = el("b", fini ? "fini" : arret ? "arret" : null, e.nom || "");
+  dit.append(nom);
+  dit.append(document.createTextNode(
+    fini ? "parcours terminé" : arret ? "plus examinés" : `étape ${etape} sur 6`));
+  const aide = el("button", "aide", "ⓘ");
+  aide.setAttribute("aria-label", "Ce que veut dire cette étape");
+  aide.addEventListener("click", () => expliquer(
+    EXPLICATIONS.frise[0], EXPLICATIONS.frise[1] + "\n\n" + e.nom + " : " + e.quoi,
+    fini ? "Parcours terminé" : arret ? "Plus examinés" : `Étape ${etape} sur 6`));
+  dit.append(aide);
+  barre.append(dit);
+}
+
+// La colonne réellement sous les yeux — celle dont le bord gauche est le plus
+// proche du défilement. Les copies du tour sans fin comptent pour la vraie
+// colonne qu'elles représentent, sinon la frise clignoterait au passage.
+function categorieVisible() {
+  const fil = $("fil");
+  const colonnes = [...vraiesColonnes()];
+  if (!colonnes.length) return null;
+  let proche = colonnes[0], ecart = Infinity;
+  for (const c of colonnes) {
+    const d = Math.abs(c.offsetLeft - fil.scrollLeft);
+    if (d < ecart) { ecart = d; proche = c; }
+  }
+  return Number(proche.dataset.etape);
+}
+
+function suivreLaFrise() {
+  const etape = categorieVisible();
+  if (etape !== null && !Number.isNaN(etape)) dessinerFriseBas(etape);
+}
+
 function dessinerColonnes(liste) {
   const fil = $("fil");
   const categories = parCategorie(liste);
+  CATEGORIES = categories;
   categories.forEach(([etape, textes], rang) =>
     fil.append(colonne(etape, textes, rang)));
   poserLesCopies(fil);
   const cible = vraiesColonnes()[colonneDOuverture(categories)];
   if (cible) fil.scrollLeft = cible.offsetLeft;
+  suivreLaFrise();
 }
 
 
@@ -1518,6 +1616,8 @@ async function ouvrirFiche(uid) {
   f.hidden = false;
   $("fil").hidden = true;
   $("filtres").hidden = true;
+  // La frise décrit la colonne du fil, pas le texte ouvert : elle se retire.
+  $("frise-bas").hidden = true;
   $("bascule").setAttribute("aria-expanded", "false");
   window.scrollTo(0, 0);
 
@@ -1619,6 +1719,7 @@ async function ouvrirFiche(uid) {
 }
 
 function fermerFiche() {
+  $("frise-bas").hidden = !CATEGORIES.length;
   $("fiche").hidden = true;
   $("fiche").textContent = "";
   $("fil").hidden = false;

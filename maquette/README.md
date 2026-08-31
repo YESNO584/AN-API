@@ -29,6 +29,16 @@ colonne d'ouverture dit l'intérêt — ce sont deux questions différentes.
 glisser vers la gauche ou la droite, ou avec les flèches **‹ ›** posées à côté
 du nom de la catégorie.
 
+**La frise est accrochée en bas de l'écran, une bonne fois.** Sept traits — les
+six étapes du parcours, puis la promulgation — disent où l'on se trouve et
+servent à s'y rendre : toucher un trait mène à sa colonne. Le trait de la
+promulgation **s'allume en vert** quand on y est ; le reste du temps il est
+éteint, comme les autres. Elle ne figure plus sur chaque carte : tous les
+textes d'une colonne étant à la même étape, la répéter n'apprenait rien.
+
+« Arrêté en chemin » n'a pas de trait — ce n'est pas une étape mais une sortie
+de route. La barre le dit en toutes lettres, et on y va en faisant glisser.
+
 **Le tour est sans fin** : après « Arrêté en chemin » vient « Dépôt », et
 inversement. Le navigateur refusant de faire défiler au-delà des bords, une
 **copie de la colonne d'en face** est posée de chaque côté — prise sur ce qui
