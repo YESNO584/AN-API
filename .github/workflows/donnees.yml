@@ -66,9 +66,20 @@ jobs:
       # La base est reconstruite à chaque fois : la machine est neuve à chaque
       # exécution, il n'y a rien à conserver entre deux passages. C'est une
       # minute de travail, et cela garantit qu'aucune donnée périmée ne traîne.
+      # L'archive des amendements pèse 297 Mo et n'arrive pas toujours d'un
+      # coup : deux publications du 2026-08-31 ont échoué sur une coupure, à
+      # 2,6 Mo puis à 51,7 Mo. Le programme reprend maintenant un transfert
+      # coupé là où il s'est arrêté ; ce second filet rattrape le cas où il
+      # renonce quand même, plutôt que de laisser le site d'hier en ligne.
       - name: Récupérer les dossiers législatifs
         working-directory: socle
-        run: python recuperer.py
+        run: |
+          for essai in 1 2 3; do
+            python recuperer.py && exit 0
+            echo "::warning::récupération en échec (essai $essai sur 3)"
+            sleep $((essai * 30))
+          done
+          exit 1
 
       - name: Écrire les fichiers à publier
         working-directory: socle
