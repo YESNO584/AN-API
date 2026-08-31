@@ -35,6 +35,10 @@ Loaded every session via the root `CLAUDE.md`.
   "$HTTPS_PROXY/__agentproxy/status"` — le champ `recentRelayFailures`
   nomme chaque hôte refusé. Plus fiable que d'interpréter un code d'erreur
   `curl`.
+- **Ça se corrige**, et ce n'est pas une fatalité : le niveau d'accès réseau
+  de l'environnement se règle sur `Custom` avec une liste de domaines. La
+  marche à suivre complète est dans `docs/ACCES-RESEAU.md`. À faire une
+  fois, pas à rediagnostiquer à chaque session.
 - **Ce qui marche quand même :** `WebSearch`. Ne marchent pas : `curl`,
   `WebFetch` (qui répond `EGRESS_BLOCKED`). L'accès GitHub est limité au
   seul dépôt de la session ; l'API GitHub répond 403 sur tout autre dépôt.

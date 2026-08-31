@@ -247,6 +247,9 @@ Règle du projet : ne pas présenter comme un fait ce qui n'a pas été vérifi�
   `lafabriquedelaloi.fr` et `regardscitoyens.org`. **Retesté le 2026-08-31 :
   toujours bloqué.** Le blocage vient de l'environnement d'exécution de la
   session (le proxy refuse la connexion), pas du réseau de l'utilisateur.
+  **Il se corrige** en passant le niveau d'accès réseau de l'environnement
+  à `Custom` — marche à suivre et liste de domaines dans
+  `ACCES-RESEAU.md`.
 - **La recherche web fonctionne.** Tout ce document s'appuie donc sur des
   recherches et sur les descriptions publiées de ces jeux de données —
   **jamais sur les fichiers eux-mêmes.**
@@ -595,7 +598,7 @@ premier code** :
 
 | Date | Version | Ce qui a changé |
 |---|---|---|
-| 2026-08-31 | v2 | Décisions prises intégrées (§10) : grand public, mobile + web, favoris, **Assemblée + Sénat**, maquette d'abord. Nouveau §3 sur le parcours d'une loi et le recollement entre les deux chambres. Nouveau §7 sur les favoris et le RGPD. §4 étendu au Sénat, à Légifrance et à La Fabrique de la Loi. §6 réordonné : la maquette passe avant la récupération des données. §8.2 réécrit : « important » devient un choix de l'utilisateur. Tarifs de l'API Claude vérifiés. Accès réseau retesté : toujours bloqué côté session. |
+| 2026-08-31 | v2 | Décisions prises intégrées (§10) : grand public, mobile + web, favoris, **Assemblée + Sénat**, maquette d'abord. Nouveau §3 sur le parcours d'une loi et le recollement entre les deux chambres. Nouveau §7 sur les favoris et le RGPD. §4 étendu au Sénat, à Légifrance et à La Fabrique de la Loi. §6 réordonné : la maquette passe avant la récupération des données. §8.2 réécrit : « important » devient un choix de l'utilisateur. Tarifs de l'API Claude vérifiés. Accès réseau retesté : toujours bloqué côté session, et la marche à suivre pour le débloquer est désormais dans `ACCES-RESEAU.md`. |
 | 2026-08-31 | v1 | Création : étude de faisabilité et plan initial. Sources vérifiées par recherche web uniquement — accès direct aux portails bloqué par le réseau. |
 
 ---
