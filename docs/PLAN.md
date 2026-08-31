@@ -1,6 +1,6 @@
 # Plan — Application de suivi du Parlement (Assemblée nationale + Sénat)
 
-**Statut :** v3 — **étape 0 faite, sources vérifiées sur les fichiers réels**
+**Statut :** v3.1 — **étape 0 faite, maquette livrée, technologie choisie (Flutter)**
 **Dernière mise à jour :** 2026-08-31
 **Ce document est vivant.** Il est mis à jour à chaque session. Voir le
 « Journal des mises à jour » à la fin.
@@ -387,9 +387,13 @@ données publiques des deux chambres.
 **Commencer par :** dossiers législatifs des deux chambres + parlementaires
 + scrutins. Les débats, très volumineux, viennent après.
 
-### Étape 3 — La vraie application
+### Étape 3 — La vraie application — **en Flutter, mobile d'abord**
 
 **But :** la maquette de l'étape 1, mais sur données complètes et à jour.
+
+**Technologie arrêtée le 2026-08-31 :** Flutter, un seul code pour mobile et
+web. **On livre le mobile ; le web vient ensuite.** Ce que cela implique sur
+le besoin d'un serveur est décrit à la question 7 du §10.
 
 - Tous les textes en cours, dans les deux chambres.
 - Une fiche par parlementaire : groupe, commission, ses votes lors des
@@ -620,19 +624,41 @@ limitant du projet** — la qualité et la vérification le sont.
 | # | Question | Décision | Date |
 |---|---|---|---|
 | 1 | **Pour qui ?** | Grand public curieux | 2026-08-31 |
-| 2 | **Sous quelle forme ?** | Plateforme unique, mobile **et** web | 2026-08-31 |
+| 2 | **Sous quelle forme ?** | Plateforme unique, mobile **et** web — **mobile d'abord**, web ensuite, dans le même code | 2026-08-31 |
 | 3 | **Personnel ou général ?** | Personnel — chacun choisit ses favoris. Voir §7 pour la mise en œuvre progressive | 2026-08-31 |
 | 4 | **Périmètre** | **Assemblée + Sénat**, suivi complet | 2026-08-31 |
 | 5 | **Budget et rythme** | Maquette testable d'abord ; le reste ensuite | 2026-08-31 |
 | 6 | **Fonctionnalité à tester en premier** | Le suivi d'un texte sur toute sa durée de vie | 2026-08-31 |
+| 7 | **Technologie** | **Flutter**, un seul code pour mobile et web. **On se concentre sur le mobile ; le web viendra plus tard** | 2026-08-31 |
+
+#### Ce que le choix de Flutter implique
+
+Deux conséquences, constatées à l'étape 0, à connaître avant d'écrire du code.
+Elles ne remettent pas le choix en cause : elles disent quand un serveur
+devient nécessaire.
+
+1. **Le web ne sera pas gratuit.** Flutter partage bien le code entre mobile et
+   web, c'est son intérêt. Mais une application Flutter **web** s'exécute dans
+   un navigateur : elle se heurtera au même refus que la maquette HTML
+   d'aujourd'hui, puisque `data.assemblee-nationale.fr` et `data.senat.fr`
+   n'envoient pas l'en-tête `Access-Control-Allow-Origin`. **L'application
+   mobile, elle, n'a pas cette limite.** Le jour où l'on passe au web, il
+   faudra un serveur intermédiaire.
+2. **Le mobile s'en passera moins longtemps qu'il n'y paraît.** Les dossiers
+   législatifs forment une archive de 10 Mo contenant 10 000 fichiers. Un
+   téléphone ne peut pas la télécharger et la décortiquer à chaque ouverture.
+
+**Recommandation, non encore tranchée :** faire venir l'**étape 2** (un
+service qui prépare et sert les données) **avant** l'application, plutôt
+qu'après. À défaut, l'application embarquera des données préparées à
+l'avance, comme la maquette.
 
 ### Encore ouvert
 
 | # | Question | Quand la trancher |
 |---|---|---|
-| 7 | **Technologie** | Juste avant l'étape 1, une fois l'étape 0 faite. Le choix dépend d'une chose : mobile et web dans le même code, ou deux codes séparés ? |
-| 8 | **Hébergement** | Avec la technologie |
-| 9 | **Modèle économique** (gratuit, payant, associatif) | Pas urgent, **mais il conditionne le choix des sources** : les données en ODbL (§4.4) contraignent la redistribution |
+| 8 | **Hébergement** | Dès que l'étape 2 est engagée — le choix de Flutter la rend nécessaire plus tôt que prévu (voir ci-dessus) |
+| 9 | **Modèle économique** (gratuit, payant, associatif) | Pas urgent, et **plus contraint par les licences** : la seule source en ODbL était La Fabrique de la Loi, écartée à l'étape 0 (§4.4). L'Assemblée et le Sénat publient sous des licences qui n'imposent rien à la redistribution |
 
 ---
 
@@ -661,7 +687,9 @@ l'Assemblée. La maquette peut donc se construire sur données réelles.
 
 1. **L'étape 1, la maquette**, sur les dossiers législatifs de l'Assemblée.
    Commencer par le fil des textes en cours, classés par étape du parcours.
-2. **Choisir la technologie** (§7), maintenant que les volumes sont connus.
+2. **Trancher l'ordre des étapes 2 et 3.** La technologie est choisie
+   (**Flutter**, mobile d'abord — question 7 du §10) ; reste à décider si le
+   service qui sert les données vient avant l'application ou après.
 3. **Si et seulement si le texte consolidé des lois devient nécessaire** :
    créer un compte PISTE et évaluer l'API Légifrance.
 
@@ -671,6 +699,7 @@ l'Assemblée. La maquette peut donc se construire sur données réelles.
 
 | Date | Version | Ce qui a changé |
 |---|---|---|
+| 2026-08-31 | **v3.1** | **Technologie décidée : Flutter**, un seul code pour mobile et web, **le mobile d'abord** (question 7 du §10, qui était la dernière question bloquante). Deux conséquences inscrites au §10 : l'application Flutter *web* butera sur le même refus que la maquette HTML et exigera un serveur, tandis que le mobile n'a pas cette limite ; et l'archive de 10 Mo ne peut pas être décortiquée sur un téléphone à chaque ouverture. D'où une recommandation, non tranchée : faire venir l'étape 2 avant l'application. |
 | 2026-08-31 | **v3** | **Étape 0 faite** : les fichiers des deux chambres ont été téléchargés et comptés. Fiches par source dans `sources/`. Trois conclusions changent le plan — **La Fabrique de la Loi est écartée** (figée depuis 2022, §4.4) ; **le recollement entre les deux chambres n'est pas à faire**, l'Assemblée publie le lien (§3.2) ; **le coût des résumés est de l'ordre de 35 $ par an** pour les deux chambres, mesuré, pas estimé (§9.3). §5 réécrit : ce qui est mesuré, ce qui ne l'est pas. §12 : la maquette peut commencer sur données réelles. |
 | 2026-08-31 | v2 | Décisions prises intégrées (§10) : grand public, mobile + web, favoris, **Assemblée + Sénat**, maquette d'abord. Nouveau §3 sur le parcours d'une loi et le recollement entre les deux chambres. Nouveau §7 sur les favoris et le RGPD. §4 étendu au Sénat, à Légifrance et à La Fabrique de la Loi. §6 réordonné : la maquette passe avant la récupération des données. §8.2 réécrit : « important » devient un choix de l'utilisateur. Tarifs de l'API Claude vérifiés. Accès réseau retesté : toujours bloqué côté session, et la marche à suivre pour le débloquer est désormais dans `ACCES-RESEAU.md`. |
 | 2026-08-31 | v1 | Création : étude de faisabilité et plan initial. Sources vérifiées par recherche web uniquement — accès direct aux portails bloqué par le réseau. |

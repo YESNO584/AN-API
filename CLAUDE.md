@@ -30,14 +30,21 @@ a pas encore d'application, de base de données ni de dépendances.
 - **Une page web ne peut pas aller chercher ces données elle-même** — les
   portails n'envoient pas l'en-tête `Access-Control-Allow-Origin`. Toute
   maquette autonome passe donc par une préparation hors ligne.
-- *(à venir)* Le langage de l'application n'est pas choisi (§7 du plan). Le
-  seul code présent est du Python de préparation et du HTML/CSS/JS sans
-  dépendance.
+- **L'application sera en Flutter (Dart), le mobile d'abord**, le web
+  ensuite et dans le même code (décidé le 2026-08-31 — question 7 du §10 du
+  plan). **Aucun code Flutter n'existe encore :** le seul code du dépôt reste
+  le Python de préparation et le HTML/CSS/JS de la maquette.
+- **Deux conséquences de ce choix, à ne pas redécouvrir plus tard :** une
+  application Flutter *web* butera sur le même refus que la maquette HTML
+  (pas d'en-tête `Access-Control-Allow-Origin` côté portails) et exigera donc
+  un serveur intermédiaire — l'application *mobile*, elle, n'a pas cette
+  limite ; et l'archive de 10 Mo des dossiers législatifs ne peut pas être
+  téléchargée et décortiquée sur un téléphone à chaque ouverture.
 - **`.claude/code_rules.json` ne s'applique à rien ici** : il vise `**/*.cs`,
-  et le dépôt ne contient pas de C#. Le faire re-miner (agent
-  `code-convention-miner`) n'aura de sens qu'une fois le langage de
-  l'application choisi. Jusque-là, un rapport « 0 finding » signifie que rien
-  n'a été vérifié, pas que le code est propre.
+  et le dépôt ne contiendra pas de C# — le code applicatif sera du Dart. Le
+  faire re-miner (agent `code-convention-miner`) n'aura de sens qu'une fois
+  le premier code Flutter écrit. Jusque-là, un rapport « 0 finding » signifie
+  que rien n'a été vérifié, pas que le code est propre.
 
 ## Read these first
 - `.claude/LEARNINGS.md` — cross-session lessons. Read at the start of every
