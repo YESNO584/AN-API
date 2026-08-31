@@ -19,6 +19,82 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-08-31 — Initialisation du dépôt, plan v1 et v2
+
+### Le blocage réseau vient de la session, pas de l'utilisateur
+
+- **Les portails parlementaires et gouvernementaux sont refusés par le proxy
+  de la session**, pas par le réseau de l'utilisateur : `CONNECT tunnel
+  failed, response 403` sur `data.assemblee-nationale.fr`, `data.senat.fr`,
+  `senat.fr`, `legifrance.gouv.fr`, `data.gouv.fr`,
+  `assemblee-nationale.fr`, `lafabriquedelaloi.fr`, `regardscitoyens.org`.
+  Retesté le 2026-08-31, inchangé. *Pourquoi ça compte :* ne pas faire
+  chercher une panne de connexion à l'utilisateur, et ne pas retenter à
+  chaque session sans le dire.
+- **Comment le vérifier en une commande :** `curl -sS
+  "$HTTPS_PROXY/__agentproxy/status"` — le champ `recentRelayFailures`
+  nomme chaque hôte refusé. Plus fiable que d'interpréter un code d'erreur
+  `curl`.
+- **Ce qui marche quand même :** `WebSearch`. Ne marchent pas : `curl`,
+  `WebFetch` (qui répond `EGRESS_BLOCKED`). L'accès GitHub est limité au
+  seul dépôt de la session ; l'API GitHub répond 403 sur tout autre dépôt.
+  *Conséquence :* on peut enquêter sur une source, jamais ouvrir ses
+  fichiers. Toute affirmation sur un format ou une taille de fichier reste
+  non vérifiée tant que quelqu'un n'a pas regardé depuis un poste normal.
+
+### Un `git status` vide ne veut pas dire « rien n'a été fait »
+
+- Après une reprise de session (contexte résumé), `git status --short` n'a
+  rien renvoyé. Interprétation naturelle : les fichiers n'ont pas été
+  créés. Interprétation correcte : **tout était déjà commité et poussé** par
+  la partie résumée de la session. `git log --oneline` l'a montré en une
+  seconde. *La règle du `CLAUDE.md` s'applique exactement ici :* la sortie
+  d'un outil est une piste, pas un fait. Avant de conclure qu'un travail
+  n'a pas eu lieu, regarder `git log` et `git ls-files`, pas seulement
+  l'état de la copie de travail.
+
+### Tester un hook : vérifier la charge d'entrée, pas seulement le code de sortie
+
+- `statusline.sh` a affiché `.` comme nom de projet pendant un test. Réflexe
+  possible : corriger le script. En réalité **le script lit le champ `.cwd`
+  et le test lui envoyait `.workspace.current_dir`** — le script était bon,
+  le test était faux. *Pourquoi ça compte :* c'est exactement le troisième
+  échec-type listé dans `CLAUDE.md` (« quand un outil et le code ne sont pas
+  d'accord, chercher lequel des deux a tort »), rencontré en vrai.
+- Les trois hooks ont été vérifiés un par un et fonctionnent : rappel de
+  reformulation, ligne d'état, et blocage d'écriture hors du dossier
+  (sortie 2). `jq` est bien présent, c'est leur seule dépendance.
+
+### Les tarifs de l'API Claude se vérifient, ils ne se recopient pas
+
+- Le plan cite les prix par million de jetons. Ils ont été **vérifiés via la
+  compétence `claude-api`** avant réécriture, et étaient exacts (Opus 5 :
+  5 $ / 25 $ ; Sonnet 5 : 2 $ / 10 $ ; Haiku 4.5 : 1 $ / 5 $ ; remise de
+  50 % en traitement par lots). *Pourquoi ça compte :* ces prix changent, et
+  les recopier de mémoire d'une version du document à la suivante est le
+  moyen le plus simple d'y laisser un chiffre faux pendant des mois.
+
+### Ce qui reste faux dans la configuration du dépôt
+
+- **`.claude/code_rules.json` est toujours le modèle générique C#**, avec
+  `include_globs` à `**/*.cs` et tous les champs `evidence` vides. Le
+  vérificateur tourne sans erreur et annonce « 0 problème » — sur un dépôt
+  qui ne contient aucun fichier `.cs`. **Un rapport propre ne prouve donc
+  rien aujourd'hui.** À régénérer avec l'agent `code-convention-miner` dans
+  la session qui écrira le premier code.
+- La section « Architecture » du `CLAUDE.md` et la définition trop large de
+  « produit source » sont à remplacer dans cette même session.
+
+### Connaissances produit
+
+Elles ne sont pas ici : elles sont dans `docs/PLAN.md`, qui est le document
+vivant du projet. Point le plus utile à connaître avant d'y entrer : **La
+Fabrique de la Loi (Regards Citoyens) suit déjà un texte à travers les deux
+chambres et publie ses données** — vérifier s'il est à jour est la première
+chose à faire, avant toute décision technique.
+
+---
+
 ## Permission rules cannot contain a literal `*`
 
 Carried over from a previous project; true of Claude Code itself, not of any
