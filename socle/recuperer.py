@@ -79,10 +79,16 @@ def ranger(connexion: sqlite3.Connection, archive: pathlib.Path, aujourdhui: str
     dossiers, etapes = [], []
     for brut in extraction.lire_archive(archive):
         d = extraction.analyser(brut, aujourdhui)
+        courant = d["etapeCourante"] or {}
+        prochaine = next((e for e in d["etapes"] if e["future"]), None)
         dossiers.append((
             d["uid"], d["legislature"], d["titre"], d["titreChemin"], d["type"],
             int(d["estLoi"]), d["chambreInitiale"], d["statut"], d["etape"],
-            d["dateDernierMouvement"], d["urlAN"], d["urlSenat"],
+            d["dateDernierMouvement"],
+            courant.get("chambre"), courant.get("lecture"),
+            courant.get("libelle"), courant.get("conclusion"),
+            (prochaine or {}).get("date"), (prochaine or {}).get("libelle"),
+            d["urlAN"], d["urlSenat"],
             d["loiNumero"], d["loiDate"], d["loiUrlJO"],
         ))
         etapes += [(
@@ -94,7 +100,7 @@ def ranger(connexion: sqlite3.Connection, archive: pathlib.Path, aujourdhui: str
         connexion.execute("DELETE FROM etape")
         connexion.execute("DELETE FROM dossier")
         connexion.executemany(
-            "INSERT INTO dossier VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", dossiers)
+            "INSERT INTO dossier VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", dossiers)
         connexion.executemany(
             "INSERT INTO etape VALUES (?,?,?,?,?,?,?,?,?,?,?)", etapes)
     return len(dossiers), len(etapes)

@@ -18,6 +18,15 @@ CREATE TABLE IF NOT EXISTS dossier (
     statut                  TEXT    NOT NULL,   -- en_cours | promulgue | retire | sans_acte
     etape                   INTEGER,            -- 1..6, NULL tant qu'aucun acte n'a eu lieu
     date_dernier_mouvement  TEXT,               -- AAAA-MM-JJ
+    -- Ce qui suit décrit le dernier acte connu. C'est de la redondance
+    -- assumée : sans elle, afficher un fil de mille textes obligerait à
+    -- ouvrir mille fichiers de détail.
+    chambre                 TEXT,               -- où le texte se trouve aujourd'hui
+    lecture                 TEXT,               -- 1ère lecture, Nouvelle Lecture…
+    dernier_acte            TEXT,               -- Discussion en séance publique…
+    conclusion              TEXT,               -- adoptée, rejeté, Conforme…
+    prochaine_date          TEXT,               -- séance déjà programmée, si elle existe
+    prochaine_quoi          TEXT,
     url_an                  TEXT,
     url_senat               TEXT,               -- publiée par l'Assemblée : aucun rapprochement à faire
     loi_numero              TEXT,

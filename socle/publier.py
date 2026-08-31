@@ -40,8 +40,9 @@ SORTIE = RACINE / "public"
 # Ce que la liste embarque pour chaque texte. Volontairement court : elle est
 # chargée en entier par l'application, qui filtre et cherche ensuite toute
 # seule, hors connexion. Le reste est dans le fichier de détail.
-CHAMPS_LISTE = ("uid", "titre", "type", "chambre_initiale", "etape",
-                "date_dernier_mouvement", "url_an", "url_senat")
+CHAMPS_LISTE = ("uid", "titre", "type", "chambre", "chambre_initiale", "etape",
+                "date_dernier_mouvement", "lecture", "dernier_acte", "conclusion",
+                "prochaine_date", "prochaine_quoi", "url_an", "url_senat")
 
 
 def ecrire(chemin: pathlib.Path, contenu) -> int:
@@ -49,14 +50,6 @@ def ecrire(chemin: pathlib.Path, contenu) -> int:
     brut = json.dumps(contenu, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
     chemin.write_bytes(brut)
     return len(brut)
-
-
-def chambre_actuelle(cx: sqlite3.Connection, uid: str) -> str | None:
-    """La chambre où le texte se trouve : celle de son dernier acte passé."""
-    ligne = cx.execute(
-        "SELECT chambre FROM etape WHERE dossier_uid = ? AND future = 0"
-        " ORDER BY date DESC, numero DESC, rang DESC LIMIT 1", (uid,)).fetchone()
-    return ligne["chambre"] if ligne else None
 
 
 def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
@@ -99,14 +92,16 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
 
     for nom_fichier, statut in (("textes.json", extraction.EN_COURS),
                                 ("promulgues.json", extraction.PROMULGUE)):
+        # Les plus avancés d'abord : un texte près d'être promulgué intéresse
+        # plus qu'une proposition déposée et jamais examinée — et celles-ci
+        # sont l'immense majorité.
         lignes = cx.execute(
             f"SELECT {', '.join(CHAMPS_LISTE)}, loi_numero, loi_date, loi_url_jo"
             " FROM dossier WHERE statut = ? AND est_loi = 1"
-            " ORDER BY date_dernier_mouvement DESC, uid", (statut,)).fetchall()
+            " ORDER BY etape DESC, date_dernier_mouvement DESC, uid", (statut,)).fetchall()
         textes = []
         for l in lignes:
             texte = {c: l[c] for c in CHAMPS_LISTE}
-            texte["chambre"] = chambre_actuelle(cx, l["uid"])
             if statut == extraction.PROMULGUE:
                 texte.update(loiNumero=l["loi_numero"], loiDate=l["loi_date"],
                              loiUrlJO=l["loi_url_jo"])
@@ -126,8 +121,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             "SELECT code, lecture, libelle, chambre, date, numero, conclusion, future"
             " FROM etape WHERE dossier_uid = ? ORDER BY date, rang", (l["uid"],))]
         details += ecrire(sortie / "textes" / f'{l["uid"]}.json',
-                          {**dict(l), "chambre": chambre_actuelle(cx, l["uid"]),
-                           "parcours": parcours})
+                          {**dict(l), "parcours": parcours})
     tailles["textes/*.json"] = details
 
     # GitHub Pages ne sert pas les dossiers dont le nom commence par un

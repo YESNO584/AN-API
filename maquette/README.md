@@ -3,89 +3,77 @@
 **Étape 1 du plan** (`../docs/PLAN.md`, §6). Un écran qu'on peut mettre entre
 les mains de quelqu'un pour regarder s'il comprend.
 
-## Ce qu'il y a ici
+Un seul fichier : **`feed.html`**. Il s'ouvre dans un navigateur, au format
+téléphone.
 
-| Fichier | À quoi il sert |
+## Ce qu'elle montre
+
+Les **1 990 textes de loi en cours d'examen**, groupés par étape du parcours,
+**les plus avancés en premier** — un texte près d'être promulgué intéresse
+plus qu'une proposition déposée et jamais examinée, et celles-ci sont
+l'immense majorité.
+
+### Les filtres
+
+| Filtre | Ce qu'il permet |
 |---|---|
-| `feed.html` | **La maquette.** Un fichier autonome : on l'ouvre dans un navigateur, il s'affiche. Aucune connexion, aucune dépendance |
-| `preparer_donnees.py` | Le script qui remplit `feed.html` avec les données réelles de l'Assemblée |
+| **Étape** | Les six étapes du parcours |
+| **Où le texte se trouve** | Assemblée, Sénat, ou les deux (commission mixte paritaire) |
+| **Nature du texte** | Proposition, projet, loi organique, constitutionnelle, budget, ratification… |
+| **Dernier mouvement** | Cette semaine, ce mois-ci, ces trois mois — ou à l'arrêt depuis plus d'un an |
+| **Calendrier** | Les textes dont une séance est déjà programmée |
+| **Recherche** | Dans les titres |
 
-## L'ouvrir
+Ils se combinent, chacun affiche son nombre de textes, ceux qui ne mèneraient
+à rien sont grisés, et un bouton efface tout.
 
-Double-cliquer sur `feed.html`, ou :
+### Les explications
 
-```bash
-xdg-open feed.html      # Linux
-open feed.html          # macOS
+**Chaque élément affiché se touche et explique ce qu'il est**, en français
+simple : l'étape, la chambre, la nature du texte, la lecture, le dernier
+acte, le résultat d'un vote, la date, la frise, et chaque filtre.
+
+Sur un téléphone il n'y a ni survol de souris ni clic droit : l'explication
+s'ouvre donc **au toucher**, dans un panneau qui vient du bas. Dans le
+panneau des filtres, un petit **ⓘ** à côté de chaque puce évite de confondre
+« je veux comprendre » et « je veux filtrer ».
+
+## D'où viennent les données
+
+De **`https://yesno584.github.io/AN-API/textes.json`**, publié chaque matin
+par le socle (voir `../socle/README.md`). La page les lit en direct, au
+chargement — c'est exactement le chemin que suivra l'application Flutter,
+donc la maquette essaie le dispositif autant que le dessin.
+
+Il n'y a **plus de préparation hors ligne** : le script qui servait à cela a
+disparu, le socle publie tout.
+
+### Viser un socle local
+
+```
+feed.html?socle=http://127.0.0.1:8000
 ```
 
-## Rafraîchir les données
+Utile pour travailler sans réseau, ou pour essayer une modification du socle
+avant de la publier. Pour servir une copie locale :
 
 ```bash
-./preparer_donnees.py
+cd ../socle && ./publier.py && (cd public && python3 -m http.server 8000)
 ```
 
-Le script télécharge l'archive des dossiers législatifs (10 Mo), en extrait
-les textes en cours, et réécrit le bloc de données à l'intérieur de
-`feed.html`. Tout le reste de la page — la mise en page, les styles — n'est
-pas touché : on peut donc modifier le design à la main sans rien perdre.
-
-```bash
-./preparer_donnees.py --garder-zip     # garde l'archive dans .cache/
-./preparer_donnees.py --zip fichier    # réutilise une archive déjà là
-```
-
-## Pourquoi un script, et pas la page qui va chercher les données
-
-**Parce que les sites l'interdisent.** Ni `data.assemblee-nationale.fr` ni
-`data.senat.fr` n'envoient l'en-tête `Access-Control-Allow-Origin` (vérifié
-le 2026-08-31). Un navigateur refuse donc à une page de lire leurs fichiers.
-Ce n'est pas contournable côté page — seuls ces sites peuvent changer ce
-réglage.
-
-S'y ajoutent deux obstacles pratiques : le fichier de l'Assemblée est une
-archive compressée de 10 Mo contenant 10 000 fichiers, et celui du Sénat est
-en latin-1.
-
-Pour que les données se mettent à jour toutes seules, il faudra un programme
-qui tourne quelque part et récupère les fichiers — c'est l'**étape 2** du
-plan, pas la maquette.
-
-## Les trois décisions qui font que le fil est juste
-
-Ce sont les pièges trouvés à l'étape 0. Chacun est traité dans
-`preparer_donnees.py`, avec un commentaire à l'endroit du code concerné.
-
-1. **Tous les dossiers ne fabriquent pas une loi.** 708 des 2 859 dossiers de
-   la législature sont des résolutions, rapports d'information, missions ou
-   commissions d'enquête. Ils sont écartés : les mélanger à un fil de lois le
-   rendrait faux.
-
-2. **Une saisine de commission n'est pas un examen.** Un texte est renvoyé à
-   une commission le jour même de son dépôt, automatiquement. Compter ce
-   renvoi comme « en commission » classerait 1 815 textes sur 1 990 à cette
-   étape, alors que la commission ne s'est jamais réunie sur presque aucun.
-   Il faut un acte réel : nomination d'un rapporteur, réunion, ou rapport.
-
-3. **Le parcours n'est pas une ligne droite.** Après une commission mixte
-   paritaire qui échoue, un texte repart en nouvelle lecture. Classer sur
-   « l'étape la plus avancée jamais atteinte » l'afficherait en sortie de
-   navette alors qu'il est reparti chez l'autre chambre. On classe donc sur
-   les actes du **jour le plus récent**, en retenant le plus avancé d'entre
-   eux quand plusieurs partagent cette date.
-
-Un quatrième point, visible dans la page : **la source contient des dates
-futures** — des séances déjà programmées. Elles ne servent jamais à classer
-un texte ; elles apparaissent comme « prochaine étape prévue ».
+En ouvrant alors `http://127.0.0.1:8000/feed.html?socle=http://127.0.0.1:8000`
+après y avoir copié la page, tout tient sur une seule adresse.
 
 ## Ce que la maquette ne fait pas
 
-Ni recherche, ni favoris, ni écran de détail par texte, ni mise à jour
-automatique. Ce sont les écrans voisins prévus au plan, à faire seulement si
-celui-ci convainc.
+Ni favoris, ni alertes, ni comptes, ni écran de détail par texte — le titre
+renvoie au dossier officiel. Ce sont les étapes suivantes du plan.
 
-## Source et licence
+## Les trois règles qui font que le fil est juste
 
-Dossiers législatifs de l'Assemblée nationale, sous **Licence Ouverte
-(Etalab)** — réutilisation libre, y compris commerciale, avec mention de la
-source. Détail dans `../docs/sources/assemblee-nationale.md`.
+Elles ne sont pas ici : elles vivent dans `../socle/extraction.py`, avec
+leurs tests. En résumé — les dossiers qui ne fabriquent pas de loi sont
+écartés, une saisine de commission le jour du dépôt n'est pas un examen, et
+un texte se classe sur les actes de son jour le plus récent, pas sur l'étape
+la plus avancée qu'il ait jamais atteinte. Détail dans
+`../socle/README.md`.
