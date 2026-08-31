@@ -1082,24 +1082,28 @@ function parCategorie(liste) {
   return [...paquets.entries()].sort((a, x) => rangDe(a[0]) - rangDe(x[0]));
 }
 
-function versColonne(rang) {
+const vraiesColonnes = () => $("fil").querySelectorAll(".colonne:not(.fantome)");
+
+// Le tour est sans fin : après la dernière catégorie vient la première.
+function versColonne(rang, glisser = true) {
   const fil = $("fil");
-  const colonnes = fil.querySelectorAll(".colonne");
-  const cible = colonnes[Math.max(0, Math.min(colonnes.length - 1, rang))];
+  const colonnes = vraiesColonnes();
+  if (!colonnes.length) return;
+  const n = colonnes.length;
+  const cible = colonnes[((rang % n) + n) % n];
   // `offsetLeft` est mesuré depuis le fil, qui est positionné (CSS
   // `position: relative`) — donc directement utilisable comme défilement.
-  if (cible) fil.scrollTo({ left: cible.offsetLeft, behavior: "smooth" });
+  fil.scrollTo({ left: cible.offsetLeft, behavior: glisser ? "smooth" : "auto" });
 }
 
-function fleche(signe, ou, rang, inactive) {
+function fleche(signe, ou, rang) {
   const b = el("button", "fleche", signe);
   b.setAttribute("aria-label", "Catégorie " + ou);
-  b.disabled = inactive;
   b.addEventListener("click", () => versColonne(rang));
   return b;
 }
 
-function colonne(etape, textes, rang, total) {
+function colonne(etape, textes, rang) {
   const col = el("section", "colonne");
   const e = etapeDe(etape);
   const fini = e.n === PROMULGUEE;
@@ -1109,13 +1113,13 @@ function colonne(etape, textes, rang, total) {
   const titre = el("div", "titre-etape");
   if (fini) titre.classList.add("fini");
   if (arret) titre.classList.add("arret");
-  titre.append(fleche("‹", "précédente", rang - 1, rang === 0));
+  titre.append(fleche("‹", "précédente", rang - 1));
   const nom = el("button", "nom", e.nom);
   nom.addEventListener("click", () => expliquer(
     e.nom, e.quoi,
     fini ? "Parcours terminé" : arret ? "Plus examinés" : `Étape ${e.n} sur 6`));
   titre.append(nom);
-  titre.append(fleche("›", "suivante", rang + 1, rang === total - 1));
+  titre.append(fleche("›", "suivante", rang + 1));
   tete.append(titre);
   tete.append(el("div", "sous-etape",
     (fini ? "parcours terminé" : arret ? "plus examinés" : `étape ${e.n} sur 6`)
@@ -1140,11 +1144,67 @@ function colonne(etape, textes, rang, total) {
   return col;
 }
 
+/* Le tour sans fin, sans dupliquer les données.
+ *
+ * Le navigateur refuse de faire défiler au-delà des bords : arrivé à la
+ * dernière catégorie, un glissement de plus ne produit rien. On pose donc de
+ * chaque côté une **copie de la colonne d'en face**, prise sur ce qui est
+ * déjà affiché — 25 cartes, pas les 1 729 du dépôt. Dès que le défilement
+ * s'immobilise sur une copie, on saute sans animation sur la vraie colonne,
+ * à l'autre bout. Le lecteur voit une catégorie continue ; il ne voit pas le
+ * saut, parce qu'il tombe sur une image identique à ce qu'il regardait.
+ */
+function poserLesCopies(fil) {
+  const colonnes = [...vraiesColonnes()];
+  if (colonnes.length < 2) return;
+  const copier = (source) => {
+    const c = source.cloneNode(true);
+    c.classList.add("fantome");
+    c.setAttribute("aria-hidden", "true");
+    c.querySelectorAll("button").forEach((b) => { b.disabled = true; b.tabIndex = -1; });
+    return c;
+  };
+  fil.prepend(copier(colonnes[colonnes.length - 1]));
+  fil.append(copier(colonnes[0]));
+}
+
+function surveillerLeTour(fil) {
+  let minuteur = null;
+  fil.addEventListener("scroll", () => {
+    clearTimeout(minuteur);
+    // On attend l'immobilité : sauter pendant le geste le couperait net.
+    minuteur = setTimeout(() => {
+      const colonnes = [...vraiesColonnes()];
+      if (colonnes.length < 2) return;
+      const premiere = colonnes[0], derniere = colonnes[colonnes.length - 1];
+      if (fil.scrollLeft < premiere.offsetLeft / 2) {
+        fil.scrollTo({ left: derniere.offsetLeft, behavior: "auto" });
+      } else if (fil.scrollLeft > derniere.offsetLeft + derniere.offsetWidth / 2) {
+        fil.scrollTo({ left: premiere.offsetLeft, behavior: "auto" });
+      }
+    }, 120);
+  }, { passive: true });
+}
+
+// La catégorie la plus avancée du parcours : celle sur laquelle le fil
+// s'ouvre. C'est là que se passe l'actualité — les 1 729 textes restés au
+// dépôt sont à un glissement de là, vers la gauche. « Arrêté en chemin » ne
+// compte pas : ce n'est pas une étape mais une sortie de route.
+function colonneDOuverture(categories) {
+  for (let i = categories.length - 1; i >= 0; i--) {
+    if (categories[i][0] !== ARRETE) return i;
+  }
+  return 0;
+}
+
 function dessinerColonnes(liste) {
   const fil = $("fil");
   const categories = parCategorie(liste);
   categories.forEach(([etape, textes], rang) =>
-    fil.append(colonne(etape, textes, rang, categories.length)));
+    fil.append(colonne(etape, textes, rang)));
+  poserLesCopies(fil);
+  const cible = vraiesColonnes()[colonneDOuverture(categories)];
+  if (cible) fil.scrollLeft = cible.offsetLeft;
 }
 
 
@@ -1574,6 +1634,10 @@ function router() {
 window.addEventListener("hashchange", router);
 
 /* ---------- démarrage ---------- */
+// Une seule fois, sur le fil lui-même : les colonnes sont redessinées à
+// chaque filtre, l'écouteur ne doit pas l'être avec elles.
+surveillerLeTour($("fil"));
+
 $("bascule").addEventListener("click", () => {
   const boite = $("filtres");
   boite.hidden = !boite.hidden;

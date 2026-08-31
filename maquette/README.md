@@ -20,9 +20,23 @@ frise, de la plus ancienne étape à la plus récente. Les **61 textes arrêtés
 chemin** ferment la marche : ce n'est pas une étape du parcours mais une
 sortie de route, qui peut survenir à n'importe quel moment.
 
+**Le fil s'ouvre sur « Promulguée »**, la catégorie la plus avancée : c'est là
+que se passe l'actualité, et les 1 729 textes restés au dépôt sont à un
+glissement de là, vers la gauche. L'ordre des colonnes dit le parcours, la
+colonne d'ouverture dit l'intérêt — ce sont deux questions différentes.
+
 **Une seule colonne est visible à la fois.** On passe à la suivante en faisant
 glisser vers la gauche ou la droite, ou avec les flèches **‹ ›** posées à côté
-du nom de la catégorie. Toutes les colonnes commencent en haut, sous
+du nom de la catégorie.
+
+**Le tour est sans fin** : après « Arrêté en chemin » vient « Dépôt », et
+inversement. Le navigateur refusant de faire défiler au-delà des bords, une
+**copie de la colonne d'en face** est posée de chaque côté — prise sur ce qui
+est déjà affiché, 25 cartes, pas les 1 729 du dépôt. Dès que le défilement
+s'immobilise sur une copie, la page saute sans animation sur la vraie colonne,
+à l'autre bout. Le saut ne se voit pas : on tombe sur une image identique à
+celle qu'on regardait. Les flèches font le tour elles aussi, et ne sont plus
+grisées aux extrémités. Toutes les colonnes commencent en haut, sous
 l'en-tête : les textes restent donc alignés d'une colonne à l'autre, et le
 défilement vertical reste celui de la page. Une catégorie sans texte — ce qui
 arrive dès qu'un filtre est actif — n'a pas de colonne. Chaque colonne charge
