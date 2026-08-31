@@ -125,6 +125,9 @@
                     text-transform: none; margin-left: auto; font-size: .76rem; }
   .titre-etape.fini { color: var(--ok); }
   .etiq.promulguee { color: var(--ok); background: transparent; border-color: currentColor; }
+  .etiq.arrete { color: var(--accent); background: transparent; border-color: currentColor;
+                 font-weight: 560; }
+  .titre-etape.arret { color: var(--faible); }
   .etiq.lien { color: var(--gris); background: var(--doux); text-decoration: none;
                display: inline-block; }
   .etiq.lien::after { content: " ↗"; }
@@ -293,8 +296,32 @@ const PAR_PAQUET = 25;
  * affiché doit pouvoir dire, en français simple, ce qu'il est.
  * ------------------------------------------------------------------ */
 const PROMULGUEE = 7;
+const ARRETE = 0;
+
+// Comment nommer l'issue d'un texte. **Aucune de ces phrases ne dit qu'un
+// texte est fini pour de bon** : les sources ne le disent pas, la page non
+// plus. Un texte rejeté ou non adopté peut être redéposé.
+const ISSUES = {
+  rejete: ["Rejeté",
+    "La dernière décision connue sur ce texte est un rejet. Cela ne veut pas dire " +
+    "qu'il ne reviendra jamais : un texte rejeté peut être redéposé, et la source " +
+    "ne se prononce pas là-dessus."],
+  non_adopte: ["Non adopté",
+    "Le Sénat indique que ce texte n'a pas été adopté. C'est son propre mot. Un " +
+    "texte non adopté peut être redéposé ; rien dans les données ne dit s'il le sera."],
+  caduc: ["Caduc",
+    "Le Sénat indique que ce texte est caduc : il n'a pas abouti avant la fin de la " +
+    "période où il pouvait être examiné. Pour repartir, il devrait être déposé à nouveau."],
+  retire: ["Retiré",
+    "Le texte a été retiré par celui qui l'avait déposé. Ce n'est ni un rejet ni un " +
+    "échec de vote : son auteur a choisi de l'enlever."],
+};
 
 const ETAPES = [
+  { n: ARRETE, nom: "Arrêté en chemin", quoi:
+    "Ces textes ne sont plus examinés : rejetés, non adoptés, retirés par leur " +
+    "auteur, ou devenus caducs. Chacun porte le mot de sa source. Rien n'interdit " +
+    "qu'un texte semblable soit redéposé plus tard." },
   { n: PROMULGUEE, nom: "Promulguée", quoi:
     "Le parcours est terminé : le texte est devenu une loi. Il a été signé par " +
     "le Président de la République et publié au Journal officiel. C'est à partir " +
@@ -431,8 +458,10 @@ const dateLongue = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "lo
 
 // Les six étapes du parcours, pour la frise. « Promulguée » n'en fait pas
 // partie : c'est l'après, pas une septième étape.
-const PARCOURS = ETAPES.filter((e) => e.n !== PROMULGUEE).sort((a, b) => a.n - b.n);
+const PARCOURS = ETAPES.filter((e) => e.n !== PROMULGUEE && e.n !== ARRETE)
+                       .sort((a, b) => a.n - b.n);
 const etapeDe = (n) => ETAPES.find((e) => e.n === n);
+const statutDe = (t) => t.statut || (t.etape === PROMULGUEE ? "promulgue" : "en_cours");
 
 const $ = (id) => document.getElementById(id);
 const enDate = (iso) => { const [a, m, j] = iso.split("-").map(Number); return new Date(a, m - 1, j); };
@@ -472,8 +501,7 @@ const ACTIVITE = {
 function retenus() {
   const mots = filtres.mots.trim().toLowerCase();
   return TEXTES.filter((t) => {
-    if (filtres.etat === "en_cours" && t.etape === PROMULGUEE) return false;
-    if (filtres.etat === "promulgue" && t.etape !== PROMULGUEE) return false;
+    if (filtres.etat && statutDe(t) !== filtres.etat) return false;
     if (filtres.etapes.size && !filtres.etapes.has(t.etape)) return false;
     if (filtres.chambres.size && !filtres.chambres.has(t.chambre || "aucune")) return false;
     if (filtres.types.size && !filtres.types.has(t.type)) return false;
@@ -548,18 +576,21 @@ function dessinerFiltres() {
          () => bascule(filtres.etapes, e.n),
          [e.nom, e.quoi, e.n === PROMULGUEE ? "Parcours terminé" : `Étape ${e.n} sur 6`]))));
 
-  boite.append(groupe("État", [
-    puce("En cours d'examen", filtres.etat === "en_cours",
-         compteur((t) => t.etape !== PROMULGUEE),
-         () => { filtres.etat = filtres.etat === "en_cours" ? null : "en_cours"; dessiner(); },
-         ["Un texte encore en chemin",
-          "Il est quelque part entre son dépôt et sa promulgation. Rien ne dit " +
-          "qu'il ira au bout : la plupart s'arrêtent en route."]),
-    puce("Déjà promulguée", filtres.etat === "promulgue",
-         compteur((t) => t.etape === PROMULGUEE),
-         () => { filtres.etat = filtres.etat === "promulgue" ? null : "promulgue"; dessiner(); },
-         etapeDe(PROMULGUEE) && [etapeDe(PROMULGUEE).nom, etapeDe(PROMULGUEE).quoi]),
-  ]));
+  const issues = [
+    ["en_cours", "En cours d'examen", ["Un texte encore en chemin",
+      "Il est quelque part entre son dépôt et sa promulgation. Rien ne dit " +
+      "qu'il ira au bout : la plupart s'arrêtent en route."]],
+    ["promulgue", "Promulguée",
+     [etapeDe(PROMULGUEE).nom, etapeDe(PROMULGUEE).quoi]],
+    ["rejete", "Rejeté", ISSUES.rejete],
+    ["non_adopte", "Non adopté", ISSUES.non_adopte],
+    ["retire", "Retiré", ISSUES.retire],
+    ["caduc", "Caduc", ISSUES.caduc],
+  ];
+  boite.append(groupe("Issue", issues.map(([cle, nom, aide]) =>
+    puce(nom, filtres.etat === cle, compteur((t) => statutDe(t) === cle),
+         () => { filtres.etat = filtres.etat === cle ? null : cle; dessiner(); },
+         aide))));
 
   boite.append(groupe("Où le texte se trouve", ["assemblee", "senat", "aucune"].map((c) =>
     puce(c === "aucune" ? "Les deux" : CHAMBRES[c][0],
@@ -775,6 +806,13 @@ function carte(t) {
   }
   c.append(l);
 
+  if (t.etape === ARRETE && ISSUES[t.statut]) {
+    const issue = el("div", "lignes");
+    issue.append(etiquette("arrete", ISSUES[t.statut][0], ISSUES[t.statut],
+      t.etat_senat && t.statut !== "rejete" ? "le Sénat écrit « " + t.etat_senat + " »" : null));
+    c.append(issue);
+  }
+
   if (t.etape === PROMULGUEE && t.loiNumero) {
     const loi = el("div", "lignes");
     loi.append(etiquette("promulguee", "loi n° " + t.loiNumero,
@@ -794,17 +832,22 @@ function carte(t) {
 
   const f = el("div", "frise");
   const finie = t.etape === PROMULGUEE;
+  const arretee = t.etape === ARRETE;
   for (const e of PARCOURS) {
-    f.append(el("i", finie || e.n < t.etape ? "faite" : e.n === t.etape ? "ici" : ""));
+    f.append(el("i", finie || (!arretee && e.n < t.etape) ? "faite"
+                  : (!arretee && e.n === t.etape) ? "ici" : ""));
   }
-  f.append(el("span", null, finie ? "terminé" : `${t.etape}/6`));
+  f.append(el("span", null, finie ? "terminé" : arretee ? "arrêté" : `${t.etape}/6`));
   f.addEventListener("click", () => {
     const e = etapeDe(t.etape);
     expliquer(EXPLICATIONS.frise[0],
               EXPLICATIONS.frise[1] + "\n\n" +
-              (finie ? "Ce texte est allé au bout — " : "Étape actuelle — ") +
+              (finie ? "Ce texte est allé au bout — "
+                     : arretee ? "Ce texte n'est plus examiné — " : "Étape actuelle — ") +
               e.nom + " : " + e.quoi,
-              finie ? "Parcours terminé" : `Étape ${t.etape} sur 6 · ${e.nom}`);
+              finie ? "Parcours terminé"
+                    : arretee ? (ISSUES[t.statut] || [e.nom])[0]
+                    : `Étape ${t.etape} sur 6 · ${e.nom}`);
   });
   c.append(f);
   return c;
@@ -817,20 +860,22 @@ function dessiner(garderPosition = false) {
 
   $("compte").innerHTML = "";
   $("compte").append(el("b", null, nb.format(liste.length)));
+  // Le compteur doit dire ce qu'il compte. « 22 textes en cours d'examen »
+  // serait faux pour 22 textes non adoptés.
+  const issues = new Set(liste.map(statutDe));
   const finies = liste.filter((t) => t.etape === PROMULGUEE).length;
-  $("compte").append(document.createTextNode(
-    liste.length > 1 ? " textes" : " texte"));
-  if (finies && finies !== liste.length) {
-    $("compte").append(document.createTextNode(
-      `, dont ${nb.format(finies)} devenus des lois`));
+  let suite = liste.length > 1 ? " textes" : " texte";
+  if (liste.length !== TEXTES.length) suite += ` sur ${nb.format(TEXTES.length)}`;
+  if (issues.size === 1) {
+    const seule = [...issues][0];
+    if (seule === "promulgue") suite += liste.length > 1 ? ", devenus des lois" : ", devenu une loi";
+    else if (seule === "en_cours") suite += ", en cours d'examen";
+    else suite += ", " + (ISSUES[seule] || ["arrêtés"])[0].toLowerCase() + "s";
   } else if (finies) {
-    $("compte").append(document.createTextNode(" devenus des lois"));
-  } else {
-    $("compte").append(document.createTextNode(" en cours d'examen"));
+    suite += `, dont ${nb.format(finies)} devenus des lois`;
   }
-  if (liste.length !== TEXTES.length) {
-    $("compte").append(el("span", null, ` sur ${nb.format(TEXTES.length)}`));
-  }
+  $("compte").append(document.createTextNode(suite));
+
 
   const actifs = combienActifs();
   const b = $("bascule");
@@ -863,10 +908,13 @@ function ajouter(liste) {
     if (t.etape !== etapePrecedente) {
       const e = etapeDe(t.etape);
       const fini = e.n === PROMULGUEE;
+      const arret = e.n === ARRETE;
       const titre = el("div", "titre-etape");
       if (fini) titre.classList.add("fini");
+      if (arret) titre.classList.add("arret");
       titre.append(el("span", null, e.nom));
-      titre.append(el("span", "n", fini ? "parcours terminé" : `étape ${e.n} sur 6`));
+      titre.append(el("span", "n",
+        fini ? "parcours terminé" : arret ? "plus examinés" : `étape ${e.n} sur 6`));
       titre.style.cursor = "pointer";
       titre.addEventListener("click", () => expliquer(
         e.nom, e.quoi, fini ? "Parcours terminé" : `Étape ${e.n} sur 6`));
@@ -910,17 +958,19 @@ function lire(nom, obligatoire = false) {
 async function charger() {
   $("lien-socle").href = new URL(SOCLE + "/textes.json", location.href).href;
   try {
-    const [textes, promulguees, etat, groupes] = await Promise.all([
+    const [textes, promulguees, arretes, etat, groupes] = await Promise.all([
       lire("textes.json", true),
       lire("promulgues.json"),
+      lire("arretes.json"),
       lire("etat.json"),
       lire("groupes.json"),
     ]);
-    // Les lois promulguées sont dans un fichier à part. Elles rejoignent le
-    // fil sous une case d'affichage à elles : une application qui s'appelle
-    // « Où en sont les lois » doit montrer celles qui sont allées au bout.
+    // Trois fichiers, trois issues. Les lois promulguées ouvrent le fil — une
+    // application qui s'appelle « Où en sont les lois » doit montrer celles
+    // qui sont allées au bout. Les textes arrêtés le ferment.
     TEXTES = textes.textes.concat(
-      (promulguees?.textes || []).map((t) => ({ ...t, etape: PROMULGUEE })));
+      (promulguees?.textes || []).map((t) => ({ ...t, etape: PROMULGUEE })),
+      (arretes?.textes || []).map((t) => ({ ...t, etape: ARRETE })));
     // Le plus avancé d'abord — les lois promulguées ouvrent le fil, les textes
     // déposés et jamais examinés le ferment.
     TEXTES.sort((a, b) => b.etape - a.etape ||

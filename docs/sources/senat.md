@@ -5,15 +5,15 @@ jour-là.
 
 ## Son rôle : compléter, pas porter le produit
 
-Le Sénat publie des données propres, à jour et utilisables. Mais **pour
-suivre le parcours d'un texte, l'open data de l'Assemblée suffit déjà** :
-c'est lui qui décrit les étapes des deux chambres (voir
-`assemblee-nationale.md`).
+**Le socle le récupère depuis le 2026-08-31**, pour une raison précise : lui
+seul sait dire qu'un texte est fini sans avoir été promulgué.
 
-Le Sénat apporte trois choses que l'Assemblée n'a pas :
+Pour suivre le parcours d'un texte, l'open data de l'Assemblée suffit — c'est
+elle qui décrit les étapes des deux chambres (voir `assemblee-nationale.md`).
+Le Sénat apporte trois choses qu'elle n'a pas :
 
-1. **L'état d'un dossier en un mot**, directement exploitable pour un
-   affichage (voir ci-dessous).
+1. **L'état d'un dossier en un mot**, y compris `non adopté`, `caduc` et
+   `retiré` — voir la section suivante, c'est le motif de sa reprise.
 2. **Une profondeur historique** : les dossiers remontent à 1959.
 3. **Le point de vue du Sénat** sur ses propres textes — notamment les
    propositions de loi déposées chez lui, qui ne sont pas encore à
@@ -114,6 +114,63 @@ l'Assemblée.
 
 Comme à l'Assemblée, **l'archive contient des dates futures** — jusqu'à
 décembre 2026 lors du test. Ce sont les séances programmées.
+
+## Le Sénat sait des fins que l'Assemblée n'enregistre pas
+
+C'est aujourd'hui **la raison pour laquelle le socle le récupère**.
+
+L'Assemblée n'écrit jamais qu'un texte est terminé autrement que par une
+promulgation ou un retrait. Le Sénat, lui, le dit — avec ses propres mots.
+Croisement fait le 2026-08-31 sur les **719 textes ayant un lien Sénat**,
+tous retrouvés :
+
+| Ce que l'Assemblée laisse croire | Ce que le Sénat écrit | Textes |
+|---|---|---:|
+| en cours | **non adopté** | 21 |
+| en cours | **retiré** | 6 |
+| en cours | **caduc** | 2 |
+| en cours | Non conforme à la constitution | 1 |
+
+**29 textes que l'on affichait comme en cours sont finis.** L'information
+existait, elle était simplement chez l'autre chambre.
+
+Ces mots sont repris **tels quels**, sans traduction ni interprétation. Aucun
+d'eux ne dit qu'un texte est fini pour de bon : un texte non adopté peut être
+redéposé, et la source ne se prononce pas là-dessus.
+
+## Les votes du Sénat : ils existent, mais rien ne les relie aux textes
+
+**Trouvaille du 2026-08-31.** La page « Données » du site n'annonce que quatre
+catégories — travaux législatifs, amendements, questions, comptes rendus — et
+aucune ne parle de votes. Mais **le dump `dosleg.zip` en contient** :
+
+| Table | Contenu |
+|---|---:|
+| `scr` | **4 764 scrutins**, avec date, intitulé, pour, contre, votants, suffrages requis |
+| `votsen` | **1 657 344 votes nominatifs** de sénateurs |
+| `posvot`, `stavot` | Les libellés des positions et statuts de vote |
+
+**Et pourtant on ne peut pas les rattacher à un texte.** Aucune table ne relie
+un scrutin à un dossier : la clé d'un scrutin est `(session, numéro)`, et rien
+d'autre n'y renvoie. La table `corscr`, seule à porter une adresse, contient
+des corrections de vote pointant vers les comptes rendus de séance — pas vers
+les dossiers.
+
+Le seul rattachement possible passerait par l'**intitulé en clair** :
+
+```
+sur l'ensemble du projet de loi, adopté par l'Assemblée nationale
+après déclaration d'urgence, relatif au secteur de l'énergie
+```
+
+C'est-à-dire un rapprochement par titre — exactement ce que le §3.2 du plan
+qualifie de « coûteux, fragile, jamais fiable à 100 % » et recommande
+d'éviter. **Ce n'est donc pas fait.**
+
+**Ce qui est repris, et qui suffit pour l'essentiel :** l'« État du dossier »
+dit `adopté` ou `non adopté` **par texte**, sans aucune devinette. C'est le
+résultat du vote ; ce qui manque, c'est le détail par sénateur — que
+l'Assemblée fournit pour ses propres votes.
 
 ## Deux pièges vérifiés
 

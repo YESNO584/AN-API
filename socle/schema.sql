@@ -15,7 +15,12 @@ CREATE TABLE IF NOT EXISTS dossier (
     type                    TEXT    NOT NULL,   -- procédure parlementaire, mot pour mot
     est_loi                 INTEGER NOT NULL,   -- 0 : résolution, rapport, mission… pas une loi
     chambre_initiale        TEXT,               -- assemblee | senat
-    statut                  TEXT    NOT NULL,   -- en_cours | promulgue | retire | sans_acte
+    -- en_cours | promulgue | rejete | non_adopte | caduc | retire | sans_acte
+    -- Aucun de ces états ne prétend qu'un texte est fini pour de bon : un texte
+    -- rejeté ou non adopté peut être redéposé, et les sources ne se prononcent
+    -- pas là-dessus.
+    statut                  TEXT    NOT NULL,
+    etat_senat              TEXT,               -- « État du dossier », mot pour mot
     etape                   INTEGER,            -- 1..6, NULL tant qu'aucun acte n'a eu lieu
     date_dernier_mouvement  TEXT,               -- AAAA-MM-JJ
     -- Ce qui suit décrit le dernier acte connu. C'est de la redondance

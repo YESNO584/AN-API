@@ -93,6 +93,30 @@ source       ce qu'on sait de chaque source, pour le téléchargement conditionn
 journal      une ligne par exécution
 ```
 
+### L'issue d'un texte
+
+Un texte finit rarement par une promulgation. Le socle distingue :
+
+| Issue | Textes de loi | D'où vient l'information |
+|---|---:|---|
+| `en_cours` | 1 955 | déduit : rien n'annonce une fin |
+| `promulgue` | 107 | Assemblée — acte `PROM-PUB` |
+| `retire` | 59 | Assemblée (`RTRINI`) ou Sénat (« retiré ») |
+| `non_adopte` | 22 | **Sénat** — « non adopté », « Non conforme à la constitution » |
+| `rejete` | 5 | Assemblée — la dernière décision connue est un rejet |
+| `caduc` | 2 | **Sénat** — « caduc » |
+
+**Aucun de ces états ne dit qu'un texte est fini pour de bon**, et le code
+n'emploie nulle part le mot « définitif ». Un texte rejeté ou non adopté peut
+être redéposé ; les sources ne se prononcent pas là-dessus, la page non plus.
+Un test le vérifie.
+
+**Le Sénat est récupéré pour cette seule raison.** L'Assemblée n'écrit jamais
+qu'un texte est terminé hors promulgation ou retrait ; sans le Sénat,
+**29 textes finis restaient affichés comme en cours**. Et il faut nuancer les
+rejets : sur les 27 textes de la législature ayant connu un rejet, **19 ont
+continué leur parcours** — seuls comptent ceux dont plus rien n'a suivi.
+
 ### Les votes, et ce qu'ils ne disent pas
 
 Le socle récupère les **8 434 scrutins publics** de la législature, avec le
@@ -111,6 +135,14 @@ décompte par groupe politique. Trois choses à savoir avant de s'en servir :
 
 **Il n'y a pas de votes à venir**, et ce n'est pas un manque du socle :
 l'Assemblée ne publie un vote qu'une fois qu'il a eu lieu.
+
+**Les votes du Sénat ne sont pas repris**, alors qu'ils existent : son dump
+`dosleg.zip` contient 4 764 scrutins et 1,66 million de votes nominatifs.
+Mais **aucune table ne relie un scrutin à un dossier** — seul l'intitulé en
+clair le nomme, ce qui obligerait à un rapprochement par titre, « coûteux,
+fragile, jamais fiable à 100 % » selon le §3.2 du plan. Ce qui est repris,
+c'est le résultat par texte (`adopté` / `non adopté`), rattaché sans
+devinette. Détail dans `../docs/sources/senat.md`.
 
 ### L'ordre des groupes est mesuré, leur couleur est une convention
 
@@ -203,7 +235,8 @@ signale la panne.
 | `etapes.json` | 846 o | 477 o | Les six étapes du parcours et leurs comptes |
 | `groupes.json` | 1,9 Ko | — | Les groupes politiques, **rangés de la gauche à la droite de l'hémicycle**, avec leur couleur d'affichage |
 | `textes.json` | 829 Ko | **121 Ko** | **Le fichier principal** : les 1 990 textes en cours |
-| `promulgues.json` | 63 Ko | 10 Ko | Les 107 lois déjà promulguées |
+| `promulgues.json` | 106 Ko | — | Les 107 lois déjà promulguées |
+| `arretes.json` | 57 Ko | — | Les 88 textes **arrêtés en chemin** : rejetés, non adoptés, retirés, caducs |
 | `textes/<uid>.json` | 2,8 Mo | — | Un fichier par texte, avec tout son parcours (2 097 fichiers, 1,3 Ko en moyenne) |
 
 **L'application charge `textes.json` une fois** — 121 Ko sur le réseau — puis

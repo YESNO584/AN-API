@@ -250,6 +250,32 @@ existants.
 **Aucune couleur n'est publiée.** Toute couleur affichée est une convention
 de l'application, pas une donnée.
 
+### Un rejet n'est pas une fin, et rien ne dit qu'il l'est
+
+L'Assemblée enregistre les rejets, mais **n'écrit jamais qu'un texte est
+terminé** autrement que par une promulgation ou un retrait. Mesuré le
+2026-08-31 :
+
+| | |
+|---|---:|
+| Conclusions contenant « rejet » | 43 |
+| Textes de loi ayant connu un rejet | **27** |
+| dont le parcours a **continué** ensuite | **19** |
+| dont plus rien n'a suivi | 8 |
+| Décisions du Conseil constitutionnel | 38, dont **1 « non conforme »** |
+
+**Dans 19 cas sur 27, le texte a poursuivi sa route après avoir été rejeté.**
+Un rejet en première lecture n'est donc pas un point final, et prendre l'un
+pour l'autre serait une erreur de fond.
+
+Pour les 8 autres, rien dans les données ne distingue « rejeté et abandonné »
+de « rejeté et en attente ». Le socle les marque `rejete` — c'est-à-dire
+« la dernière décision connue est un rejet » — et **ne dit pas que c'est
+définitif**, parce que la source ne le dit pas.
+
+C'est le Sénat, et lui seul, qui emploie des mots de fin : `non adopté`,
+`caduc`, `retiré`. Voir `senat.md`.
+
 ### Les votes à venir n'existent pas
 
 L'agenda de l'Assemblée (`Agenda.json.zip`) a été examiné le 2026-08-31 :

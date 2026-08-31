@@ -56,6 +56,7 @@ SOURCES = {
     "dossiers": extraction.URL_ARCHIVE,
     "scrutins": extraction.URL_SCRUTINS,
     "groupes": extraction.URL_ORGANES,
+    "senat": extraction.URL_SENAT,
 }
 
 
@@ -88,6 +89,7 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
            aujourdhui: str) -> tuple[int, int, int]:
     """Remplace le contenu de la base par celui des archives. Tout ou rien."""
     groupes = extraction.lire_groupes(archives["groupes"])
+    etats_senat = extraction.lire_senat(archives["senat"])
 
     # Les scrutins d'abord : on a besoin de savoir, pour chaque dossier, quels
     # votes le concernent — et le lien se lit dans les deux sens.
@@ -113,12 +115,13 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
         for ref in extraction.refs_de_vote(brut["dossierParlementaire"]):
             if ref in par_ref and not par_ref[ref]["dossier"]:
                 par_ref[ref]["dossier"] = brut["dossierParlementaire"]["uid"]
-        d = extraction.analyser(brut, aujourdhui)
+        d = extraction.analyser(brut, aujourdhui, etats_senat)
         courant = d["etapeCourante"] or {}
         prochaine = next((e for e in d["etapes"] if e["future"]), None)
         dossiers.append((
             d["uid"], d["legislature"], d["titre"], d["titreChemin"], d["type"],
-            int(d["estLoi"]), d["chambreInitiale"], d["statut"], d["etape"],
+            int(d["estLoi"]), d["chambreInitiale"], d["statut"], d["etatSenat"],
+            d["etape"],
             d["dateDernierMouvement"],
             courant.get("chambre"), courant.get("lecture"),
             courant.get("libelle"), courant.get("conclusion"),
@@ -159,7 +162,7 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
         connexion.execute("DELETE FROM etape")
         connexion.execute("DELETE FROM dossier")
         connexion.executemany(
-            "INSERT INTO dossier VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", dossiers)
+            "INSERT INTO dossier VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", dossiers)
         connexion.executemany(
             "INSERT INTO etape VALUES (?,?,?,?,?,?,?,?,?,?,?)", etapes)
         connexion.executemany(
@@ -186,9 +189,10 @@ def main() -> int:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     analyseur.add_argument("--forcer", action="store_true",
                            help="recharger même si la source est inchangée")
-    analyseur.add_argument("--zip", nargs=3, metavar=("DOSSIERS", "SCRUTINS", "GROUPES"),
+    analyseur.add_argument("--zip", nargs=len(SOURCES),
+                           metavar=tuple(n.upper() for n in SOURCES),
                            type=pathlib.Path,
-                           help="lire trois archives locales au lieu de les télécharger")
+                           help="lire des fichiers locaux au lieu de les télécharger")
     analyseur.add_argument("--base", type=pathlib.Path, default=BASE,
                            help=f"fichier de base de données (défaut : {BASE.name})")
     analyseur.add_argument("--journal", action="store_true",
@@ -280,6 +284,12 @@ def main() -> int:
         clore("echec", message=f"{type(erreur).__name__}: {erreur}")
         print(f"Échec : {type(erreur).__name__}: {erreur}", file=sys.stderr)
         return 1
+
+    print("Textes de loi, par issue :", file=sys.stderr)
+    for l in connexion.execute(
+            "SELECT statut, COUNT(*) n FROM dossier WHERE est_loi = 1"
+            " GROUP BY statut ORDER BY n DESC"):
+        print(f"     {l['n']:5d}  {l['statut']}", file=sys.stderr)
 
     resume = connexion.execute("""
         SELECT etape, COUNT(*) n FROM dossier

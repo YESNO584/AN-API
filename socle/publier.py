@@ -42,8 +42,16 @@ MAQUETTE = RACINE.parent / "maquette" / "feed.html"
 # chargée en entier par l'application, qui filtre et cherche ensuite toute
 # seule, hors connexion. Le reste est dans le fichier de détail.
 CHAMPS_LISTE = ("uid", "titre", "type", "chambre", "chambre_initiale", "etape",
-                "date_dernier_mouvement", "lecture", "dernier_acte", "conclusion",
-                "prochaine_date", "prochaine_quoi", "url_an", "url_senat")
+                "statut", "etat_senat", "date_dernier_mouvement", "lecture",
+                "dernier_acte", "conclusion", "prochaine_date", "prochaine_quoi",
+                "url_an", "url_senat")
+
+# Les textes qui se sont arrêtés en chemin. Regroupés dans un fichier à part :
+# ils ne sont ni en cours, ni devenus des lois, et les laisser parmi les
+# vivants faisait afficher comme « en cours » 29 textes que le Sénat donne
+# pour finis.
+ARRETES = (extraction.REJETE, extraction.NON_ADOPTE,
+           extraction.CADUC, extraction.RETIRE)
 
 CHAMPS_VOTE = ("uid", "date", "type", "portee", "objet", "sort", "annonce",
                "demandeur", "votants", "requis", "pour", "contre", "abstentions",
@@ -138,9 +146,12 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "scrutins": cx.execute("SELECT COUNT(*) n FROM vote").fetchone()["n"],
         "textesAvecVote": cx.execute(
             "SELECT COUNT(DISTINCT d.uid) n FROM dossier d JOIN vote v ON v.dossier_uid = d.uid"
-            " WHERE d.est_loi = 1 AND d.statut IN ('en_cours','promulgue')").fetchone()["n"],
+            " WHERE d.est_loi = 1").fetchone()["n"],
+        "arretes": sum(comptes.get(x, 0) for x in ARRETES),
+        "issues": {cle: {"nom": nom, "quoi": quoi, "textes": comptes.get(cle, 0)}
+                   for cle, (nom, quoi) in extraction.FINS.items()},
         "fichiers": ["etapes.json", "groupes.json", "textes.json", "promulgues.json",
-                     "textes/<uid>.json"],
+                     "arretes.json", "textes/<uid>.json"],
     })
 
     # Les groupes, rangés de la gauche à la droite de l'hémicycle. L'ordre est
@@ -165,21 +176,23 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "promulguees": comptes.get(extraction.PROMULGUE, 0),
     })
 
-    for nom_fichier, statut in (("textes.json", extraction.EN_COURS),
-                                ("promulgues.json", extraction.PROMULGUE)):
+    for nom_fichier, statuts in (("textes.json", (extraction.EN_COURS,)),
+                                 ("promulgues.json", (extraction.PROMULGUE,)),
+                                 ("arretes.json", ARRETES)):
         # Les plus avancés d'abord : un texte près d'être promulgué intéresse
         # plus qu'une proposition déposée et jamais examinée — et celles-ci
         # sont l'immense majorité.
+        trous = ",".join("?" * len(statuts))
         lignes = cx.execute(
             f"SELECT {', '.join(CHAMPS_LISTE)}, loi_numero, loi_date, loi_url_jo"
-            " FROM dossier WHERE statut = ? AND est_loi = 1"
-            " ORDER BY etape DESC, date_dernier_mouvement DESC, uid", (statut,)).fetchall()
+            f" FROM dossier WHERE statut IN ({trous}) AND est_loi = 1"
+            " ORDER BY etape DESC, date_dernier_mouvement DESC, uid", statuts).fetchall()
         textes = []
         for l in lignes:
             texte = {c: l[c] for c in CHAMPS_LISTE}
             texte.update(votes.get(l["uid"], {"votes": 0, "votesEnsemble": 0,
                                               "dernierVote": None, "voteEnsemble": None}))
-            if statut == extraction.PROMULGUE:
+            if l["statut"] == extraction.PROMULGUE:
                 texte.update(loiNumero=l["loi_numero"], loiDate=l["loi_date"],
                              loiUrlJO=l["loi_url_jo"])
             textes.append(texte)
@@ -192,8 +205,8 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     # aucun lecteur.
     details = 0
     for l in cx.execute(
-            "SELECT * FROM dossier WHERE est_loi = 1 AND statut IN (?, ?)",
-            (extraction.EN_COURS, extraction.PROMULGUE)):
+            "SELECT * FROM dossier WHERE est_loi = 1 AND statut != ?",
+            (extraction.SANS_ACTE,)):
         parcours = [dict(e) for e in cx.execute(
             "SELECT code, lecture, libelle, chambre, date, numero, conclusion, future"
             " FROM etape WHERE dossier_uid = ? ORDER BY date, rang", (l["uid"],))]

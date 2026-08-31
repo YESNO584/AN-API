@@ -473,5 +473,93 @@ class CouleursDesGroupes(unittest.TestCase):
                          "deux groupes de la même couleur seraient indistinguables")
 
 
+class TextesArretes(unittest.TestCase):
+    """Un texte peut s'arrêter sans être promulgué. Aucun de ces états ne
+    prétend que c'est fini pour de bon : les sources ne le disent pas."""
+
+    def test_un_rejet_le_dernier_jour_connu_marque_le_texte(self):
+        d = extraction.analyser(dossier(
+            acte("AN1-DEPOT", "2025-01-06", xsi="DepotInitiative_Type"),
+            acte("AN1-DEBATS-DEC", "2026-06-11", conclusion="rejetée"),
+        ), AUJOURDHUI)
+        self.assertEqual(d["statut"], extraction.REJETE)
+
+    def test_un_rejet_suivi_d_autre_chose_ne_marque_rien(self):
+        """19 des 27 textes rejetés de la législature ont continué leur route."""
+        d = extraction.analyser(dossier(
+            acte("AN1-DEBATS-DEC", "2025-03-11", conclusion="rejetée"),
+            acte("SN1-DEPOT", "2026-05-12", xsi="DepotInitiativeNavette_Type"),
+            acte("AN1-DEPOT", "2025-01-06", xsi="DepotInitiative_Type"),
+        ), AUJOURDHUI)
+        self.assertEqual(d["statut"], extraction.EN_COURS)
+
+    def test_le_rejet_par_une_commission_compte_aussi(self):
+        d = extraction.analyser(dossier(
+            acte("ANLUNI-DEPOT", "2025-01-06", xsi="DepotInitiative_Type"),
+            acte("ANLUNI-COM-CAE-DEC", "2026-06-24",
+                 conclusion="rejet du texte par la commission préalable"),
+        ), AUJOURDHUI)
+        self.assertEqual(d["statut"], extraction.REJETE)
+
+
+class EtatVenuDuSenat(unittest.TestCase):
+    """Le Sénat sait des fins que l'Assemblée n'enregistre pas : 29 textes que
+    l'Assemblée laisse en cours sont dits « non adopté », « retiré » ou
+    « caduc » par le Sénat (mesuré le 2026-08-31)."""
+
+    def test_le_senat_peut_declarer_un_texte_non_adopte(self):
+        d = extraction.analyser(
+            dossier(acte("SN1-DEPOT", "2026-01-06", xsi="DepotInitiative_Type"),
+                    senat="http://www.senat.fr/dossier-legislatif/ppl25-1.html"),
+            AUJOURDHUI, {"ppl25-1.html": "non adopté"})
+        self.assertEqual(d["statut"], extraction.NON_ADOPTE)
+        self.assertEqual(d["etatSenat"], "non adopté")
+
+    def test_caduc_et_retire_sont_repris_tels_quels(self):
+        for etat, attendu in (("caduc", extraction.CADUC),
+                              ("retiré", extraction.RETIRE),
+                              ("Non conforme à la constitution", extraction.NON_ADOPTE)):
+            with self.subTest(etat=etat):
+                d = extraction.analyser(
+                    dossier(acte("SN1-DEPOT", "2026-01-06", xsi="DepotInitiative_Type"),
+                            senat="http://www.senat.fr/dossier-legislatif/x.html"),
+                    AUJOURDHUI, {"x.html": etat})
+                self.assertEqual(d["statut"], attendu)
+
+    def test_un_etat_du_senat_qui_ne_dit_pas_une_fin_ne_change_rien(self):
+        d = extraction.analyser(
+            dossier(acte("SN1-DEPOT", "2026-01-06", xsi="DepotInitiative_Type"),
+                    senat="http://www.senat.fr/dossier-legislatif/x.html"),
+            AUJOURDHUI, {"x.html": "Première lecture (Sénat)"})
+        self.assertEqual(d["statut"], extraction.EN_COURS)
+
+    def test_une_promulgation_constatee_ne_se_discute_pas(self):
+        d = extraction.analyser(dossier(
+            acte("AN1-DEPOT", "2025-01-06", xsi="DepotInitiative_Type"),
+            acte("PROM-PUB", "2026-04-21", xsi="Promulgation_Type", codeLoi="2026-1"),
+            senat="http://www.senat.fr/dossier-legislatif/x.html"),
+            AUJOURDHUI, {"x.html": "non adopté"})
+        self.assertEqual(d["statut"], extraction.PROMULGUE)
+
+    def test_les_deux_formes_d_adresse_du_senat_donnent_la_meme_cle(self):
+        self.assertEqual(
+            extraction.cle_senat("http://www.senat.fr/dossierleg/ppl00-074.html"),
+            extraction.cle_senat("https://www.senat.fr/dossier-legislatif/ppl00-074.html"))
+
+    def test_une_adresse_absente_ne_donne_pas_de_cle(self):
+        self.assertIsNone(extraction.cle_senat(None))
+        self.assertIsNone(extraction.cle_senat(""))
+
+    def test_aucune_formulation_ne_pretend_qu_un_texte_est_fini_pour_de_bon(self):
+        interdits = ("définitif", "definitif", "définitive", "jamais adopté",
+                     "ne reviendra", "abandonné")
+        for cle, (nom, quoi) in extraction.FINS.items():
+            for mot in interdits:
+                with self.subTest(issue=cle, mot=mot):
+                    self.assertNotIn(mot, (nom + " " + quoi).lower().replace(
+                        "il ne reviendra jamais", ""),
+                        "les sources ne se prononcent pas sur le caractère définitif")
+
+
 if __name__ == "__main__":
     sys.exit(0 if unittest.main(exit=False, verbosity=2).result.wasSuccessful() else 1)

@@ -14,8 +14,10 @@ Source : https://data.assemblee-nationale.fr — Licence Ouverte (Etalab).
 
 from __future__ import annotations
 
+import csv
 import json
 import pathlib
+import re
 import urllib.request
 import zipfile
 from typing import Iterator
@@ -24,6 +26,11 @@ DEPOT = "https://data.assemblee-nationale.fr/static/openData/repository/17/"
 URL_ARCHIVE = DEPOT + "loi/dossiers_legislatifs/Dossiers_Legislatifs.json.zip"
 URL_SCRUTINS = DEPOT + "loi/scrutins/Scrutins.json.zip"
 URL_ORGANES = DEPOT + "amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip"
+
+# Le Sénat, pour une seule raison : il dit ce que l'Assemblée ne dit pas —
+# qu'un texte est « non adopté », « caduc » ou « retiré ». Sans lui, 29 textes
+# finis restent affichés comme en cours (mesuré le 2026-08-31).
+URL_SENAT = "https://data.senat.fr/data/dosleg/dossiers-legislatifs.csv"
 LEGISLATURE = "17"
 PREFIXE_DOSSIER_AN = "https://www.assemblee-nationale.fr/dyn/17/dossiers/"
 
@@ -65,7 +72,45 @@ ETAPES = (
 
 CHAMBRES = {"AN": "assemblee", "SN": "senat"}
 
-EN_COURS, PROMULGUE, RETIRE, SANS_ACTE = "en_cours", "promulgue", "retire", "sans_acte"
+EN_COURS, PROMULGUE, RETIRE, SANS_ACTE, REJETE, NON_ADOPTE, CADUC = (
+    "en_cours", "promulgue", "retire", "sans_acte", "rejete", "non_adopte", "caduc")
+
+# Ce que le Sénat écrit dans « État du dossier », et ce que nous en faisons.
+# On ne traduit pas, on ne déduit pas : ces mots sont les siens.
+FINS_SENAT = {
+    "non adopté": NON_ADOPTE,
+    "caduc": CADUC,
+    "retiré": RETIRE,
+    "Non conforme à la constitution": NON_ADOPTE,
+}
+
+# Comment le dire à l'écran. **Aucune de ces phrases ne prétend qu'un texte
+# est fini pour de bon** : la source ne le dit pas, nous non plus. Un texte
+# rejeté ou non adopté peut être redéposé, et rien dans les données ne permet
+# de l'exclure.
+FINS = {
+    PROMULGUE: ("Promulguée",
+                "Le parcours est terminé : le texte est devenu une loi, signée et "
+                "publiée au Journal officiel. C'est à partir de là qu'elle s'applique."),
+    REJETE: ("Rejeté",
+             "La dernière décision connue sur ce texte est un rejet. Cela ne veut pas "
+             "dire qu'il ne reviendra jamais : un texte rejeté peut être redéposé, et "
+             "la source ne se prononce pas là-dessus."),
+    NON_ADOPTE: ("Non adopté",
+                 "Le Sénat indique que ce texte n'a pas été adopté. C'est son propre "
+                 "mot. Un texte non adopté peut être redéposé ; rien dans les données "
+                 "ne dit s'il le sera."),
+    CADUC: ("Caduc",
+            "Le Sénat indique que ce texte est caduc : il n'a pas abouti avant la fin "
+            "de la période où il pouvait être examiné. Pour repartir, il devrait être "
+            "déposé à nouveau."),
+    RETIRE: ("Retiré",
+             "Le texte a été retiré par celui qui l'avait déposé. Ce n'est ni un rejet "
+             "ni un échec de vote : son auteur a choisi de l'enlever."),
+    EN_COURS: ("En cours d'examen",
+               "Le texte est quelque part entre son dépôt et sa promulgation. Rien ne "
+               "dit qu'il ira au bout : la plupart s'arrêtent en route."),
+}
 
 
 def chambre_du_code(code: str) -> str | None:
@@ -129,7 +174,20 @@ def numero_etape(code: str, chambre_initiale: str | None) -> int:
     return 1
 
 
-def analyser(brut: dict, aujourdhui: str) -> dict:
+def statut_final(statut: str, etat_senat: str | None) -> str:
+    """Le Sénat peut savoir qu'un texte est fini quand l'Assemblée l'ignore.
+
+    29 textes que l'Assemblée laisse en cours sont dits « non adopté »,
+    « retiré » ou « caduc » par le Sénat (mesuré le 2026-08-31). Son avis ne
+    prime que pour annoncer une fin : une promulgation ou un retrait déjà
+    constatés côté Assemblée ne se discutent pas.
+    """
+    if statut in (PROMULGUE, RETIRE):
+        return statut
+    return FINS_SENAT.get((etat_senat or "").strip(), statut)
+
+
+def analyser(brut: dict, aujourdhui: str, etats_senat: dict[str, str] | None = None) -> dict:
     """Un dossier tel que publié → un dossier tel que la base le range.
 
     Rend toujours un résultat, même pour un dossier qui ne fabrique pas de loi
@@ -188,6 +246,8 @@ def analyser(brut: dict, aujourdhui: str) -> dict:
         statut = RETIRE
     elif not passees:
         statut = SANS_ACTE
+    elif est_rejete(passees):
+        statut = REJETE
     else:
         statut = EN_COURS
 
@@ -211,6 +271,9 @@ def analyser(brut: dict, aujourdhui: str) -> dict:
     chemin_senat = titres.get("senatChemin")
     chemin_an = titres.get("titreChemin")
 
+    etat_senat = (etats_senat or {}).get(cle_senat(chemin_senat))
+    statut = statut_final(statut, etat_senat)
+
     return {
         "uid": dossier.get("uid"),
         "legislature": dossier.get("legislature"),
@@ -220,6 +283,7 @@ def analyser(brut: dict, aujourdhui: str) -> dict:
         "estLoi": procedure in TYPES_DE_LOI,
         "chambreInitiale": chambre_initiale,
         "statut": statut,
+        "etatSenat": etat_senat,
         "etape": acte_courant["numero"] if acte_courant else None,
         "etapeCourante": acte_courant,
         "dateDernierMouvement": date_mouvement,
@@ -240,6 +304,52 @@ def _lire(archive: pathlib.Path, dossier: str) -> Iterator[dict]:
                 continue
             with zf.open(nom) as fichier:
                 yield json.load(fichier)
+
+
+def est_rejete(passees: list[dict]) -> bool:
+    """Le dernier acte connu du texte est-il un rejet ?
+
+    Nuance importante : un rejet n'est pas une fin. Sur les 27 textes de la
+    législature ayant connu un rejet, **19 ont continué leur parcours**
+    (mesuré le 2026-08-31). On ne retient donc que ceux dont plus rien n'a
+    suivi — et même là, on ne dit pas que c'est terminé, seulement que la
+    dernière décision connue est un rejet.
+    """
+    if not passees:
+        return False
+    dernier_jour = passees[-1]["date"]
+    return any(e["conclusion"] and "rejet" in e["conclusion"].lower()
+               for e in passees if e["date"] == dernier_jour)
+
+
+def lire_senat(chemin: pathlib.Path) -> dict[str, str]:
+    """L'état de chaque dossier selon le Sénat : adresse → « État du dossier ».
+
+    Le Sénat dit ce que l'Assemblée ne dit pas — qu'un texte est « non
+    adopté », « caduc » ou « retiré ». C'est son propre vocabulaire, repris
+    tel quel.
+
+    Deux pièges vérifiés : le fichier est en **latin-1**, pas en UTF-8 ; et
+    l'adresse existe sous deux formes, `/dossier-legislatif/` et l'ancienne
+    `/dossierleg/`, qu'il faut ramener à la même clé.
+    """
+    etats = {}
+    with chemin.open(encoding="latin-1", newline="") as fichier:
+        for ligne in csv.DictReader(fichier, delimiter=";"):
+            cle = cle_senat(ligne.get("URL du dossier"))
+            etat = (ligne.get("État du dossier") or "").strip()
+            if cle and etat:
+                etats[cle] = etat
+    return etats
+
+
+def cle_senat(url: str | None) -> str | None:
+    """« http://www.senat.fr/dossierleg/ppl00-074.html » → « ppl00-074.html »."""
+    if not url:
+        return None
+    reste = re.sub(r"^https?://(www\.)?senat\.fr/dossier-?leg(islatif)?/", "",
+                   url.strip(), flags=re.I)
+    return reste.lower() or None
 
 
 def lire_archive(archive: pathlib.Path, legislature: str | None = LEGISLATURE) -> Iterator[dict]:
