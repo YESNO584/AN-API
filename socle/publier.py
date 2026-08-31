@@ -53,6 +53,19 @@ CHAMPS_LISTE = ("uid", "titre", "type", "chambre", "chambre_initiale", "etape",
 ARRETES = (extraction.REJETE, extraction.NON_ADOPTE,
            extraction.CADUC, extraction.RETIRE)
 
+# Au plus tant d'amendements détaillés par texte. Le record de la législature
+# est de 19 510 sur un seul dossier : tout publier ferait un fichier de
+# plusieurs dizaines de méga-octets pour un écran de téléphone. Les autres
+# restent comptés, et le compte est affiché.
+AMENDEMENTS_MAX = 150
+
+# L'exposé sommaire — l'argumentaire de l'auteur — pèse à lui seul les trois
+# quarts d'un fichier d'amendements. On en publie le début : de quoi
+# comprendre l'intention, sans faire porter 200 Ko à un téléphone pour un
+# seul texte. Le dispositif, lui, est toujours complet : c'est la partie qui
+# dit ce que l'amendement fait.
+EXPOSE_MAX = 400
+
 CHAMPS_VOTE = ("uid", "date", "type", "portee", "objet", "sort", "annonce",
                "demandeur", "votants", "requis", "pour", "contre", "abstentions",
                "non_votants")
@@ -104,6 +117,55 @@ def votes_du_texte(cx: sqlite3.Connection, uid: str) -> list[dict]:
     return votes
 
 
+def signataires(cx: sqlite3.Connection, refs: list[str]) -> list[dict]:
+    """Les députés désignés, avec leur photo et la couleur de leur groupe."""
+    gens = []
+    for ref in refs:
+        l = cx.execute(
+            "SELECT a.ref, a.civilite, a.prenom, a.nom, a.photo, g.sigle, g.nom nom_groupe,"
+            " g.couleur FROM acteur a LEFT JOIN groupe g ON g.ref = a.groupe_ref"
+            " WHERE a.ref = ?", (ref,)).fetchone()
+        if l:
+            gens.append(dict(l))
+    return gens
+
+
+def amendements_du_texte(cx: sqlite3.Connection, uid: str) -> dict:
+    """Les amendements d'un texte, plafonnés, avec leur compte réel."""
+    total = cx.execute(
+        "SELECT COUNT(*) n FROM amendement WHERE dossier_uid = ?", (uid,)).fetchone()["n"]
+    if not total:
+        return {"total": 0, "publies": 0, "sorts": {}, "amendements": []}
+
+    sorts = {l["sort"] or "(sans suite)": l["n"] for l in cx.execute(
+        "SELECT sort, COUNT(*) n FROM amendement WHERE dossier_uid = ?"
+        " GROUP BY sort ORDER BY n DESC", (uid,))}
+
+    # Les adoptés d'abord : ce sont eux qui ont changé le texte.
+    lignes = cx.execute(
+        "SELECT a.uid, a.numero, a.article, a.sort, a.date_depot, a.dispositif,"
+        " a.expose, a.morceaux, a.type_auteur,"
+        " ac.civilite, ac.prenom, ac.nom, ac.photo, g.sigle, g.couleur"
+        " FROM amendement a"
+        " LEFT JOIN acteur ac ON ac.ref = a.auteur_ref"
+        " LEFT JOIN groupe g ON g.ref = a.groupe_ref"
+        " WHERE a.dossier_uid = ? AND a.dispositif != ''"
+        " ORDER BY (a.sort = 'Adopté') DESC, a.article, a.ordre"
+        " LIMIT ?", (uid, AMENDEMENTS_MAX)).fetchall()
+
+    amendements = []
+    for l in lignes:
+        a = dict(l)
+        a["morceaux"] = json.loads(a["morceaux"] or "[]")
+        expose = a.get("expose") or ""
+        a["exposeTronque"] = len(expose) > EXPOSE_MAX
+        if a["exposeTronque"]:
+            a["expose"] = expose[:EXPOSE_MAX].rsplit(" ", 1)[0] + "…"
+        amendements.append(a)
+    return {"total": total, "publies": len(amendements), "sorts": sorts,
+            "amendements": amendements}
+
+
 def ecrire(chemin: pathlib.Path, contenu, brut: bytes | None = None) -> int:
     """Écrit du JSON, ou des octets tels quels si `brut` est fourni."""
     chemin.parent.mkdir(parents=True, exist_ok=True)
@@ -123,6 +185,8 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     tailles: dict[str, int] = {}
     genere_le = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     votes = resume_votes(cx)
+    compte_amendements = {l["dossier_uid"]: l["n"] for l in cx.execute(
+        "SELECT dossier_uid, COUNT(*) n FROM amendement GROUP BY dossier_uid")}
 
     comptes = {l["statut"]: l["n"] for l in cx.execute(
         "SELECT statut, COUNT(*) n FROM dossier WHERE est_loi = 1 GROUP BY statut")}
@@ -148,10 +212,15 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             "SELECT COUNT(DISTINCT d.uid) n FROM dossier d JOIN vote v ON v.dossier_uid = d.uid"
             " WHERE d.est_loi = 1").fetchone()["n"],
         "arretes": sum(comptes.get(x, 0) for x in ARRETES),
+        "amendements": cx.execute("SELECT COUNT(*) n FROM amendement").fetchone()["n"],
+        "textesAvecAmendements": cx.execute(
+            "SELECT COUNT(DISTINCT dossier_uid) n FROM amendement").fetchone()["n"],
+        "amendementsMaxParTexte": AMENDEMENTS_MAX,
         "issues": {cle: {"nom": nom, "quoi": quoi, "textes": comptes.get(cle, 0)}
                    for cle, (nom, quoi) in extraction.FINS.items()},
         "fichiers": ["etapes.json", "groupes.json", "textes.json", "promulgues.json",
-                     "arretes.json", "textes/<uid>.json"],
+                     "arretes.json", "textes/<uid>.json",
+                     "amendements/<uid>.json"],
     })
 
     # Les groupes, rangés de la gauche à la droite de l'hémicycle. L'ordre est
@@ -192,6 +261,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             texte = {c: l[c] for c in CHAMPS_LISTE}
             texte.update(votes.get(l["uid"], {"votes": 0, "votesEnsemble": 0,
                                               "dernierVote": None, "voteEnsemble": None}))
+            texte["amendements"] = compte_amendements.get(l["uid"], 0)
             if l["statut"] == extraction.PROMULGUE:
                 texte.update(loiNumero=l["loi_numero"], loiDate=l["loi_date"],
                              loiUrlJO=l["loi_url_jo"])
@@ -203,17 +273,32 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     # Le détail, un fichier par texte. Seulement pour ceux que les listes
     # citent : publier les 708 dossiers qui ne font pas de loi n'aurait
     # aucun lecteur.
-    details = 0
+    details, amendements = 0, 0
     for l in cx.execute(
             "SELECT * FROM dossier WHERE est_loi = 1 AND statut != ?",
             (extraction.SANS_ACTE,)):
         parcours = [dict(e) for e in cx.execute(
             "SELECT code, lecture, libelle, chambre, date, numero, conclusion, future"
             " FROM etape WHERE dossier_uid = ? ORDER BY date, rang", (l["uid"],))]
-        details += ecrire(sortie / "textes" / f'{l["uid"]}.json',
-                          {**dict(l), "parcours": parcours,
-                           "votes": votes_du_texte(cx, l["uid"])})
+        cosign = json.loads(l["cosignataires"] or "[]")
+        details += ecrire(sortie / "textes" / f'{l["uid"]}.json', {
+            **dict(l),
+            "cosignataires": signataires(cx, cosign[:40]),
+            "cosignatairesTotal": len(cosign),
+            "auteur": (signataires(cx, [l["auteur_ref"]]) or [None])[0],
+            "parcours": parcours,
+            "votes": votes_du_texte(cx, l["uid"]),
+        })
+
+        # Les amendements dans un fichier séparé : la fiche s'ouvre sans les
+        # attendre, et ils ne sont chargés que si on les demande.
+        amdts = amendements_du_texte(cx, l["uid"])
+        if amdts["total"]:
+            amendements += ecrire(sortie / "amendements" / f'{l["uid"]}.json',
+                                  {"genereLe": genere_le, **amdts})
     tailles["textes/*.json"] = details
+    if amendements:
+        tailles["amendements/*.json"] = amendements
 
     # La maquette devient la page d'accueil. Publiée à côté des données, elle
     # les lit par une adresse relative — et l'adresse racine sert enfin à

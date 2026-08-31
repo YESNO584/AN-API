@@ -276,6 +276,72 @@ définitif**, parce que la source ne le dit pas.
 C'est le Sénat, et lui seul, qui emploie des mots de fin : `non adopté`,
 `caduc`, `retiré`. Voir `senat.md`.
 
+### Les amendements ne sont pas des différences, et le texte des articles n'est pas publié
+
+**Vérifié le 2026-08-31.** C'est le point qui interdit d'afficher un texte
+modifié en rouge et barré, et il vaut la peine d'être écrit une fois pour
+toutes.
+
+Un amendement se présente ainsi, mot pour mot :
+
+> « Compléter l'alinéa 7 par les mots : « , après avis simple des
+> organisations professionnelles représentant les exploitants agricoles ». »
+
+> « À l'alinéa 2, substituer à la référence : « L. 1174‑3 » la référence :
+> « L. 1174‑1 ». II. – En conséquence, procéder à la même substitution à
+> l'alinéa 9. »
+
+**C'est une instruction en français juridique, pas un « avant / après ».**
+Reconstituer le texte modifié demanderait deux choses :
+
+1. **Le texte original des articles.** Il n'est pas dans l'open data. Les
+   7 070 documents de l'archive ne portent que des métadonnées ; le champ
+   `divisions`, qui pourrait contenir le texte découpé, est vide dans les
+   6 763 cas utiles et ne désigne, dans les 307 autres, que des annexes.
+   L'Assemblée publie ses textes en pages web, pas en données.
+2. **Un programme capable d'interpréter ces instructions** — « substituer
+   aux mots », « rédiger ainsi », « en conséquence, procéder à la même
+   substitution ». C'est de la compréhension de langue, pas de la lecture de
+   données.
+
+Le résultat serait **un texte de loi fabriqué par nous, faux dans une
+proportion inconnue, et présenté comme officiel.** C'est exactement le risque
+décrit au §8.4 du plan. Ce n'est donc pas fait, et cela ne devrait pas
+l'être sans une source du texte des articles.
+
+**Ce qui est fait à la place :** l'instruction est affichée telle quelle, et
+les passages que la source met elle-même entre guillemets sont colorés — vert
+pour ce qui est ajouté, rouge barré pour ce qui est retiré ou remplacé,
+d'après le verbe de l'instruction. Un test vérifie que la coloration
+reconstitue le texte à l'identique, donc qu'aucun mot n'est perdu ni ajouté.
+
+### Volume des amendements
+
+| | |
+|---|---:|
+| Amendements de la législature | **109 854** |
+| Dossiers concernés | 289 |
+| Médiane par dossier | 60 |
+| Record | **19 510** sur un seul dossier |
+| Sans dispositif (irrecevables, cavaliers) | environ 1 sur 4 |
+
+C'est ce record qui impose un plafond à la publication : tout servir ferait
+un fichier de plusieurs dizaines de méga-octets pour un écran de téléphone.
+
+### Les photos des députés
+
+Elles ne sont pas dans l'open data, mais le site les sert à une adresse qui
+se déduit de l'identifiant :
+
+```
+https://www2.assemblee-nationale.fr/static/tribun/17/photos/<identifiant sans PA>.jpg
+```
+
+Testé le 2026-08-31 sur douze députés tirés au hasard : **dix réponses, deux
+coupures réseau, aucune absente.** Elles ne portent pas d'en-tête
+`Access-Control-Allow-Origin`, ce qui n'empêche pas de les afficher — une
+image n'y est pas soumise, contrairement à une lecture de données.
+
 ### Les votes à venir n'existent pas
 
 L'agenda de l'Assemblée (`Agenda.json.zip`) a été examiné le 2026-08-31 :

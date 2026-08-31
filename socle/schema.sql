@@ -34,6 +34,10 @@ CREATE TABLE IF NOT EXISTS dossier (
     prochaine_quoi          TEXT,
     url_an                  TEXT,
     url_senat               TEXT,               -- publiée par l'Assemblée : aucun rapprochement à faire
+    description             TEXT,               -- la « formule » du document de dépôt
+    auteur_ref              TEXT,               -- qui l'a déposé
+    type_document           TEXT,
+    cosignataires           TEXT,               -- JSON : liste d'identifiants
     loi_numero              TEXT,
     loi_date                TEXT,
     loi_url_jo              TEXT
@@ -112,6 +116,45 @@ CREATE TABLE IF NOT EXISTS vote_groupe (
 );
 
 CREATE INDEX IF NOT EXISTS vote_groupe_par_vote ON vote_groupe (vote_uid);
+
+-- Les députés en exercice, pour signer les textes et les amendements.
+-- La photo n'est pas dans l'open data : son adresse se déduit de l'identifiant.
+CREATE TABLE IF NOT EXISTS acteur (
+    ref        TEXT PRIMARY KEY,
+    civilite   TEXT,
+    prenom     TEXT,
+    nom        TEXT,
+    groupe_ref TEXT,
+    photo      TEXT
+);
+
+-- Les amendements.
+--
+-- `dispositif` est l'instruction **mot pour mot** telle que l'Assemblée la
+-- publie : « Compléter l'alinéa 7 par les mots : « … » ». Ce n'est pas une
+-- différence entre deux textes, et le texte original des articles n'est pas
+-- publié : **on ne reconstitue donc jamais le texte modifié.** `morceaux`
+-- découpe l'instruction en marquant ce qu'elle cite, ce qui est une aide de
+-- lecture et non une vérité juridique.
+CREATE TABLE IF NOT EXISTS amendement (
+    uid         TEXT PRIMARY KEY,
+    dossier_uid TEXT REFERENCES dossier(uid) ON DELETE CASCADE,
+    numero      TEXT,
+    ordre       INTEGER,
+    article     TEXT,
+    auteur_ref  TEXT,
+    groupe_ref  TEXT,
+    type_auteur TEXT,
+    date_depot  TEXT,
+    etat        TEXT,
+    sort        TEXT,               -- Adopté | Rejeté | Tombé | Retiré | Cavalier…
+    dispositif  TEXT,
+    expose      TEXT,
+    morceaux    TEXT                -- JSON : [{texte, role}], role = ajout|retrait|neutre
+);
+
+CREATE INDEX IF NOT EXISTS amendement_par_dossier
+    ON amendement (dossier_uid, article, ordre);
 
 -- Les groupes politiques, rangés de la gauche à la droite de l'hémicycle.
 --

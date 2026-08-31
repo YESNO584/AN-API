@@ -41,7 +41,45 @@ officiel**, sa date et un lien vers le **Journal officiel**.
 Ils se combinent, chacun affiche son nombre de textes, ceux qui ne mèneraient
 à rien sont grisés, et un bouton efface tout.
 
-### Les explications
+### La fiche d'un texte
+
+Toucher un titre ouvre **une fiche**, à l'adresse `#/texte/<identifiant>`,
+partageable et ouvrable directement. Elle contient :
+
+- le **titre** et la **description** du texte ;
+- son **auteur** — photo, nom, groupe en couleur — et ses **cosignataires** ;
+- les **liens officiels** : dossier à l'Assemblée, dossier au Sénat, et le
+  **texte de loi au Journal officiel** quand elle est promulguée ;
+- le **parcours complet**, étape par étape, datée, avec les séances à venir
+  distinguées ;
+- les **votes**, avec le décompte par groupe politique ;
+- les **amendements**, chargés à la demande.
+
+### Les amendements, et ce qu'on n'affiche pas
+
+**Un amendement n'est pas une version modifiée du texte.** C'est une
+instruction, reproduite ici **mot pour mot** :
+
+> Compléter l'alinéa 7 par les mots : « , après avis simple des organisations
+> professionnelles représentant les exploitants agricoles ».
+
+**Le texte modifié n'est pas reconstitué, et ne peut pas l'être** : le texte
+original des articles n'est pas publié en open data, et appliquer ces
+instructions demanderait de comprendre du français juridique. Le résultat
+serait un texte de loi fabriqué, faux dans une proportion inconnue et
+présenté comme officiel.
+
+Ce qui est fait : **les passages que l'amendement met lui-même entre
+guillemets sont colorés** — vert pour ce qu'il ajoute, rouge barré pour ce
+qu'il retire ou remplace, d'après le verbe de l'instruction. La page le dit
+en toutes lettres au-dessus de la liste. Rien n'est inventé, et le texte
+affiché reste celui de la source, à la lettre près.
+
+Deux plafonds, imposés par le volume — un texte compte jusqu'à 19 510
+amendements : **150 amendements détaillés par texte**, les adoptés d'abord,
+et l'exposé de l'auteur écourté à 400 caractères. Le compte réel est affiché.
+
+## Les explications
 
 **Chaque élément affiché se touche et explique ce qu'il est**, en français
 simple : l'étape, la chambre, la nature du texte, la lecture, le dernier

@@ -232,6 +232,83 @@
     background: var(--accent); color: var(--fond); cursor: pointer;
   }
 
+
+  /* ---------- la fiche d'un texte ---------- */
+  #fiche { padding: 0 var(--marge) 4rem; }
+  .retour {
+    display: inline-flex; align-items: center; gap: .35rem; margin: .9rem 0 .2rem;
+    font: inherit; font-size: .85rem; padding: .4rem .7rem .4rem .5rem;
+    border-radius: 999px; border: 1px solid var(--trait-fort);
+    background: var(--carte); color: var(--gris); cursor: pointer;
+  }
+  .retour:active { border-color: var(--accent); color: var(--accent); }
+  .fiche-titre { font-size: 1.25rem; line-height: 1.3; font-weight: 660;
+                 margin: .8rem 0 .5rem; letter-spacing: -.01em; }
+  .fiche-desc { color: var(--gris); font-size: .9rem; margin: 0 0 1rem; }
+
+  .auteur { display: flex; align-items: center; gap: .7rem; margin: 1rem 0;
+            background: var(--carte); border: 1px solid var(--trait);
+            border-radius: var(--rayon); padding: .7rem .8rem; }
+  .auteur img { width: 3rem; height: 3.6rem; object-fit: cover; border-radius: 8px;
+                background: var(--doux); flex: 0 0 auto; }
+  .auteur .sans-photo { width: 3rem; height: 3.6rem; border-radius: 8px;
+                        background: var(--doux); display: grid; place-items: center;
+                        color: var(--faible); font-size: 1.1rem; flex: 0 0 auto; }
+  .auteur .qui { min-width: 0; }
+  .auteur .nom { font-weight: 620; font-size: .95rem; }
+  .auteur .role { font-size: .76rem; color: var(--faible); }
+  .auteur .grp { display: inline-flex; align-items: center; gap: .3rem;
+                 font-size: .78rem; margin-top: .25rem; }
+  .auteur .grp i { width: .5rem; height: .9rem; border-radius: 2px; display: block; }
+
+  .bloc { margin-top: 1.6rem; }
+  .bloc > h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em;
+               color: var(--accent); margin: 0 0 .6rem; font-weight: 620; }
+  .bloc .vide { margin-top: 0; }
+
+  .parcours { list-style: none; margin: 0; padding: 0; }
+  .parcours li { display: flex; gap: .6rem; font-size: .82rem; padding: .35rem 0;
+                 border-bottom: 1px solid var(--trait); }
+  .parcours li:last-child { border-bottom: none; }
+  .parcours .j { width: 5.2rem; flex: 0 0 auto; color: var(--faible);
+                 font-variant-numeric: tabular-nums; }
+  .parcours .q { min-width: 0; }
+  .parcours .q b { font-weight: 600; }
+  .parcours .ch { font-size: .74rem; color: var(--gris); }
+  .parcours li.avenir { opacity: .65; }
+  .parcours li.avenir .j::after { content: " ▸"; }
+
+  .liens { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+  .liens a { font-size: .8rem; padding: .4rem .7rem; border-radius: 8px;
+             background: var(--doux); color: var(--gris); text-decoration: none; }
+  .liens a::after { content: " ↗"; }
+  .liens a.officiel { background: var(--accent); color: var(--fond); }
+
+  .amdt { background: var(--carte); border: 1px solid var(--trait);
+          border-radius: var(--rayon); padding: .7rem .8rem; margin-bottom: .5rem; }
+  .amdt .tete { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
+                font-size: .74rem; color: var(--gris); margin-bottom: .45rem; }
+  .amdt .num { font-weight: 640; color: var(--texte); }
+  .amdt .sort { padding: .1rem .4rem; border-radius: 5px; background: var(--doux); }
+  .amdt .sort.adopte { color: var(--ok); }
+  .amdt .sort.rejete { color: var(--accent); }
+  .amdt .grp { display: inline-flex; align-items: center; gap: .25rem; }
+  .amdt .grp i { width: .4rem; height: .8rem; border-radius: 2px; display: block; }
+  .amdt .disp { font-size: .84rem; line-height: 1.55; }
+  .amdt .disp .ajout { color: var(--ok); font-weight: 560;
+                       background: color-mix(in srgb, var(--ok) 12%, transparent);
+                       border-radius: 3px; padding: 0 .15rem; }
+  .amdt .disp .retrait { color: var(--accent); text-decoration: line-through;
+                         background: color-mix(in srgb, var(--accent) 12%, transparent);
+                         border-radius: 3px; padding: 0 .15rem; }
+  .amdt .expose { font-size: .78rem; color: var(--gris); margin: .5rem 0 0;
+                  padding-top: .5rem; border-top: 1px solid var(--trait); }
+  .avertissement { font-size: .76rem; color: var(--faible); margin: 0 0 .7rem;
+                   line-height: 1.5; }
+  .charger { width: 100%; padding: .7rem; font: inherit; font-size: .85rem;
+             border-radius: var(--rayon); border: 1px dashed var(--trait-fort);
+             background: transparent; color: var(--gris); cursor: pointer; }
+
   footer { padding: 1.5rem var(--marge) 3rem; font-size: .76rem; color: var(--faible);
            border-top: 1px solid var(--trait); margin-top: 2rem; line-height: 1.6; }
   footer a { color: var(--gris); }
@@ -256,6 +333,7 @@
 
   <div class="filtres" id="filtres" hidden></div>
   <main id="fil"></main>
+  <section id="fiche" hidden></section>
 
   <footer>
     <p><strong>Source :</strong> dossiers législatifs de l'Assemblée nationale,
@@ -777,8 +855,7 @@ function carte(t) {
 
   const h = el("h2");
   const a = el("a", null, t.titre);
-  a.href = t.url_an || t.url_senat || "#";
-  a.target = "_blank"; a.rel = "noopener";
+  a.href = "#/texte/" + t.uid;
   h.append(a);
   c.append(h);
 
@@ -934,6 +1011,312 @@ function ajouter(liste) {
   }
 }
 
+
+/* ------------------------------------------------------------------ *
+ * La fiche d'un texte
+ * ------------------------------------------------------------------ */
+
+const SORTS_AMDT = { "Adopté": "adopte", "Rejeté": "rejete" };
+
+function personne(p, role) {
+  const bloc = el("div", "auteur");
+  if (p.photo) {
+    const img = el("img");
+    img.src = p.photo;
+    img.alt = "";
+    img.loading = "lazy";
+    // Toutes les photos ne sont pas en ligne : on remplace sans casser la mise
+    // en page plutôt que d'afficher une image brisée.
+    img.addEventListener("error", () => img.replaceWith(el("div", "sans-photo", "—")));
+    bloc.append(img);
+  } else {
+    bloc.append(el("div", "sans-photo", "—"));
+  }
+  const qui = el("div", "qui");
+  qui.append(el("div", "nom", [p.civilite, p.prenom, p.nom].filter(Boolean).join(" ")));
+  if (role) qui.append(el("div", "role", role));
+  if (p.sigle) {
+    const g = el("div", "grp");
+    const teinte = el("i");
+    if (p.couleur) teinte.style.background = p.couleur;
+    g.append(teinte);
+    g.append(document.createTextNode(p.nom_groupe || p.sigle));
+    qui.append(g);
+  }
+  bloc.append(qui);
+  return bloc;
+}
+
+function bloc(titre) {
+  const b = el("section", "bloc");
+  b.append(el("h3", null, titre));
+  return b;
+}
+
+function ligneParcours(e) {
+  const li = el("li");
+  if (e.future) li.classList.add("avenir");
+  li.append(el("span", "j", dateCourte.format(enDate(e.date))));
+  const q = el("div", "q");
+  q.append(el("b", null, e.libelle || e.code));
+  const contexte = [e.lecture, e.chambre ? CHAMBRES[e.chambre][0] : null,
+                    e.conclusion].filter(Boolean).join(" · ");
+  if (contexte) q.append(el("div", "ch", contexte));
+  li.append(q);
+  return li;
+}
+
+function blocVotes(detail) {
+  const b = bloc(`Votes (${nb.format((detail.votes || []).length)})`);
+  const votes = (detail.votes || []).slice().sort(
+    (a, x) => (x.portee === "ensemble") - (a.portee === "ensemble") ||
+              x.date.localeCompare(a.date));
+  if (!votes.length) {
+    b.append(el("div", "vide",
+      "Aucun vote public enregistré sur ce texte. C'est le cas le plus fréquent : " +
+      "la plupart des textes sont adoptés à main levée."));
+    return b;
+  }
+  for (const v of votes.slice(0, 12)) {
+    const c = el("article", "carte");
+    const tete = el("div", "amdt");
+    tete.className = "tete";
+    c.append(el("div", "amdt-objet", ""));
+    const l = el("div", "lignes");
+    l.append(etiquette("", extraction_portee(v.portee), PORTEES[v.portee] ||
+      ["Vote", ""], v.objet));
+    l.append(etiquette(v.sort === "adopté" ? "promulguee" : "arrete",
+      v.sort === "adopté" ? "Adopté" : "Rejeté", EXPLICATIONS.conclusion,
+      `${v.pour} pour · ${v.contre} contre · ${v.abstentions} abstentions`));
+    l.append(etiquette("", dateCourte.format(enDate(v.date)), EXPLICATIONS.date));
+    c.append(l);
+    const o = el("p", "fiche-desc", v.objet);
+    o.style.margin = ".5rem 0 0";
+    o.style.fontSize = ".8rem";
+    c.append(o);
+    const groupes = el("button", "charger", "Voir le détail par groupe");
+    groupes.addEventListener("click", () => detailVoteConnu(v));
+    c.append(groupes);
+    b.append(c);
+  }
+  if (votes.length > 12) {
+    b.append(el("p", "avertissement",
+      `${nb.format(votes.length - 12)} autres votes, sur des amendements ou des articles.`));
+  }
+  return b;
+}
+
+const PORTEES = {
+  ensemble: ["Vote sur le texte entier",
+    "La chambre s'est prononcée sur l'ensemble du texte. C'est ce vote qui décide " +
+    "si le texte poursuit son chemin."],
+  article: ["Vote sur un article",
+    "La chambre s'est prononcée sur un seul article, pas sur l'ensemble."],
+  amendement: ["Vote sur un amendement",
+    "La chambre s'est prononcée sur une modification proposée au texte."],
+  motion: ["Vote sur une motion",
+    "Un vote de procédure : rejeter le texte avant de l'examiner, ou censurer le Gouvernement."],
+  autre: ["Autre vote", "Un vote qui ne porte ni sur le texte, ni sur un article, ni sur un amendement."],
+};
+const extraction_portee = (p) => (PORTEES[p] || ["Vote"])[0];
+
+function detailVoteConnu(v) {
+  expliquer(...(PORTEES[v.portee] || ["Vote", ""]),
+            `${v.sort} · ${v.pour} pour, ${v.contre} contre, ${v.abstentions} abstentions`);
+  const zone = el("div", "groupes");
+  zone.append(el("p", "objet", v.objet));
+  const legende = el("div", "legende");
+  for (const [cle, mot] of [["pour", "pour"], ["contre", "contre"], ["abstention", "abstention"]]) {
+    const item = el("span", null);
+    item.append(el("i", cle));
+    item.append(document.createTextNode(mot));
+    legende.append(item);
+  }
+  zone.append(legende);
+  for (const g of v.groupes || []) {
+    const total = (g.pour || 0) + (g.contre || 0) + (g.abstentions || 0);
+    const ligne = el("div", "groupe");
+    const teinte = el("i", "teinte");
+    if (g.couleur) teinte.style.background = g.couleur;
+    ligne.append(teinte);
+    ligne.append(el("span", "sigle", g.sigle));
+    const barre = el("span", "barre");
+    for (const [cle, n] of [["pour", g.pour], ["contre", g.contre], ["abstention", g.abstentions]]) {
+      if (!n) continue;
+      const part = el("i", cle);
+      part.style.flexGrow = String(n);
+      barre.append(part);
+    }
+    if (!total) barre.append(el("i", "vide"));
+    ligne.append(barre);
+    ligne.append(el("span", "detail", total ? `${g.pour}/${g.contre}/${g.abstentions}` : "n'a pas voté"));
+    zone.append(ligne);
+  }
+  $("info-texte").after(zone);
+}
+
+function carteAmendement(a) {
+  const c = el("article", "amdt");
+  const tete = el("div", "tete");
+  tete.append(el("span", "num", a.numero || "—"));
+  if (a.article) tete.append(el("span", null, a.article));
+  if (a.sort) {
+    tete.append(el("span", "sort " + (SORTS_AMDT[a.sort] || ""), a.sort));
+  }
+  if (a.sigle) {
+    const g = el("span", "grp");
+    const teinte = el("i");
+    if (a.couleur) teinte.style.background = a.couleur;
+    g.append(teinte);
+    g.append(document.createTextNode(a.sigle));
+    tete.append(g);
+  }
+  if (a.nom) tete.append(el("span", null, [a.prenom, a.nom].filter(Boolean).join(" ")));
+  c.append(tete);
+
+  const disp = el("p", "disp");
+  for (const m of a.morceaux || []) {
+    if (m.role === "neutre") disp.append(document.createTextNode(m.texte));
+    else {
+      const marque = el("span", m.role, "« " + m.texte + " »");
+      disp.append(marque);
+    }
+  }
+  c.append(disp);
+  if (a.expose) {
+    c.append(el("p", "expose", a.expose + (a.exposeTronque ? "" : "")));
+  }
+  return c;
+}
+
+async function blocAmendements(uid, total) {
+  const b = bloc(`Amendements (${nb.format(total)})`);
+  b.append(el("p", "avertissement",
+    "Un amendement n'est pas une version modifiée du texte : c'est une instruction, " +
+    "reproduite ici mot pour mot. Le texte original des articles n'est pas publié, " +
+    "donc rien n'est reconstitué. En vert, ce que l'amendement ajoute ; en rouge " +
+    "barré, ce qu'il retire ou remplace — d'après sa propre formulation."));
+  const bouton = el("button", "charger", `Charger les amendements`);
+  b.append(bouton);
+  bouton.addEventListener("click", async () => {
+    bouton.textContent = "Chargement…";
+    try {
+      const d = await lire(`amendements/${uid}.json`, true);
+      bouton.remove();
+      if (d.publies < d.total) {
+        b.append(el("p", "avertissement",
+          `${nb.format(d.publies)} amendements affichés sur ${nb.format(d.total)}. ` +
+          `Les amendements adoptés viennent en premier.`));
+      }
+      for (const a of d.amendements) b.append(carteAmendement(a));
+    } catch (e) {
+      bouton.textContent = "Amendements indisponibles : " + e.message;
+    }
+  });
+  return b;
+}
+
+async function ouvrirFiche(uid) {
+  const f = $("fiche");
+  f.textContent = "";
+  f.hidden = false;
+  $("fil").hidden = true;
+  $("filtres").hidden = true;
+  $("bascule").setAttribute("aria-expanded", "false");
+  window.scrollTo(0, 0);
+
+  $("compte").hidden = true;
+  document.querySelector(".barre").hidden = true;
+
+  const retour = el("button", "retour", "‹ Retour au fil");
+  retour.addEventListener("click", () => { location.hash = ""; });
+  f.append(retour);
+  f.append(el("p", "avertissement", "Chargement de la fiche…"));
+
+  let d;
+  try {
+    d = await lire(`textes/${uid}.json`, true);
+  } catch (e) {
+    f.append(el("div", "vide", "Fiche indisponible : " + e.message));
+    return;
+  }
+  f.textContent = "";
+  f.append(retour);
+
+  f.append(el("h2", "fiche-titre", d.titre));
+  if (d.description) f.append(el("p", "fiche-desc", d.description));
+
+  const l = el("div", "lignes");
+  const ch = d.chambre || null;
+  l.append(etiquette("chambre-" + (ch || "aucune"), CHAMBRES[ch][0], CHAMBRES[ch]));
+  l.append(etiquette("", typeCourt(d.type), TYPES[d.type] || [typeCourt(d.type), ""]));
+  const issue = ISSUES[d.statut];
+  if (issue) l.append(etiquette("arrete", issue[0], issue));
+  if (d.statut === "promulgue") {
+    l.append(etiquette("promulguee", "Promulguée",
+      [etapeDe(PROMULGUEE).nom, etapeDe(PROMULGUEE).quoi],
+      d.loi_numero ? "loi n° " + d.loi_numero : null));
+  }
+  f.append(l);
+
+  if (d.auteur) f.append(personne(d.auteur, "Auteur du texte"));
+  if (d.cosignatairesTotal) {
+    const b = bloc(`Cosignataires (${nb.format(d.cosignatairesTotal)})`);
+    for (const p of d.cosignataires) b.append(personne(p));
+    if (d.cosignatairesTotal > d.cosignataires.length) {
+      b.append(el("p", "avertissement",
+        `et ${nb.format(d.cosignatairesTotal - d.cosignataires.length)} autres.`));
+    }
+    f.append(b);
+  }
+
+  const liens = bloc("Voir la source");
+  const zone = el("div", "liens");
+  if (d.url_an) {
+    const a = el("a", "officiel", "Dossier officiel");
+    a.href = d.url_an; a.target = "_blank"; a.rel = "noopener";
+    zone.append(a);
+  }
+  if (d.url_senat) {
+    const a = el("a", null, "Dossier au Sénat");
+    a.href = d.url_senat; a.target = "_blank"; a.rel = "noopener";
+    zone.append(a);
+  }
+  if (d.loi_url_jo) {
+    const a = el("a", null, "Texte de loi au Journal officiel");
+    a.href = d.loi_url_jo; a.target = "_blank"; a.rel = "noopener";
+    zone.append(a);
+  }
+  liens.append(zone);
+  f.append(liens);
+
+  const parcours = bloc(`Parcours (${nb.format((d.parcours || []).length)} étapes)`);
+  const ul = el("ul", "parcours");
+  for (const e of d.parcours || []) ul.append(ligneParcours(e));
+  parcours.append(ul);
+  f.append(parcours);
+
+  f.append(blocVotes(d));
+
+  const nbAmdt = (TEXTES.find((t) => t.uid === uid) || {}).amendements || 0;
+  if (nbAmdt) f.append(await blocAmendements(uid, nbAmdt));
+}
+
+function fermerFiche() {
+  $("fiche").hidden = true;
+  $("fiche").textContent = "";
+  $("fil").hidden = false;
+  $("compte").hidden = false;
+  document.querySelector(".barre").hidden = false;
+}
+
+function router() {
+  const m = location.hash.match(/^#\/texte\/([\w-]+)$/);
+  if (m) ouvrirFiche(m[1]);
+  else fermerFiche();
+}
+window.addEventListener("hashchange", router);
+
 /* ---------- démarrage ---------- */
 $("bascule").addEventListener("click", () => {
   const boite = $("filtres");
@@ -981,6 +1364,7 @@ async function charger() {
       ? dateLongue.format(enDate((ETAT.genereLe || textes.genereLe).slice(0, 10)))
       : "inconnue";
     dessiner();
+    router();
   } catch (erreur) {
     $("compte").textContent = "Données indisponibles";
     $("fil").append(el("div", "vide",

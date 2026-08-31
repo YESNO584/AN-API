@@ -561,5 +561,82 @@ class EtatVenuDuSenat(unittest.TestCase):
                         "les sources ne se prononcent pas sur le caractère définitif")
 
 
+class LectureDesAmendements(unittest.TestCase):
+    """Un amendement est une instruction en français, pas une différence entre
+    deux textes. On l'affiche mot pour mot et on ne reconstitue rien."""
+
+    def dispositif(self, texte):
+        return {"amendement": {
+            "uid": "A1", "identification": {"numeroLong": "AS20", "numeroOrdreDepot": "20"},
+            "pointeurFragmentTexte": {"division": {"titre": "Article PREMIER"}},
+            "signataires": {"auteur": {"typeAuteur": "Député", "acteurRef": "PA1",
+                                       "groupePolitiqueRef": "PO1"}},
+            "cycleDeVie": {"dateDepot": "2025-11-29",
+                           "etatDesTraitements": {"etat": {"libelle": "Discuté"},
+                                                  "sousEtat": {"libelle": "Adopté"}}},
+            "corps": {"contenuAuteur": {"dispositif": texte, "exposeSommaire": "<p>Parce que.</p>"}},
+        }}
+
+    def test_un_champ_vide_du_xml_ne_devient_pas_un_dictionnaire(self):
+        """Le format rend un champ absent par {'@xsi:nil': 'true'}. Sans filtre,
+        ce dictionnaire finit dans une colonne de la base."""
+        brut = self.dispositif("<p>Supprimer cet article.</p>")
+        brut["amendement"]["signataires"]["auteur"]["acteurRef"] = {"@xsi:nil": "true"}
+        a = extraction.analyser_amendement(brut)
+        self.assertIsNone(a["auteurRef"])
+
+    def test_le_dispositif_est_repris_mot_pour_mot_sans_balises(self):
+        a = extraction.analyser_amendement(self.dispositif(
+            "<p style='x'>Compl&#233;ter l&#8217;alin&#233;a 7.</p>"))
+        self.assertEqual(a["dispositif"], "Compléter l’alinéa 7.")
+
+    def test_ce_qui_est_ajoute_est_marque_vert(self):
+        m = extraction.colorer_dispositif(
+            "Compléter l’alinéa 7 par les mots : « , après avis simple ».")
+        self.assertEqual([x["role"] for x in m], ["neutre", "ajout", "neutre"])
+        self.assertEqual(m[1]["texte"], ", après avis simple")
+
+    def test_une_suppression_marque_tout_en_rouge(self):
+        m = extraction.colorer_dispositif("Supprimer les mots : « et les chiens ».")
+        self.assertIn({"texte": "et les chiens", "role": extraction.RETRAIT}, m)
+
+    def test_une_substitution_retire_le_premier_et_ajoute_le_second(self):
+        m = extraction.colorer_dispositif(
+            "À l’alinéa 2, substituer à la référence : « L. 1174‑3 »"
+            " la référence : « L. 1174‑1 ».")
+        cites = [x for x in m if x["role"] != extraction.NEUTRE]
+        self.assertEqual([x["role"] for x in cites],
+                         [extraction.RETRAIT, extraction.AJOUT])
+        self.assertEqual(cites[0]["texte"], "L. 1174‑3")
+        self.assertEqual(cites[1]["texte"], "L. 1174‑1")
+
+    def test_une_instruction_sans_citation_reste_neutre(self):
+        m = extraction.colorer_dispositif("Supprimer cet article.")
+        self.assertEqual([x["role"] for x in m], [extraction.NEUTRE])
+
+    def test_le_texte_complet_est_toujours_reconstituable_a_l_identique(self):
+        """La coloration ne doit rien perdre ni rien ajouter : c'est la
+        garantie qu'aucun mot de la source n'est déformé."""
+        for phrase in ("Compléter l’alinéa 7 par les mots : « un chat ».",
+                       "Supprimer cet article.",
+                       "À l’alinéa 2, substituer aux mots : « a » les mots : « b »."):
+            with self.subTest(phrase=phrase[:30]):
+                m = extraction.colorer_dispositif(phrase)
+                refait = "".join(x["texte"] if x["role"] == extraction.NEUTRE
+                                 else "« " + x["texte"] + " »" for x in m)
+                self.assertEqual(refait, phrase)
+
+    def test_un_dispositif_absent_ne_produit_aucun_morceau(self):
+        self.assertEqual(extraction.colorer_dispositif(""), [])
+        self.assertEqual(extraction.colorer_dispositif(None), [])
+
+
+class AuteursEtPhotos(unittest.TestCase):
+    def test_l_adresse_d_une_photo_se_deduit_de_l_identifiant(self):
+        self.assertEqual(
+            extraction.PHOTO_DEPUTE.format("794830"),
+            "https://www2.assemblee-nationale.fr/static/tribun/17/photos/794830.jpg")
+
+
 if __name__ == "__main__":
     sys.exit(0 if unittest.main(exit=False, verbosity=2).result.wasSuccessful() else 1)

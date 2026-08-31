@@ -144,6 +144,36 @@ fragile, jamais fiable à 100 % » selon le §3.2 du plan. Ce qui est repris,
 c'est le résultat par texte (`adopté` / `non adopté`), rattaché sans
 devinette. Détail dans `../docs/sources/senat.md`.
 
+### Les amendements : affichés, jamais reconstitués
+
+Le socle récupère les **109 854 amendements** de la législature, répartis sur
+289 dossiers. Chacun est rangé avec son article, son auteur, son groupe et son
+sort.
+
+**Ce que le socle ne fait pas, et ne doit pas faire :** reconstituer le texte
+modifié. Un amendement n'est pas une différence entre deux textes, c'est une
+instruction — « Compléter l'alinéa 7 par les mots : « … » ». Et le texte
+original des articles **n'est pas publié en open data** (vérifié le
+2026-08-31). Le reconstituer produirait un texte de loi fabriqué par nous,
+faux dans une proportion inconnue, et présenté comme officiel.
+
+Ce qui est fait : la colonne `morceaux` découpe l'instruction en marquant ce
+que la source met **elle-même** entre guillemets — `ajout`, `retrait` ou
+`neutre`, d'après le verbe qui gouverne la phrase. C'est une aide de lecture,
+annoncée comme telle à l'écran. **Un test vérifie que la coloration
+reconstitue le texte à l'identique**, donc qu'aucun mot n'est perdu ni ajouté.
+
+**Deux plafonds à la publication**, imposés par le volume — un dossier compte
+jusqu'à 19 510 amendements :
+
+| | |
+|---|---:|
+| Amendements détaillés par texte | `AMENDEMENTS_MAX` = **150**, les adoptés d'abord |
+| Longueur de l'exposé sommaire | `EXPOSE_MAX` = **400** caractères |
+
+Le dispositif, lui, est toujours complet : c'est la partie qui dit ce que
+l'amendement fait. Le compte réel est publié à côté, jamais masqué.
+
 ### L'ordre des groupes est mesuré, leur couleur est une convention
 
 **L'ordre.** Chaque vote publie le **numéro de siège** de chaque député. Sur
@@ -237,7 +267,8 @@ signale la panne.
 | `textes.json` | 829 Ko | **121 Ko** | **Le fichier principal** : les 1 990 textes en cours |
 | `promulgues.json` | 106 Ko | — | Les 107 lois déjà promulguées |
 | `arretes.json` | 57 Ko | — | Les 88 textes **arrêtés en chemin** : rejetés, non adoptés, retirés, caducs |
-| `textes/<uid>.json` | 2,8 Mo | — | Un fichier par texte, avec tout son parcours (2 097 fichiers, 1,3 Ko en moyenne) |
+| `textes/<uid>.json` | 18 Mo | — | Un fichier par texte : parcours, votes, auteur, cosignataires (médiane 4 Ko) |
+| `amendements/<uid>.json` | 30 Mo | — | Les amendements d'un texte, chargés seulement si on les ouvre (médiane 90 Ko, 289 fichiers) |
 
 **L'application charge `textes.json` une fois** — 121 Ko sur le réseau — puis
 filtre et cherche toute seule, instantanément et même hors connexion. Elle ne

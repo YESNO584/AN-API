@@ -15,6 +15,7 @@ Source : https://data.assemblee-nationale.fr — Licence Ouverte (Etalab).
 from __future__ import annotations
 
 import csv
+import html
 import json
 import pathlib
 import re
@@ -25,7 +26,16 @@ from typing import Iterator
 DEPOT = "https://data.assemblee-nationale.fr/static/openData/repository/17/"
 URL_ARCHIVE = DEPOT + "loi/dossiers_legislatifs/Dossiers_Legislatifs.json.zip"
 URL_SCRUTINS = DEPOT + "loi/scrutins/Scrutins.json.zip"
+# Cette archive contient à la fois les groupes (organe/) et les députés
+# (acteur/) : une seule source pour les deux.
 URL_ORGANES = DEPOT + "amo/deputes_actifs_mandats_actifs_organes/AMO10_deputes_actifs_mandats_actifs_organes.json.zip"
+URL_AMENDEMENTS = DEPOT + "loi/amendements_div_legis/Amendements.json.zip"
+
+# Les photos des députés. Elles ne sont pas dans l'open data : ce sont des
+# fichiers du site de l'Assemblée, dont l'adresse se déduit de l'identifiant.
+# Testées le 2026-08-31 sur douze députés tirés au hasard — dix réponses, deux
+# coupures réseau, aucune absente.
+PHOTO_DEPUTE = "https://www2.assemblee-nationale.fr/static/tribun/17/photos/{}.jpg"
 
 # Le Sénat, pour une seule raison : il dit ce que l'Assemblée ne dit pas —
 # qu'un texte est « non adopté », « caduc » ou « retiré ». Sans lui, 29 textes
@@ -672,3 +682,213 @@ def ordonner_groupes(sieges: dict[str, dict[int, int]],
             "couleur": couleur_de_groupe(sigle, rang, total),
         })
     return groupes
+
+
+# ---------------------------------------------------------------------------
+# Qui écrit les textes : députés, documents, amendements
+# ---------------------------------------------------------------------------
+
+def lire_acteurs(archive: pathlib.Path) -> dict[str, dict]:
+    """Les députés en exercice : identifiant → nom, civilité, photo, groupe."""
+    acteurs = {}
+    for brut in _lire(archive, "acteur"):
+        a = brut["acteur"]
+        uid = a["uid"]["#text"] if isinstance(a.get("uid"), dict) else a.get("uid")
+        ident = (a.get("etatCivil") or {}).get("ident") or {}
+
+        # Le groupe politique se lit dans les mandats : celui de type « GP »
+        # encore ouvert. Un député peut en avoir changé au cours du mandat.
+        groupe = None
+        mandats = (a.get("mandats") or {}).get("mandat")
+        if isinstance(mandats, dict):
+            mandats = [mandats]
+        for m in mandats or []:
+            organes = (m.get("organes") or {}).get("organeRef")
+            if isinstance(organes, str):
+                organes = [organes]
+            if m.get("typeOrgane") == "GP" and not (m.get("dateFin")):
+                groupe = (organes or [None])[0]
+        acteurs[uid] = {
+            "ref": uid,
+            "civilite": ident.get("civ"),
+            "prenom": ident.get("prenom"),
+            "nom": ident.get("nom"),
+            "groupeRef": groupe,
+            "photo": PHOTO_DEPUTE.format(uid[2:]) if uid and uid.startswith("PA") else None,
+        }
+    return acteurs
+
+
+def lire_documents(archive: pathlib.Path) -> dict[str, dict]:
+    """Les documents parlementaires : de quoi décrire un texte et le signer.
+
+    `notice.formule` est la description du texte en une phrase — « visant à
+    instaurer un dispositif de sanction contraventionnelle pour… ». 7 029 des
+    7 070 documents en ont une.
+    """
+    documents = {}
+    for brut in _lire(archive, "document"):
+        d = brut["document"]
+        auteurs, cosignataires = [], []
+        liste = (d.get("auteurs") or {}).get("auteur")
+        if isinstance(liste, dict):
+            liste = [liste]
+        for x in liste or []:
+            acteur = x.get("acteur") or {}
+            ref, qualite = acteur.get("acteurRef"), acteur.get("qualite")
+            if not ref:
+                continue
+            (cosignataires if qualite == "cosignataire" else auteurs).append(
+                {"ref": ref, "qualite": qualite})
+        cosign = (d.get("coSignataires") or {}).get("coSignataire")
+        if isinstance(cosign, dict):
+            cosign = [cosign]
+        for x in cosign or []:
+            ref = ((x.get("acteur") or {}).get("acteurRef")
+                   if isinstance(x.get("acteur"), dict) else None)
+            if ref:
+                cosignataires.append({"ref": ref, "qualite": "cosignataire"})
+
+        documents[d["uid"]] = {
+            "uid": d["uid"],
+            "type": d.get("denominationStructurelle"),
+            "titre": (d.get("titres") or {}).get("titrePrincipal"),
+            "description": (d.get("notice") or {}).get("formule"),
+            "dossier": d.get("dossierRef"),
+            "auteurs": auteurs,
+            "cosignataires": cosignataires,
+        }
+    return documents
+
+
+# ---------------------------------------------------------------------------
+# Les amendements
+# ---------------------------------------------------------------------------
+
+# Un amendement n'est pas une différence entre deux textes : c'est une phrase
+# d'instruction, écrite en français juridique.
+#
+#     « Compléter l'alinéa 7 par les mots : « , après avis simple des
+#       organisations professionnelles représentant les exploitants agricoles ». »
+#
+# **On ne reconstitue donc jamais le texte modifié.** Il faudrait pour cela le
+# texte original des articles — absent de l'open data, vérifié le 2026-08-31 —
+# et un programme capable d'interpréter ces instructions. Le résultat serait
+# un texte de loi fabriqué par nous, faux dans une proportion inconnue, et
+# présenté comme officiel.
+#
+# Ce qu'on fait à la place : afficher l'instruction **mot pour mot**, et
+# colorer ce que la source elle-même met entre guillemets. Rien n'est inventé.
+
+AJOUT, RETRAIT, NEUTRE = "ajout", "retrait", "neutre"
+
+# Le verbe qui gouverne l'instruction dit ce qu'il advient des passages cités.
+# Ce classement est une aide de lecture, pas une vérité juridique : un
+# amendement complexe peut mêler plusieurs opérations.
+VERBES_RETRAIT = ("supprimer", "abroger")
+VERBES_REMPLACEMENT = ("substituer", "remplacer", "rédiger ainsi", "rediger ainsi")
+
+
+def _texte_brut(html_source: str) -> str:
+    sans_balises = re.sub(r"<[^>]+>", " ", html_source or "")
+    return re.sub(r"\s+", " ", html.unescape(sans_balises)).strip()
+
+
+def colorer_dispositif(dispositif: str) -> list[dict]:
+    """Découpe l'instruction en morceaux, en marquant les passages cités.
+
+    Rend une liste de `{"texte": …, "role": ajout|retrait|neutre}`. Le texte
+    hors guillemets reste neutre : c'est l'instruction elle-même. Les passages
+    entre « … » sont ceux que l'amendement ajoute ou retire.
+
+    Règle, volontairement simple et annoncée comme telle :
+      — « supprimer », « abroger »            → tout ce qui est cité est retiré ;
+      — « substituer », « remplacer »         → le premier cité est retiré,
+                                                les suivants sont ajoutés ;
+      — sinon (compléter, insérer, ajouter…)  → ce qui est cité est ajouté.
+    """
+    texte = _texte_brut(dispositif)
+    if not texte:
+        return []
+
+    debut = texte[:60].lower()
+    if any(v in debut for v in VERBES_RETRAIT):
+        roles = lambda rang: RETRAIT                                    # noqa: E731
+    elif any(v in debut for v in VERBES_REMPLACEMENT):
+        roles = lambda rang: RETRAIT if rang == 0 else AJOUT            # noqa: E731
+    else:
+        roles = lambda rang: AJOUT                                      # noqa: E731
+
+    morceaux, position, rang = [], 0, 0
+    for citation in re.finditer(r"«\s*(.*?)\s*»", texte, re.S):
+        avant = texte[position:citation.start()]
+        if avant.strip():
+            morceaux.append({"texte": avant, "role": NEUTRE})
+        contenu = citation.group(1)
+        if contenu:
+            morceaux.append({"texte": contenu, "role": roles(rang)})
+            rang += 1
+        position = citation.end()
+    reste = texte[position:]
+    if reste.strip():
+        morceaux.append({"texte": reste, "role": NEUTRE})
+    return morceaux or [{"texte": texte, "role": NEUTRE}]
+
+
+def analyser_amendement(brut: dict) -> dict:
+    """Un amendement tel que publié → un amendement tel que la base le range."""
+    a = brut["amendement"]
+    identification = a.get("identification") or {}
+    pointeur = a.get("pointeurFragmentTexte") or {}
+    division = pointeur.get("division") or {}
+    corps = (a.get("corps") or {}).get("contenuAuteur") or {}
+    cycle = a.get("cycleDeVie") or {}
+    traitements = (cycle.get("etatDesTraitements") or {})
+    signataires = (a.get("signataires") or {}).get("auteur") or {}
+
+    def mot(valeur):
+        """Le format XML rend un champ vide par {'@xsi:nil': 'true'}, pas par
+        `null`. Sans ce filtre, un dict finit dans une colonne de la base."""
+        return valeur if isinstance(valeur, str) and valeur else None
+
+    def nombre(valeur):
+        try:
+            return int(valeur)
+        except (TypeError, ValueError):
+            return None
+
+    return {
+        "uid": a["uid"],
+        "dossier": None,                       # rempli par l'appelant, d'après le chemin
+        "numero": mot(identification.get("numeroLong")),
+        "ordre": nombre(identification.get("numeroOrdreDepot")),
+        "article": mot(division.get("titre")) or mot(division.get("articleDesignationCourte")),
+        "auteurRef": mot(signataires.get("acteurRef")),
+        "groupeRef": mot(signataires.get("groupePolitiqueRef")),
+        "typeAuteur": mot(signataires.get("typeAuteur")),
+        "dateDepot": mot(cycle.get("dateDepot")),
+        "etat": mot((traitements.get("etat") or {}).get("libelle")),
+        "sort": mot((traitements.get("sousEtat") or {}).get("libelle")),
+        "dispositif": _texte_brut(corps.get("dispositif")),
+        "expose": _texte_brut(corps.get("exposeSommaire")),
+        "morceaux": colorer_dispositif(corps.get("dispositif")),
+    }
+
+
+def lire_amendements(archive: pathlib.Path) -> Iterator[dict]:
+    """Les amendements, avec le dossier auquel ils appartiennent.
+
+    Le lien vers le dossier n'est pas dans le fichier : il est dans le chemin,
+    `json/<dossier>/<texte>/<amendement>.json`.
+    """
+    with zipfile.ZipFile(archive) as zf:
+        for nom in zf.namelist():
+            if not nom.endswith(".json"):
+                continue
+            morceaux = nom.split("/")
+            if len(morceaux) < 3:
+                continue
+            with zf.open(nom) as fichier:
+                a = analyser_amendement(json.load(fichier))
+            a["dossier"] = morceaux[1]
+            yield a
