@@ -38,9 +38,14 @@ a pas encore d'application, de base de données ni de dépendances.
   maquette autonome passe donc par une préparation hors ligne.
 - **Il n'y a pas de serveur en production, et c'est voulu** (question 8 du §10
   du plan, décidée le 2026-08-31). Les données sont publiées en fichiers par
-  GitHub, chaque matin. `socle/serveur.py` ne sert qu'au développement local ;
-  il resservira à l'étape 4, quand les favoris exigeront de stocker quelque
-  chose par utilisateur.
+  GitHub, chaque matin, sur **<https://yesno584.github.io/AN-API/>**.
+  `socle/serveur.py` ne sert qu'au développement local ; il resservira à
+  l'étape 4, quand les favoris exigeront de stocker quelque chose par
+  utilisateur.
+- **Le dépôt doit rester public.** C'est ce qui rend la publication gratuite
+  et lisible sans mot de passe. Le repasser en privé casserait les deux :
+  GitHub Pages exigerait un abonnement, et l'application ne pourrait plus
+  rien lire.
 - **L'application sera en Flutter (Dart), le mobile d'abord**, le web
   ensuite et dans le même code (décidé le 2026-08-31 — question 7 du §10 du
   plan). **Aucun code Flutter n'existe encore :** le seul code du dépôt reste

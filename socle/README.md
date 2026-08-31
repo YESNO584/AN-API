@@ -164,17 +164,35 @@ va chercher le fichier de détail que si l'on ouvre un texte.
 
 Le dossier `public/` **n'est pas versionné** : il se régénère en une commande.
 
-### Les deux réglages à faire une fois, à la main
+### C'est en ligne
 
-Une session Claude Code n'a pas accès aux réglages du dépôt. Il faut donc,
-dans GitHub :
+**Adresse : <https://yesno584.github.io/AN-API/>**
 
-1. **Settings → Actions → General** — autoriser l'exécution des workflows.
-2. **Settings → Pages → Source** — choisir **« GitHub Actions »**.
+| | |
+|---|---|
+| L'état | <https://yesno584.github.io/AN-API/etat.json> |
+| Les six étapes | <https://yesno584.github.io/AN-API/etapes.json> |
+| **Les textes en cours** | <https://yesno584.github.io/AN-API/textes.json> |
+| Les lois promulguées | <https://yesno584.github.io/AN-API/promulgues.json> |
+| Un texte | `https://yesno584.github.io/AN-API/textes/<uid>.json` |
 
-Ensuite, `Actions → Données du Parlement → Run workflow` lance la première
-publication à la main, depuis un téléphone si besoin. Les fichiers
-apparaissent sur `https://<compte>.github.io/<dépôt>/`.
+Vérifié le 2026-08-31, sans être connecté :
+
+```
+content-type: application/json; charset=utf-8
+content-encoding: gzip
+content-length: 126121            ← les 1 990 textes, compressés
+access-control-allow-origin: *    ← une page web peut donc lire
+```
+
+**Le dépôt doit rester public.** C'est ce qui rend tout cela gratuit et
+lisible sans mot de passe. Le repasser en privé casserait les deux à la fois :
+GitHub Pages exigerait un abonnement, et l'application ne pourrait plus rien
+lire.
+
+Pour republier sans attendre le lendemain :
+`Actions → Données du Parlement → Run workflow`, y compris depuis un
+téléphone.
 
 ## Ce que le socle ne fait pas
 

@@ -646,7 +646,7 @@ limitant du projet** — la qualité et la vérification le sont.
 | 5 | **Budget et rythme** | Maquette testable d'abord ; le reste ensuite | 2026-08-31 |
 | 6 | **Fonctionnalité à tester en premier** | Le suivi d'un texte sur toute sa durée de vie | 2026-08-31 |
 | 7 | **Technologie** | **Flutter**, un seul code pour mobile et web. **Android d'abord** ; le web viendra plus tard | 2026-08-31 |
-| 8 | **Hébergement** | **Aucun serveur.** Les données sont publiées en fichiers, régénérés chaque matin par GitHub et servis par GitHub Pages. Coût nul, rien à entretenir | 2026-08-31 |
+| 8 | **Hébergement** | **Aucun serveur.** Les données sont publiées en fichiers, régénérés chaque matin par GitHub et servis par GitHub Pages, sur <https://yesno584.github.io/AN-API/>. **En service depuis le 2026-08-31.** Coût nul, rien à entretenir. Suppose que le dépôt reste public | 2026-08-31 |
 
 #### Ce que le choix de Flutter implique
 
@@ -731,9 +731,9 @@ la Loi est inutilisable, et le rapprochement entre les deux chambres est déjà
 fait par l'Assemblée. Rien ne bloque plus l'application, **sauf une chose** :
 le socle ne tourne encore nulle part.
 
-1. **Activer la publication** — deux réglages à faire à la main dans GitHub
-   (`Settings → Actions`, puis `Settings → Pages → Source : GitHub Actions`).
-   Le reste est écrit et prêt : voir `../socle/README.md`.
+1. ~~Activer la publication~~ — **fait le 2026-08-31.** Les données sont en
+   ligne sur <https://yesno584.github.io/AN-API/> et se régénèrent chaque
+   matin. Voir `../socle/README.md`.
 2. **L'application Flutter**, sur le socle une fois hébergé. **Android
    d'abord** (décidé le 2026-08-31) : une application iPhone exigerait un Mac
    et un compte développeur Apple, ce que le développement depuis un
