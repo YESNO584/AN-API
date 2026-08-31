@@ -52,6 +52,7 @@ résumés n'est pas le facteur limitant du projet.**
 | Assemblée nationale | **À retenir — source principale** | Mise à jour quotidienne (dernière : le jour même du test) | [`assemblee-nationale.md`](assemblee-nationale.md) |
 | Sénat | **À retenir — source de complément** | Mise à jour quotidienne | [`senat.md`](senat.md) |
 | Monalisa (texte des lois, Sénat) | **Piste ouverte** — texte structuré, mais côté Sénat seulement (203 de nos 2 859 dossiers) | Mise à jour quotidienne | [`monalisa.md`](monalisa.md) |
+| Textes de l'Assemblée en PDF | **Piste ouverte** — lisible à 86 %, porterait la comparaison à 319 textes | Publiés au fil des séances | [`textes-pdf-assemblee.md`](textes-pdf-assemblee.md) |
 | La Fabrique de la Loi | **À écarter** — figée depuis 2022 | Dernière donnée : janvier 2022 | [`fabrique-de-la-loi.md`](fabrique-de-la-loi.md) |
 | Légifrance via PISTE | **Non vérifié** — demande un compte | inconnue | [`legifrance-piste.md`](legifrance-piste.md) |
 | NosDéputés.fr / NosSénateurs.fr | **Hors service au moment du test** | — | voir `../ACCES-RESEAU.md` |
