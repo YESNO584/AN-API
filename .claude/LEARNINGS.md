@@ -121,3 +121,38 @@ one codebase.
 
 Worth re-running that check on `.claude/settings.local.json` every few weeks —
 these accumulate one one-off search at a time.
+
+---
+
+## `main` est la branche de travail, et rien ne l'impose
+
+Consigne donnée par l'utilisateur le 2026-08-31, inscrite dans `CLAUDE.md`
+(section « Branche de travail »). Répétée ici parce que c'est la première
+chose qu'une session distante fera de travers : sa configuration lui assigne
+d'office une branche `claude/<sujet>-<suffixe>`, et elle y poussera sans
+réfléchir.
+
+- **Tout se développe et se pousse sur `main`.** Une autre branche ne se crée
+  que si le prompt le demande explicitement.
+- **Basculer avant de commiter**, pas après : `git checkout main`.
+- Aucun hook ne peut corriger cela — la branche est choisie au démarrage du
+  conteneur, hors de portée de la configuration du projet.
+
+Deux limites de droits, mesurées et reproductibles, qui encadrent toute
+promesse sur les branches :
+
+- **Supprimer une branche distante est impossible depuis une session.**
+  `git push origin --delete` renvoie `403` à chaque tentative. Le diagnostic
+  compte autant que le fait : le proxy ne signale **aucun** échec vers
+  GitHub et `git ls-remote` fonctionne, donc ce n'est pas le réseau mais les
+  droits de la session. Ne pas annoncer une suppression comme faite — la
+  renvoyer à l'utilisateur, qui la fait en deux clics dans l'onglet
+  *Branches* du dépôt.
+- **Désigner la branche par défaut du dépôt** n'est pas non plus accessible
+  d'ici. Tant que ce n'est pas fait côté GitHub, `main` est une branche
+  ordinaire parmi d'autres.
+
+Corollaire général, valable au-delà des branches : quand une opération Git
+échoue, lire `curl -sS "$HTTPS_PROXY/__agentproxy/status"` **avant** de
+conclure. Le champ `recentRelayFailures` vide écarte le réseau et laisse une
+seule explication : les droits.

@@ -86,6 +86,32 @@ reformulation. This is reinforced on every message via a UserPromptSubmit
 hook (`inject-rules.sh`), but the actual "wait for confirmation" behavior
 depends on Claude following it — no hook can force a pause mid-turn.
 
+## Branche de travail
+
+**`main` est la branche du projet.** Tout se développe et se pousse dessus.
+
+- Ne créez **pas** de branche `claude/...` ou de branche de fonctionnalité de
+  votre propre initiative. Une autre branche ne se crée que si l'utilisateur
+  le demande explicitement dans le prompt.
+- Si la configuration de la session vous **assigne** une branche (les sessions
+  distantes le font systématiquement, avec un nom de la forme
+  `claude/<sujet>-<suffixe>`), cette consigne-ci l'emporte : basculer sur
+  `main` (`git checkout main`) avant de commiter, et pousser sur `main`.
+- La consigne ne peut pas être imposée mécaniquement : aucun hook ne peut
+  changer la branche assignée au démarrage. Elle repose sur le fait de la
+  lire — d'où sa place ici.
+
+Deux limites constatées le 2026-08-31, à connaître avant de promettre quoi
+que ce soit sur les branches :
+
+- **Une session ne peut pas supprimer une branche distante.** `git push
+  origin --delete` renvoie `403`, de façon reproductible. Ce n'est pas le
+  réseau (le proxy ne signale rien, la lecture fonctionne) : les droits de la
+  session ne le permettent pas. La suppression se fait à la main sur GitHub.
+- **`main` n'est pas la branche par défaut du dépôt côté GitHub**, sauf si
+  quelqu'un l'a réglé depuis. Ce réglage-là n'est pas accessible d'ici non
+  plus.
+
 ## Self-configuration (standing authorization)
 Claude may create, edit and override its own harness configuration in this
 project without asking each time: `.claude/agents/**`, `.claude/skills/**`,
