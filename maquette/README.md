@@ -13,9 +13,12 @@ simple de la regarder depuis un téléphone, sans rien installer.
 ## Ce qu'elle montre
 
 **2 150 textes**, rangés par étape du parcours en **colonnes côte à côte** —
-une catégorie par colonne, **les plus avancées en premier** : les **107 lois
-promulguées** ouvrent le fil, les textes en cours suivent, et les **88 textes
-arrêtés en chemin** le ferment.
+une catégorie par colonne, **dans l'ordre où un texte les traverse** : le
+**dépôt** à gauche, puis la commission, la séance publique, la navette, sa
+sortie, et les **107 lois promulguées** à droite. Le fil se lit donc comme une
+frise, de la plus ancienne étape à la plus récente. Les **61 textes arrêtés en
+chemin** ferment la marche : ce n'est pas une étape du parcours mais une
+sortie de route, qui peut survenir à n'importe quel moment.
 
 **Une seule colonne est visible à la fois.** On passe à la suivante en faisant
 glisser vers la gauche ou la droite, ou avec les flèches **‹ ›** posées à côté

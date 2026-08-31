@@ -1054,25 +1054,32 @@ function dessiner(garderPosition = false) {
 }
 
 /* ---------- les colonnes ---------- *
- * Une colonne par catégorie d'étape, côte à côte, dans l'ordre de la liste :
- * la plus avancée en premier. Une seule colonne est visible ; on passe à la
- * suivante en faisant glisser, ou avec les flèches.
+ * Une colonne par catégorie d'étape, côte à côte, **dans l'ordre du parcours** :
+ * le dépôt à gauche, la promulgation à droite. Le fil se lit donc comme une
+ * frise, de la plus ancienne étape à la plus récente. Une seule colonne est
+ * visible ; on passe à la suivante en faisant glisser, ou avec les flèches.
+
  *
  * Chaque colonne charge ses textes par paquets, pour elle seule. Un compteur
  * commun à tout le fil ne marcherait plus ici : les dernières colonnes
  * resteraient vides jusqu'à ce qu'on ait tout affiché dans les premières.
  * ------------------------------------------------------------------ */
 
-// Les textes rangés par étape. Une Map garde l'ordre d'insertion, donc
-// l'ordre de la liste — qui est déjà trié. Les étapes sans texte n'ont pas
-// d'entrée : une colonne vide ne s'affiche pas.
+// Les textes rangés par étape, les colonnes remises dans l'ordre du parcours.
+// L'ordre des textes *à l'intérieur* d'une colonne ne bouge pas : c'est celui
+// de la liste, déjà triée. Les étapes sans texte n'ont pas d'entrée — une
+// colonne vide ne s'affiche pas.
 function parCategorie(liste) {
   const paquets = new Map();
   for (const t of liste) {
     if (!paquets.has(t.etape)) paquets.set(t.etape, []);
     paquets.get(t.etape).push(t);
   }
-  return [...paquets.entries()];
+  const rangDe = (n) => {
+    const i = ETAPES_EN_ORDRE.findIndex((e) => e.n === n);
+    return i === -1 ? ETAPES_EN_ORDRE.length : i;
+  };
+  return [...paquets.entries()].sort((a, x) => rangDe(a[0]) - rangDe(x[0]));
 }
 
 function versColonne(rang) {
