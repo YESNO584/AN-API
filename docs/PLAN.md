@@ -1,6 +1,6 @@
-# Plan — Application de suivi de l'Assemblée nationale
+# Plan — Application de suivi du Parlement (Assemblée nationale + Sénat)
 
-**Statut :** brouillon v1 — étude de faisabilité + plan initial
+**Statut :** brouillon v2 — étude de faisabilité + plan
 **Dernière mise à jour :** 2026-08-31
 **Ce document est vivant.** Il est mis à jour à chaque session. Voir le
 « Journal des mises à jour » à la fin.
@@ -9,32 +9,40 @@
 
 ## 1. En bref
 
-**Le projet est faisable.** L'Assemblée nationale publie elle-même, en accès
-libre et gratuit, la quasi-totalité de ce que l'application doit suivre :
-qui sont les députés, quels textes sont en discussion, qui a voté quoi, ce
-qui s'est dit en séance, et l'agenda des réunions. Ces données sont sous
-« Licence Ouverte » (la licence publique de l'État), donc réutilisables, y
-compris dans un produit commercial, à condition de citer la source.
+**Le projet est faisable.** Les deux chambres du Parlement publient
+elles-mêmes, en accès libre et gratuit, la quasi-totalité de ce que
+l'application doit suivre : qui sont les parlementaires, quels textes sont en
+discussion, qui a voté quoi, ce qui s'est dit en séance, et l'agenda des
+réunions.
+
+**Ce qui a été décidé** (voir §10) : une plateforme unique mobile et web,
+pour le grand public curieux ; la première fonctionnalité à tester est le
+**suivi d'un texte de loi sur toute sa durée de vie**, et chacun choisit ses
+textes en **favoris** ; le périmètre couvre **l'Assemblée et le Sénat** ; et
+l'objectif immédiat est une **maquette testable**, pas un produit fini.
 
 **Trois choses sont plus difficiles qu'elles n'en ont l'air :**
 
-1. **Beaucoup de votes n'existent pas sous forme de données.** À
-   l'Assemblée, la plupart des votes se font à main levée et ne sont
-   enregistrés nulle part au nom de chaque député. Seuls les « scrutins
-   publics » donnent la liste nominative. L'application ne pourra donc pas
-   dire « votre député a voté pour » sur tous les sujets — seulement sur
-   ceux-là.
-2. **« Vote important » n'est pas une donnée, c'est un choix éditorial.**
-   Rien dans les fichiers publics ne dit qu'un vote compte plus qu'un autre.
-   C'est nous qui devrons définir la règle, et l'assumer.
+1. **Suivre un texte de bout en bout n'est pas additionner deux sources.**
+   Un texte fait des allers-retours entre les deux chambres. Chacune publie
+   ses propres données, avec ses propres identifiants. Recoller les deux
+   moitiés du parcours est le vrai travail technique du projet — voir §3.
+2. **Beaucoup de votes n'existent pas sous forme de données.** La plupart
+   des votes se font à main levée et ne sont enregistrés nulle part au nom
+   de chaque parlementaire. Seuls les « scrutins publics » donnent la liste
+   nominative. L'application ne pourra donc pas dire « votre député a voté
+   pour » sur tous les sujets — seulement sur ceux-là.
 3. **Les résumés de séance demandent un modèle de langage**, donc un coût,
    et surtout un risque : un résumé faux sur un sujet politique est un vrai
-   problème de crédibilité. La bonne nouvelle est que le coût est faible
-   (voir §7) ; le risque, lui, se gère par la méthode, pas par le budget.
+   problème de crédibilité. Le coût est faible (voir §9) ; le risque, lui,
+   se gère par la méthode, pas par le budget.
 
-**Ce qui n'est pas encore décidé :** la technologie, la forme de
-l'application (site, mobile, notifications, lettre d'information), et
-l'hébergement. Ces choix sont volontairement laissés ouverts — voir §8.
+**Bonne nouvelle inattendue :** un projet associatif, **La Fabrique de la
+Loi**, a déjà résolu le problème n°1 et publie le résultat en accès libre.
+S'il est encore à jour, il peut servir de socle à la maquette et faire
+gagner des mois. C'est le premier point à vérifier (étape 0, §6).
+
+**Ce qui n'est pas encore décidé :** la technologie, et l'hébergement.
 
 ---
 
@@ -44,46 +52,85 @@ Cinq objets, par ordre de difficulté croissante :
 
 | # | Objet | Difficulté | Source |
 |---|---|---|---|
-| 1 | **Agenda** — ce qui se passe cette semaine à l'Assemblée | Facile | Jeu de données « Réunions » |
-| 2 | **Textes de loi** — où en est un projet ou une proposition de loi | Facile | Jeu de données « Dossiers législatifs » |
-| 3 | **Votes** — résultat d'un scrutin public, et position de chaque député | Facile à récupérer, **incomplet par nature** | Jeu de données « Scrutins » |
+| 1 | **Agenda** — ce qui se passe cette semaine au Parlement | Facile | Jeux de données « Réunions » des deux chambres |
+| 2 | **Textes de loi** — où en est un texte, dans son parcours complet | **Le cœur du produit.** Facile par chambre, **difficile à recoller** | Dossiers législatifs des deux chambres |
+| 3 | **Votes** — résultat d'un scrutin public, et position de chaque élu | Facile à récupérer, **incomplet par nature** | Jeux de données « Scrutins » |
 | 4 | **Débats** — ce qui s'est dit, par qui | Facile à récupérer, **volumineux** | Comptes rendus de séance |
 | 5 | **Résumés de séance** — l'essentiel d'une journée en quelques lignes | **Difficile** | À produire nous-mêmes |
 
-Les objets 1 à 4 sont de la récupération et de la mise en forme de données
-publiques. L'objet 5 est le seul qui crée vraiment de la valeur nouvelle —
-et le seul qui puisse se tromper.
+L'objet 2 est celui que l'utilisateur vient chercher. Les objets 1, 3 et 4
+l'enrichissent. L'objet 5 est le seul qui crée du texte nouveau — et le seul
+qui puisse se tromper.
 
 ---
 
-## 3. Les sources de données
+## 3. Le parcours d'une loi, et ce que « suivre de bout en bout » implique
 
-### 3.1 Source principale : le portail open data de l'Assemblée
+C'est la section qui conditionne toute l'architecture du produit.
 
-**`data.assemblee-nationale.fr`**
+### 3.1 Le parcours réel d'un texte
 
-C'est la source de référence. Elle publie, en XML et en JSON (et en CSV pour
-une partie), sous **Licence Ouverte (Etalab)** :
+Un texte ne suit pas une ligne droite. Dans les grandes lignes :
 
-- **Acteurs et organes** — les députés en exercice, leurs mandats, leurs
-  groupes politiques, leurs commissions ; plus un historique des députés
-  élus depuis juin 1997.
-- **Dossiers législatifs** — chaque texte en discussion, ses documents
-  (projet ou proposition de loi, texte adopté, rapports), le rapporteur, les
-  dates d'examen.
-- **Scrutins** — pour chaque scrutin public, la position de vote de chaque
-  député.
-- **Amendements** — tous les amendements déposés, en commission et en
-  séance, avec leur auteur, leur contenu, leur exposé des motifs et leur
-  sort (adopté / rejeté).
-- **Questions** — les questions écrites des députés et les réponses du
-  Gouvernement.
-- **Réunions** — toutes les réunions tenues à l'Assemblée (séance publique,
-  commissions, groupes d'études, etc.), avec l'heure, le lieu, l'ordre du
-  jour quand il est connu, les participants et les absences.
-- **Débats / comptes rendus** — le texte des débats en séance publique :
-  jour, date, numéro de séance, sujets abordés, tous les intervenants
-  (députés et ministres), et le texte lui-même.
+1. **Dépôt** — le Gouvernement dépose un *projet* de loi, ou un
+   parlementaire une *proposition* de loi, dans l'une des deux chambres.
+2. **Commission** — une commission examine le texte, l'amende, et publie
+   son propre texte.
+3. **Séance publique** — la chambre débat, amende encore, puis vote sur
+   l'ensemble.
+4. **Navette** — le texte part à l'autre chambre, qui recommence tout. Si
+   elle le modifie, il repart. Cet aller-retour peut se répéter.
+5. **Sortie de navette** — soit un accord, soit une commission mixte
+   paritaire (sept députés, sept sénateurs) qui tente un compromis, soit le
+   dernier mot donné à l'Assemblée.
+6. **Après le vote** — contrôle éventuel du Conseil constitutionnel, puis
+   promulgation et publication au Journal officiel.
+
+**Conséquence pour le produit :** l'objet central n'est pas « un texte à
+l'Assemblée », c'est **un dossier législatif unique auquel se rattachent des
+étapes datées, chacune située dans une chambre.** Se tromper là-dessus
+oblige à tout refaire plus tard.
+
+### 3.2 Le problème du recollement
+
+Chaque chambre publie ses propres données, avec ses propres numéros. Rien ne
+garantit qu'un identifiant permette de dire « ce texte au Sénat est le même
+que celui-là à l'Assemblée ». **Ce point n'est pas vérifié** — c'est le
+premier travail de l'étape 0 (§6).
+
+Trois stratégies possibles, de la meilleure à la moins bonne :
+
+| Stratégie | Principe | Ce qu'il faut vérifier |
+|---|---|---|
+| **A — Réutiliser La Fabrique de la Loi** | Un projet associatif a déjà fait ce recollement et publie le résultat | Est-il encore à jour ? Sous quelle licence ? |
+| **B — S'appuyer sur Légifrance** | Légifrance publie des « dossiers législatifs » qui couvrent le parcours entier | La couverture est-elle complète et assez fraîche ? |
+| **C — Recoller nous-mêmes** | Rapprocher les données des deux chambres par titre, date et numéro | Coûteux, fragile, et jamais fiable à 100 % |
+
+**Recommandation :** ne pas commencer par C. Vérifier A, puis B, avant
+d'écrire la moindre ligne de recollement.
+
+---
+
+## 4. Les sources de données
+
+### 4.1 Assemblée nationale — `data.assemblee-nationale.fr`
+
+Publie en XML et en JSON (CSV pour une partie), sous **Licence Ouverte
+(Etalab)** — réutilisable y compris commercialement, à condition de citer la
+source :
+
+- **Acteurs et organes** — les députés, leurs mandats, groupes et
+  commissions ; historique depuis juin 1997.
+- **Dossiers législatifs** — chaque texte en discussion, ses documents, le
+  rapporteur, les dates d'examen. **Couvre la législature en cours** ; les
+  législatures passées sont dans des jeux d'archives séparés.
+- **Scrutins** — pour chaque scrutin public, la position de chaque député.
+- **Amendements** — tous les amendements, avec auteur, contenu, exposé des
+  motifs et sort (adopté / rejeté).
+- **Questions** — questions écrites et réponses du Gouvernement.
+- **Réunions** — séance publique, commissions, groupes d'études : heure,
+  lieu, ordre du jour, participants et absences.
+- **Débats / comptes rendus** — le texte des débats, avec les intervenants.
 
 **Deux détails qui comptent pour la mise à jour :**
 
@@ -93,13 +140,65 @@ une partie), sous **Licence Ouverte (Etalab)** :
 - L'accès se fait en HTTPS et en FTPS. Les comptes rendus sont publiés en
   XML par la DILA au fil de leur parution, avec un schéma XSD fourni.
 
-**Attention :** les mêmes jeux de données sont aussi présents sur
-`data.gouv.fr`, mais il s'agit d'un miroir **rarement mis à jour**. Ne pas
-l'utiliser comme source vivante.
+**Attention :** les mêmes jeux de données existent aussi sur `data.gouv.fr`,
+mais il s'agit d'un miroir **rarement mis à jour**. Ne pas l'utiliser comme
+source vivante.
 
-### 3.2 Délais de publication (ce qui conditionne la fraîcheur de l'appli)
+### 4.2 Sénat — `data.senat.fr`
 
-C'est le point le plus important pour concevoir un produit « d'actualité » :
+Le Sénat a son propre portail open data, organisé en quatre familles :
+travaux législatifs, amendements, comptes rendus, et questions des
+sénateurs.
+
+- **La base DOSLEG** est l'équivalent sénatorial des dossiers législatifs.
+  Elle couvre les documents déposés au Sénat **depuis octobre 1977** :
+  projets et propositions de loi, rapports, textes de commission. Un export
+  liste l'ensemble des dossiers législatifs publiés sur le site du Sénat.
+- **Formats :** XML au standard international **Akoma Ntoso** (un format
+  d'échange de documents parlementaires), plus des **exports SQL complets**
+  et des **extraits CSV** plus simples à manipuler.
+- Un jeu « Travaux législatifs (Sénat) » est également publié sur
+  `data.gouv.fr`.
+
+**Différence de nature avec l'Assemblée :** le Sénat remonte à 1977, quand
+les dossiers législatifs de l'Assemblée sont organisés par législature.
+Pour un suivi historique, les deux ne se comportent pas pareil.
+
+### 4.3 Légifrance, via le portail PISTE
+
+L'API juridique de l'État. **Gratuite, mais elle exige une inscription** sur
+`piste.gouv.fr` et une clé d'accès — ce n'est pas un téléchargement anonyme.
+Elle expose les codes, les lois, les décrets, le Journal officiel, la
+jurisprudence, et surtout **les dossiers législatifs et les débats
+parlementaires**.
+
+C'est la **stratégie B** du §3.2 : potentiellement une vue du parcours
+complet, côté État, indépendante des deux chambres. Couverture et fraîcheur
+à vérifier à l'étape 0.
+
+### 4.4 La Fabrique de la Loi (Regards Citoyens)
+
+Un projet associatif mené avec deux laboratoires de Sciences Po Paris.
+**Il fait déjà exactement ce que notre fonctionnalité principale doit
+faire :** montrer le parcours d'un texte à travers toutes ses étapes
+parlementaires, dans les deux chambres, avec les modifications du texte à
+chaque phase, les amendements et les interventions.
+
+- **Comment il est construit :** à partir de la base DOSLEG du Sénat, des
+  sites des deux chambres, et de NosDéputés.fr / NosSénateurs.fr.
+- **Ce qu'il publie :** une API ouverte, un fichier `dossiers.csv` listant
+  tous les textes (promulgués comme en discussion) avec leurs métadonnées,
+  et par texte le détail de ses étapes.
+- **Licence : ODbL.** C'est important et différent de la Licence Ouverte :
+  l'ODbL impose de **repartager sous la même licence** toute base dérivée
+  qu'on redistribue. Utilisable, mais cela contraint un éventuel produit
+  commercial. À regarder de près avant d'en faire le socle définitif.
+
+**Deux choses à vérifier avant de compter dessus** (étape 0) : le projet
+est-il encore mis à jour aujourd'hui, et couvre-t-il la législature en
+cours ?
+
+### 4.5 Délais de publication (ce qui conditionne la fraîcheur de l'appli)
 
 | Contenu | Disponible après la fin de la séance |
 |---|---|
@@ -110,129 +209,160 @@ C'est le point le plus important pour concevoir un produit « d'actualité » :
 Conséquence directe : une application qui publie un résumé **le lendemain
 matin** est réaliste. Une application qui publie **en direct pendant la
 séance** ne l'est pas à partir de ces sources — il faudrait passer par la
-vidéo, ce qui est un autre projet (voir §6.5).
+vidéo, ce qui est un autre projet (voir §8.5).
 
-### 3.3 Sources complémentaires (optionnelles)
+### 4.6 Sources complémentaires
 
-- **Légifrance, via le portail PISTE** — l'API juridique de l'État, gratuite
-  après création d'un compte et acceptation des conditions d'utilisation.
-  Utile pour la fin du parcours : la loi telle qu'elle est publiée au
-  Journal officiel, et le suivi des dossiers législatifs côté
-  Gouvernement. Nécessite une clé d'accès, donc une inscription — à ne faire
-  que si l'on va jusqu'à « la loi est parue ».
-- **NosDéputés.fr (association Regards Citoyens)** — une API et des exports
-  de base de données déjà nettoyés et enrichis (présence des députés,
-  indicateurs d'activité par député et par mois). Licences : **CC-BY-SA**
-  pour le contenu, **ODbL** pour les données — plus contraignantes que la
-  Licence Ouverte, car elles obligent à repartager les données modifiées.
-  Très utile comme **référence de contrôle** (comparer nos chiffres aux
-  leurs) même si on ne l'intègre pas au produit.
-- **Le Sénat** publie aussi ses données de son côté. Hors périmètre pour
-  l'instant, mais à garder en tête : une loi passe par les deux chambres, et
-  un suivi qui s'arrête à l'Assemblée raconte la moitié de l'histoire.
+- **NosDéputés.fr / NosSénateurs.fr (Regards Citoyens)** — API et exports
+  déjà nettoyés et enrichis (présence, indicateurs d'activité). Licences
+  **CC-BY-SA** et **ODbL**. Très utiles comme **référence de contrôle**
+  (comparer nos chiffres aux leurs) même sans les intégrer au produit.
 
-### 3.4 Ce qui existe déjà
+### 4.7 Ce qui existe déjà
 
-Des projets couvrent déjà une partie du sujet : **NosDéputés.fr**
-(historique, associatif), et des sites plus récents comme **Civiqo** et
-**CIVIX** qui exposent les scrutins publics. Ce n'est pas un obstacle — cela
-prouve que les données sont exploitables — mais cela déplace la question :
-**qu'est-ce que notre application apporte que ceux-là n'apportent pas ?**
-Piste la plus crédible : le **résumé lisible** et le **suivi personnalisé**
-(« préviens-moi quand on parle de X », « que fait mon député »), plutôt que
-la simple mise à disposition des données brutes.
+Des projets couvrent déjà une partie du sujet : **La Fabrique de la Loi**
+(le parcours des textes), **NosDéputés.fr** (l'activité des élus), et des
+sites plus récents comme **Civiqo** et **CIVIX** (les scrutins publics).
+
+Ce n'est pas un obstacle — cela prouve que les données sont exploitables —
+mais cela pose la vraie question : **qu'apporte notre application que
+ceux-là n'apportent pas ?** Les réponses les plus crédibles, compte tenu des
+décisions prises :
+
+- **Le grand public, pas les spécialistes.** Les outils existants sont
+  denses, faits pour des gens qui connaissent déjà la procédure.
+- **Le suivi personnalisé.** Choisir ses textes en favoris et être prévenu
+  quand ils bougent — aucun des sites existants ne le propose vraiment.
+- **Mobile et web dans la même expérience.**
 
 ---
 
-## 4. Niveau de vérification de ce document
+## 5. Niveau de vérification de ce document
 
 Règle du projet : ne pas présenter comme un fait ce qui n'a pas été vérifié.
 
-- **Le réseau de la session de travail bloque l'accès direct à
-  `data.assemblee-nationale.fr`**, ainsi qu'à `data.gouv.fr`,
-  `legifrance.gouv.fr` et `nosdeputes.fr`. Tout le §3 s'appuie donc sur des
-  recherches web et sur les descriptions publiées de ces jeux de données —
-  **pas sur les fichiers eux-mêmes**.
+- **Le réseau de la session de travail bloque l'accès direct** à
+  `data.assemblee-nationale.fr`, `data.senat.fr`, `senat.fr`,
+  `legifrance.gouv.fr`, `data.gouv.fr`, `assemblee-nationale.fr`,
+  `lafabriquedelaloi.fr` et `regardscitoyens.org`. **Retesté le 2026-08-31 :
+  toujours bloqué.** Le blocage vient de l'environnement d'exécution de la
+  session (le proxy refuse la connexion), pas du réseau de l'utilisateur.
+- **La recherche web fonctionne.** Tout ce document s'appuie donc sur des
+  recherches et sur les descriptions publiées de ces jeux de données —
+  **jamais sur les fichiers eux-mêmes.**
 - **Non vérifié à ce stade, et à vérifier en premier (étape 0) :** les URL
   exactes des fichiers, leur taille, la structure précise du XML/JSON, la
-  législature couverte par chaque jeu de données, et le comportement réel de
-  la liste quotidienne des nouveautés.
+  législature couverte par chaque jeu, le comportement réel de la liste
+  quotidienne des nouveautés, l'existence d'un identifiant commun entre les
+  deux chambres, et l'état de mise à jour de La Fabrique de la Loi.
 - Tant que l'étape 0 n'est pas faite, **aucun chiffre de ce document portant
   sur les volumes ou les coûts ne doit être cité ailleurs** : ce sont des
   ordres de grandeur, pas des mesures.
 
 ---
 
-## 5. Le plan par étapes
+## 6. Le plan par étapes
 
-Chaque étape doit être utilisable seule. On ne passe à la suivante qu'une
-fois la précédente vraiment terminée.
+**L'ordre a changé en v2.** La v1 construisait d'abord la récupération
+complète des données, puis l'affichage. Puisque l'objectif immédiat est une
+**maquette testable**, on inverse : on montre l'écran principal le plus tôt
+possible, sur un petit échantillon de données réelles, et on n'industrialise
+qu'ensuite.
 
-### Étape 0 — Vérifier le terrain (à faire depuis un poste sans blocage réseau)
+Chaque étape doit être utilisable seule.
 
-**But :** remplacer les suppositions du §3 par des faits.
+### Étape 0 — Vérifier le terrain (depuis un poste sans blocage réseau)
 
-- Télécharger à la main un exemplaire de chaque jeu de données.
-- Noter pour chacun : URL exacte, format, taille, période couverte,
-  fréquence réelle de mise à jour.
-- Vérifier ce que contient précisément la liste quotidienne des nouveautés.
-- **Mesurer la taille d'une journée de séance** (nombre de caractères du
-  compte rendu intégral) — c'est le chiffre dont dépend tout le calcul de
-  coût du §7.
-- Vérifier ce qui existe pour les votes : combien de scrutins publics par an,
-  et sur quoi ils portent.
+**But :** remplacer les suppositions des §3 et §4 par des faits.
 
-**Livrable :** une fiche par jeu de données, ajoutée à ce dossier `docs/`.
+**Par ordre d'importance :**
+
+1. **La Fabrique de la Loi est-elle vivante ?** Récupérer `dossiers.csv`,
+   regarder la date du texte le plus récent, et le détail des étapes d'un
+   texte en cours. **Si oui, la maquette est à quelques jours ; si non, à
+   quelques semaines.** C'est la question qui change tout.
+2. **Existe-t-il un identifiant commun entre les deux chambres ?** Prendre
+   trois textes récents passés par les deux, et regarder si les données de
+   l'Assemblée et du Sénat permettent de les rapprocher sans deviner.
+3. **Que vaut Légifrance sur les dossiers législatifs ?** Créer un compte
+   PISTE, et regarder si le parcours complet y est, et à quelle fraîcheur.
+4. Télécharger un exemplaire de chaque jeu de données des deux chambres.
+   Noter pour chacun : URL exacte, format, taille, période couverte,
+   fréquence réelle de mise à jour.
+5. **Mesurer la taille d'une journée de séance** (nombre de caractères du
+   compte rendu intégral) — c'est le chiffre dont dépend tout le calcul de
+   coût du §9.
+6. Compter les scrutins publics par an, et regarder sur quoi ils portent.
+
+**Livrable :** une fiche par source, ajoutée à ce dossier `docs/`.
 **Sans cette étape, tout le reste est du pari.**
 
-### Étape 1 — Récupérer et stocker (le socle)
+### Étape 1 — La maquette (le premier vrai livrable)
+
+**But :** un écran qu'on peut mettre entre les mains de quelqu'un et
+regarder s'il comprend.
+
+- **L'écran de suivi d'un texte** : son titre en français simple, où il en
+  est aujourd'hui, et la frise de son parcours — étapes passées, étape en
+  cours, étapes à venir, dans les deux chambres.
+- **Une liste de textes** avec une recherche, et l'étoile « suivre ».
+- **L'écran « mes favoris »** : les textes suivis, et ce qui a bougé.
+- **Sur données réelles mais partielles** : une vingtaine de textes,
+  récupérés une fois pour toutes, pas de mise à jour automatique.
+
+**Pourquoi cet ordre :** l'écran de parcours est la partie du produit dont
+personne ne sait encore si elle est compréhensible pour un non-spécialiste.
+C'est donc elle qu'il faut tester en premier, pas la tuyauterie.
+
+**Piège à éviter :** vouloir des données complètes et à jour pour la
+maquette. Vingt textes figés suffisent à savoir si l'écran fonctionne.
+
+### Étape 2 — Récupérer et stocker (le socle)
 
 **But :** avoir chez nous, à jour tous les jours, une copie propre des
-données publiques.
+données publiques des deux chambres.
 
 - Un programme qui télécharge les jeux de données et les range dans une base.
-- Il tourne tous les jours, tout seul.
-- Il sait ne retélécharger que ce qui a changé.
+- Il tourne tous les jours, tout seul, et ne retélécharge que ce qui a changé.
 - Il garde une trace de ce qu'il a fait (pour qu'une panne se voie).
+- **Le modèle de données est celui du §3.1** : un dossier, des étapes
+  datées, chacune rattachée à une chambre.
 
-**Résultat visible :** aucun pour l'utilisateur. C'est la fondation.
-**Piège à éviter :** vouloir tout stocker dès le début. Commencer par
-députés + dossiers législatifs + scrutins. Les débats, très volumineux,
-viennent après.
+**Commencer par :** dossiers législatifs des deux chambres + parlementaires
++ scrutins. Les débats, très volumineux, viennent après.
 
-### Étape 2 — Rendre consultable (la première vraie version)
+### Étape 3 — La vraie application
 
-**But :** quelque chose qu'on peut montrer.
+**But :** la maquette de l'étape 1, mais sur données complètes et à jour.
 
-- Une liste des textes en cours d'examen, avec leur état d'avancement.
-- Une fiche par député : groupe, commission, ses votes lors des scrutins
-  publics.
-- Une fiche par scrutin : le sujet, le résultat, qui a voté quoi, avec le
-  détail par groupe politique.
+- Tous les textes en cours, dans les deux chambres.
+- Une fiche par parlementaire : groupe, commission, ses votes lors des
+  scrutins publics.
+- Une fiche par scrutin : sujet, résultat, qui a voté quoi, détail par
+  groupe politique.
 - L'agenda de la semaine.
 
-**C'est déjà une application utile**, et elle ne contient aucun texte écrit
-par une machine — donc aucun risque d'erreur de notre fait. À ce stade, tout
-ce qui est affiché vient directement de l'Assemblée.
+**À ce stade, tout ce qui est affiché vient directement du Parlement** —
+aucun texte écrit par une machine, donc aucun risque d'erreur de notre fait.
 
-### Étape 3 — Alerter (ce qui transforme un site en service)
+### Étape 4 — Alerter (ce qui transforme un site en service)
 
 **But :** l'utilisateur n'a plus besoin de venir voir ; on lui dit quoi.
 
-- Suivre un texte de loi et être prévenu à chaque étape.
-- Suivre un député.
+- Être prévenu quand un texte suivi franchit une étape. **C'est la suite
+  directe des favoris**, et la fonctionnalité la plus attendue.
+- Suivre un parlementaire.
 - Suivre un mot-clé (« logement », « intelligence artificielle ») dans les
   débats et les amendements.
 - Une lettre d'information hebdomadaire, automatique.
 
-**Question à trancher avant de commencer :** par quel canal ? E-mail,
-notification mobile, message sur une messagerie ? Ce choix détermine s'il
-faut une application mobile ou non — donc une bonne partie de la
-technologie. Voir §8.
+**Question à trancher avant de commencer :** par quel canal ? Notification
+mobile, e-mail, les deux ? Le choix a des conséquences sur les comptes
+utilisateurs (§7).
 
-### Étape 4 — Résumer (la partie difficile)
+### Étape 5 — Résumer (la partie difficile)
 
-**But :** « voici ce qui s'est passé hier à l'Assemblée, en dix lignes ».
+**But :** « voici ce qui s'est passé hier au Parlement, en dix lignes ».
 
 Trois niveaux, à faire dans cet ordre :
 
@@ -255,66 +385,92 @@ Trois niveaux, à faire dans cet ordre :
   résumé qui invente un chiffre ou une citation est une faute grave sur un
   sujet politique.
 
-### Étape 5 et au-delà — pistes, non engagées
+### Étape 6 et au-delà — pistes, non engagées
 
-- Étendre au Sénat, pour suivre une loi de bout en bout.
 - Suivre le parcours d'un amendement : qui l'a déposé, ce qu'il est devenu.
 - Statistiques sur la durée : présence, discipline de vote au sein d'un
   groupe, sujets qui reviennent.
-- Suivi vidéo / temps réel (voir §6.5).
+- Suivi vidéo / temps réel (voir §8.5).
 
 ---
 
-## 6. Les difficultés, en détail
+## 7. Les favoris et le suivi personnalisé
 
-### 6.1 Tous les votes ne sont pas enregistrés
+Les favoris ont l'air d'un détail d'interface. Ce sont en réalité la
+décision la plus structurante du produit après le périmètre, parce qu'ils
+obligent à stocker quelque chose **par personne**.
 
-À l'Assemblée, un vote se fait à main levée, par scrutin public ordinaire, ou
-par scrutin à la tribune. **Le vote à main levée ne laisse aucune trace
-nominative.** L'open data ne couvre que les scrutins publics : scrutins
-solennels, déclarations du Gouvernement, motions de procédure, et autres
-scrutins publics.
+### 7.1 Trois niveaux, à choisir en connaissance de cause
 
-**Conséquence produit :** la promesse « suivez le vote de votre député sur
-tous les sujets » est **impossible à tenir**. Il faut soit reformuler la
-promesse, soit accepter d'afficher souvent « pas de vote nominatif sur ce
-texte ». Mieux vaut en faire un élément d'information — expliquer pourquoi —
-que de le cacher.
+| Niveau | Ce que ça donne | Ce que ça coûte |
+|---|---|---|
+| **A — Sur l'appareil** | Les favoris sont enregistrés dans le téléphone ou le navigateur | Presque rien. Pas de compte, pas de données personnelles, **pas de RGPD**. Mais on perd ses favoris en changeant d'appareil, et le web et le mobile ne se parlent pas |
+| **B — Compte utilisateur** | Les favoris suivent la personne d'un appareil à l'autre | Inscription, mots de passe, base de données de comptes, **obligations RGPD**, suppression de compte, sécurité |
+| **C — Compte + notifications** | On peut prévenir la personne quand son texte bouge | Tout le niveau B, plus la gestion des envois et du consentement |
 
-### 6.2 « Important » n'est pas dans les données
+### 7.2 Recommandation
 
-Aucune donnée ne dit qu'un vote compte. Il faut une règle, écrite et
-assumée. Quelques critères possibles, à combiner :
+**Commencer au niveau A pour la maquette.** Les favoris sur l'appareil
+suffisent entièrement à tester si l'idée plaît, et ils évitent d'ouvrir le
+chantier RGPD avant d'être sûr du produit.
 
-- les **scrutins solennels** (l'Assemblée elle-même les distingue) ;
-- le **vote sur l'ensemble d'un texte**, par opposition aux votes de détail ;
-- les **motions de censure** et les votes de confiance ;
-- les votes **serrés** (écart faible entre pour et contre) ;
-- les votes où **un groupe se divise** — souvent le plus révélateur.
+**Mais concevoir dès maintenant comme si on passerait au niveau B**, c'est-à-
+dire garder la liste des favoris dans un seul endroit du code, facile à
+remplacer par un appel au serveur plus tard. Le niveau C n'a de sens qu'à
+l'étape 4.
 
-**Recommandation :** commencer par une règle simple et transparente
-(scrutins solennels + vote sur l'ensemble + écart serré), l'afficher aux
-utilisateurs, et la faire évoluer. Ne pas cacher la règle derrière un calcul
-opaque.
+**Le point à ne pas manquer :** dès qu'on veut des notifications, il faut
+des comptes. La décision « on veut prévenir les gens » et la décision « on
+gère des données personnelles » sont la même décision.
 
-### 6.3 Le volume des débats
+---
+
+## 8. Les difficultés, en détail
+
+### 8.1 Tous les votes ne sont pas enregistrés
+
+À l'Assemblée comme au Sénat, la plupart des votes se font à main levée et
+ne laissent aucune trace nominative. Seuls les **scrutins publics** donnent
+la liste de qui a voté quoi.
+
+**Conséquence produit :** sur la fiche d'un texte, il faut dire clairement
+« ce vote a eu lieu à main levée, le détail par élu n'existe pas » plutôt
+que de laisser un blanc que l'utilisateur interprétera mal.
+
+### 8.2 « Important » est maintenant un choix de l'utilisateur
+
+**Ce point a changé en v2.** La v1 traitait « quels votes sont importants ? »
+comme un problème éditorial à trancher par nous, avec une règle à écrire et
+à assumer.
+
+**La décision prise est plus simple et meilleure : c'est l'utilisateur qui
+désigne ce qui compte, en mettant des textes en favoris.** Nous n'avons pas à
+hiérarchiser l'actualité parlementaire à sa place.
+
+Il reste un cas où la question revient, mais beaucoup plus petit : **le
+classement de la liste de textes** que voit quelqu'un qui n'a encore rien
+mis en favoris. Là, quelques critères simples et transparents suffisent —
+activité récente, textes en séance cette semaine, scrutins solennels — et la
+règle doit être affichée, jamais cachée derrière un calcul opaque.
+
+### 8.3 Le volume des débats
 
 Une journée de séance représente un texte très long, et il y a de l'ordre de
-150 jours de séance par an. Cela pose deux questions : le stockage (peu
-coûteux) et le traitement par un modèle de langage (voir §7). Ce n'est pas
-bloquant, mais cela impose de **ne pas tout traiter en une seule fois** :
-découper par sujet ou par intervention, ce que la structure du compte rendu
-permet puisqu'elle identifie les orateurs et les sujets.
+150 jours de séance par an et par chambre. Cela pose deux questions : le
+stockage (peu coûteux) et le traitement par un modèle de langage (voir §9).
+Ce n'est pas bloquant, mais cela impose de **ne pas tout traiter en une
+seule fois** : découper par sujet ou par intervention, ce que la structure
+du compte rendu permet puisqu'elle identifie les orateurs et les sujets.
 
-### 6.4 Le risque d'erreur sur un sujet politique
+### 8.4 Le risque d'erreur sur un sujet politique
 
 C'est le risque principal du projet, plus que la technique. Un résumé qui
-attribue à un député une position qu'il n'a pas prise, sur un sujet
-sensible, est un problème sérieux — juridique autant que de réputation. Les
-règles de l'étape 4 ne sont pas des précautions de style : ce sont les
-conditions pour que le produit soit publiable.
+attribue à un élu une position qu'il n'a pas prise, sur un sujet sensible,
+est un problème sérieux — juridique autant que de réputation. Les règles de
+l'étape 5 ne sont pas des précautions de style : ce sont les conditions pour
+que le produit soit publiable.
 
-### 6.5 Le temps réel
+### 8.5 Le temps réel
 
 Suivre la séance en direct supposerait de traiter la vidéo ou l'audio des
 débats. C'est un projet à part entière, avec ses propres difficultés (qualité
@@ -322,33 +478,44 @@ de la transcription, identification des orateurs, coût continu). **À exclure
 du plan actuel.** Le délai de moins de 3 heures du compte rendu analytique
 offre déjà une fraîcheur très correcte.
 
-### 6.6 Les changements de législature
+### 8.6 Les changements de législature
 
-Les jeux de données sont organisés par législature, et les archives des
-législatures passées sont séparées des données courantes. Une application
-conçue uniquement autour de « la législature en cours » se cassera au
-prochain renouvellement de l'Assemblée. **À prévoir dès le modèle de
-données**, pas après.
+Les données de l'Assemblée sont organisées par législature, et les archives
+des législatures passées sont séparées des données courantes. Une
+application conçue uniquement autour de « la législature en cours » se
+cassera au prochain renouvellement. Le Sénat, dont la base remonte à 1977,
+ne se comporte pas de la même façon. **À prévoir dès le modèle de données**,
+pas après.
+
+### 8.7 Deux chambres, deux modes de fonctionnement
+
+Le Sénat n'est pas une copie de l'Assemblée : renouvellement par moitié,
+règles de séance différentes, et une base de données de structure et de
+profondeur historique différentes. **Ne pas supposer qu'un traitement écrit
+pour une chambre marchera sur l'autre en changeant l'URL.**
 
 ---
 
-## 7. Coûts
+## 9. Coûts
 
-### 7.1 Ce qui est gratuit
+### 9.1 Ce qui est gratuit
 
-Toutes les données sources : le portail de l'Assemblée est gratuit et sans
-inscription ; l'API Légifrance est gratuite après création d'un compte.
+Toutes les données sources. Les portails des deux chambres sont gratuits et
+sans inscription ; l'API Légifrance est gratuite mais demande la création
+d'un compte PISTE.
 
-### 7.2 Hébergement
+### 9.2 Hébergement
 
 Faible tant qu'il n'y a pas beaucoup d'utilisateurs : un petit serveur, une
 base de données, du stockage. À chiffrer une fois la technologie choisie.
+Les comptes utilisateurs (§7, niveau B) ajoutent une base à sauvegarder et
+à sécuriser.
 
-### 7.3 Les résumés automatiques — moins chers qu'attendu
+### 9.3 Les résumés automatiques — moins chers qu'attendu
 
-C'est la seule dépense qui grandit avec l'usage. Les prix ci-dessous sont
-ceux de l'API Claude, par million de jetons (un « jeton » est à peu près
-trois quarts de mot) :
+C'est la seule dépense qui grandit avec l'usage. Prix de l'API Claude, par
+million de jetons (un « jeton » est à peu près trois quarts de mot) —
+**vérifiés le 2026-08-31** :
 
 | Modèle | Entrée / M jetons | Sortie / M jetons | Fenêtre de contexte |
 |---|---|---|---|
@@ -367,36 +534,38 @@ Trois leviers réduisent fortement la facture :
 
 **Ordre de grandeur, à confirmer par l'étape 0 :** si une journée de séance
 représente quelques centaines de milliers de jetons de texte, et qu'il y a
-environ 150 jours de séance par an, le traitement d'une année entière de
-débats se compte **en dizaines à quelques centaines d'euros**, pas en
-milliers. Le coût des résumés **n'est pas le facteur limitant du projet** —
-la qualité et la vérification le sont.
+environ 150 jours de séance par an et par chambre, le traitement d'une année
+entière de débats des deux chambres se compte **en centaines d'euros**, pas
+en milliers. Le coût des résumés **n'est pas le facteur limitant du
+projet** — la qualité et la vérification le sont.
 
 *(Ces chiffres sont des ordres de grandeur. La mesure réelle de la taille
 d'une journée de séance est le livrable clé de l'étape 0.)*
 
 ---
 
-## 8. Décisions à prendre
+## 10. Décisions prises
 
-Ces questions ne sont volontairement pas tranchées. Chacune change
-significativement la suite.
+| # | Question | Décision | Date |
+|---|---|---|---|
+| 1 | **Pour qui ?** | Grand public curieux | 2026-08-31 |
+| 2 | **Sous quelle forme ?** | Plateforme unique, mobile **et** web | 2026-08-31 |
+| 3 | **Personnel ou général ?** | Personnel — chacun choisit ses favoris. Voir §7 pour la mise en œuvre progressive | 2026-08-31 |
+| 4 | **Périmètre** | **Assemblée + Sénat**, suivi complet | 2026-08-31 |
+| 5 | **Budget et rythme** | Maquette testable d'abord ; le reste ensuite | 2026-08-31 |
+| 6 | **Fonctionnalité à tester en premier** | Le suivi d'un texte sur toute sa durée de vie | 2026-08-31 |
 
-| # | Question | Pourquoi ça compte |
+### Encore ouvert
+
+| # | Question | Quand la trancher |
 |---|---|---|
-| 1 | **Pour qui ?** Grand public curieux, journalistes, professionnels du secteur public, associations ? | Détermine le niveau de détail, le ton, et si le produit est payant |
-| 2 | **Sous quelle forme ?** Site web, application mobile, lettre d'information, robot de messagerie ? | C'est le choix le plus structurant. Une lettre d'information est dix fois plus rapide à faire qu'une application mobile |
-| 3 | **Personnel ou général ?** Suivi personnalisé (comptes utilisateurs) ou contenu identique pour tous ? | Les comptes utilisateurs impliquent des obligations RGPD et beaucoup plus de travail |
-| 4 | **Périmètre :** Assemblée seule, ou Assemblée + Sénat ? | Le Sénat double le travail de récupération, mais sans lui le suivi d'une loi est incomplet |
-| 5 | **Budget et rythme :** projet personnel du week-end, ou produit à lancer ? | Détermine s'il faut viser l'étape 2 ou l'étape 4 |
-| 6 | **Technologie** — laissée ouverte à votre demande. À trancher juste avant l'étape 1, une fois les points 1 à 5 connus | Choisir la technologie avant de savoir ce qu'on construit, c'est se contraindre pour rien |
-
-**Recommandation :** répondre au moins aux questions 1, 2 et 5 avant de
-commencer l'étape 1. Les autres peuvent attendre.
+| 7 | **Technologie** | Juste avant l'étape 1, une fois l'étape 0 faite. Le choix dépend d'une chose : mobile et web dans le même code, ou deux codes séparés ? |
+| 8 | **Hébergement** | Avec la technologie |
+| 9 | **Modèle économique** (gratuit, payant, associatif) | Pas urgent, **mais il conditionne le choix des sources** : les données en ODbL (§4.4) contraignent la redistribution |
 
 ---
 
-## 9. Points d'attention pour le dépôt lui-même
+## 11. Points d'attention pour le dépôt lui-même
 
 Rappels issus de `CLAUDE.md`, à traiter **dans la session qui écrira le
 premier code** :
@@ -412,12 +581,13 @@ premier code** :
 
 ---
 
-## 10. Prochaine étape immédiate
+## 12. Prochaine étape immédiate
 
-1. Répondre aux questions 1, 2 et 5 du §8.
-2. Faire l'étape 0 (vérification des données) depuis un poste sans blocage
-   réseau, et écrire les fiches par jeu de données.
-3. Revenir sur ce plan avec les vrais chiffres, et choisir la technologie.
+1. **Faire l'étape 0 depuis un poste sans blocage réseau**, en commençant par
+   la question 1 : La Fabrique de la Loi est-elle encore à jour ? La réponse
+   change l'ampleur du projet.
+2. Écrire les fiches par source dans ce dossier `docs/`.
+3. Revenir sur ce plan avec les vrais chiffres, puis choisir la technologie.
 
 ---
 
@@ -425,23 +595,49 @@ premier code** :
 
 | Date | Version | Ce qui a changé |
 |---|---|---|
+| 2026-08-31 | v2 | Décisions prises intégrées (§10) : grand public, mobile + web, favoris, **Assemblée + Sénat**, maquette d'abord. Nouveau §3 sur le parcours d'une loi et le recollement entre les deux chambres. Nouveau §7 sur les favoris et le RGPD. §4 étendu au Sénat, à Légifrance et à La Fabrique de la Loi. §6 réordonné : la maquette passe avant la récupération des données. §8.2 réécrit : « important » devient un choix de l'utilisateur. Tarifs de l'API Claude vérifiés. Accès réseau retesté : toujours bloqué côté session. |
 | 2026-08-31 | v1 | Création : étude de faisabilité et plan initial. Sources vérifiées par recherche web uniquement — accès direct aux portails bloqué par le réseau. |
 
 ---
 
 ## Sources consultées
 
-- Portail open data de l'Assemblée nationale — <https://data.assemblee-nationale.fr/>
+### Assemblée nationale
+- Portail open data — <https://data.assemblee-nationale.fr/>
 - Travaux parlementaires (jeux de données) — <https://data.assemblee-nationale.fr/travaux-parlementaires>
+- Dossiers législatifs — <https://data.assemblee-nationale.fr/archives-16e/dossiers-legislatifs>
 - Réunions — <https://data.assemblee-nationale.fr/reunions>
 - Foire aux questions du portail — <https://data.assemblee-nationale.fr/foire-aux-questions>
 - Fiche de synthèse n°56 : Les votes à l'Assemblée nationale — <https://www.assemblee-nationale.fr/dyn/synthese/fonctionnement-assemblee-nationale/travail-legislatif/les-votes-a-l-assemblee-nationale>
 - Fiche de synthèse n°30 : Les comptes rendus — <https://www.assemblee-nationale.fr/dyn/synthese/organisation-assemblee-nationale/les-comptes-rendus>
 - Communiqué d'ouverture du site open data — <https://www.assemblee-nationale.fr/presse/communiques/20150622-01.asp>
+
+### Sénat
+- Portail open data — <https://data.senat.fr/>
+- La base DOSLEG — <https://data.senat.fr/dosleg/>
+- Liste des dossiers législatifs — <https://data.senat.fr/aide/liste-des-dossiers-legislatifs/>
+- Données — <https://data.senat.fr/donnees/>
+- Foire aux questions — <https://data.senat.fr/faq/>
+- Ouverture du site open data du Sénat — <https://data.senat.fr/le-senat-ouvre-son-site-open-data/>
+- Travaux législatifs (Sénat) sur data.gouv.fr — <https://www.data.gouv.fr/datasets/travaux-legislatifs-senat>
+- La navette parlementaire — <https://www.senat.fr/connaitre-le-senat/role-et-fonctionnement/la-navette-parlementaire.html>
+
+### État
+- Open data et API de Légifrance — <https://www.legifrance.gouv.fr/contenu/pied-de-page/open-data-et-api>
+- API Légifrance sur data.gouv.fr — <https://www.data.gouv.fr/dataservices/legifrance>
+- Inscription au portail PISTE — <https://piste.gouv.fr/registration>
 - Comptes rendus des débats sur data.gouv.fr — <https://www.data.gouv.fr/datasets/comptes-rendus-des-debats-de-l-assemblee-nationale>
 - Organisation « Assemblée nationale » sur data.gouv.fr — <https://www.data.gouv.fr/organizations/assemblee-nationale/datasets>
-- Open data et API de Légifrance — <https://www.legifrance.gouv.fr/contenu/pied-de-page/open-data-et-api>
+
+### Projets existants
+- La Fabrique de la Loi — <https://www.regardscitoyens.org/la-fabrique-de-la-loi/>
+- API de La Fabrique de la Loi — <https://www.lafabriquedelaloi.fr/api/HEADER.html>
+- La Fabrique de la Loi reprend du service — <https://www.regardscitoyens.org/la-fabrique-de-la-loi-reprend-du-service/>
+- Applications utilisant les données du Sénat — <https://data.senat.fr/applications/>
 - Documentation de l'API NosDéputés.fr — <https://github.com/regardscitoyens/nosdeputes.fr/blob/master/doc/api.md>
 - Données parlementaires en open data (Regards Citoyens) — <https://github.com/regardscitoyens/nosdeputes.fr/blob/master/doc/opendata.md>
 - Scrutins publics, Civiqo — <https://www.civiqo.fr/scrutins>
 - Votes de l'Assemblée nationale, CIVIX — <https://www.civix.fr/votes-assemblee-nationale>
+
+### Tarifs
+- Tarifs de l'API Claude — <https://claude.com/pricing#api>
