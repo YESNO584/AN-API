@@ -11,7 +11,8 @@ lire aucune donnée.
 |---|---|
 | `extraction.py` | Lit l'archive de l'Assemblée et classe chaque dossier. **Ne télécharge rien, n'écrit nulle part.** C'est ici que vivent les règles, et elles sont testées |
 | `recuperer.py` | Le programme quotidien : télécharge si ça a changé, range dans la base, écrit au journal |
-| `serveur.py` | Sert la base à l'application, en JSON, avec l'en-tête qui autorise une page web à lire |
+| `publier.py` | Écrit la base en fichiers tout prêts — **c'est ce qui est mis en ligne** |
+| `serveur.py` | Sert la base en direct. **Outil de développement local**, pas ce qui tourne en production |
 | `schema.sql` | Le modèle de données |
 | `test_extraction.py` | 21 tests sur le classement des étapes |
 
@@ -19,7 +20,8 @@ lire aucune donnée.
 
 ```bash
 ./recuperer.py      # construit parlement.db (~3 Mo). Compter une minute
-./serveur.py        # http://127.0.0.1:8000
+./publier.py        # écrit public/ — ce qui sera mis en ligne
+./serveur.py        # http://127.0.0.1:8000, pour travailler en local
 ./test_extraction.py
 ```
 
@@ -126,6 +128,54 @@ qui manque aux portails du Parlement**, et c'est ce qui permettra à
 l'application Flutter *web* de lire les données — l'application mobile, elle,
 n'en a pas besoin.
 
+## Comment c'est mis en ligne : des fichiers, pas un serveur
+
+**Aucune machine n'est louée.** Les données ne changent qu'une fois par jour
+et personne ne les modifie : il n'y a rien à calculer en direct. GitHub
+exécute le programme chaque matin, écrit les fichiers, et les sert.
+
+C'est `.github/workflows/donnees.yml` qui l'orchestre :
+
+```
+tous les matins   →  les tests          (si un test casse, on ne publie pas)
+                  →  ./recuperer.py     (télécharge et range)
+                  →  ./publier.py       (écrit public/)
+                  →  un garde-fou       (moins de 500 textes = on ne publie pas)
+                  →  mise en ligne
+```
+
+Le garde-fou existe parce qu'une publication réussie de données vides serait
+pire qu'un échec : l'application afficherait un écran vide sans que rien ne
+signale la panne.
+
+### Ce qui est publié
+
+| Fichier | Taille | Compressé | Contenu |
+|---|---:|---:|---|
+| `etat.json` | 581 o | — | D'où viennent les données, de quand, et si le dernier chargement s'est bien passé |
+| `etapes.json` | 846 o | 477 o | Les six étapes du parcours et leurs comptes |
+| `textes.json` | 829 Ko | **121 Ko** | **Le fichier principal** : les 1 990 textes en cours |
+| `promulgues.json` | 63 Ko | 10 Ko | Les 107 lois déjà promulguées |
+| `textes/<uid>.json` | 2,8 Mo | — | Un fichier par texte, avec tout son parcours (2 097 fichiers, 1,3 Ko en moyenne) |
+
+**L'application charge `textes.json` une fois** — 121 Ko sur le réseau — puis
+filtre et cherche toute seule, instantanément et même hors connexion. Elle ne
+va chercher le fichier de détail que si l'on ouvre un texte.
+
+Le dossier `public/` **n'est pas versionné** : il se régénère en une commande.
+
+### Les deux réglages à faire une fois, à la main
+
+Une session Claude Code n'a pas accès aux réglages du dépôt. Il faut donc,
+dans GitHub :
+
+1. **Settings → Actions → General** — autoriser l'exécution des workflows.
+2. **Settings → Pages → Source** — choisir **« GitHub Actions »**.
+
+Ensuite, `Actions → Données du Parlement → Run workflow` lance la première
+publication à la main, depuis un téléphone si besoin. Les fichiers
+apparaissent sur `https://<compte>.github.io/<dépôt>/`.
+
 ## Ce que le socle ne fait pas
 
 - **Ni comptes, ni favoris, ni authentification.** C'est l'étape 4.
@@ -135,8 +185,10 @@ n'en a pas besoin.
 - **Ni les données du Sénat directement.** Inutile pour l'instant :
   l'Assemblée publie déjà le parcours dans les deux chambres. Voir
   `../docs/sources/senat.md` pour ce que le Sénat apporterait en plus.
-- **Il ne se lance pas tout seul.** Le déclenchement quotidien et
-  l'hébergement restent à décider — c'est la question 8 du §10 du plan.
+- **Il ne garde pas d'historique entre deux exécutions en ligne.** La machine
+  de GitHub est neuve à chaque fois : la base est reconstruite, et le journal
+  ne contient que l'exécution en cours. Pour suivre les pannes dans la durée,
+  ce sont les exécutions de GitHub qu'il faut regarder, pas le journal.
 
 ## Source et licence
 

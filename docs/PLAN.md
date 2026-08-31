@@ -1,6 +1,6 @@
 # Plan — Application de suivi du Parlement (Assemblée nationale + Sénat)
 
-**Statut :** v3.2 — **étapes 0, 1 et 2 faites ; l'application Flutter est la suite**
+**Statut :** v3.3 — **étapes 0, 1 et 2 faites, hébergement décidé ; reste l'application**
 **Dernière mise à jour :** 2026-08-31
 **Ce document est vivant.** Il est mis à jour à chaque session. Voir le
 « Journal des mises à jour » à la fin.
@@ -645,7 +645,8 @@ limitant du projet** — la qualité et la vérification le sont.
 | 4 | **Périmètre** | **Assemblée + Sénat**, suivi complet | 2026-08-31 |
 | 5 | **Budget et rythme** | Maquette testable d'abord ; le reste ensuite | 2026-08-31 |
 | 6 | **Fonctionnalité à tester en premier** | Le suivi d'un texte sur toute sa durée de vie | 2026-08-31 |
-| 7 | **Technologie** | **Flutter**, un seul code pour mobile et web. **On se concentre sur le mobile ; le web viendra plus tard** | 2026-08-31 |
+| 7 | **Technologie** | **Flutter**, un seul code pour mobile et web. **Android d'abord** ; le web viendra plus tard | 2026-08-31 |
+| 8 | **Hébergement** | **Aucun serveur.** Les données sont publiées en fichiers, régénérés chaque matin par GitHub et servis par GitHub Pages. Coût nul, rien à entretenir | 2026-08-31 |
 
 #### Ce que le choix de Flutter implique
 
@@ -669,11 +670,31 @@ service qui prépare et sert les données) **avant** l'application, plutôt
 qu'après. À défaut, l'application embarquera des données préparées à
 l'avance, comme la maquette.
 
+#### Pourquoi pas de serveur
+
+Les données ne changent qu'une fois par jour et personne ne les modifie : il
+n'y a rien à calculer en direct. Des fichiers publiés suffisent.
+
+| | |
+|---|---|
+| Le fichier que l'application charge | **121 Ko** compressés, pour les 1 990 textes en cours |
+| Le détail d'un texte | 1,3 Ko en moyenne, chargé seulement si on l'ouvre |
+| Coût | **zéro** |
+| Entretien | aucun — pas de machine, pas de mises à jour de sécurité |
+| Vérifié le 2026-08-31 | GitHub Pages envoie bien `Access-Control-Allow-Origin: *`, donc la future version web pourra lire sans obstacle |
+
+**Ce qu'on y gagne aussi :** l'application charge la liste une fois et filtre
+elle-même — la recherche est instantanée et fonctionne **hors connexion**.
+
+**Quand il faudra revenir à un vrai serveur :** à l'étape 4, quand les
+favoris et les alertes demanderont de stocker quelque chose par utilisateur.
+Le socle actuel (`socle/serveur.py`) resservira tel quel ce jour-là ; c'est
+pourquoi il est conservé.
+
 ### Encore ouvert
 
 | # | Question | Quand la trancher |
 |---|---|---|
-| 8 | **Hébergement** | Dès que l'étape 2 est engagée — le choix de Flutter la rend nécessaire plus tôt que prévu (voir ci-dessus) |
 | 9 | **Modèle économique** (gratuit, payant, associatif) | Pas urgent, et **plus contraint par les licences** : la seule source en ODbL était La Fabrique de la Loi, écartée à l'étape 0 (§4.4). L'Assemblée et le Sénat publient sous des licences qui n'imposent rien à la redistribution |
 
 ---
@@ -710,9 +731,9 @@ la Loi est inutilisable, et le rapprochement entre les deux chambres est déjà
 fait par l'Assemblée. Rien ne bloque plus l'application, **sauf une chose** :
 le socle ne tourne encore nulle part.
 
-1. **Faire tourner le socle quelque part** — question 8 du §10. Le programme
-   quotidien existe et fonctionne, mais rien ne le déclenche et rien ne le
-   sert. Tant que c'est le cas, l'application n'aurait aucune donnée à lire.
+1. **Activer la publication** — deux réglages à faire à la main dans GitHub
+   (`Settings → Actions`, puis `Settings → Pages → Source : GitHub Actions`).
+   Le reste est écrit et prêt : voir `../socle/README.md`.
 2. **L'application Flutter**, sur le socle une fois hébergé. **Android
    d'abord** (décidé le 2026-08-31) : une application iPhone exigerait un Mac
    et un compte développeur Apple, ce que le développement depuis un
@@ -728,6 +749,7 @@ le socle ne tourne encore nulle part.
 
 | Date | Version | Ce qui a changé |
 |---|---|---|
+| 2026-08-31 | **v3.3** | **Hébergement décidé (question 8) : aucun serveur.** Les données sont publiées en fichiers, régénérés chaque matin par GitHub et servis par GitHub Pages — 121 Ko compressés pour les 1 990 textes en cours, coût nul, rien à entretenir. `socle/publier.py` et `.github/workflows/donnees.yml` sont écrits ; il reste deux réglages à faire à la main dans le dépôt. §12 corrigé : il annonçait encore la maquette comme à faire, et mettait l'application avant son hébergement. Android est la cible — une application iPhone exigerait un Mac. |
 | 2026-08-31 | **v3.2** | **Étape 2 faite, et placée avant l'application** comme décidé. Le socle est dans `socle/` : programme quotidien, base SQLite au modèle du §3.1, serveur JSON avec l'en-tête qui débloquera la version web, 21 tests. Le code de lecture des dossiers, écrit pour la maquette, y a été déplacé — la maquette s'appuie dessus et produit exactement les mêmes données qu'avant. Découverte au passage, inscrite dans la fiche de l'Assemblée : l'archive est servie par plusieurs machines qui ne publient pas la même génération, ce qui oblige à comparer le contenu et pas seulement les en-têtes. |
 | 2026-08-31 | **v3.1** | **Technologie décidée : Flutter**, un seul code pour mobile et web, **le mobile d'abord** (question 7 du §10, qui était la dernière question bloquante). Deux conséquences inscrites au §10 : l'application Flutter *web* butera sur le même refus que la maquette HTML et exigera un serveur, tandis que le mobile n'a pas cette limite ; et l'archive de 10 Mo ne peut pas être décortiquée sur un téléphone à chaque ouverture. D'où une recommandation, non tranchée : faire venir l'étape 2 avant l'application. |
 | 2026-08-31 | **v3** | **Étape 0 faite** : les fichiers des deux chambres ont été téléchargés et comptés. Fiches par source dans `sources/`. Trois conclusions changent le plan — **La Fabrique de la Loi est écartée** (figée depuis 2022, §4.4) ; **le recollement entre les deux chambres n'est pas à faire**, l'Assemblée publie le lien (§3.2) ; **le coût des résumés est de l'ordre de 35 $ par an** pour les deux chambres, mesuré, pas estimé (§9.3). §5 réécrit : ce qui est mesuré, ce qui ne l'est pas. §12 : la maquette peut commencer sur données réelles. |

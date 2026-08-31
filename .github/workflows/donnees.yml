@@ -1,0 +1,94 @@
+# Récupère les données du Parlement chaque matin et les publie en fichiers.
+#
+# C'est la « solution A » du §10 du plan : pas de serveur à louer. GitHub
+# exécute le programme, publie le résultat, et le sert. L'application lit
+# ensuite des fichiers, sans rien avoir à demander à personne.
+#
+# Deux réglages sont à faire une fois, à la main, dans le dépôt — une session
+# Claude Code n'y a pas accès :
+#   Settings → Actions → General   : autoriser les workflows
+#   Settings → Pages → Source      : choisir « GitHub Actions »
+#
+# Adresse des fichiers une fois publiés :
+#   https://<compte>.github.io/<dépôt>/textes.json
+
+name: Données du Parlement
+
+on:
+  schedule:
+    # 05h30 UTC, soit 7h30 à Paris en été. L'Assemblée régénère son archive
+    # dans la nuit : à cette heure-là, les données de la veille sont en place.
+    - cron: "30 5 * * *"
+  workflow_dispatch:          # permet de lancer à la main depuis le téléphone
+  push:
+    branches: [main]
+    paths:
+      - "socle/**"
+      - ".github/workflows/donnees.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Une seule publication à la fois ; une nouvelle n'annule pas celle en cours.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  verifier:
+    name: Vérifier les règles de classement
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tests
+        working-directory: socle
+        run: python test_extraction.py
+
+  publier:
+    name: Récupérer et publier
+    needs: verifier
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # La base est reconstruite à chaque fois : la machine est neuve à chaque
+      # exécution, il n'y a rien à conserver entre deux passages. C'est une
+      # minute de travail, et cela garantit qu'aucune donnée périmée ne traîne.
+      - name: Récupérer les dossiers législatifs
+        working-directory: socle
+        run: python recuperer.py
+
+      - name: Écrire les fichiers à publier
+        working-directory: socle
+        run: python publier.py
+
+      - name: Refuser de publier des données vides
+        working-directory: socle
+        run: |
+          python - <<'PY'
+          import json, sys, pathlib
+          etat = json.loads(pathlib.Path("public/etat.json").read_text(encoding="utf-8"))
+          if etat["textesEnCours"] < 500:
+              sys.exit(f"Seulement {etat['textesEnCours']} textes en cours : "
+                       "quelque chose a mal tourné, on ne publie pas.")
+          print(f"{etat['textesEnCours']} textes en cours, "
+                f"{etat['promulgues']} lois promulguées.")
+          PY
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: socle/public
+      - id: deploiement
+        uses: actions/deploy-pages@v4

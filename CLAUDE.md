@@ -17,7 +17,8 @@ a pas encore d'application, de base de données ni de dépendances.
 |---|---|
 | `docs/` | Le plan, les fiches de sources, la note d'accès réseau. Documents, pas du code |
 | `docs/sources/` | Ce que valent les sources de données, **mesuré** (étape 0, faite le 2026-08-31) |
-| `socle/` | **Le cœur du code.** Récupère, range, sert. `extraction.py` (les règles, testées), `recuperer.py` (le programme quotidien), `serveur.py`, `schema.sql`. Voir `socle/README.md` |
+| `socle/` | **Le cœur du code.** Récupère, range, publie. `extraction.py` (les règles, testées), `recuperer.py` (le programme quotidien), `publier.py` (écrit les fichiers mis en ligne), `serveur.py` (développement local seulement), `schema.sql`. Voir `socle/README.md` |
+| `.github/workflows/` | La publication quotidienne des données, exécutée par GitHub |
 | `maquette/` | La maquette de l'étape 1 : `feed.html` (page autonome) + `preparer_donnees.py`, qui s'appuie sur `socle/extraction.py`. Voir `maquette/README.md` |
 | `.claude/` | La configuration Claude Code |
 
@@ -35,6 +36,11 @@ a pas encore d'application, de base de données ni de dépendances.
 - **Une page web ne peut pas aller chercher ces données elle-même** — les
   portails n'envoient pas l'en-tête `Access-Control-Allow-Origin`. Toute
   maquette autonome passe donc par une préparation hors ligne.
+- **Il n'y a pas de serveur en production, et c'est voulu** (question 8 du §10
+  du plan, décidée le 2026-08-31). Les données sont publiées en fichiers par
+  GitHub, chaque matin. `socle/serveur.py` ne sert qu'au développement local ;
+  il resservira à l'étape 4, quand les favoris exigeront de stocker quelque
+  chose par utilisateur.
 - **L'application sera en Flutter (Dart), le mobile d'abord**, le web
   ensuite et dans le même code (décidé le 2026-08-31 — question 7 du §10 du
   plan). **Aucun code Flutter n'existe encore :** le seul code du dépôt reste
