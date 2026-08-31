@@ -17,6 +17,22 @@ Ce qui manque n'est donc pas l'information sur *ce qui est voté* : c'est le
 **contenu** des textes nommés. Voir [`sources/monalisa.md`](sources/monalisa.md)
 et [`sources/textes-pdf-assemblee.md`](sources/textes-pdf-assemblee.md).
 
+## « Avant/après » veut dire deux choses, et les deux marchent
+
+C'est la distinction qui manquait à la première version de cette note.
+
+**L'avant/après du texte en discussion** — la version qui entre dans une
+étape et celle qui en sort. **Calculable**, et déjà démontré : 203 textes côté
+Sénat (Monalisa), 249 côté Assemblée (les PDF), 319 en tout. La seule chose
+qui ne marche pas est de sauter les étapes : comparer le dépôt à la loi
+finale, parce que les articles sont renumérotés en route.
+
+**L'avant/après de la loi qui est modifiée** — l'article du code tel qu'il
+était, et tel qu'il devient. **Calculable aussi**, et c'est la superposition
+la plus lisible des deux : 2 446 articles de code modifiés par nos lois
+promulguées, dont 97 % avec leur version antérieure disponible, 94 % de texte
+commun en médiane. Voir [`sources/droit-consolide.md`](sources/droit-consolide.md).
+
 ## Ce que dit chaque source
 
 ### Les décisions : complètes, dans les deux chambres
@@ -150,7 +166,11 @@ Conseil constitutionnel a retiré.
 3. **Ensuite seulement, le contenu des textes** — Monalisa côté Sénat (gratuit,
    structuré), les PDF côté Assemblée (86 % de fidélité, une dépendance).
    C'est là que se trouve le vrai coût, et c'est ce qui permet le diff.
-4. **En dernier, le Journal officiel** : 1,6 Go pour l'historique. Utile pour
+4. **Le droit consolidé** (`sources/droit-consolide.md`) : pour chaque loi
+   promulguée, l'article de code avant et après. C'est la superposition la
+   plus parlante pour un lecteur, et elle ne demande aucune dépendance —
+   seulement de la place disque pendant le traitement.
+5. **En dernier, le Journal officiel** : 1,6 Go pour l'historique. Utile pour
    le texte officiel et les censures constitutionnelles, mais **pas** pour un
    diff contre le texte d'origine, qui n'a pas de sens.
 
