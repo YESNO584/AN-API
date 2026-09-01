@@ -128,15 +128,25 @@ numéro. **Rien à deviner, rien à rapprocher par le titre.**
 |---|---|
 | Téléchargement, une fois | 2,9 Go (socle + quotidiennes) |
 | Téléchargement, ensuite | 1 à 4 Mo par jour |
+| **Lire le socle en entier** | **15,7 minutes**, mesuré |
 | Place sur le disque | **Aucune, si on lit en flux** |
 | Dépendances nouvelles | **Aucune** — `tarfile` et `difflib` sont dans Python |
 | Modèle de langage | Aucun. La comparaison est un calcul mot à mot |
 
+La lecture complète du socle a été faite, chronométrée : **942 secondes**, soit
+15,7 minutes, pour **2 557 045 fichiers dont 1 750 418 rédactions d'articles**,
+et **9,5 Go de données décompressées qui n'ont jamais touché le disque**.
+
 **Le piège est la place disque, et il se contourne.** Déplié, le socle occupe
-plusieurs dizaines de gigaoctets. Il ne faut donc pas le déplier : on lit
+**9,5 Go** — et 2,5 millions de fichiers minuscules, ce qui est pire que le
+volume pour un système de fichiers. Il ne faut donc pas le déplier : on lit
 l'archive compressée en flux, fichier par fichier, et on ne garde que les
-rédactions qui nous concernent. J'ai vérifié que ça marche — c'est ainsi que
-les mesures de cette page ont été faites.
+rédactions qui nous concernent. C'est mesuré, pas supposé : la passe complète
+ci-dessus n'a écrit rien du tout sur le disque.
+
+Quinze minutes tiennent largement dans une exécution GitHub Actions, et ce
+traitement ne se refait pas : ensuite, seules les archives quotidiennes de 1 à
+4 Mo sont à lire.
 
 ## L'ordre dans lequel je le ferais
 
