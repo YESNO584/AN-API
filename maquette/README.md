@@ -80,6 +80,14 @@ officiel**, sa date et un lien vers le **Journal officiel**.
 
 ### Les filtres
 
+Les puces suivent **le même ordre que le fil et que la frise** : arrêté en
+chemin, les six étapes, la promulgation. Trois vues d'une même chose ne
+peuvent pas s'ordonner de trois façons.
+
+Le bandeau du haut reste collé en haut de l'écran, à hauteur constante :
+mesuré, il partait avec le défilement et l'en-tête blanc venait prendre sa
+place — ce qui donnait l'impression qu'il rétrécissait.
+
 | Filtre | Ce qu'il permet |
 |---|---|
 | **Étape** | Les six étapes du parcours |

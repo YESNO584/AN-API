@@ -49,14 +49,18 @@
   .ecran { max-width: 30rem; margin: 0 auto; min-height: 100vh; background: var(--fond); }
 
   /* ---------- bandeau + en-tête ---------- */
+  /* Le bandeau reste en haut, à hauteur constante : mesuré, il partait avec le
+     défilement et l'en-tête blanc venait prendre sa place — ce qui donnait
+     l'impression qu'il se réduisait. */
   .bandeau {
     background: var(--accent-doux); color: var(--accent);
     font-size: .74rem; padding: .5rem var(--marge); text-align: center;
     line-height: 1.35;
+    position: sticky; top: 0; z-index: 30;
   }
   header {
     padding: 1.1rem var(--marge) .8rem;
-    position: sticky; top: 0; z-index: 20;
+    position: sticky; top: var(--haut-bandeau, 48px); z-index: 20;
     background: var(--fond); border-bottom: 1px solid var(--trait);
   }
   h1 { font-size: 1.45rem; margin: 0; letter-spacing: -.02em; font-weight: 660; }
@@ -87,12 +91,14 @@
   /* ---------- panneau des filtres ---------- */
   .filtres { padding: 0 var(--marge) .9rem; border-bottom: 1px solid var(--trait);
              background: var(--fond); }
-  .groupe { margin-top: .85rem; }
-  .groupe > .titre {
+  /* Titre au-dessus de ses puces, tout part du bord gauche. */
+  .filtres .groupe { display: block; margin-top: .85rem; }
+  .filtres .groupe > .titre {
     font-size: .7rem; text-transform: uppercase; letter-spacing: .07em;
-    color: var(--faible); margin-bottom: .4rem; display: flex; align-items: center; gap: .3rem;
+    color: var(--faible); margin: 0 0 .4rem; display: flex; align-items: center;
+    justify-content: flex-start; gap: .3rem;
   }
-  .puces { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .puces { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: .35rem; }
   .puce {
     font: inherit; font-size: .8rem; padding: .3rem .65rem; border-radius: 999px;
     border: 1px solid var(--trait-fort); background: var(--carte); color: var(--gris);
@@ -210,23 +216,23 @@
   .legende i.pour { background: var(--ok); }
   .legende i.contre { background: var(--accent); }
   .legende i.abstention { background: var(--trait-fort); }
-  .groupe { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem;
+  .groupes .groupe { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem;
             font-size: .76rem; }
-  .groupe .teinte { width: .45rem; height: 1rem; border-radius: 2px; flex: 0 0 auto;
+  .groupes .groupe .teinte { width: .45rem; height: 1rem; border-radius: 2px; flex: 0 0 auto;
                     background: var(--trait-fort); }
-  .groupe .sigle { width: 4rem; flex: 0 0 auto; font: inherit; font-size: .76rem;
+  .groupes .groupe .sigle { width: 4rem; flex: 0 0 auto; font: inherit; font-size: .76rem;
                    font-weight: 600; color: var(--texte); text-align: left;
                    background: none; border: none; padding: 0; cursor: pointer; }
-  .groupe .sigle:active { color: var(--accent); }
+  .groupes .groupe .sigle:active { color: var(--accent); }
   .groupes .convention { font-size: .72rem; color: var(--faible); margin: 0 0 .6rem; }
-  .groupe .barre { flex: 1; display: flex; height: 9px; border-radius: 4px;
+  .groupes .groupe .barre { flex: 1; display: flex; height: 9px; border-radius: 4px;
                    overflow: hidden; background: var(--doux); }
-  .groupe .barre i { display: block; }
-  .groupe .barre i.pour { background: var(--ok); }
-  .groupe .barre i.contre { background: var(--accent); }
-  .groupe .barre i.abstention { background: var(--trait-fort); }
-  .groupe .barre i.vide { flex: 1; background: var(--doux); }
-  .groupe .detail { width: 4.6rem; flex: 0 0 auto; text-align: right;
+  .groupes .groupe .barre i { display: block; }
+  .groupes .groupe .barre i.pour { background: var(--ok); }
+  .groupes .groupe .barre i.contre { background: var(--accent); }
+  .groupes .groupe .barre i.abstention { background: var(--trait-fort); }
+  .groupes .groupe .barre i.vide { flex: 1; background: var(--doux); }
+  .groupes .groupe .detail { width: 4.6rem; flex: 0 0 auto; text-align: right;
                     color: var(--faible); font-variant-numeric: tabular-nums; }
 
   /* ---------- la frise, accrochée en bas ---------- */
@@ -650,17 +656,10 @@ const dateLongue = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "lo
 const PARCOURS = ETAPES.filter((e) => e.n !== PROMULGUEE && e.n !== ARRETE)
                        .sort((a, b) => a.n - b.n);
 const etapeDe = (n) => ETAPES.find((e) => e.n === n);
-/* Les huit cases du filtre, dans l'ordre où un texte les traverse : le dépôt
-   d'abord, la promulgation à la fin. « Arrêté en chemin » ferme la marche —
-   ce n'est pas une étape du parcours mais une sortie de route, et elle peut
-   survenir à n'importe quel moment. */
-const ETAPES_EN_ORDRE = [...PARCOURS, etapeDe(PROMULGUEE), etapeDe(ARRETE)]
-                        .filter(Boolean);
-
-/* L'ordre du fil et de la frise, qui doivent dire la même chose : les textes
-   arrêtés d'abord, puis les six étapes, puis la promulgation. Le fil se lit
-   de gauche à droite, et le premier trait de la frise mène à la première
-   colonne — sans quoi la frise mentirait sur le fil. */
+/* L'ordre du fil, de la frise et des filtres, qui doivent tous dire la même
+   chose : les textes arrêtés d'abord, puis les six étapes, puis la
+   promulgation. Le fil se lit de gauche à droite, et le premier trait de la
+   frise mène à la première colonne — sans quoi la frise mentirait sur le fil. */
 const FRISE_EN_ORDRE = [etapeDe(ARRETE), ...PARCOURS, etapeDe(PROMULGUEE)]
                        .filter(Boolean);
 const statutDe = (t) => t.statut || (t.etape === PROMULGUEE ? "promulgue" : "en_cours");
@@ -773,7 +772,7 @@ function dessinerFiltres() {
   const base = retenus();
   const compteur = (predicat) => TEXTES.filter(predicat).length;
 
-  boite.append(groupe("Étape du parcours", ETAPES_EN_ORDRE.map((e) =>
+  boite.append(groupe("Étape du parcours", FRISE_EN_ORDRE.map((e) =>
     puce(e.nom, filtres.etapes.has(e.n), compteur((t) => t.etape === e.n),
          () => bascule(filtres.etapes, e.n),
          [e.nom, e.quoi, e.n === PROMULGUEE ? "Parcours terminé" : `Étape ${e.n} sur 6`]))));
@@ -1771,6 +1770,16 @@ function router() {
 window.addEventListener("hashchange", router);
 
 /* ---------- démarrage ---------- */
+// L'en-tête se colle sous le bandeau : il lui faut sa hauteur, mesurée, car
+// le texte du bandeau passe à deux lignes sur un écran étroit.
+function mesurerLeBandeau() {
+  const b = document.querySelector(".bandeau");
+  if (b) document.documentElement.style
+          .setProperty("--haut-bandeau", b.offsetHeight + "px");
+}
+mesurerLeBandeau();
+window.addEventListener("resize", mesurerLeBandeau, { passive: true });
+
 // Une seule fois, sur le fil lui-même : les colonnes sont redessinées à
 // chaque filtre, l'écouteur ne doit pas l'être avec elles.
 surveillerLeTour($("fil"));
