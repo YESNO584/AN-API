@@ -14,7 +14,7 @@ lire aucune donnée.
 | `publier.py` | Écrit la base en fichiers tout prêts — **c'est ce qui est mis en ligne** |
 | `serveur.py` | Sert la base en direct. **Outil de développement local**, pas ce qui tourne en production |
 | `schema.sql` | Le modèle de données |
-| `test_extraction.py` | 76 tests sur les règles de lecture |
+| `test_extraction.py` | 86 tests sur les règles de lecture |
 
 ## Démarrer
 
@@ -125,6 +125,32 @@ saisine du Conseil constitutionnel, le numéro de la loi.
 référentiel qu'il désigne. Une clé absente veut dire que la source ne dit
 rien — pas qu'il n'y a rien à dire. `socle/test_extraction.py` en fait un
 test, pour que personne n'y glisse plus tard une phrase inventée.
+
+### Nommer un auteur qui n'est pas député
+
+L'archive des **députés en exercice** ne contient que les 577 en fonction.
+Conséquence mesurée le 2026-09-01 : **716 textes de loi sur 2 151 avaient un
+auteur que personne ne savait nommer** — un ministre qui dépose un projet de
+loi, un sénateur qui dépose une proposition, un député qui n'est plus en
+fonction — et **3 109 cosignataires restaient anonymes**. La fiche affichait
+un compte sans un seul nom.
+
+Une septième source le corrige : `AMO20_dep_sen_min_tous_mandats_et_organes`,
+2,5 Mo, les députés, sénateurs et ministres de la législature. Elle **ne sert
+qu'à nommer** :
+
+- elle ne porte **pas de groupe politique** — un sénateur n'en a pas à
+  l'Assemblée ;
+- elle ne donne **pas droit à une photo** — l'adresse des photos ne vaut que
+  pour les députés, la réclamer pour un ministre renverrait une image
+  manquante.
+
+Les deux archives se superposent dans cet ordre : la large d'abord, celle des
+députés en exercice ensuite, qui l'emporte et apporte le groupe et la photo.
+
+Après : **2 147 textes sur 2 151 ont un nom d'auteur**, et **plus aucun
+cosignataire anonyme**. Les 4 restants n'ont pas d'auteur dans la source, ou
+un identifiant qu'aucune des deux archives ne connaît.
 
 ### L'issue d'un texte
 

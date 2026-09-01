@@ -260,12 +260,23 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         # sont l'immense majorité.
         trous = ",".join("?" * len(statuts))
         lignes = cx.execute(
-            f"SELECT {', '.join(CHAMPS_LISTE)}, loi_numero, loi_date, loi_url_jo"
-            f" FROM dossier WHERE statut IN ({trous}) AND est_loi = 1"
-            " ORDER BY etape DESC, date_dernier_mouvement DESC, uid", statuts).fetchall()
+            # Le groupe de l'auteur voyage avec le texte : la carte du fil le
+            # montre en couleur, et l'ouvrir pour le savoir serait absurde.
+            f"SELECT {', '.join('d.' + c for c in CHAMPS_LISTE)},"
+            " d.loi_numero, d.loi_date, d.loi_url_jo,"
+            " g.sigle auteur_sigle, g.nom auteur_groupe, g.couleur auteur_couleur"
+            " FROM dossier d"
+            " LEFT JOIN acteur a ON a.ref = d.auteur_ref"
+            " LEFT JOIN groupe g ON g.ref = a.groupe_ref"
+            f" WHERE d.statut IN ({trous}) AND d.est_loi = 1"
+            " ORDER BY d.etape DESC, d.date_dernier_mouvement DESC, d.uid",
+            statuts).fetchall()
         textes = []
         for l in lignes:
             texte = {c: l[c] for c in CHAMPS_LISTE}
+            for c in ("auteur_sigle", "auteur_groupe", "auteur_couleur"):
+                if l[c]:
+                    texte[c] = l[c]
             texte.update(votes.get(l["uid"], {"votes": 0, "votesEnsemble": 0,
                                               "dernierVote": None, "voteEnsemble": None}))
             texte["amendements"] = compte_amendements.get(l["uid"], 0)

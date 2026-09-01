@@ -191,6 +191,9 @@
   .etiq.chambre-senat { color: var(--senat); background: transparent; border-color: currentColor; }
   .etiq.prochaine { color: var(--ok); background: transparent; border-color: currentColor; }
   .etiq.dormant { color: var(--faible); font-style: italic; }
+  .etiq.grp { display: inline-flex; align-items: center; gap: .3rem; }
+  .etiq.grp i { width: .45rem; height: .45rem; border-radius: 50%; display: block;
+                flex: 0 0 auto; }
   .etiq::after { content: " ⓘ"; font-size: .8em; opacity: .5; font-style: normal; }
 
   .vote {
@@ -861,6 +864,26 @@ function dessinerFiltres() {
 }
 
 /* ---------- une carte ---------- */
+/* Le groupe de l'auteur, en couleur. Un point coloré plutôt qu'une pastille
+   pleine : la couleur d'un groupe n'est qu'une convention d'affichage — voir
+   `groupes.json` — et la donner en fond la ferait passer pour une donnée. */
+function etiquetteGroupe(t) {
+  const b = el("button", "etiq grp");
+  const point = el("i");
+  point.style.background = t.auteur_couleur;
+  b.append(point, document.createTextNode(t.auteur_sigle));
+  b.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    expliquer("Le groupe politique de l'auteur",
+      "Le groupe auquel appartient le parlementaire qui a déposé le texte. Les " +
+      "couleurs sont une convention d'affichage : l'open data n'en publie aucune. " +
+      "Un texte déposé par le Gouvernement ou par un sénateur n'a pas de groupe " +
+      "à l'Assemblée, et n'affiche donc rien ici.",
+      t.auteur_groupe || t.auteur_sigle);
+  });
+  return b;
+}
+
 function etiquette(classe, libelle, explication, valeur) {
   const b = el("button", "etiq " + (classe || ""), libelle);
   b.addEventListener("click", (ev) => {
@@ -991,6 +1014,7 @@ function carte(t) {
   const ch = t.chambre || null;
   l.append(etiquette("chambre-" + (ch || "aucune"), CHAMBRES[ch][0], CHAMBRES[ch]));
   l.append(etiquette("", typeCourt(t.type), TYPES[t.type] || [typeCourt(t.type), ""]));
+  if (t.auteur_sigle) l.append(etiquetteGroupe(t));
   if (t.lecture) l.append(etiquette("", t.lecture, EXPLICATIONS.lecture));
   if (t.dernier_acte) l.append(etiquette("", t.dernier_acte, EXPLICATIONS.acte));
   if (t.conclusion) l.append(etiquette("", t.conclusion, EXPLICATIONS.conclusion));
@@ -1680,6 +1704,12 @@ async function ouvrirFiche(uid) {
   const l = el("div", "lignes");
   const ch = d.chambre || null;
   l.append(etiquette("chambre-" + (ch || "aucune"), CHAMBRES[ch][0], CHAMBRES[ch]));
+  // Où le texte en est : la fiche le taisait, alors que c'est la première
+  // chose qu'on vient y chercher.
+  if (d.statut === "en_cours" && d.etape) {
+    const e = etapeDe(d.etape);
+    if (e) l.append(etiquette("", e.nom, [e.nom, e.quoi], `Étape ${e.n} sur 6`));
+  }
   l.append(etiquette("", typeCourt(d.type), TYPES[d.type] || [typeCourt(d.type), ""]));
   const issue = ISSUES[d.statut];
   if (issue) l.append(etiquette("arrete", issue[0], issue));

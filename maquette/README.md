@@ -78,6 +78,18 @@ Une application qui s'appelle « Où en sont les lois » doit montrer celles qui
 sont allées au bout : la carte d'une loi promulguée porte son **numéro
 officiel**, sa date et un lien vers le **Journal officiel**.
 
+### La couleur du groupe de l'auteur
+
+Chaque carte du fil porte le sigle du groupe de l'auteur, précédé d'un point
+de sa couleur — 1 344 des 1 982 textes en cours. Un point plutôt qu'une
+pastille pleine : **la couleur d'un groupe est une convention d'affichage**,
+l'open data n'en publie aucune, et la donner en fond la ferait passer pour
+une donnée.
+
+Les autres textes n'affichent rien : un projet de loi déposé par le
+Gouvernement, ou une proposition déposée par un sénateur, n'a pas de groupe à
+l'Assemblée. C'est une absence réelle, pas une donnée manquante.
+
 ### Les filtres
 
 Les puces suivent **le même ordre que le fil et que la frise** : arrêté en
@@ -111,6 +123,7 @@ partageable et ouvrable directement. Elle contient :
 - son **auteur** — photo, nom, groupe en couleur — et ses **cosignataires** ;
 - les **liens officiels** : dossier à l'Assemblée, dossier au Sénat, et le
   **texte de loi au Journal officiel** quand elle est promulguée ;
+- **l'étape où il se trouve**, ou son issue s'il est promulgué ou arrêté ;
 - le **parcours complet**, étape par étape, datée, **les votes intercalés à
   leur date** — voir la section suivante ;
 - les **amendements**, chargés à la demande.

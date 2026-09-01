@@ -48,6 +48,9 @@ SOURCES = {
     # L'agenda ne sert qu'à départager deux actes du même jour, mais sans lui
     # 296 groupes d'actes s'affichent à l'identique. Voir precision_acte.
     "agenda": extraction.URL_AGENDA,
+    # Sans elle, 716 textes ont un auteur sans nom : un ministre ou un
+    # sénateur n'est pas un député en exercice. Voir URL_ACTEURS_LARGE.
+    "acteurs": extraction.URL_ACTEURS_LARGE,
 }
 
 # Les amendements pèsent 297 Mo à eux seuls, contre 45 Mo pour les cinq autres
@@ -84,7 +87,10 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
     """Remplace le contenu de la base par celui des archives. Tout ou rien."""
     groupes = extraction.lire_groupes(archives["groupes"])
     organes = extraction.lire_organes(archives["groupes"])
-    acteurs = extraction.lire_acteurs(archives["groupes"])
+    # Les députés en exercice d'abord — ils apportent le groupe et la photo —
+    # puis les autres, qui n'apportent qu'un nom mais le portent seuls.
+    acteurs = extraction.lire_acteurs(archives["acteurs"], groupe_et_photo=False)
+    acteurs.update(extraction.lire_acteurs(archives["groupes"]))
     documents = extraction.lire_documents(archives["dossiers"])
     reunions = extraction.lire_reunions(archives["agenda"])
     etats_senat = extraction.lire_senat(archives["senat"])

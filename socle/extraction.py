@@ -38,6 +38,15 @@ URL_AMENDEMENTS = DEPOT + "loi/amendements_div_legis/Amendements.json.zip"
 # archive, les deux s'affichent à l'identique et passent pour un doublon.
 URL_AGENDA = DEPOT + "vp/reunions/Agenda.json.zip"
 
+# Les députés, sénateurs et ministres de la législature. `URL_ORGANES` ne
+# connaît que les 577 députés en exercice : 716 textes de loi sur 2 151 ont
+# donc un auteur que personne ne sait nommer — un ministre qui dépose un
+# projet de loi, un sénateur qui dépose une proposition — et 3 109
+# cosignataires restent anonymes (mesuré le 2026-09-01). Cette archive-ci les
+# nomme : 715 des 716 auteurs, et la totalité des cosignataires.
+URL_ACTEURS_LARGE = (DEPOT + "amo/deputes_senateurs_ministres_legislature/"
+                     "AMO20_dep_sen_min_tous_mandats_et_organes.json.zip")
+
 # Les photos des députés. Elles ne sont pas dans l'open data : ce sont des
 # fichiers du site de l'Assemblée, dont l'adresse se déduit de l'identifiant.
 # Testées le 2026-08-31 sur douze députés tirés au hasard — dix réponses, deux
@@ -934,8 +943,15 @@ def ordonner_groupes(sieges: dict[str, dict[int, int]],
 # Qui écrit les textes : députés, documents, amendements
 # ---------------------------------------------------------------------------
 
-def lire_acteurs(archive: pathlib.Path) -> dict[str, dict]:
-    """Les députés en exercice : identifiant → nom, civilité, photo, groupe."""
+def lire_acteurs(archive: pathlib.Path, groupe_et_photo: bool = True) -> dict[str, dict]:
+    """Les acteurs d'une archive : identifiant → nom, civilité, photo, groupe.
+
+    `groupe_et_photo` distingue les deux archives. Celle des **députés en
+    exercice** porte le groupe politique et donne droit à une photo. Celle des
+    **députés, sénateurs et ministres** ne sert qu'à nommer : un sénateur n'a
+    pas de groupe à l'Assemblée, et l'adresse des photos ne vaut que pour les
+    députés — la réclamer pour un ministre renverrait une image manquante.
+    """
     acteurs = {}
     for brut in _lire(archive, "acteur"):
         a = brut["acteur"]
@@ -959,8 +975,9 @@ def lire_acteurs(archive: pathlib.Path) -> dict[str, dict]:
             "civilite": ident.get("civ"),
             "prenom": ident.get("prenom"),
             "nom": ident.get("nom"),
-            "groupeRef": groupe,
-            "photo": PHOTO_DEPUTE.format(uid[2:]) if uid and uid.startswith("PA") else None,
+            "groupeRef": groupe if groupe_et_photo else None,
+            "photo": (PHOTO_DEPUTE.format(uid[2:])
+                      if groupe_et_photo and uid and uid.startswith("PA") else None),
         }
     return acteurs
 

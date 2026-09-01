@@ -9,6 +9,7 @@ constaté sur les vraies données ; les cas ci-dessous les reproduisent en petit
 """
 
 import http.client
+import json
 import pathlib
 import sys
 import tempfile
@@ -902,6 +903,46 @@ class TransfertCoupe(unittest.TestCase):
 
 
 class AuteursEtPhotos(unittest.TestCase):
+    def _archive(self, acteurs):
+        """Une archive minuscule, au format que `lire_acteurs` attend."""
+        chemin = pathlib.Path(self.repertoire.name) / "acteurs.zip"
+        import zipfile
+        with zipfile.ZipFile(chemin, "w") as z:
+            for i, a in enumerate(acteurs):
+                z.writestr(f"json/acteur/{i}.json", json.dumps({"acteur": a}))
+        return chemin
+
+    ACTEUR = {"uid": {"#text": "PA1234"},
+              "etatCivil": {"ident": {"civ": "M.", "prenom": "Jean", "nom": "Dupont"}},
+              "mandats": {"mandat": [{"typeOrgane": "GP", "dateFin": None,
+                                      "organes": {"organeRef": "PO999"}}]}}
+
+    def test_un_depute_en_exercice_a_son_groupe_et_sa_photo(self):
+        a = extraction.lire_acteurs(self._archive([self.ACTEUR]))["PA1234"]
+        self.assertEqual(a["nom"], "Dupont")
+        self.assertEqual(a["groupeRef"], "PO999")
+        self.assertIn("1234", a["photo"])
+
+    def test_un_senateur_ou_un_ministre_n_a_ni_groupe_ni_photo(self):
+        """L'archive large ne sert qu'à nommer.
+
+        Sans elle, 716 textes de loi sur 2 151 avaient un auteur que personne
+        ne savait nommer, et 3 109 cosignataires restaient anonymes (mesuré le
+        2026-09-01). Mais un sénateur n'a pas de groupe à l'Assemblée, et
+        l'adresse des photos ne vaut que pour les députés.
+        """
+        a = extraction.lire_acteurs(self._archive([self.ACTEUR]),
+                                    groupe_et_photo=False)["PA1234"]
+        self.assertEqual(a["nom"], "Dupont")
+        self.assertIsNone(a["groupeRef"])
+        self.assertIsNone(a["photo"])
+
+    def setUp(self):
+        self.repertoire = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.repertoire.cleanup()
+
     def test_l_adresse_d_une_photo_se_deduit_de_l_identifiant(self):
         self.assertEqual(
             extraction.PHOTO_DEPUTE.format("794830"),
