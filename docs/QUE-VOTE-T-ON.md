@@ -21,6 +21,11 @@ et [`sources/textes-pdf-assemblee.md`](sources/textes-pdf-assemblee.md).
 
 C'est la distinction qui manquait à la première version de cette note.
 
+**Décidé le 2026-09-01 : on traite d'abord le second cas** — ce que la loi
+change au droit — et on reprendra le premier plus tard. Voir
+[`CE-QUE-LA-LOI-CHANGE.md`](CE-QUE-LA-LOI-CHANGE.md), qui reprend cette
+question seule et dit ce qui est faisable.
+
 **L'avant/après du texte en discussion** — la version qui entre dans une
 étape et celle qui en sort. **Calculable**, et déjà démontré : 203 textes côté
 Sénat (Monalisa), 249 côté Assemblée (les PDF), 319 en tout. La seule chose

@@ -15,7 +15,7 @@ a pas encore d'application, de base de données ni de dépendances.
 
 | Dossier | Ce qu'il contient |
 |---|---|
-| `docs/` | Le plan, les fiches de sources, la note d'accès réseau. Documents, pas du code |
+| `docs/` | Le plan, les fiches de sources, la note d'accès réseau, et deux inventaires : `CE-QUE-L-ON-SUIT.md` (ce que le projet suit, chiffré) et `CE-QUE-LA-LOI-CHANGE.md` (montrer l'avant/après du droit). Documents, pas du code |
 | `docs/sources/` | Ce que valent les sources de données, **mesuré** (étape 0, faite le 2026-08-31) |
 | `socle/` | **Le cœur du code.** Récupère, range, publie. `extraction.py` (les règles, testées), `recuperer.py` (le programme quotidien), `publier.py` (écrit les fichiers mis en ligne), `serveur.py` (développement local seulement), `schema.sql`. Voir `socle/README.md` |
 | `.github/workflows/` | La publication quotidienne des données, exécutée par GitHub |
