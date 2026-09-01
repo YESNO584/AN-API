@@ -44,6 +44,9 @@ MAQUETTE = RACINE.parent / "maquette" / "feed.html"
 # rien n'est reformulé, seulement traduit une fois pour toutes.
 ACTIONS = {"MODIFIE": "modifié", "CREE": "créé", "ABROGE": "abrogé",
            "TRANSFERE": "transféré", "DEPLACE": "déplacé"}
+# Du plus parlant au moins parlant, quand une loi en fait plusieurs au même
+# article : ce que le lecteur retient, c'est que le contenu a changé.
+PRIORITE = ("MODIFIE", "CREE", "ABROGE", "TRANSFERE", "DEPLACE")
 
 # Les types de dossier qui ne peuvent aboutir à aucune loi, et ce qu'ils sont
 # en clair. Ils ne sont plus écartés : ils ont leur propre onglet, où ces
@@ -213,17 +216,26 @@ def changements_par_loi(legi_cx: sqlite3.Connection | None) -> dict[str, dict]:
     if legi_cx is None:
         return {}
     resume: dict[str, dict] = {}
+    # Le total compte les **articles**, pas les liens : une même loi peut à la
+    # fois modifier et déplacer un article, ce qui ferait deux liens et un seul
+    # article. « Voir les 7 articles » doit dire vrai.
     for ligne in legi_cx.execute(
-            "SELECT c.loi, c.quoi, r.debut, COUNT(*) n"
+            "SELECT loi, COUNT(DISTINCT redaction_id) n FROM changement GROUP BY loi"):
+        resume[ligne["loi"]] = {"total": ligne["n"], "actions": {}, "dates": []}
+    for ligne in legi_cx.execute(
+            "SELECT loi, quoi, COUNT(DISTINCT redaction_id) n"
+            " FROM changement GROUP BY loi, quoi"):
+        resume[ligne["loi"]]["actions"][ligne["quoi"]] = ligne["n"]
+    dates: dict[str, dict[str, int]] = {}
+    for ligne in legi_cx.execute(
+            "SELECT c.loi, r.debut, COUNT(DISTINCT c.redaction_id) n"
             " FROM changement c JOIN redaction r ON r.id = c.redaction_id"
-            " GROUP BY c.loi, c.quoi, r.debut"):
-        loi = resume.setdefault(ligne["loi"], {"total": 0, "actions": {}, "dates": {}})
-        loi["total"] += ligne["n"]
-        loi["actions"][ligne["quoi"]] = loi["actions"].get(ligne["quoi"], 0) + ligne["n"]
-        if ligne["debut"]:
-            loi["dates"][ligne["debut"]] = loi["dates"].get(ligne["debut"], 0) + ligne["n"]
-    for loi in resume.values():
-        loi["dates"] = [{"date": d, "articles": n} for d, n in sorted(loi["dates"].items())]
+            " WHERE r.debut IS NOT NULL AND r.debut != ''"
+            " GROUP BY c.loi, r.debut"):
+        dates.setdefault(ligne["loi"], {})[ligne["debut"]] = ligne["n"]
+    for numero, par_date in dates.items():
+        resume[numero]["dates"] = [{"date": d, "articles": n}
+                                   for d, n in sorted(par_date.items())]
     return resume
 
 
@@ -237,14 +249,22 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str) -> list[dict]:
     """
     groupes: dict[str, list] = {}
     for ligne in legi_cx.execute(
-            "SELECT c.quoi, r.id, r.numero, r.ou, r.debut, r.texte,"
+            "SELECT r.id, r.numero, r.ou, r.debut, r.texte,"
+            " GROUP_CONCAT(DISTINCT c.quoi) actions,"
             " (SELECT texte FROM redaction WHERE id = r.precedent) avant"
             " FROM changement c JOIN redaction r ON r.id = c.redaction_id"
-            " WHERE c.loi = ? ORDER BY r.ou, r.numero", (numero,)):
+            " WHERE c.loi = ? GROUP BY r.id ORDER BY r.ou, r.numero", (numero,)):
         avant, apres = ligne["avant"], ligne["texte"] or ""
+        # Une loi peut faire deux choses au même article — le modifier et le
+        # déplacer. Un seul mot tient sur la pastille : on garde le plus
+        # parlant, et l'ordre de PRIORITE dit lequel.
+        actions = (ligne["actions"] or "").split(",")
+        quoi = min(actions, key=lambda a: PRIORITE.index(a) if a in PRIORITE
+                                          else len(PRIORITE))
         groupes.setdefault(ligne["ou"] or "Textes non codifiés", []).append({
-            "id": ligne["id"], "numero": ligne["numero"], "quoi": ligne["quoi"],
-            "action": ACTIONS.get(ligne["quoi"], ligne["quoi"]),
+            "id": ligne["id"], "numero": ligne["numero"], "quoi": quoi,
+            "action": ACTIONS.get(quoi, quoi),
+            "actions": [ACTIONS.get(a, a) for a in actions] if len(actions) > 1 else None,
             "debut": ligne["debut"],
             "mots": len(apres.split()),
             # Rien à comparer quand la loi crée l'article : il n'a pas d'avant.
@@ -478,7 +498,6 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             lois_couvertes += 1
             listes += ecrire(sortie / "changements" / f'{l["uid"]}.json', {
                 "genereLe": genere_le, "loi": l["loi_numero"],
-                "total": sum(len(g["articles"]) for g in groupes),
                 **change.get(l["loi_numero"], {}),
                 "groupes": groupes,
             })

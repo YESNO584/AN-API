@@ -5,7 +5,7 @@ Flutter : sans elle, un téléphone devrait télécharger et décortiquer une
 archive de 10 Mo à chaque ouverture, et la future version web ne pourrait
 lire aucune donnée.
 
-## Les trois pièces
+## Les pièces
 
 | Fichier | Ce qu'il fait |
 |---|---|
@@ -15,6 +15,60 @@ lire aucune donnée.
 | `serveur.py` | Sert la base en direct. **Outil de développement local**, pas ce qui tourne en production |
 | `schema.sql` | Le modèle de données |
 | `test_extraction.py` | 86 tests sur les règles de lecture |
+| `legi.py` | Lit le droit consolidé et compare deux rédactions d'un article. **Ne télécharge rien, n'écrit nulle part.** |
+| `recuperer_legi.py` | Va chercher, dans le droit consolidé, ce que nos lois y ont changé. Écrit dans `legi.db` |
+| `test_legi.py` | 28 tests sur ces règles-là |
+
+### Pourquoi deux bases
+
+`parlement.db` se reconstruit chaque matin en une minute : la machine est
+neuve à chaque publication, il n'y a rien à conserver.
+
+`legi.db` ne peut pas faire pareil. Sa première construction lit un fichier de
+1,1 Go — **15,7 minutes, chronométrées** — pour en tirer les rédactions
+d'articles que nos lois ont changées. Elle est donc **gardée d'un jour sur
+l'autre** (mise en cache par la publication), et on n'y ajoute ensuite que les
+archives quotidiennes, de 1 à 4 Mo.
+
+Elle est **facultative** : sans elle, tout le reste se publie normalement et
+l'application n'affiche simplement pas ce que les lois changent. Une passe de
+quinze minutes ne doit pas pouvoir empêcher la publication du matin.
+
+```sh
+python3 recuperer_legi.py                  # rattrape tout ce qui manque
+python3 recuperer_legi.py --lois 2026-813  # une seule loi, pour vérifier
+python3 recuperer_legi.py --sans-socle     # seulement les archives du jour
+```
+
+**Rien n'est déplié sur le disque.** Le socle pèse 9,5 Go déplié, en 2,5
+millions de fichiers minuscules — plus pénible pour un système de fichiers que
+son volume. Il se lit en flux, deux fois : la première passe repère les
+rédactions changées par nos lois, la seconde va chercher celles d'avant, dont
+on ne connaît l'identité qu'à l'issue de la première.
+
+### La règle qui pouvait mentir
+
+Pour comparer un article avant et après, il faut trouver « la rédaction
+d'avant ». La règle évidente — **prendre la précédente dans la liste des
+versions** — est fausse.
+
+La liste n'est pas chronologique, et elle contient des rédactions **mort-nées** :
+votées, jamais entrées en vigueur. Sur l'article 6 de la loi n° 2004-575, la
+précédente dans la liste est datée du **22 février 2222** et marquée
+`MODIFIE_MORT_NE`. La retenir faisait tomber la part de texte commun à **13 %** —
+un avant/après spectaculaire et faux.
+
+La bonne règle : **la rédaction qui se termine au moment où la nôtre commence,
+les mort-nées écartées.** Elle remonte le même article à **97 %** et ne change
+rien pour les six autres articles de la même loi. Elle est dans
+`legi.version_precedente`, avec ses tests.
+
+### Ce qui n'est pas un changement
+
+Une loi **cite** deux fois plus d'articles qu'elle n'en modifie : 5 520
+citations pour 2 711 modifications. Les compter comme des changements ferait
+dire n'importe quoi à l'application. Seuls `MODIFIE`, `CREE`, `ABROGE`,
+`TRANSFERE` et `DEPLACE` sont retenus.
 
 ## Démarrer
 
@@ -328,6 +382,14 @@ signale la panne.
 | `arretes.json` | 57 Ko | — | Les 88 textes **arrêtés en chemin** : rejetés, non adoptés, retirés, caducs |
 | `textes/<uid>.json` | 18 Mo | — | Un fichier par texte : parcours, votes, auteur, cosignataires (médiane 4 Ko) |
 | `amendements/<uid>.json` | 30 Mo | — | Les amendements d'un texte, chargés seulement si on les ouvre (médiane 90 Ko, 289 fichiers) |
+| `travaux.json` | 337 Ko | — | Les 708 dossiers qui n'aboutissent à aucune loi, et leurs catégories : **l'onglet « Travaux »** |
+| `changements/<uid>.json` | — | — | Ce qu'une loi change au droit : les articles, groupés par code. **Aucun texte** — la liste sert à choisir |
+| `changements/<uid>/<LEGIARTI>.json` | — | — | Un article : son texte entier, découpé en morceaux égaux, retirés, ajoutés |
+
+**Pourquoi deux niveaux pour les changements.** La loi de finances pour 2025
+touche 574 articles. Tout mettre dans un fichier ferait plusieurs méga-octets
+pour un seul écran de téléphone. La liste ne porte donc aucun texte, et chaque
+article a son fichier, chargé au clic.
 
 **L'application charge `textes.json` une fois** — 121 Ko sur le réseau — puis
 filtre et cherche toute seule, instantanément et même hors connexion. Elle ne

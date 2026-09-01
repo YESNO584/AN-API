@@ -17,7 +17,7 @@ a pas encore d'application, de base de données ni de dépendances.
 |---|---|
 | `docs/` | Le plan, les fiches de sources, la note d'accès réseau, et deux inventaires : `CE-QUE-L-ON-SUIT.md` (ce que le projet suit, chiffré) et `CE-QUE-LA-LOI-CHANGE.md` (montrer l'avant/après du droit). Documents, pas du code |
 | `docs/sources/` | Ce que valent les sources de données, **mesuré** (étape 0, faite le 2026-08-31) |
-| `socle/` | **Le cœur du code.** Récupère, range, publie. `extraction.py` (les règles, testées), `recuperer.py` (le programme quotidien), `publier.py` (écrit les fichiers mis en ligne), `serveur.py` (développement local seulement), `schema.sql`. Voir `socle/README.md` |
+| `socle/` | **Le cœur du code.** Récupère, range, publie. `extraction.py` (les règles, testées), `recuperer.py` (le programme quotidien), `publier.py` (écrit les fichiers mis en ligne), `serveur.py` (développement local seulement), `schema.sql`. Et pour le droit consolidé : `legi.py` (les règles, testées) et `recuperer_legi.py`. Voir `socle/README.md` |
 | `.github/workflows/` | La publication quotidienne des données, exécutée par GitHub |
 | `maquette/` | La maquette de l'étape 1 : `feed.html`, un seul fichier, qui **lit les données publiées par le socle**. Voir `maquette/README.md` |
 | `.claude/` | La configuration Claude Code |
@@ -29,10 +29,24 @@ a pas encore d'application, de base de données ni de dépendances.
 - **Les règles de lecture des dossiers vivent dans `socle/extraction.py`, à
   un seul endroit.** Ne pas les recopier ailleurs : la maquette les importe.
   Toute modification doit passer par `socle/test_extraction.py`.
-- **Aucune donnée du Parlement n'est versionnée.** La base `socle/parlement.db`,
-  le dossier `socle/public/` et les archives téléchargées sont ignorés par
-  git — ils se reconstruisent avec `socle/recuperer.py` puis `socle/publier.py`.
+- **Aucune donnée du Parlement n'est versionnée.** Les bases
+  `socle/parlement.db` et `socle/legi.db`, le dossier `socle/public/` et les
+  archives téléchargées sont ignorés par git — ils se reconstruisent avec
+  `socle/recuperer.py`, `socle/recuperer_legi.py` puis `socle/publier.py`.
   La maquette ne les embarque plus : elle lit les fichiers publiés.
+- **`legi.db` est séparée de `parlement.db`, et c'est voulu.** La base du
+  Parlement se reconstruit en une minute ; celle du droit consolidé demande
+  une passe de 15,7 minutes sur un fichier de 1,1 Go. Elle est donc mise en
+  cache d'un jour sur l'autre par la publication, et l'étape est
+  **facultative** : sans elle, tout le reste se publie et l'application
+  n'affiche simplement pas ce que les lois changent.
+- **Deux pièges du droit consolidé, mesurés, à ne pas redécouvrir.** La
+  rédaction « d'avant » n'est **pas** la précédente dans la liste des versions :
+  celle-ci contient des rédactions **mort-nées**, votées mais jamais entrées en
+  vigueur (une datée du 22 février 2222 faisait tomber une comparaison à 13 %
+  au lieu de 97 %). La bonne règle est « celle qui se termine quand la nôtre
+  commence, mort-nées écartées ». Et **une citation n'est pas un changement** :
+  une loi cite deux fois plus d'articles qu'elle n'en modifie.
 - **Une page web ne peut pas aller chercher ces données elle-même** — les
   portails n'envoient pas l'en-tête `Access-Control-Allow-Origin`. Toute
   maquette autonome passe donc par une préparation hors ligne.

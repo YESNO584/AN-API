@@ -10,6 +10,24 @@ téléphone.
 comme page d'accueil à chaque mise à jour des données. C'est la façon la plus
 simple de la regarder depuis un téléphone, sans rien installer.
 
+## Deux onglets, en bas de l'écran
+
+**Textes** — les 2 150 textes qui peuvent devenir une loi, rangés par étape.
+C'est l'onglet décrit ci-dessous, et il n'a pas changé.
+
+**Travaux** — les **708 dossiers qui n'aboutissent à aucune loi** : commissions
+d'enquête, missions et rapports d'information, résolutions, motions de censure,
+pétitions, discours. Ils étaient écartés du fil ; **plus rien n'est écarté**.
+
+Même machinerie de colonnes pour les deux, mais les colonnes ne disent pas la
+même chose. Côté textes, une colonne est une **étape** — et l'ordre raconte un
+parcours. Côté travaux, une colonne est une **catégorie** : ces dossiers ne
+traversent rien, ils *sont* ce qu'ils sont. La frise du bas le reflète : elle
+n'y allume aucune étape « déjà passée », parce qu'il n'y en a pas.
+
+La recherche et les filtres ne s'affichent que sur l'onglet des textes : ils
+portent sur des étapes et des chambres, qui n'ont pas de sens ici.
+
 ## Ce qu'elle montre
 
 **2 150 textes**, rangés par étape du parcours en **colonnes côte à côte** —
@@ -160,6 +178,43 @@ c'est ce moment qui l'explique. Les scrutins sont donc intercalés entre les
 l'open data ne dit pas à quel moment de la journée un scrutin a eu lieu — son
 champ `referenceLegislative` est vide dans les 8 434 scrutins de la
 législature. Les placer ailleurs serait une invention.
+
+### Ce que la loi change au droit
+
+Sur la carte d'une loi promulguée, deux choses que rien ne disait avant :
+
+**Quand elle s'applique.** Une loi promulguée ne s'applique pas forcément tout
+de suite, ni en une seule fois. La carte l'écrit — « Ne s'applique pas encore
+en entier : 4 articles sur 7 entrent en vigueur le 1er septembre 2026 » — et
+passe en rouge tant que quelque chose reste à venir. Les dates sont celles que
+porte le texte officiel ; aucune n'est déduite.
+
+**Combien d'articles elle touche**, avec un bouton vers le détail. Et quand
+elle n'en touche aucun, la carte le dit aussi, plutôt que de rester muette :
+« Ne modifie aucun article de loi existante — ce texte autorise la ratification
+d'un traité. » La raison n'est donnée **que lorsque la donnée la porte** : elle
+vient du type du dossier, pas d'une interprétation.
+
+#### L'écran des articles
+
+On y accède depuis la fiche d'un texte, jamais depuis le fil : ce n'est pas une
+rubrique, c'est le détail d'une loi.
+
+Trois compteurs — modifiés, créés, abrogés — puis **un repli par code**. Chaque
+article est une ligne avec **une barre qui montre la part du texte qui a
+bougé**. C'est ce qui rend une loi de 574 articles parcourable : on va droit
+aux gros changements au lieu de tout lire.
+
+#### La fiche d'un article
+
+Le texte **entier**, jamais tronqué, avec trois façons de le lire : *Ce qui
+change* (les retraits barrés en rouge, les ajouts en vert), *Texte en vigueur*,
+*Texte précédent*. Puis les conditions d'entrée en vigueur si le texte officiel
+en porte, et le lien vers Légifrance.
+
+**Rien n'est rédigé par une IA.** Les textes sont ceux du Journal officiel, et
+la comparaison est un calcul mot à mot — la même bibliothèque standard que
+partout ailleurs dans ce projet.
 
 ### Les amendements, et ce qu'on n'affiche pas
 
