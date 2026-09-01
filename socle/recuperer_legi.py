@@ -70,8 +70,17 @@ CREATE INDEX IF NOT EXISTS changement_par_loi ON changement(loi);
 
 
 def ouvrir(chemin: pathlib.Path = BASE) -> sqlite3.Connection:
-    base = sqlite3.connect(chemin)
+    """Ouvre la base en écriture, en la partageant avec les lecteurs.
+
+    `journal_mode = WAL` n'est pas un réglage de confort : sans lui, un simple
+    lecteur — `publier.py` qui regarde la base pendant qu'on la remplit —
+    bloque l'écriture, et une passe de quarante minutes se termine par
+    « database is locked » après avoir tout perdu. Constaté le 2026-09-01.
+    """
+    base = sqlite3.connect(chemin, timeout=60)
     base.row_factory = sqlite3.Row
+    base.execute("PRAGMA journal_mode = WAL")
+    base.execute("PRAGMA busy_timeout = 60000")
     base.executescript(SCHEMA)
     return base
 
@@ -122,8 +131,14 @@ def deux_passes(chemin: pathlib.Path, lois: set[str], base: sqlite3.Connection) 
                     "(loi, quoi, article_loi, redaction_id) VALUES (?, ?, ?, ?)",
                     (action["loi"], action["quoi"], action["article_loi"], article["id"]))
             gardees += 1
+            # On enregistre au fil de l'eau : une passe sur le socle dure un
+            # quart d'heure, et tout perdre sur un incident de la dernière
+            # minute serait absurde.
+            if gardees % 200 == 0:
+                base.commit()
             if article["precedent"]:
                 voulues.add(article["precedent"])
+    base.commit()
 
     voulues -= {ligne["id"] for ligne in base.execute(
         "SELECT id FROM redaction WHERE texte IS NOT NULL")}
@@ -157,14 +172,18 @@ def deja_vues(base: sqlite3.Connection) -> set[str]:
 
 
 def traiter(nom: str, lois: set[str], base: sqlite3.Connection) -> int:
-    """Télécharge une archive, la lit, la range, puis l'efface du disque."""
+    """Télécharge une archive, la lit, la range, puis l'efface du disque.
+
+    L'archive n'est effacée **qu'en cas de succès** : le socle met une dizaine
+    de minutes à arriver, et une relance après incident doit repartir du
+    fichier déjà là plutôt que de le retélécharger.
+    """
     TRAVAIL.mkdir(exist_ok=True)
     chemin = TRAVAIL / nom
-    try:
+    if not chemin.exists():
         extraction.telecharger(chemin, url=legi.DEPOT_LEGI + nom)
-        gardees = deux_passes(chemin, lois, base)
-    finally:
-        chemin.unlink(missing_ok=True)
+    gardees = deux_passes(chemin, lois, base)
+    chemin.unlink(missing_ok=True)
     base.execute("INSERT OR REPLACE INTO archive (nom, vu_le, redactions) VALUES (?, ?, ?)",
                  (nom, time.strftime("%Y-%m-%dT%H:%M:%S"), gardees))
     base.commit()

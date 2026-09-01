@@ -201,7 +201,7 @@ def ouvrir_legi() -> sqlite3.Connection | None:
     """
     if not BASE_LEGI.exists():
         return None
-    cx = sqlite3.connect(f"file:{BASE_LEGI}?mode=ro", uri=True)
+    cx = sqlite3.connect(f"file:{BASE_LEGI}?mode=ro", uri=True, timeout=30)
     cx.row_factory = sqlite3.Row
     return cx
 
@@ -523,6 +523,11 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     else:
         print(f"Maquette introuvable ({MAQUETTE}) : pas de page d'accueil.",
               file=sys.stderr)
+
+    # Refermer la base du droit consolidé : une connexion laissée ouverte
+    # garde un verrou, et la récupération en cours se cassait dessus.
+    if legi_cx is not None:
+        legi_cx.close()
 
     # GitHub Pages ne sert pas les dossiers dont le nom commence par un
     # tiret bas, et ajoute sa propre mise en page aux fichiers Markdown.
