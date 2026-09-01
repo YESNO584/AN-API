@@ -365,7 +365,7 @@
   .art .nom { flex: 1; min-width: 0; }
   .art .nom b { display: block; font-size: .88rem; font-weight: 620; }
   .art .nom span { display: block; font-size: .72rem; color: var(--faible); }
-  .art .fleche { color: var(--faible); font-size: 1.2rem; }
+  .art .chevron { color: var(--faible); font-size: 1.2rem; flex: 0 0 auto; }
   .jauge { height: 3px; border-radius: 2px; background: var(--trait); overflow: hidden;
            margin-top: .3rem; width: 100%; }
   .jauge i { display: block; height: 100%; background: var(--accent); }
@@ -574,8 +574,10 @@
       <em>les deux chambres</em>.</p>
     <p>Lues sur <a id="lien-socle" href="#">le socle du projet</a>,
       mis à jour chaque matin. Dernière mise à jour : <span id="maj">…</span>.</p>
-    <p><strong>Sont écartés :</strong> les dossiers qui ne fabriquent pas de loi
-      (résolutions, rapports d'information, commissions d'enquête), et les textes retirés.</p>
+    <p><strong>Rien n'est écarté.</strong> Les dossiers qui ne fabriquent pas de loi
+      — résolutions, rapports d'information, commissions d'enquête, motions —
+      sont dans l'onglet <em>Travaux</em>. Les textes arrêtés en chemin sont la
+      première colonne de l'onglet <em>Textes</em>.</p>
   </footer>
 </div>
 
@@ -2243,7 +2245,7 @@ function ligneArticle(uid, a) {
     jauge.append(barre);
     nom.append(jauge);
   }
-  b.append(nom, el("span", "fleche", "›"));
+  b.append(nom, el("span", "chevron", "›"));
   b.addEventListener("click", () => {
     location.hash = `#/change/${uid}/${a.id}`;
   });
