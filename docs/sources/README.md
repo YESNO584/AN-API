@@ -52,11 +52,11 @@ résumés n'est pas le facteur limitant du projet.**
 | Assemblée nationale | **À retenir — source principale** | Mise à jour quotidienne (dernière : le jour même du test) | [`assemblee-nationale.md`](assemblee-nationale.md) |
 | Sénat | **À retenir — source de complément** | Mise à jour quotidienne | [`senat.md`](senat.md) |
 | Monalisa (texte des lois, Sénat) | **Piste ouverte** — texte structuré, mais côté Sénat seulement (203 de nos 2 859 dossiers) | Mise à jour quotidienne | [`monalisa.md`](monalisa.md) |
-| Textes de l'Assemblée en PDF | **Piste ouverte** — lisible à 86 %, porterait la comparaison à 319 textes | Publiés au fil des séances | [`textes-pdf-assemblee.md`](textes-pdf-assemblee.md) |
+| Textes de l'Assemblée en PDF | **Piste ouverte** — lisible à 86 %, porterait la comparaison à 319 textes, et **porte l'exposé des motifs (100 % des dépôts d'origine)** | Publiés au fil des séances | [`textes-pdf-assemblee.md`](textes-pdf-assemblee.md) |
 | Journal officiel (DILA) | **Piste ouverte** — texte des lois promulguées et censures constitutionnelles | Deux archives par jour | [`journal-officiel.md`](journal-officiel.md) |
 | Droit consolidé (LEGI, DILA) | **Piste ouverte** — l'article de code avant et après la loi qui le modifie, 2 446 articles mesurés | Une archive par jour | [`droit-consolide.md`](droit-consolide.md) |
 | La Fabrique de la Loi | **À écarter** — figée depuis 2022 | Dernière donnée : janvier 2022 | [`fabrique-de-la-loi.md`](fabrique-de-la-loi.md) |
-| Légifrance via PISTE | **Non vérifié** — demande un compte | inconnue | [`legifrance-piste.md`](legifrance-piste.md) |
+| Légifrance (site et API) | **Écarté** — bloqué aux robots, et n'ajoute rien à LEGI. L'API reste non vérifiée | inconnue | [`legifrance-piste.md`](legifrance-piste.md) |
 | NosDéputés.fr / NosSénateurs.fr | **Hors service au moment du test** | — | voir `../ACCES-RESEAU.md` |
 
 ## Ce que cela permet de faire maintenant
@@ -67,6 +67,6 @@ résumés n'est pas le facteur limitant du projet.**
 2. **Le modèle de données du §3.1 du plan est confirmé par les faits** : un
    dossier, des étapes datées, chacune rattachée à une chambre. C'est
    exactement la forme dans laquelle l'Assemblée publie.
-3. **Ce qui reste à décider** : faut-il un compte PISTE pour Légifrance ?
+3. **Ce qui reste à décider** : faut-il lire les PDF de dépôt pour en tirer l'exposé des motifs ? (Le compte PISTE, lui, n'a plus d'objet : voir `legifrance-piste.md`.)
    Seulement si l'on veut le texte consolidé de la loi promulguée. Pour
    suivre le parcours, non.

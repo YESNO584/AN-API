@@ -169,3 +169,62 @@ porte pas d'identifiant stable, contrairement au XML du Sénat. Un article
 renuméroté en cours de route sera donc comparé au mauvais. C'est le principal
 risque de faux avant/après, et il est plus élevé qu'avec Monalisa, où 71 % des
 articles s'apparient par identifiant.
+
+## L'exposé des motifs est dans le PDF de dépôt
+
+**Mesuré le 2026-09-01**, sur 40 dépôts tirés au sort parmi les 1 692 dont
+notre base identifie le document.
+
+C'est la réponse à une question posée séparément : *le titre d'un texte ne dit
+presque rien, existe-t-il une description plus parlante ?* Les données ouvertes
+de l'Assemblée n'en contiennent aucune. **Le PDF de dépôt, lui, porte l'exposé
+des motifs — l'argumentaire écrit par les auteurs, avant le premier article.**
+
+| | |
+|---|---:|
+| PDF lus | 40 |
+| **Textes déposés d'abord à l'Assemblée : exposé présent** | **32 / 32 — 100 %** |
+| Textes transmis par le Sénat : exposé absent | 7 |
+| Texte retiré par son auteur | 1 |
+
+Les 7 absences ne sont pas un défaut de lecture : ce sont des textes
+**« ADOPTÉE PAR LE SÉNAT »**, dont le document de l'Assemblée n'est qu'une
+transmission. Leur exposé des motifs existe, mais dans le document de dépôt du
+Sénat. La règle est donc simple : **l'exposé est dans le document de dépôt de
+la chambre d'origine.**
+
+Longueur, sur les 32 : **médiane 5 900 caractères**, de 2 300 à 19 200. Aucun
+n'est un résumé d'une ligne — c'est un texte suivi, de plusieurs paragraphes.
+
+### Où il se trouve dans le fichier
+
+Entre le titre et le premier article, sous un intertitre `EXPOSÉ DES MOTIFS`.
+Il se termine à `PROPOSITION DE LOI` / `PROJET DE LOI` ou au premier
+`Article 1er`. Deux repères de garde, lus dans les PDF eux-mêmes :
+
+- `ADOPTÉE PAR LE SÉNAT` en tête ⇒ pas d'exposé, ne pas chercher ;
+- `Ce texte a été retiré par son auteur` ⇒ le document est presque vide.
+
+### L'adresse d'un document
+
+```
+https://www.assemblee-nationale.fr/dyn/<législature>/textes/l<lég>b<numéro sur 4 chiffres>_<genre>.pdf
+```
+
+`<genre>` vaut `proposition-loi` ou `projet-loi`, et se déduit de la référence
+du texte associé à l'étape de dépôt (`PION…` ⇒ proposition, `PRJL…` ⇒ projet).
+Exemple : `PIONANR5L17B0261` donne
+`https://www.assemblee-nationale.fr/dyn/17/textes/l17b0261_proposition-loi.pdf`.
+
+**Attention :** `…/dyn/docs/…` renvoie 404 — et un 404 de l'Assemblée fait
+64 660 octets, donc un téléchargement qui « réussit » sans vérifier le code
+HTTP écrit une page d'erreur dans un fichier `.pdf`.
+
+### Ce que ça coûterait
+
+Un appel par texte, une seule fois (un dépôt ne change plus). 40 PDF ont pris
+environ 3 minutes en séquentiel. Le PDF médian pèse 60 ko.
+
+**Décision non prise :** afficher un exposé de 5 900 caractères sur une fiche
+mobile demande de choisir quoi en montrer — et le tronquer, c'est écrire un
+résumé, donc du texte qui ne vient plus des sources.
