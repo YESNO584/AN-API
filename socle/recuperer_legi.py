@@ -34,6 +34,9 @@ import legi
 ICI = pathlib.Path(__file__).parent
 BASE = ICI / "legi.db"
 TRAVAIL = ICI / "archives_legi"
+# En dessous, ce n'est pas une archive : la plus petite quotidienne du dépôt
+# pèse une centaine de kilo-octets.
+MINIMUM = 50_000
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS archive (
@@ -180,8 +183,21 @@ def traiter(nom: str, lois: set[str], base: sqlite3.Connection) -> int:
     """
     TRAVAIL.mkdir(exist_ok=True)
     chemin = TRAVAIL / nom
-    if not chemin.exists():
-        extraction.telecharger(chemin, url=legi.DEPOT_LEGI + nom)
+    # Une archive vide ou absente au moment de la lire n'est pas une fatalité :
+    # on la redemande. Constaté le 2026-09-01, une fois, sans cause identifiée —
+    # le socle avait bien été téléchargé, et n'était plus là dix secondes plus
+    # tard. Plutôt que de tout perdre, on recommence, et on le dit.
+    for essai in range(1, 4):
+        if not chemin.exists() or chemin.stat().st_size < MINIMUM:
+            chemin.unlink(missing_ok=True)
+            extraction.telecharger(chemin, url=legi.DEPOT_LEGI + nom)
+        if chemin.exists() and chemin.stat().st_size >= MINIMUM:
+            break
+        print(f"    {nom} introuvable ou vide après téléchargement "
+              f"(essai {essai} sur 3)", file=sys.stderr, flush=True)
+    else:
+        raise RuntimeError(f"{nom} : impossible d'obtenir l'archive")
+
     gardees = deux_passes(chemin, lois, base)
     chemin.unlink(missing_ok=True)
     base.execute("INSERT OR REPLACE INTO archive (nom, vu_le, redactions) VALUES (?, ?, ?)",
@@ -221,6 +237,7 @@ def main(argv: list[str] | None = None) -> int:
     debut = time.time()
     for rang, nom in enumerate(a_faire, 1):
         depart = time.time()
+        print(f"  [{rang}/{len(a_faire)}] {nom}…", flush=True)
         gardees = traiter(nom, lois, base)
         print(f"  [{rang}/{len(a_faire)}] {nom} — {gardees} rédactions "
               f"en {time.time() - depart:.0f} s", flush=True)
