@@ -14,5 +14,13 @@ maquette/.cache/
 # Base construite par le socle — rechargeable en une commande, jamais versionnée
 socle/parlement.db
 socle/parlement.db-*
+
+# Droit consolidé : la base se garde d'un jour sur l'autre (quinze minutes de
+# lecture), mais elle se reconstruit avec recuperer_legi.py. Les archives
+# téléchargées sont effacées au fil de l'eau ; le dossier reste ignoré au cas
+# où une exécution s'interrompt.
+socle/legi.db
+socle/legi.db-*
+socle/archives_legi/
 socle/*.log
 socle/public/

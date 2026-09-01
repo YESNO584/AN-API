@@ -20,6 +20,12 @@
     --assemblee: #24607f;
     --senat: #6a4a7c;
     --ok: #2f6b46;
+    /* Ce qu'une loi retire et ce qu'elle ajoute. Deux couleurs, pas une : le
+       rouge seul ne dirait pas si le texte disparaît ou s'il arrive. */
+    --retire: #9b2226;
+    --retire-fond: #fbe9e9;
+    --ajoute: #1f6f43;
+    --ajoute-fond: #e6f4ec;
     --rayon: 14px;
     --marge: 1rem;
   }
@@ -29,6 +35,8 @@
       --trait-fort: #4b463e; --texte: #eeebe5; --gris: #a49d92; --faible: #7a736a;
       --accent: #e79aa5; --accent-doux: #382226; --assemblee: #7db6d6;
       --senat: #b795c8; --ok: #7cc79b;
+      --retire: #f0a0a4; --retire-fond: #3a2224;
+      --ajoute: #86d3a6; --ajoute-fond: #1d3328;
     }
   }
   :root[data-theme="dark"] {
@@ -36,6 +44,8 @@
     --trait-fort: #4b463e; --texte: #eeebe5; --gris: #a49d92; --faible: #7a736a;
     --accent: #e79aa5; --accent-doux: #382226; --assemblee: #7db6d6;
     --senat: #b795c8; --ok: #7cc79b;
+    --retire: #f0a0a4; --retire-fond: #3a2224;
+    --ajoute: #86d3a6; --ajoute-fond: #1d3328;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -69,6 +79,9 @@
 
   /* ---------- barre de recherche + bouton filtres ---------- */
   .barre { display: flex; gap: .5rem; margin-top: .7rem; }
+  /* `display: flex` l'emporte sur le `display: none` que le navigateur donne à
+     [hidden] : sans cette ligne, cacher la barre ne la cachait pas. */
+  .barre[hidden] { display: none; }
   .barre input {
     flex: 1; min-width: 0; font: inherit; font-size: .92rem;
     padding: .55rem .8rem; border-radius: 999px;
@@ -279,6 +292,111 @@
   .frise-bas .dit b.arret { color: var(--accent); }
   .frise-bas .dit .aide { margin-left: auto; background: none; border: none;
                           font: inherit; color: var(--faible); cursor: pointer; }
+
+  /* Les deux onglets, sous la frise : les textes qui peuvent devenir des lois,
+     et les travaux de l'Assemblée qui n'aboutissent à aucune loi. Chacun a ses
+     propres colonnes, donc sa propre frise juste au-dessus. */
+  .frise-bas .onglets { display: flex; gap: .3rem; margin-top: .1rem; }
+  .frise-bas .onglets button {
+    flex: 1; font: inherit; font-size: .78rem; font-weight: 600;
+    padding: .42rem .3rem; border: 1px solid transparent; border-radius: 9px;
+    background: none; color: var(--faible); cursor: pointer;
+    display: flex; align-items: baseline; justify-content: center; gap: .35rem;
+  }
+  .frise-bas .onglets button[aria-selected="true"] {
+    background: var(--carte); border-color: var(--trait); color: var(--texte);
+  }
+  .frise-bas .onglets button .n { font-size: .68rem; font-weight: 500;
+                                  color: var(--faible); font-variant-numeric: tabular-nums; }
+
+  /* ---------- ce qu'une loi change au droit ---------- */
+  /* L'entrée en vigueur, sur la carte du fil : une loi promulguée peut ne pas
+     s'appliquer encore, et c'est ce qu'on cherche à savoir en premier. */
+  .vigueur {
+    display: flex; gap: .45rem; align-items: flex-start; margin-top: .55rem;
+    background: var(--doux); border-radius: 9px; padding: .45rem .55rem;
+    font-size: .76rem; color: var(--gris); line-height: 1.4;
+  }
+  .vigueur b { color: var(--texte); font-weight: 620; display: block; }
+  .vigueur.attente { background: var(--accent-doux); color: var(--accent); }
+  .vigueur.attente b { color: var(--accent); }
+  .lien-change {
+    margin-top: .5rem; font: inherit; font-size: .8rem; text-align: left;
+    background: none; border: none; padding: 0; color: var(--accent);
+    font-weight: 620; cursor: pointer;
+  }
+  .sans-change { margin-top: .5rem; font-size: .78rem; color: var(--faible);
+                 line-height: 1.4; }
+
+  .resume-change { display: flex; gap: .45rem; margin: 0 0 1rem; }
+  .resume-change .tuile {
+    flex: 1; background: var(--carte); border: 1px solid var(--trait);
+    border-radius: 11px; padding: .6rem .4rem; text-align: center;
+  }
+  .resume-change .tuile b { display: block; font-size: 1.3rem; line-height: 1.2;
+                            font-variant-numeric: tabular-nums; }
+  .resume-change .tuile span { display: block; font-size: .66rem; color: var(--gris);
+                               margin-top: .1rem; }
+  .resume-change .tuile.CREE b { color: var(--ok); }
+  .resume-change .tuile.ABROGE b { color: var(--accent); }
+
+  .code-groupe { background: var(--carte); border: 1px solid var(--trait);
+                 border-radius: var(--rayon); overflow: hidden; margin-bottom: .7rem; }
+  .code-groupe > summary { list-style: none; cursor: pointer; padding: .8rem .9rem;
+                           display: flex; justify-content: space-between;
+                           align-items: center; gap: .5rem; }
+  .code-groupe > summary::-webkit-details-marker { display: none; }
+  .code-groupe > summary::after { content: "›"; transform: rotate(90deg);
+    color: var(--faible); font-size: 1.3rem; line-height: 1; transition: transform .15s; }
+  .code-groupe[open] > summary::after { transform: rotate(-90deg); }
+  .code-groupe > summary b { font-size: .92rem; font-weight: 620; }
+  .code-groupe > summary i { font-style: normal; font-size: .74rem; color: var(--gris);
+                             display: block; }
+
+  .art { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left;
+         font: inherit; background: none; border: 0; border-top: 1px solid var(--trait);
+         padding: .7rem .9rem; cursor: pointer; color: inherit; }
+  .art:active { background: var(--doux); }
+  .art .quoi { font-size: .62rem; font-weight: 700; letter-spacing: .03em;
+               padding: .14rem .4rem; border-radius: 5px; flex: 0 0 auto;
+               background: var(--doux); color: var(--gris); }
+  .art .quoi.CREE { background: var(--ajoute-fond); color: var(--ajoute); }
+  .art .quoi.ABROGE { background: var(--retire-fond); color: var(--retire); }
+  .art .nom { flex: 1; min-width: 0; }
+  .art .nom b { display: block; font-size: .88rem; font-weight: 620; }
+  .art .nom span { display: block; font-size: .72rem; color: var(--faible); }
+  .art .fleche { color: var(--faible); font-size: 1.2rem; }
+  .jauge { height: 3px; border-radius: 2px; background: var(--trait); overflow: hidden;
+           margin-top: .3rem; width: 100%; }
+  .jauge i { display: block; height: 100%; background: var(--accent); }
+
+  .bascule-texte { display: flex; gap: .3rem; margin: 0 0 .7rem; background: var(--doux);
+                   border-radius: 9px; padding: .2rem; }
+  .bascule-texte button { flex: 1; font: inherit; font-size: .78rem; font-weight: 600;
+    padding: .4rem; border: 0; background: none; border-radius: 7px;
+    color: var(--gris); cursor: pointer; }
+  .bascule-texte button[aria-pressed="true"] { background: var(--carte); color: var(--texte); }
+  .legende-diff { display: flex; gap: .8rem; margin: 0 0 .7rem; font-size: .72rem;
+                  color: var(--gris); }
+  .legende-diff s { color: var(--retire); background: var(--retire-fond);
+                    padding: 0 .25rem; border-radius: 3px; }
+  .legende-diff u { color: var(--ajoute); background: var(--ajoute-fond);
+                    text-decoration: none; padding: 0 .25rem; border-radius: 3px; }
+  .texte-loi { background: var(--carte); border: 1px solid var(--trait);
+    border-radius: var(--rayon); padding: .9rem; font-size: .88rem; line-height: 1.65;
+    overflow-wrap: anywhere; margin-bottom: .8rem; }
+  .texte-loi del { color: var(--retire); background: var(--retire-fond);
+                   border-radius: 3px; padding: 0 .12rem; }
+  .texte-loi ins { color: var(--ajoute); background: var(--ajoute-fond);
+                   border-radius: 3px; padding: 0 .12rem; text-decoration: none;
+                   font-weight: 520; }
+  .nota { font-size: .78rem; color: var(--gris); background: var(--doux);
+          border-radius: 9px; padding: .6rem .7rem; margin-bottom: .8rem; line-height: 1.5; }
+  .lien-source { display: block; background: var(--carte); border: 1px solid var(--trait);
+    border-radius: var(--rayon); padding: .75rem .9rem; text-decoration: none;
+    color: inherit; font-size: .83rem; margin-bottom: 1.2rem; }
+  .lien-source b { display: block; color: var(--accent); font-weight: 620; }
+  .lien-source span { color: var(--faible); font-size: .74rem; }
 
   .plus, .vide {
     margin-top: .9rem; width: 100%; padding: .7rem; font: inherit; font-size: .85rem;
@@ -639,6 +757,20 @@ const EXPLICATIONS = {
   frise: ["Le parcours du texte",
     "Les six étapes qu'un texte doit franchir pour devenir une loi. Le trait coloré " +
     "montre où il en est ; les traits plus sombres, les étapes déjà passées."],
+  travaux: ["Les travaux de l'Assemblée",
+    "Ces dossiers n'aboutissent à aucune loi : ce sont des enquêtes, des rapports, " +
+    "des prises de position et des motions. Ils sont ici pour que rien ne soit " +
+    "écarté. Ils ne traversent pas les six étapes d'un texte de loi : chaque " +
+    "colonne est une catégorie, pas une étape."],
+  change: ["Ce que la loi change au droit",
+    "La comparaison entre l'article de loi tel qu'il était et tel qu'il est " +
+    "devenu. Elle est calculée mot à mot à partir du texte officiel publié par " +
+    "la Direction de l'information légale et administrative — rien n'est " +
+    "reformulé ni résumé."],
+  vigueur: ["L'entrée en vigueur",
+    "Une loi promulguée ne s'applique pas forcément tout de suite, ni en une " +
+    "seule fois : certains de ses articles peuvent n'entrer en vigueur que " +
+    "plus tard. Les dates affichées sont celles que porte le texte officiel."],
 };
 
 /* ------------------------------------------------------------------ */
@@ -665,6 +797,57 @@ const etapeDe = (n) => ETAPES.find((e) => e.n === n);
 const FRISE_EN_ORDRE = [etapeDe(ARRETE), ...PARCOURS, etapeDe(PROMULGUEE)]
                        .filter(Boolean);
 const statutDe = (t) => t.statut || (t.etape === PROMULGUEE ? "promulgue" : "en_cours");
+
+/* ---------- les deux onglets ---------- *
+ * « Textes » : ce qui peut devenir une loi, rangé par étape du parcours.
+ * « Travaux » : tout le reste — enquêtes, rapports, prises de position,
+ * motions — rangé par catégorie. Ces dossiers n'aboutissent à aucune loi,
+ * mais rien n'est écarté : ils ont leur onglet.
+ *
+ * Les deux se dessinent avec la même machinerie de colonnes. Chaque onglet
+ * dit seulement ce qui le distingue : sa liste, la catégorie d'un élément,
+ * l'ordre des colonnes, et la carte à dessiner.
+ * ------------------------------------------------------------------ */
+let ONGLET = "textes";
+let TRAVAUX = [];
+let CATEGORIES_TRAVAUX = [];
+
+const VUES = {
+  textes: {
+    nom: "Textes",
+    liste: () => retenus(),
+    total: () => TEXTES.length,
+    categorieDe: (t) => t.etape,
+    ordre: () => FRISE_EN_ORDRE,
+    cleDe: (e) => e.n,
+    carte: (t) => carte(t),
+    // La colonne la plus avancée : c'est là que se passe l'actualité.
+    ouverture: (categories) => {
+      for (let i = categories.length - 1; i >= 0; i--) {
+        if (categories[i][0] !== ARRETE) return i;
+      }
+      return 0;
+    },
+  },
+  travaux: {
+    nom: "Travaux",
+    liste: () => TRAVAUX,
+    total: () => TRAVAUX.length,
+    categorieDe: (t) => t.type,
+    ordre: () => CATEGORIES_TRAVAUX,
+    cleDe: (c) => c.nom,
+    carte: (t) => carteTravail(t),
+    ouverture: () => 0,
+  },
+};
+
+const vue = () => VUES[ONGLET];
+// La catégorie affichée, décrite : son nom, ce qu'elle est, son rang.
+function categorieDite(cle) {
+  const liste = vue().ordre();
+  const trouve = liste.find((c) => vue().cleDe(c) === cle);
+  return trouve || { nom: String(cle), quoi: "" };
+}
 
 const $ = (id) => document.getElementById(id);
 const enDate = (iso) => { const [a, m, j] = iso.split("-").map(Number); return new Date(a, m - 1, j); };
@@ -1058,13 +1241,129 @@ function carte(t) {
 
   if (t.voteEnsemble || t.votes) c.append(bandeauVote(t));
 
+  // Ce que la loi change au droit : quand elle s'applique, et combien
+  // d'articles elle touche. Sur la carte, parce que c'est la question qu'on
+  // se pose en premier devant une loi promulguée.
+  if (t.etape === PROMULGUEE) c.append(...ceQueLaLoiChange(t));
+
   // Pas de frise ici : tous les textes d'une colonne sont à la même étape.
   // Elle est en bas de l'écran, une bonne fois — voir `frise-bas`.
   return c;
 }
 
+/* ---------- l'entrée en vigueur, et le lien vers le détail ---------- *
+ * Rien n'est rédigé ici à partir de rien : les dates viennent du texte
+ * officiel, le nombre d'articles est un compte, et la raison pour laquelle une
+ * loi ne change aucun article est son propre type de dossier.
+ * ------------------------------------------------------------------ */
+
+// Les lois qui ne modifient aucun article, quand la source dit pourquoi.
+// Seuls les types de dossier qui l'expliquent d'eux-mêmes sont ici ; pour les
+// autres, on constate sans inventer de raison.
+const POURQUOI_SANS_CHANGEMENT = {
+  "Projet de ratification des traités et conventions":
+    "ce texte autorise la ratification d'un traité",
+};
+
+function ceQueLaLoiChange(t) {
+  if (ETAT.droitConsolideIndisponible) return [];
+  const blocs = [];
+  const c = t.change;
+  if (!c || !c.total) {
+    const raison = POURQUOI_SANS_CHANGEMENT[t.type];
+    blocs.push(el("p", "sans-change",
+      "Ne modifie aucun article de loi existante"
+      + (raison ? " — " + raison + "." : ".")));
+    return blocs;
+  }
+
+  const dates = c.dates || [];
+  const aujourdhui = new Date().toISOString().slice(0, 10);
+  const aVenir = dates.filter((d) => d.date > aujourdhui);
+  const boite = el("div", "vigueur" + (aVenir.length ? " attente" : ""));
+  const zone = el("div");
+  if (!aVenir.length) {
+    const derniere = dates.length ? dates[dates.length - 1].date : null;
+    zone.append(el("b", null, derniere
+      ? "S'applique depuis le " + dateLongue.format(enDate(derniere))
+      : "S'applique"));
+  } else if (aVenir.length === dates.length) {
+    zone.append(el("b", null, "Ne s'applique pas encore"));
+    zone.append(document.createTextNode(
+      "Entrée en vigueur le " + dateLongue.format(enDate(aVenir[0].date)) + "."));
+  } else {
+    const restants = aVenir.reduce((n, d) => n + d.articles, 0);
+    zone.append(el("b", null, "Ne s'applique pas encore en entier"));
+    zone.append(document.createTextNode(
+      `${nb.format(restants)} article${restants > 1 ? "s" : ""} sur `
+      + `${nb.format(c.total)} entre${restants > 1 ? "nt" : ""} en vigueur le `
+      + dateLongue.format(enDate(aVenir[0].date)) + "."));
+  }
+  boite.append(zone);
+  boite.addEventListener("click", () => expliquer(
+    EXPLICATIONS.vigueur[0], EXPLICATIONS.vigueur[1],
+    dates.map((d) => `${nb.format(d.articles)} article${d.articles > 1 ? "s" : ""} `
+                     + `le ${dateLongue.format(enDate(d.date))}`).join("\n")));
+  blocs.push(boite);
+
+  const bouton = el("button", "lien-change",
+    `Voir les ${nb.format(c.total)} article${c.total > 1 ? "s" : ""} que cette loi change ›`);
+  bouton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    location.hash = "#/change/" + t.uid;
+  });
+  blocs.push(bouton);
+  return blocs;
+}
+
+/* ---------- la carte d'un travail de l'Assemblée ---------- *
+ * Plus sobre que celle d'un texte : ces dossiers n'ont ni parcours, ni vote
+ * sur l'ensemble, ni promulgation. Ils ont un titre, une date et une issue.
+ * ------------------------------------------------------------------ */
+function carteTravail(t) {
+  const c = el("article", "carte");
+  const h = el("h2");
+  const lien = t.url_an || t.url_senat;
+  if (lien) {
+    const a = el("a", null, t.titre);
+    a.href = lien; a.target = "_blank"; a.rel = "noopener";
+    h.append(a);
+  } else {
+    h.append(document.createTextNode(t.titre));
+  }
+  c.append(h);
+
+  const l = el("div", "lignes");
+  const ch = t.chambre || null;
+  l.append(etiquette("chambre-" + (ch || "aucune"), CHAMBRES[ch][0], CHAMBRES[ch]));
+  if (t.lecture) l.append(etiquette("", t.lecture, EXPLICATIONS.lecture));
+  if (t.dernier_acte) l.append(etiquette("", t.dernier_acte, EXPLICATIONS.acte));
+  if (t.conclusion) l.append(etiquette("", t.conclusion, EXPLICATIONS.conclusion));
+  if (t.date_dernier_mouvement) {
+    l.append(etiquette("", dateCourte.format(enDate(t.date_dernier_mouvement)),
+                       EXPLICATIONS.date));
+  }
+  c.append(l);
+  return c;
+}
+
 /* ---------- affichage ---------- */
+// Changer d'onglet remet tout à zéro : la recherche et les filtres portent sur
+// les textes, pas sur les travaux, et les garder ferait un fil vide sans raison
+// visible.
+function changerDOnglet(cle) {
+  if (cle === ONGLET) return;
+  ONGLET = cle;
+  document.querySelector(".barre").hidden = cle !== "textes";
+  if (!$("filtres").hidden) {
+    $("filtres").hidden = true;
+    $("bascule").setAttribute("aria-expanded", "false");
+  }
+  dessiner();
+}
+
 function dessiner(garderPosition = false) {
+  if (ONGLET === "travaux") return dessinerTravaux(garderPosition);
   const liste = retenus();
   const y = garderPosition ? window.scrollY : 0;
 
@@ -1100,12 +1399,33 @@ function dessiner(garderPosition = false) {
     fil.append(el("div", "vide",
       "Aucun texte ne correspond. Essayez d'enlever un filtre."));
     CATEGORIES = [];
-    $("frise-bas").hidden = true;
+    // La barre du bas reste : c'est par ses onglets qu'on repart.
+    dessinerFriseBas(null);
     return;
   }
 
   dessinerColonnes(liste);
   if (!garderPosition) window.scrollTo(0, 0); else window.scrollTo(0, y);
+}
+
+// L'onglet des travaux : mêmes colonnes, même frise, pas de filtres.
+function dessinerTravaux(garderPosition = false) {
+  const y = garderPosition ? window.scrollY : 0;
+  $("compte").innerHTML = "";
+  $("compte").append(el("b", null, nb.format(TRAVAUX.length)));
+  $("compte").append(document.createTextNode(
+    " dossiers de l'Assemblée qui n'aboutissent à aucune loi"));
+
+  const fil = $("fil");
+  fil.textContent = "";
+  if (!TRAVAUX.length) {
+    fil.append(el("div", "vide", "Aucun travail à afficher."));
+    CATEGORIES = [];
+    dessinerFriseBas(null);
+    return;
+  }
+  dessinerColonnes(TRAVAUX);
+  window.scrollTo(0, garderPosition ? y : 0);
 }
 
 /* ---------- les colonnes ---------- *
@@ -1127,12 +1447,14 @@ function dessiner(garderPosition = false) {
 function parCategorie(liste) {
   const paquets = new Map();
   for (const t of liste) {
-    if (!paquets.has(t.etape)) paquets.set(t.etape, []);
-    paquets.get(t.etape).push(t);
+    const cle = vue().categorieDe(t);
+    if (!paquets.has(cle)) paquets.set(cle, []);
+    paquets.get(cle).push(t);
   }
-  const rangDe = (n) => {
-    const i = FRISE_EN_ORDRE.findIndex((e) => e.n === n);
-    return i === -1 ? FRISE_EN_ORDRE.length : i;
+  const ordre = vue().ordre();
+  const rangDe = (cle) => {
+    const i = ordre.findIndex((c) => vue().cleDe(c) === cle);
+    return i === -1 ? ordre.length : i;
   };
   return [...paquets.entries()].sort((a, x) => rangDe(a[0]) - rangDe(x[0]));
 }
@@ -1158,12 +1480,23 @@ function fleche(signe, ou, rang) {
   return b;
 }
 
-function colonne(etape, textes, rang) {
+// Ce que dit le sous-titre d'une colonne : « étape 3 sur 6 », ou la phrase qui
+// explique la catégorie. Les travaux n'ont pas d'étapes — ils n'en traversent
+// aucune — donc rien à numéroter.
+function rangDeLaColonne(cle) {
+  if (ONGLET !== "textes") return "";
+  if (cle === PROMULGUEE) return "parcours terminé";
+  if (cle === ARRETE) return "plus examinés";
+  return `étape ${cle} sur 6`;
+}
+
+function colonne(cle, textes, rang) {
   const col = el("section", "colonne");
-  col.dataset.etape = String(etape);
-  const e = etapeDe(etape);
-  const fini = e.n === PROMULGUEE;
-  const arret = e.n === ARRETE;
+  col.dataset.etape = String(cle);
+  const e = categorieDite(cle);
+  const fini = ONGLET === "textes" && cle === PROMULGUEE;
+  const arret = ONGLET === "textes" && cle === ARRETE;
+  const situation = rangDeLaColonne(cle);
 
   const tete = el("div", "tete-colonne");
   const titre = el("div", "titre-etape");
@@ -1172,26 +1505,26 @@ function colonne(etape, textes, rang) {
   titre.append(fleche("‹", "précédente", rang - 1));
   const nom = el("button", "nom", e.nom);
   nom.addEventListener("click", () => expliquer(
-    e.nom, e.quoi,
-    fini ? "Parcours terminé" : arret ? "Plus examinés" : `Étape ${e.n} sur 6`));
+    e.nom, e.quoi, situation ? situation[0].toUpperCase() + situation.slice(1) : ""));
   titre.append(nom);
   titre.append(fleche("›", "suivante", rang + 1));
   tete.append(titre);
+  const quoi = ONGLET === "textes" ? "texte" : "dossier";
   tete.append(el("div", "sous-etape",
-    (fini ? "parcours terminé" : arret ? "plus examinés" : `étape ${e.n} sur 6`)
-    + ` · ${nb.format(textes.length)} texte${textes.length > 1 ? "s" : ""}`));
+    (situation ? situation + " · " : "")
+    + `${nb.format(textes.length)} ${quoi}${textes.length > 1 ? "s" : ""}`));
   col.append(tete);
 
   let montres = 0;
   const paquetSuivant = () => {
     const ancienBouton = col.querySelector(".plus");
     if (ancienBouton) ancienBouton.remove();
-    for (const t of textes.slice(montres, montres + PAR_PAQUET)) col.append(carte(t));
+    for (const t of textes.slice(montres, montres + PAR_PAQUET)) col.append(vue().carte(t));
     montres = Math.min(montres + PAR_PAQUET, textes.length);
     const reste = textes.length - montres;
     if (reste > 0) {
       const bouton = el("button", "plus",
-        `Afficher ${nb.format(Math.min(reste, PAR_PAQUET))} textes de plus (${nb.format(reste)} restants)`);
+        `Afficher ${nb.format(Math.min(reste, PAR_PAQUET))} de plus (${nb.format(reste)} restants)`);
       bouton.addEventListener("click", paquetSuivant);
       col.append(bouton);
     }
@@ -1248,10 +1581,7 @@ function surveillerLeTour(fil) {
 // dépôt sont à un glissement de là, vers la gauche. « Arrêté en chemin » ne
 // compte pas : ce n'est pas une étape mais une sortie de route.
 function colonneDOuverture(categories) {
-  for (let i = categories.length - 1; i >= 0; i--) {
-    if (categories[i][0] !== ARRETE) return i;
-  }
-  return 0;
+  return vue().ouverture(categories);
 }
 
 /* ---------- la frise du bas ---------- *
@@ -1266,54 +1596,74 @@ function colonneDOuverture(categories) {
 // les a posées. La frise s'en sert pour savoir où mène chaque trait.
 let CATEGORIES = [];
 
-function dessinerFriseBas(etape) {
-  const barre = $("frise-bas");
-  barre.hidden = !CATEGORIES.length;
-  if (barre.hidden) return;
-  barre.textContent = "";
+// Les deux onglets, sous la frise. Ils restent visibles même quand le fil est
+// vide : c'est par eux qu'on repart.
+function dessinerOnglets(barre) {
+  const onglets = el("div", "onglets");
+  for (const [cle, v] of Object.entries(VUES)) {
+    const b = el("button", null, v.nom);
+    b.setAttribute("aria-selected", String(cle === ONGLET));
+    b.append(el("span", "n", nb.format(v.total())));
+    b.addEventListener("click", () => changerDOnglet(cle));
+    onglets.append(b);
+  }
+  barre.append(onglets);
+}
 
-  const fini = etape === PROMULGUEE;
-  const arret = etape === ARRETE;
-  const rangDe = (n) => CATEGORIES.findIndex(([e]) => e === n);
+function dessinerFriseBas(cle) {
+  const barre = $("frise-bas");
+  barre.hidden = false;
+  barre.textContent = "";
+  if (!CATEGORIES.length) { dessinerOnglets(barre); return; }
+
+  const fini = ONGLET === "textes" && cle === PROMULGUEE;
+  const arret = ONGLET === "textes" && cle === ARRETE;
+  const rangDe = (c) => CATEGORIES.findIndex(([x]) => x === c);
 
   const traits = el("div", "traits");
-  for (const e of FRISE_EN_ORDRE) {
-    const estFin = e.n === PROMULGUEE;
-    const estArret = e.n === ARRETE;
-    const passee = !arret && !estArret && (fini ? !estFin : e.n < etape);
-    const ici = e.n === etape;
+  for (const categorie of vue().ordre()) {
+    const n = vue().cleDe(categorie);
+    const estFin = ONGLET === "textes" && n === PROMULGUEE;
+    const estArret = ONGLET === "textes" && n === ARRETE;
+    // « Passée » n'a de sens que pour un parcours. Les travaux ne se
+    // traversent pas : aucune de leurs catégories n'est derrière une autre.
+    const passee = ONGLET === "textes" && !arret && !estArret
+                   && (fini ? !estFin : n < cle);
+    const ici = n === cle;
     const b = el("button", [estFin ? "fini" : "", estArret ? "arret" : "",
                             passee ? "faite" : "", ici ? "ici" : ""]
                            .filter(Boolean).join(" "));
-    b.setAttribute("aria-label", e.nom);
+    b.setAttribute("aria-label", categorie.nom);
     if (ici) b.setAttribute("aria-current", "step");
-    const rang = rangDe(e.n);
-    const vide = rang >= CATEGORIES.length || CATEGORIES[rang]?.[0] !== e.n;
+    const rang = rangDe(n);
+    const vide = rang === -1;
     // Une catégorie vide garde son trait : la frise doit garder la même forme
     // d'un jour à l'autre, sinon elle cesse d'être un repère. Elle ne mène
     // nulle part, mais elle dit ce qu'elle est.
     b.classList.toggle("absent", vide);
     b.append(el("i"));
     b.addEventListener("click", () => vide
-      ? expliquer(e.nom, e.quoi, "Aucun texte à cette étape en ce moment")
+      ? expliquer(categorie.nom, categorie.quoi, "Rien dans cette catégorie en ce moment")
       : versColonne(rang));
     traits.append(b);
   }
   barre.append(traits);
 
-  const e = etapeDe(etape) || {};
+  const e = categorieDite(cle);
+  const situation = rangDeLaColonne(cle);
   const dit = el("div", "dit");
-  const nom = el("b", fini ? "fini" : arret ? "arret" : null, e.nom || "");
-  dit.append(nom);
-  dit.append(document.createTextNode(
-    fini ? "parcours terminé" : arret ? "plus examinés" : `étape ${etape} sur 6`));
+  dit.append(el("b", fini ? "fini" : arret ? "arret" : null, e.nom || ""));
+  if (situation) dit.append(document.createTextNode(situation));
   const aide = el("button", "aide", "ⓘ");
-  aide.setAttribute("aria-label", "Ce que veut dire cette étape");
+  aide.setAttribute("aria-label", "Ce que veut dire cette catégorie");
   aide.addEventListener("click", () => expliquer(
-    EXPLICATIONS.frise[0], EXPLICATIONS.frise[1] + "\n\n" + e.nom + " : " + e.quoi,
-    fini ? "Parcours terminé" : arret ? "Plus examinés" : `Étape ${etape} sur 6`));
+    ONGLET === "textes" ? EXPLICATIONS.frise[0] : "Les travaux de l'Assemblée",
+    (ONGLET === "textes" ? EXPLICATIONS.frise[1] : EXPLICATIONS.travaux[1])
+    + "\n\n" + e.nom + " : " + (e.quoi || ""),
+    situation ? situation[0].toUpperCase() + situation.slice(1) : ""));
   dit.append(aide);
   barre.append(dit);
+  dessinerOnglets(barre);
 }
 
 // La colonne réellement sous les yeux — celle dont le bord gauche est le plus
@@ -1328,7 +1678,12 @@ function categorieVisible() {
     const d = Math.abs(c.offsetLeft - fil.scrollLeft);
     if (d < ecart) { ecart = d; proche = c; }
   }
-  return Number(proche.dataset.etape);
+  // La clé d'une colonne est un numéro d'étape dans l'onglet des textes, un
+  // nom de catégorie dans celui des travaux. La convertir en nombre dans les
+  // deux cas donnait NaN pour les travaux, et la frise gardait l'étape
+  // précédente au lieu de suivre.
+  const cle = proche.dataset.etape;
+  return ONGLET === "textes" ? Number(cle) : cle;
 }
 
 // La catégorie qu'on regardait au dernier passage. Sert à savoir quand on
@@ -1337,7 +1692,7 @@ let CATEGORIE_VUE = null;
 
 function suivreLaFrise(remonter = true) {
   const etape = categorieVisible();
-  if (etape === null || Number.isNaN(etape)) return;
+  if (etape === null || (typeof etape === "number" && Number.isNaN(etape))) return;
   if (etape !== CATEGORIE_VUE) {
     // Changer d'étape en étant descendu dans la liste déposait le lecteur au
     // milieu de la nouvelle colonne. Sans animation : sur un changement de
@@ -1749,6 +2104,14 @@ async function ouvrirFiche(uid) {
   liens.append(zone);
   f.append(liens);
 
+  // Ce que la loi change au droit. Le détail vit sur son propre écran : la
+  // loi de finances pour 2025 touche 574 articles, qui n'ont rien à faire au
+  // milieu d'une fiche.
+  if (d.statut === "promulgue" && !ETAT.droitConsolideIndisponible) {
+    f.append(...ceQueLaLoiChange({ ...d, uid, change: (
+      TEXTES.find((x) => x.uid === uid) || {}).change, etape: PROMULGUEE }));
+  }
+
   const items = filDuParcours(d);
   const nbVotes = (d.votes || []).length;
   const parcours = bloc(
@@ -1781,19 +2144,209 @@ async function ouvrirFiche(uid) {
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * Ce qu'une loi change au droit
+ *
+ * Deux écrans. La liste des articles, groupés par code, qui ne porte aucun
+ * texte et sert à choisir ; puis la fiche d'un article, avec son texte entier
+ * et la comparaison. On n'y accède que depuis la fiche du texte : ce n'est
+ * pas une rubrique du fil, c'est le détail d'une loi.
+ * ------------------------------------------------------------------ */
+
+function ouvrirEcran() {
+  const f = $("fiche");
+  f.textContent = "";
+  f.hidden = false;
+  $("fil").hidden = true;
+  $("filtres").hidden = true;
+  $("frise-bas").hidden = true;
+  $("bascule").setAttribute("aria-expanded", "false");
+  $("compte").hidden = true;
+  document.querySelector(".barre").hidden = true;
+  window.scrollTo(0, 0);
+  return f;
+}
+
+function boutonRetour(vers, libelle) {
+  const b = el("button", "retour", "‹ " + libelle);
+  b.addEventListener("click", () => { location.hash = vers; });
+  return b;
+}
+
+async function ouvrirChangements(uid) {
+  const f = ouvrirEcran();
+  const retour = boutonRetour("#/texte/" + uid, "Retour au texte");
+  f.append(retour);
+  f.append(el("p", "avertissement", "Chargement…"));
+
+  let d;
+  try {
+    d = await lire(`changements/${uid}.json`, true);
+  } catch (e) {
+    f.textContent = "";
+    f.append(retour, el("div", "vide", "Détail indisponible : " + e.message));
+    return;
+  }
+  f.textContent = "";
+  f.append(retour);
+
+  const texte = TEXTES.find((x) => x.uid === uid);
+  f.append(el("h2", "fiche-titre", texte ? texte.titre : "Ce que cette loi change"));
+  const sous = el("p", "fiche-sous",
+    (d.loi ? "LOI n° " + d.loi + " — " : "") + "ce qu'elle change au droit.");
+  f.append(sous);
+
+  // Le résumé : combien d'articles modifiés, créés, abrogés. Un compte, pas
+  // une appréciation.
+  const actions = d.actions || {};
+  const resume = el("div", "resume-change");
+  for (const [cle, nom] of [["MODIFIE", "modifiés"], ["CREE", "créés"],
+                            ["ABROGE", "abrogés"]]) {
+    const tuile = el("div", "tuile " + cle);
+    tuile.append(el("b", null, nb.format(actions[cle] || 0)), el("span", null, nom));
+    resume.append(tuile);
+  }
+  f.append(resume);
+
+  for (const groupe of d.groupes || []) {
+    const boite = el("details", "code-groupe");
+    boite.open = (d.groupes.length <= 3);
+    const titre = el("summary");
+    const zone = el("div");
+    zone.append(el("b", null, groupe.ou));
+    zone.append(el("i", null,
+      `${nb.format(groupe.articles.length)} article${groupe.articles.length > 1 ? "s" : ""}`));
+    titre.append(zone);
+    boite.append(titre);
+    for (const a of groupe.articles) boite.append(ligneArticle(uid, a));
+    f.append(boite);
+  }
+
+  f.append(el("p", "avertissement",
+    "Les articles que la loi se contente de citer ne sont pas comptés ici : "
+    + "elle n'y touche pas."));
+}
+
+function ligneArticle(uid, a) {
+  const b = el("button", "art");
+  b.append(el("span", "quoi " + a.quoi, a.action));
+  const nom = el("div", "nom");
+  nom.append(el("b", null, "Article " + a.numero));
+  // « 19 % du texte a changé » se lit ; « 81 % commun » demande un effort.
+  nom.append(el("span", null, a.commun === null
+    ? `${nb.format(a.mots)} mot${a.mots > 1 ? "s" : ""}, texte nouveau`
+    : `${100 - a.commun} % du texte a changé`));
+  if (a.commun !== null) {
+    const jauge = el("div", "jauge");
+    const barre = el("i");
+    barre.style.width = Math.max(2, 100 - a.commun) + "%";
+    jauge.append(barre);
+    nom.append(jauge);
+  }
+  b.append(nom, el("span", "fleche", "›"));
+  b.addEventListener("click", () => {
+    location.hash = `#/change/${uid}/${a.id}`;
+  });
+  return b;
+}
+
+// Comment le texte est montré : les différences, le texte en vigueur seul, ou
+// celui d'avant seul. Le choix se garde d'un article à l'autre.
+let MODE_TEXTE = "diff";
+
+async function ouvrirArticle(uid, identifiant) {
+  const f = ouvrirEcran();
+  const retour = boutonRetour("#/change/" + uid, "Tous les articles");
+  f.append(retour);
+  f.append(el("p", "avertissement", "Chargement…"));
+
+  let a;
+  try {
+    a = await lire(`changements/${uid}/${identifiant}.json`, true);
+  } catch (e) {
+    f.textContent = "";
+    f.append(retour, el("div", "vide", "Article indisponible : " + e.message));
+    return;
+  }
+  dessinerArticle(f, retour, uid, a);
+}
+
+function dessinerArticle(f, retour, uid, a) {
+  f.textContent = "";
+  f.append(retour);
+  f.append(el("h2", "fiche-titre", "Article " + a.numero));
+  const quand = a.debut ? dateLongue.format(enDate(a.debut)) : null;
+  f.append(el("p", "fiche-sous",
+    (a.ou || "") + (quand ? " — rédaction en vigueur le " + quand : "")));
+
+  const neuf = a.commun === null;
+  if (!neuf) {
+    const bascule = el("div", "bascule-texte");
+    for (const [cle, nom] of [["diff", "Ce qui change"], ["apres", "Texte en vigueur"],
+                              ["avant", "Texte précédent"]]) {
+      const b = el("button", null, nom);
+      b.setAttribute("aria-pressed", String(MODE_TEXTE === cle));
+      b.addEventListener("click", () => {
+        MODE_TEXTE = cle;
+        dessinerArticle(f, retour, uid, a);
+        window.scrollTo(0, 0);
+      });
+      bascule.append(b);
+    }
+    f.append(bascule);
+  }
+
+  const mode = neuf ? "apres" : MODE_TEXTE;
+  if (mode === "diff") {
+    const legende = el("div", "legende-diff");
+    const gauche = el("span");
+    gauche.append(el("s", null, "retiré"), document.createTextNode(" par la loi"));
+    const droite = el("span");
+    droite.append(el("u", null, "ajouté"), document.createTextNode(" par la loi"));
+    legende.append(gauche, droite);
+    f.append(legende);
+  }
+
+  const corps = el("div", "texte-loi");
+  for (const m of a.morceaux || []) {
+    if (mode === "avant" && m.role === "ajoute") continue;
+    if (mode === "apres" && m.role === "retire") continue;
+    const balise = mode === "diff" && m.role === "retire" ? "del"
+                 : mode === "diff" && m.role === "ajoute" ? "ins" : "span";
+    corps.append(el(balise, null, m.texte), document.createTextNode(" "));
+  }
+  f.append(corps);
+
+  // Les conditions d'entrée en vigueur, quand le texte officiel en porte. Ce
+  // n'est pas de l'article, c'est ce que le législateur a écrit à côté.
+  if (a.nota) f.append(el("p", "nota", a.nota));
+
+  const source = el("a", "lien-source");
+  source.href = a.source;
+  source.target = "_blank"; source.rel = "noopener";
+  source.append(el("b", null, "Lire l'article sur Légifrance ›"),
+                el("span", null, "Le texte officiel, sur le site du service public."));
+  f.append(source);
+}
+
 function fermerFiche() {
-  $("frise-bas").hidden = !CATEGORIES.length;
+  $("frise-bas").hidden = false;
   $("fiche").hidden = true;
   $("fiche").textContent = "";
   $("fil").hidden = false;
   $("compte").hidden = false;
-  document.querySelector(".barre").hidden = false;
+  // La recherche et les filtres ne portent que sur les textes.
+  document.querySelector(".barre").hidden = ONGLET !== "textes";
 }
 
 function router() {
-  const m = location.hash.match(/^#\/texte\/([\w-]+)$/);
-  if (m) ouvrirFiche(m[1]);
-  else fermerFiche();
+  const article = location.hash.match(/^#\/change\/([\w-]+)\/(\w+)$/);
+  if (article) return ouvrirArticle(article[1], article[2]);
+  const change = location.hash.match(/^#\/change\/([\w-]+)$/);
+  if (change) return ouvrirChangements(change[1]);
+  const texte = location.hash.match(/^#\/texte\/([\w-]+)$/);
+  if (texte) return ouvrirFiche(texte[1]);
+  fermerFiche();
 }
 window.addEventListener("hashchange", router);
 
@@ -1835,12 +2388,13 @@ function lire(nom, obligatoire = false) {
 async function charger() {
   $("lien-socle").href = new URL(SOCLE + "/textes.json", location.href).href;
   try {
-    const [textes, promulguees, arretes, etat, groupes] = await Promise.all([
+    const [textes, promulguees, arretes, etat, groupes, travaux] = await Promise.all([
       lire("textes.json", true),
       lire("promulgues.json"),
       lire("arretes.json"),
       lire("etat.json"),
       lire("groupes.json"),
+      lire("travaux.json"),
     ]);
     // Trois fichiers, trois issues. Les lois promulguées ouvrent le fil — une
     // application qui s'appelle « Où en sont les lois » doit montrer celles
@@ -1853,6 +2407,10 @@ async function charger() {
     TEXTES.sort((a, b) => b.etape - a.etape ||
                 b.date_dernier_mouvement.localeCompare(a.date_dernier_mouvement));
     GROUPES = new Map((groupes?.groupes || []).map((g) => [g.sigle, g]));
+    // Les travaux de l'Assemblée : le second onglet. S'ils manquent, l'onglet
+    // reste, vide et honnête, plutôt que de disparaître sans explication.
+    TRAVAUX = travaux?.travaux || [];
+    CATEGORIES_TRAVAUX = travaux?.categories || [];
     ETAT = etat || {};
     $("maj").textContent = (ETAT.genereLe || textes.genereLe || "").slice(0, 10)
       ? dateLongue.format(enDate((ETAT.genereLe || textes.genereLe).slice(0, 10)))

@@ -48,7 +48,9 @@ jobs:
           python-version: "3.12"
       - name: Tests
         working-directory: socle
-        run: python test_extraction.py
+        run: |
+          python test_extraction.py
+          python test_legi.py
 
   publier:
     name: Récupérer et publier
@@ -80,6 +82,26 @@ jobs:
             sleep $((essai * 30))
           done
           exit 1
+
+      # Le droit consolidé se garde d'un jour sur l'autre. La première passe lit
+      # un socle de 1,1 Go — quinze minutes, mesurées — et n'a pas à être
+      # refaite : seules les archives quotidiennes de 1 à 4 Mo s'y ajoutent
+      # ensuite. Sans ce cache, on relirait le socle chaque matin pour rien.
+      - name: Retrouver le droit consolidé de la veille
+        uses: actions/cache@v4
+        with:
+          path: socle/legi.db
+          key: legi-${{ github.run_id }}
+          restore-keys: legi-
+
+      # Facultatif, et volontairement : sans lui, tout le reste se publie et
+      # l'application n'affiche simplement pas ce que les lois changent. Une
+      # panne du dépôt de la DILA ne doit pas laisser le site d'hier en ligne.
+      - name: Récupérer ce que les lois changent au droit
+        working-directory: socle
+        continue-on-error: true
+        timeout-minutes: 90
+        run: python recuperer_legi.py
 
       - name: Écrire les fichiers à publier
         working-directory: socle
