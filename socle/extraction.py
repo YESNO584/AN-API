@@ -275,6 +275,37 @@ def details_acte(acte: dict, organes: dict[str, dict] | None = None,
     return d
 
 
+# Ce qui fait un événement de calendrier, et ce qui n'en fait pas. Un dépôt, un
+# renvoi en commission, une nomination de rapporteur sont des actes
+# administratifs : ils n'ont ni heure, ni public, ni rien à suivre en direct.
+# Restent les moments où le Parlement se réunit et décide.
+GENRES = (
+    ("DEBATS-DEC", "decision"),      # « le texte est adopté », « rejeté »
+    ("DEBATS-SEANCE", "seance"),     # la discussion en séance publique
+    ("-REUNION", "commission"),      # la commission se réunit et amende
+    ("PROM-PUB", "promulgation"),    # le Président signe : c'est une loi
+)
+
+# Les portées de vote qui méritent une ligne au calendrier. Sur 2 748 votes
+# rattachés à un texte, **2 260 portent sur un amendement** (mesuré le
+# 2026-09-02) : les afficher noierait le calendrier sous des scrutins de
+# détail, alors que la séance du jour est déjà là pour les porter.
+VOTES_AU_CALENDRIER = frozenset({"ensemble", "motion"})
+
+
+def genre_d_evenement(code: str) -> str | None:
+    """Ce qu'une étape est, pour un calendrier — ou `None` si elle n'y a pas sa place.
+
+    Le code d'une étape porte la chambre et la lecture en préfixe
+    (`AN1-DEBATS-SEANCE`, `SN2-DEBATS-DEC`) : on reconnaît donc la fin du code,
+    pas le code entier.
+    """
+    for motif, genre in GENRES:
+        if code and motif in code:
+            return genre
+    return None
+
+
 def numero_etape(code: str, chambre_initiale: str | None) -> int:
     """Où se situe un acte, sur l'échelle des six étapes.
 

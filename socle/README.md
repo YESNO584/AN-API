@@ -408,8 +408,24 @@ signale la panne.
 | `textes/<uid>.json` | 18 Mo | — | Un fichier par texte : parcours, votes, auteur, cosignataires (médiane 4 Ko) |
 | `amendements/<uid>.json` | 30 Mo | — | Les amendements d'un texte, chargés seulement si on les ouvre (médiane 90 Ko, 289 fichiers) |
 | `travaux.json` | 337 Ko | — | Les 708 dossiers qui n'aboutissent à aucune loi, et leurs catégories : **l'onglet « Travaux »** |
+| `calendrier.json` | 1 Ko | — | Les mois qui portent des événements, et combien : l'index du calendrier |
+| `calendrier/<AAAA-MM>.json` | 404 Ko | — | Un mois par fichier : séances, commissions, décisions, votes, promulgations |
 | `changements/<uid>.json` | — | — | Ce qu'une loi change au droit : les articles, groupés par code. **Aucun texte** — la liste sert à choisir |
 | `changements/<uid>/<LEGIARTI>.json` | — | — | Un article : son texte entier, découpé en morceaux égaux, retirés, ajoutés |
+
+**Pourquoi un fichier par mois pour le calendrier.** Il n'affiche qu'un mois à
+la fois ; charger deux ans pour en montrer trente jours serait absurde. Chaque
+événement porte l'identifiant de son texte, jamais son titre — la liste des
+textes est déjà chargée, l'application sait le retrouver.
+
+**Ce que le calendrier retient, et ce qu'il écarte.** 2 323 événements sur les
+8 967 étapes datées : les séances (721), les commissions (1 022), les décisions
+(421), les promulgations (107) et les scrutins publics (52). Un dépôt, un renvoi
+en commission, une nomination de rapporteur n'y sont pas — ce sont des actes
+administratifs, sans heure ni public. Et sur les 2 748 votes rattachés à un
+texte, **2 260 portent sur un amendement** : les afficher noierait le calendrier
+sous des scrutins de détail, alors que la séance du jour est déjà là pour les
+porter. Voir `genre_d_evenement` et `VOTES_AU_CALENDRIER` dans `extraction.py`.
 
 **Pourquoi deux niveaux pour les changements.** La loi de finances pour 2025
 touche 574 articles. Tout mettre dans un fichier ferait plusieurs méga-octets

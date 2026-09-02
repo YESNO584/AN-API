@@ -34,6 +34,13 @@ a pas encore d'application, de base de données ni de dépendances.
   archives téléchargées sont ignorés par git — ils se reconstruisent avec
   `socle/recuperer.py`, `socle/recuperer_legi.py` puis `socle/publier.py`.
   La maquette ne les embarque plus : elle lit les fichiers publiés.
+- **L'avenir n'est presque pas dans les données, et ce n'est pas un défaut.**
+  Mesuré le 2026-09-02 : 1 seule étape future, 0 vote futur, et 35 réunions à
+  venir dans l'agenda de l'Assemblée sur 7 512, dont une seule nomme un texte.
+  L'open data ne publie une réunion qu'une fois convoquée, et le Parlement est
+  en vacances entre les sessions. Le calendrier se remplit donc de lui-même à
+  la rentrée : ne rien promettre d'un agenda prévisionnel, ne pas aller
+  chercher une autre source pour combler.
 - **`legi.db` est séparée de `parlement.db`, et c'est voulu.** La base du
   Parlement se reconstruit en une minute ; celle du droit consolidé demande
   une passe de 15,7 minutes sur un fichier de 1,1 Go. Elle est donc mise en

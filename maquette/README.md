@@ -28,6 +28,24 @@ n'y allume aucune étape « déjà passée », parce qu'il n'y en a pas.
 La recherche et les filtres ne s'affichent que sur l'onglet des textes : ils
 portent sur des étapes et des chambres, qui n'ont pas de sens ici.
 
+## Le calendrier
+
+Un bouton en haut à droite de l'en-tête ouvre le calendrier : **2 323 séances,
+commissions, décisions, votes et promulgations**, de juillet 2024 à septembre
+2026. Une vue mois, les jours porteurs marqués d'un à trois points, la liste du
+jour choisi en dessous. **Chaque ligne mène à la fiche de son texte.**
+
+Une décision affiche son résultat quand un scrutin public a eu lieu :
+« adopté — 187 pour, 0 contre, 0 abstention ».
+
+**Ce qu'il ne peut pas montrer, et pourquoi.** Presque rien à venir. Mesuré le
+2026-09-02 : **1 seule étape future** dans toute la base, **0 vote futur**, et
+sur les 7 512 réunions de l'agenda de l'Assemblée, **35 sont à venir, dont une
+seule nomme un texte**. La raison est simple : le Parlement est en vacances
+jusqu'à l'ouverture de la session, et l'open data ne publie une réunion qu'une
+fois convoquée. Le calendrier se remplira de lui-même à la rentrée — il n'y a
+rien à corriger, mais il ne faut pas promettre un agenda prévisionnel.
+
 ## Ce qu'elle montre
 
 **2 150 textes**, rangés par étape du parcours en **colonnes côte à côte** —

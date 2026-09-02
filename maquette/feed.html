@@ -84,7 +84,20 @@
     position: sticky; top: var(--haut-bandeau, 48px); z-index: 20;
     background: var(--fond); border-bottom: 1px solid var(--trait);
   }
-  h1 { font-size: 1.45rem; margin: 0; letter-spacing: -.02em; font-weight: 660; }
+  .titre-ligne { display: flex; align-items: center; gap: .6rem; }
+  h1 { font-size: 1.45rem; margin: 0; letter-spacing: -.02em; font-weight: 660;
+       flex: 1; min-width: 0; }
+  .bouton-agenda {
+    flex: 0 0 auto; width: 2.4rem; height: 2.4rem; padding: 0; cursor: pointer;
+    border: 1px solid var(--trait-fort); border-radius: 11px;
+    background: var(--carte); color: var(--gris);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bouton-agenda:active { border-color: var(--accent); color: var(--accent); }
+  .bouton-agenda svg { width: 1.25rem; height: 1.25rem; fill: none;
+                       stroke: currentColor; stroke-width: 1.7;
+                       stroke-linecap: round; }
+  .bouton-agenda svg .plein { fill: currentColor; stroke: none; }
   .compte { font-size: .82rem; color: var(--gris); margin-top: .15rem; }
   .compte b { color: var(--texte); font-variant-numeric: tabular-nums; }
 
@@ -319,6 +332,61 @@
   }
   .frise-bas .onglets button .n { font-size: .68rem; font-weight: 500;
                                   color: var(--faible); font-variant-numeric: tabular-nums; }
+
+  /* ---------- le calendrier ---------- */
+  .mois-barre { display: flex; align-items: center; gap: .5rem; margin: 0 0 .8rem; }
+  .mois-barre b { flex: 1; text-align: center; font-size: 1rem; font-weight: 620; }
+  .mois-barre b::first-letter { text-transform: uppercase; }
+  .mois-barre button { width: 2.2rem; height: 2.2rem; flex: 0 0 auto;
+    font: inherit; font-size: 1.2rem; line-height: 1; cursor: pointer;
+    border: 1px solid var(--trait-fort); border-radius: 999px;
+    background: var(--carte); color: var(--gris); }
+  .mois-barre button:disabled { opacity: .3; cursor: default; }
+
+  .grille { display: grid; grid-template-columns: repeat(7, 1fr); gap: .25rem;
+            margin-bottom: 1rem; }
+  .grille .jour-nom { text-align: center; font-size: .66rem; color: var(--faible);
+                      padding-bottom: .2rem; text-transform: uppercase;
+                      letter-spacing: .03em; }
+  .grille button {
+    aspect-ratio: 1; font: inherit; font-size: .82rem; cursor: pointer;
+    border: 1px solid transparent; border-radius: 9px; background: none;
+    color: var(--texte); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: .12rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .grille button.vide { visibility: hidden; }
+  .grille button.rien { color: var(--faible); cursor: default; }
+  .grille button.aujourdhui { border-color: var(--trait-fort); font-weight: 700; }
+  .grille button.choisi { background: var(--accent); color: #fff; }
+  .grille button.choisi .points i { background: #fff; }
+  /* Un point par événement, jusqu'à trois : ce qu'on lit d'un coup d'œil,
+     c'est « il se passe quelque chose ce jour-là », pas le compte exact. */
+  .grille .points { display: flex; gap: 2px; height: 4px; }
+  .grille .points i { width: 4px; height: 4px; border-radius: 50%;
+                      background: var(--accent); display: block; }
+
+  .jour-titre { font-size: .95rem; font-weight: 620; margin: 0 0 .5rem; }
+  .jour-titre::first-letter { text-transform: uppercase; }
+  .evt { display: flex; gap: .6rem; width: 100%; text-align: left; font: inherit;
+         background: var(--carte); border: 1px solid var(--trait);
+         border-radius: var(--rayon); padding: .7rem .8rem; margin-bottom: .5rem;
+         cursor: pointer; color: inherit; align-items: flex-start; }
+  .evt:active { border-color: var(--accent); }
+  .evt .quand { flex: 0 0 3.4rem; font-size: .72rem; color: var(--faible);
+                font-variant-numeric: tabular-nums; padding-top: .1rem; }
+  .evt .corps { flex: 1; min-width: 0; }
+  .evt .corps h4 { margin: 0 0 .25rem; font-size: .86rem; font-weight: 620;
+                   line-height: 1.35; }
+  .evt .corps .lignes { margin-top: .3rem; }
+  .evt .genre { font-size: .64rem; font-weight: 700; letter-spacing: .03em;
+                padding: .12rem .4rem; border-radius: 5px; background: var(--doux);
+                color: var(--gris); text-transform: uppercase; }
+  .evt .genre.decision, .evt .genre.vote { background: var(--accent-doux); color: var(--accent); }
+  .evt .genre.promulgation { background: color-mix(in srgb, var(--ok) 14%, transparent);
+                             color: var(--ok); }
+  .evt .resultat { font-size: .75rem; color: var(--gris); margin-top: .3rem; }
+  .evt .resultat b { color: var(--texte); }
 
   /* ---------- ce qu'une loi change au droit ---------- */
   /* L'entrée en vigueur, sur la carte du fil : une loi promulguée peut ne pas
@@ -586,7 +654,19 @@
   </div>
 
   <header>
-    <h1>Où en sont les lois</h1>
+    <div class="titre-ligne">
+      <h1>Où en sont les lois</h1>
+      <button class="bouton-agenda" id="bouton-agenda"
+              aria-label="Calendrier des séances et des votes">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <rect x="3" y="5" width="18" height="16" rx="2.5"/>
+          <path d="M3 10h18M8 3v4M16 3v4"/>
+          <circle cx="8.5" cy="14.5" r="1.2" class="plein"/>
+          <circle cx="12" cy="14.5" r="1.2" class="plein"/>
+          <circle cx="15.5" cy="17.5" r="1.2" class="plein"/>
+        </svg>
+      </button>
+    </div>
     <p class="compte" id="compte">Chargement…</p>
     <div class="barre">
       <input id="recherche" type="search" placeholder="Chercher dans les titres…"
@@ -825,7 +905,9 @@ const _dateLongue = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "l
 /* En français, le premier jour du mois s'écrit « 1er ». Le navigateur écrit
    « 1 janvier », qui se lit mal — et les dates d'entrée en vigueur tombent
    presque toujours un premier. */
-const premier = (rendu, d) => d.getDate() === 1 ? rendu.replace(/^1\b/, "1er") : rendu;
+// Le « 1 » n'est pas toujours en tête : « lundi 1 juin » le porte au milieu.
+// On remplace donc le premier « 1 » isolé, quelle que soit sa place.
+const premier = (rendu, d) => d.getDate() === 1 ? rendu.replace(/\b1\b/, "1er") : rendu;
 const dateCourte = { format: (d) => premier(_dateCourte.format(d), d) };
 const dateLongue = { format: (d) => premier(_dateLongue.format(d), d) };
 
@@ -2440,6 +2522,208 @@ function dessinerArticle(f, retour, uid, a) {
   f.append(source);
 }
 
+/* ------------------------------------------------------------------ *
+ * Le calendrier : les séances, les votes et les décisions, jour par jour
+ *
+ * Un fichier par mois, chargé quand on l'ouvre. Chaque événement mène à la
+ * fiche de son texte — c'est ce qui en fait un calendrier utile plutôt qu'une
+ * liste de dates.
+ * ------------------------------------------------------------------ */
+
+const GENRES = {
+  seance: ["Séance publique", "Le texte est discuté devant tous les députés ou sénateurs."],
+  commission: ["Commission", "Une commission examine le texte et l'amende avant la séance."],
+  decision: ["Décision", "Le texte est adopté, rejeté ou renvoyé à ce moment-là."],
+  vote: ["Scrutin public", "Un vote dont le détail, groupe par groupe, est enregistré."],
+  promulgation: ["Promulgation", "Le Président signe : le texte devient une loi."],
+};
+const JOURS = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];
+const moisLong = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" });
+const _jourLong = new Intl.DateTimeFormat("fr-FR",
+  { weekday: "long", day: "numeric", month: "long" });
+// « lundi 1er juin », comme partout ailleurs.
+const jourLong = { format: (d) => premier(_jourLong.format(d), d) };
+
+let AGENDA = null;              // l'index des mois, chargé une fois
+let MOIS_VU = null;             // « 2026-07 »
+let JOUR_VU = null;             // « 2026-07-21 »
+const MOIS_EN_CACHE = new Map();
+
+const moisDe = (iso) => iso.slice(0, 7);
+const aujourdhui = () => new Date().toISOString().slice(0, 10);
+
+function moisVoisin(mois, pas) {
+  const [a, m] = mois.split("-").map(Number);
+  const d = new Date(a, m - 1 + pas, 1);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+}
+
+async function moisCharge(mois) {
+  if (MOIS_EN_CACHE.has(mois)) return MOIS_EN_CACHE.get(mois);
+  const d = await lire(`calendrier/${mois}.json`);
+  const evenements = d?.evenements || [];
+  MOIS_EN_CACHE.set(mois, evenements);
+  return evenements;
+}
+
+async function ouvrirAgenda() {
+  const f = ouvrirEcran();
+  const retour = boutonRetour("", "Retour au fil");
+  f.append(retour);
+  f.append(el("h2", "fiche-titre", "Calendrier"));
+
+  if (!AGENDA) AGENDA = await lire("calendrier.json");
+  if (!AGENDA || !(AGENDA.mois || []).length) {
+    f.append(el("div", "vide", "Calendrier indisponible."));
+    return;
+  }
+  f.append(el("p", "fiche-sous",
+    `${nb.format(AGENDA.total)} séances, votes et décisions, de `
+    + moisLong.format(enDate(AGENDA.mois[0].mois + "-01")) + " à "
+    + moisLong.format(enDate(AGENDA.mois[AGENDA.mois.length - 1].mois + "-01")) + "."));
+
+  // On ouvre sur le mois en cours s'il porte quelque chose, sinon sur le
+  // dernier mois qui en porte : un calendrier vide au premier regard ne dit
+  // pas où aller.
+  if (!MOIS_VU) {
+    const connus = AGENDA.mois.map((m) => m.mois);
+    MOIS_VU = connus.includes(moisDe(aujourdhui()))
+      ? moisDe(aujourdhui()) : connus[connus.length - 1];
+  }
+  const zone = el("div");
+  f.append(zone);
+  await dessinerMois(zone);
+}
+
+async function dessinerMois(zone) {
+  const evenements = await moisCharge(MOIS_VU);
+  const connus = (AGENDA.mois || []).map((m) => m.mois);
+  zone.textContent = "";
+
+  const barre = el("div", "mois-barre");
+  const fleche = (signe, pas, actif) => {
+    const b = el("button", null, signe);
+    b.setAttribute("aria-label", pas < 0 ? "Mois précédent" : "Mois suivant");
+    b.disabled = !actif;
+    b.addEventListener("click", async () => {
+      MOIS_VU = moisVoisin(MOIS_VU, pas);
+      JOUR_VU = null;
+      await dessinerMois(zone);
+    });
+    return b;
+  };
+  barre.append(fleche("‹", -1, MOIS_VU > connus[0]),
+               el("b", null, moisLong.format(enDate(MOIS_VU + "-01"))),
+               fleche("›", 1, MOIS_VU < connus[connus.length - 1]));
+  zone.append(barre);
+
+  const parJour = new Map();
+  for (const e of evenements) {
+    if (!parJour.has(e.date)) parJour.set(e.date, []);
+    parJour.get(e.date).push(e);
+  }
+
+  // Le jour choisi se décide **avant** de dessiner la grille : sinon la case
+  // du jour ne serait pas marquée, la grille ayant été construite avant de
+  // savoir lequel montrer.
+  if (evenements.length && (!JOUR_VU || moisDe(JOUR_VU) !== MOIS_VU)) {
+    // Aujourd'hui s'il porte quelque chose, sinon le premier jour du mois qui
+    // en porte.
+    JOUR_VU = parJour.has(aujourdhui()) ? aujourdhui() : [...parJour.keys()].sort()[0];
+  }
+  zone.append(grilleDuMois(parJour, zone));
+
+  if (!evenements.length) {
+    zone.append(el("div", "vide",
+      "Aucune séance ni aucun vote ce mois-ci. Le Parlement ne siège pas toute "
+      + "l'année : les mois d'été et de fin d'année sont creux."));
+    return;
+  }
+  zone.append(listeDuJour(parJour.get(JOUR_VU) || []));
+}
+
+function grilleDuMois(parJour, zone) {
+  const grille = el("div", "grille");
+  for (const j of JOURS) grille.append(el("div", "jour-nom", j));
+
+  const [an, mois] = MOIS_VU.split("-").map(Number);
+  const premier = new Date(an, mois - 1, 1);
+  // `getDay()` met dimanche à 0 ; la semaine française commence le lundi.
+  const decalage = (premier.getDay() + 6) % 7;
+  for (let i = 0; i < decalage; i++) grille.append(el("button", "vide"));
+
+  const derniers = new Date(an, mois, 0).getDate();
+  for (let n = 1; n <= derniers; n++) {
+    const iso = `${MOIS_VU}-${String(n).padStart(2, "0")}`;
+    const dessus = parJour.get(iso) || [];
+    const b = el("button", [dessus.length ? "" : "rien",
+                            iso === aujourdhui() ? "aujourdhui" : "",
+                            iso === JOUR_VU ? "choisi" : ""].filter(Boolean).join(" "));
+    b.append(el("span", null, String(n)));
+    const points = el("div", "points");
+    for (let i = 0; i < Math.min(dessus.length, 3); i++) points.append(el("i"));
+    b.append(points);
+    if (dessus.length) {
+      b.setAttribute("aria-label",
+        `${n} : ${dessus.length} événement${dessus.length > 1 ? "s" : ""}`);
+      b.addEventListener("click", async () => { JOUR_VU = iso; await dessinerMois(zone); });
+    } else {
+      b.disabled = true;
+    }
+    grille.append(b);
+  }
+  return grille;
+}
+
+function listeDuJour(evenements) {
+  const zone = el("div");
+  zone.append(el("h3", "jour-titre", jourLong.format(enDate(JOUR_VU))));
+  for (const e of evenements) zone.append(ligneEvenement(e));
+  return zone;
+}
+
+function ligneEvenement(e) {
+  const b = el("button", "evt");
+  b.append(el("div", "quand", e.heure || "—"));
+  const corps = el("div", "corps");
+  // Le titre du texte vient de la liste déjà chargée : le calendrier ne le
+  // répète pas dans ses fichiers.
+  const texte = TEXTES.find((t) => t.uid === e.texte);
+  corps.append(el("h4", null, texte ? texte.titre : e.quoi || "Texte"));
+
+  const l = el("div", "lignes");
+  const [nom, quoi] = GENRES[e.genre] || [e.genre, ""];
+  const genre = el("span", "genre " + e.genre, nom);
+  l.append(genre);
+  if (e.chambre) l.append(etiquette("chambre-" + e.chambre, CHAMBRES[e.chambre][0],
+                                    CHAMBRES[e.chambre]));
+  if (e.lecture) l.append(etiquette("", e.lecture, EXPLICATIONS.lecture));
+  if (e.conclusion) l.append(etiquette("", e.conclusion, EXPLICATIONS.conclusion));
+  corps.append(l);
+
+  if (texte && e.quoi && e.quoi !== texte.titre) {
+    corps.append(el("div", "resultat", e.quoi));
+  }
+  if (e.vote) {
+    const r = el("div", "resultat");
+    r.append(el("b", null, e.vote.sort || "Scrutin"));
+    r.append(document.createTextNode(
+      ` — ${nb.format(e.vote.pour)} pour, ${nb.format(e.vote.contre)} contre, `
+      + `${nb.format(e.vote.abstentions)} abstention${e.vote.abstentions > 1 ? "s" : ""}`));
+    corps.append(r);
+  }
+  b.append(corps);
+
+  if (texte) {
+    b.addEventListener("click", () => { location.hash = "#/texte/" + e.texte; });
+  } else {
+    // Sans le texte dans la liste chargée, la fiche s'ouvrirait sur du vide.
+    b.disabled = true;
+    b.style.cursor = "default";
+  }
+  return b;
+}
+
 function fermerFiche() {
   $("frise-bas").hidden = false;
   $("fiche").hidden = true;
@@ -2451,6 +2735,7 @@ function fermerFiche() {
 }
 
 function router() {
+  if (location.hash === "#/calendrier") return ouvrirAgenda();
   const article = location.hash.match(/^#\/change\/([\w-]+)\/(\w+)$/);
   if (article) return ouvrirArticle(article[1], article[2]);
   const change = location.hash.match(/^#\/change\/([\w-]+)$/);
@@ -2475,6 +2760,10 @@ window.addEventListener("resize", mesurerLeBandeau, { passive: true });
 // Une seule fois, sur le fil lui-même : les colonnes sont redessinées à
 // chaque filtre, l'écouteur ne doit pas l'être avec elles.
 surveillerLeTour($("fil"));
+
+$("bouton-agenda").addEventListener("click", () => {
+  location.hash = "#/calendrier";
+});
 
 $("bascule").addEventListener("click", () => {
   const boite = $("filtres");

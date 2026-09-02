@@ -949,5 +949,46 @@ class AuteursEtPhotos(unittest.TestCase):
             "https://www2.assemblee-nationale.fr/static/tribun/17/photos/794830.jpg")
 
 
+class LeCalendrier(unittest.TestCase):
+    """Ce qui mérite une ligne au calendrier, et ce qui n'en mérite pas."""
+
+    def test_les_moments_ou_le_parlement_se_reunit_et_decide(self):
+        for code, genre in (("AN1-DEBATS-SEANCE", "seance"),
+                            ("SN2-DEBATS-SEANCE", "seance"),
+                            ("AN1-DEBATS-DEC", "decision"),
+                            ("SN1-DEBATS-DEC", "decision"),
+                            ("AN1-COM-FOND-REUNION", "commission"),
+                            ("AN1-COM-AVIS-REUNION", "commission"),
+                            ("PROM-PUB", "promulgation")):
+            self.assertEqual(extraction.genre_d_evenement(code), genre, code)
+
+    def test_un_acte_administratif_n_a_rien_a_faire_dans_un_calendrier(self):
+        """Un dépôt, un renvoi, une nomination : ni heure, ni public, rien à
+        suivre en direct."""
+        for code in ("AN1-DEPOT", "SN1-DEPOT", "AN1-COM-FOND-SAISIE",
+                     "AN1-COM-FOND-NOMIN", "AN1-COM-FOND-RAPPORT", "AN20-RAPPORT"):
+            self.assertIsNone(extraction.genre_d_evenement(code), code)
+
+    def test_la_chambre_et_la_lecture_ne_changent_pas_le_genre(self):
+        """Le code porte la chambre et la lecture en préfixe : on reconnaît la
+        fin du code, pas le code entier."""
+        self.assertEqual(extraction.genre_d_evenement("AN3-DEBATS-SEANCE"),
+                         extraction.genre_d_evenement("SN1-DEBATS-SEANCE"))
+
+    def test_un_code_vide_ne_plante_pas(self):
+        self.assertIsNone(extraction.genre_d_evenement(""))
+        self.assertIsNone(extraction.genre_d_evenement(None))
+
+    def test_seuls_les_votes_qui_decident_sont_au_calendrier(self):
+        """Sur 2 748 votes rattachés à un texte, 2 260 portent sur un
+        amendement (mesuré le 2026-09-02). Les afficher noierait le calendrier
+        sous des scrutins de détail, alors que la séance du jour les porte
+        déjà."""
+        self.assertIn("ensemble", extraction.VOTES_AU_CALENDRIER)
+        self.assertIn("motion", extraction.VOTES_AU_CALENDRIER)
+        self.assertNotIn("amendement", extraction.VOTES_AU_CALENDRIER)
+        self.assertNotIn("article", extraction.VOTES_AU_CALENDRIER)
+
+
 if __name__ == "__main__":
     sys.exit(0 if unittest.main(exit=False, verbosity=2).result.wasSuccessful() else 1)
