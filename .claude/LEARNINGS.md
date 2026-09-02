@@ -200,3 +200,94 @@ Corollaire général, valable au-delà des branches : quand une opération Git
 échoue, lire `curl -sS "$HTTPS_PROXY/__agentproxy/status"` **avant** de
 conclure. Le champ `recentRelayFailures` vide écarte le réseau et laisse une
 seule explication : les droits.
+
+---
+
+## Session du 2026-09-01 — le droit consolidé, et trois façons de se tromper
+
+### Une règle « évidente » qui produit un résultat faux et crédible
+
+Pour comparer un article de loi avant et après, il faut trouver « la rédaction
+d'avant ». La règle évidente — **prendre la précédente dans la liste des
+versions** — est fausse, et son résultat ne ressemble pas à une erreur.
+
+La liste `<VERSIONS>` d'un article LEGI n'est **pas chronologique**, et elle
+contient des rédactions **mort-nées** (`MODIFIE_MORT_NE`) : votées, jamais
+entrées en vigueur. Sur l'article 6 de la loi n° 2004-575, la précédente dans
+la liste est datée du **22 février 2222**. La comparaison tombait à **13 % de
+texte commun** — un avant/après spectaculaire, entièrement faux, et que rien
+ne signalait.
+
+La bonne règle : **celle qui se termine au moment où la nôtre commence, les
+mort-nées écartées.** 97 %, et rien ne change pour les six autres articles de
+la même loi.
+
+**La leçon, au-delà du cas :** quand une règle simple donne un résultat
+*spectaculaire*, c'est le moment de la vérifier, pas de s'en réjouir. Ici, un
+seul article sur sept sortait du lot — il aurait été facile de le prendre pour
+une loi qui réécrit tout.
+
+### Un trou dans les données déguisé en fait
+
+Un article dont la rédaction précédente n'a pas été retrouvée s'affichait
+**exactement comme** un article que la loi vient de créer : « texte nouveau ».
+Les deux cas sont pourtant opposés — l'un est un fait sur la loi, l'autre un
+manque de notre côté.
+
+**À faire systématiquement :** quand une donnée est absente, distinguer
+« absente parce qu'il n'y en a pas » de « absente parce qu'on ne l'a pas
+trouvée », et l'afficher. Les deux se codent pareil (`None`) et se lisent
+très différemment.
+
+### Un verrou SQLite qui coûte quarante minutes
+
+`database is locked`, à la fin d'une passe de quarante minutes, tout perdu.
+La cause était moi : j'avais ouvert la base **en lecture seule** pour voir où
+en était le remplissage. En mode journal classique, un lecteur bloque
+l'écrivain.
+
+**Pour toute base qu'un programme long remplit :** `PRAGMA journal_mode = WAL`
+dès l'ouverture, `busy_timeout` en second filet, enregistrer par lots plutôt
+qu'une fois à la fin, et ne pas effacer le fichier de travail en cas d'échec —
+un téléchargement de dix minutes ne doit pas être refait pour rien.
+
+### Ce qu'on peut lire sans place disque
+
+Le socle LEGI pèse **1,1 Go compressé, 9,5 Go déplié, en 2,5 millions de
+fichiers minuscules** — et le nombre de fichiers est plus pénible que le
+volume. Il se lit **en flux** (`tarfile.open(fileobj=…, mode="r|gz")`) sans
+rien écrire : **15,7 minutes chronométrées** pour une passe complète.
+
+Généralisable : avant de conclure qu'une source est trop grosse, vérifier si
+elle peut se lire en flux. La réponse a été oui ici, et elle change la
+faisabilité du tout au tout.
+
+### Deux réflexes de vérification qui ont servi
+
+- **Compter les `def test_` et comparer à « Ran N tests ».** Deux classes de
+  même nom se remplacent silencieusement, et des tests disparaissent sans que
+  rien n'échoue.
+- **Un test qui échoue n'a pas forcément raison.** `morceaux("Le maire
+  décide.", "…décide seul.")` donnait un remplacement là où j'attendais un
+  ajout : c'est mon cas d'essai qui était mal choisi — « décide. » et
+  « décide » sont deux mots différents. Le code avait raison.
+
+### CSS : `[hidden]` ne cache pas ce qui a un `display`
+
+`.barre { display: flex }` l'emporte sur le `display: none` que le navigateur
+donne à `[hidden]`. Cacher l'élément depuis JavaScript ne le cachait pas. Il
+faut une règle `.barre[hidden] { display: none; }` explicite. À vérifier pour
+tout élément qu'on masque et qui porte un `display` dans la feuille de style.
+
+### Ce que Légifrance apporte, et ce qu'il n'apporte pas
+
+Le site est **inaccessible aux programmes** (403 Cloudflare sur tout, y
+compris `robots.txt`), son API demande un compte, et ses dossiers législatifs
+redirigent vers `vie-publique.fr`, qui exige JS et cookies.
+
+Ce n'est pas une perte : **le fonds qu'il affiche est publié en libre accès
+sous le nom LEGI**, avec les mêmes identifiants `LEGIARTI…`. Légifrance est
+une façon de *regarder* ces données, pas une source de plus.
+
+**Corollaire :** avant de chercher à contourner un site, chercher d'où il tire
+ses données. C'est souvent publié à côté, sans barrière.
