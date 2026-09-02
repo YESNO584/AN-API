@@ -8,6 +8,7 @@ un piège rencontré sur les vraies données, avec la référence de la mesure.
 """
 
 import io
+import pathlib
 import sys
 import tarfile
 import unittest
@@ -308,6 +309,41 @@ class ParcourirUneArchive(unittest.TestCase):
             arc.addfile(info)
         tampon.seek(0)
         self.assertEqual(list(legi.parcourir_archive(tampon)), [])
+
+
+class UneArchiveTronquee(unittest.TestCase):
+    """Un transfert coupé doit se voir — c'est la seule façon de le rattraper."""
+
+    def _archive(self, fichiers):
+        tampon = io.BytesIO()
+        with tarfile.open(fileobj=tampon, mode="w:gz") as arc:
+            for i in range(fichiers):
+                info = tarfile.TarInfo(f"legi/global/code/article/LEGIARTI{i}.xml")
+                info.size = 10
+                arc.addfile(info, io.BytesIO(b"<ARTICLE/>"))
+        return tampon.getvalue()
+
+    def test_une_archive_minuscule_reste_valable(self):
+        """La plus petite archive quotidienne du dépôt pèse 5,3 ko : une journée
+        où presque rien ne change. Juger une archive sur sa taille rejetait
+        celle du 25 février 2026, 17 ko et parfaitement valable (constaté le
+        2026-09-02)."""
+        entier = self._archive(1)
+        self.assertLess(len(entier), 50_000)
+        self.assertEqual(len(list(legi.parcourir_archive(io.BytesIO(entier)))), 1)
+
+    def test_lire_jusqu_au_bout_fait_apparaitre_la_coupure(self):
+        """Ouvrir l'archive et lire son premier membre ne suffit pas : un
+        fichier tronqué s'ouvre très bien. C'est en la parcourant en entier que
+        la coupure se voit — donc la lecture est le seul contrôle qui vaille."""
+        entier = self._archive(80)
+        coupe = io.BytesIO(entier[:len(entier) // 3])
+        with self.assertRaises((tarfile.TarError, EOFError)):
+            list(legi.parcourir_archive(coupe))
+
+    def test_un_fichier_qui_n_est_pas_une_archive_est_refuse(self):
+        with self.assertRaises((tarfile.TarError, EOFError)):
+            list(legi.parcourir_archive(io.BytesIO(b"<html>404</html>")))
 
 
 class L_AdresseDeLaSource(unittest.TestCase):

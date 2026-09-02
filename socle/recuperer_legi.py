@@ -25,6 +25,7 @@ import argparse
 import pathlib
 import sqlite3
 import sys
+import tarfile
 import time
 import urllib.request
 
@@ -34,9 +35,6 @@ import legi
 ICI = pathlib.Path(__file__).parent
 BASE = ICI / "legi.db"
 TRAVAIL = ICI / "archives_legi"
-# En dessous, ce n'est pas une archive : la plus petite quotidienne du dépôt
-# pèse une centaine de kilo-octets.
-MINIMUM = 50_000
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS archive (
@@ -183,22 +181,32 @@ def traiter(nom: str, lois: set[str], base: sqlite3.Connection) -> int:
     """
     TRAVAIL.mkdir(exist_ok=True)
     chemin = TRAVAIL / nom
-    # Une archive vide ou absente au moment de la lire n'est pas une fatalité :
-    # on la redemande. Constaté le 2026-09-01, une fois, sans cause identifiée —
-    # le socle avait bien été téléchargé, et n'était plus là dix secondes plus
-    # tard. Plutôt que de tout perdre, on recommence, et on le dit.
-    for essai in range(1, 4):
-        if not chemin.exists() or chemin.stat().st_size < MINIMUM:
-            chemin.unlink(missing_ok=True)
-            extraction.telecharger(chemin, url=legi.DEPOT_LEGI + nom)
-        if chemin.exists() and chemin.stat().st_size >= MINIMUM:
-            break
-        print(f"    {nom} introuvable ou vide après téléchargement "
-              f"(essai {essai} sur 3)", file=sys.stderr, flush=True)
-    else:
-        raise RuntimeError(f"{nom} : impossible d'obtenir l'archive")
 
-    gardees = deux_passes(chemin, lois, base)
+    # **La lecture est le seul contrôle qui vaille.** Vérifier l'archive avant
+    # de la lire ne marche pas : un fichier tronqué s'ouvre très bien et rend
+    # son premier membre sans broncher — c'est justement ainsi qu'un transfert
+    # coupé passe inaperçu. Et la juger sur sa taille est pire : j'avais écrit
+    # « la plus petite quotidienne pèse une centaine de kilo-octets » sans le
+    # vérifier ; la plus petite du dépôt en pèse **5,3**, et le seuil rejetait
+    # une archive parfaitement valable (constaté le 2026-09-02).
+    #
+    # On lit donc, et si la lecture échoue, on redemande l'archive. Le
+    # rangement est idempotent : reprendre une archive à zéro ne fait pas de
+    # doublon.
+    for essai in range(1, 4):
+        if not chemin.exists():
+            extraction.telecharger(chemin, url=legi.DEPOT_LEGI + nom)
+        try:
+            gardees = deux_passes(chemin, lois, base)
+            break
+        except (tarfile.TarError, EOFError, OSError) as erreur:
+            print(f"    {nom} illisible ({type(erreur).__name__}) — "
+                  f"on la redemande (essai {essai} sur 3)",
+                  file=sys.stderr, flush=True)
+            chemin.unlink(missing_ok=True)
+    else:
+        raise RuntimeError(f"{nom} : archive illisible après trois tentatives")
+
     chemin.unlink(missing_ok=True)
     base.execute("INSERT OR REPLACE INTO archive (nom, vu_le, redactions) VALUES (?, ?, ?)",
                  (nom, time.strftime("%Y-%m-%dT%H:%M:%S"), gardees))
