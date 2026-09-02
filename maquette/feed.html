@@ -343,16 +343,22 @@
     background: var(--carte); color: var(--gris); }
   .mois-barre button:disabled { opacity: .3; cursor: default; }
 
-  .grille { display: grid; grid-template-columns: repeat(7, 1fr); gap: .25rem;
-            margin-bottom: 1rem; }
-  .grille .jour-nom { text-align: center; font-size: .66rem; color: var(--faible);
+  /* Sept colonnes qui se partagent la largeur, quelle qu'elle soit.
+     `minmax(0, 1fr)` plutôt que `1fr` : sans le zéro, une colonne refuse de
+     descendre sous la taille de son contenu et la grille déborde. */
+  .grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: .18rem; margin-bottom: 1rem; }
+  .grille .jour-nom { text-align: center; font-size: .62rem; color: var(--faible);
                       padding-bottom: .2rem; text-transform: uppercase;
-                      letter-spacing: .03em; }
+                      letter-spacing: .02em; }
+  /* Des cases plus basses que larges. Carrées, elles prenaient toute la
+     hauteur de l'écran sur un téléphone : six semaines de cases carrées font
+     plus de 300 px, et le mois ne se voyait plus d'un coup. */
   .grille button {
-    aspect-ratio: 1; font: inherit; font-size: .82rem; cursor: pointer;
-    border: 1px solid transparent; border-radius: 9px; background: none;
-    color: var(--texte); display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: .12rem;
+    min-width: 0; height: 2.5rem; padding: 0; font: inherit; font-size: .8rem;
+    cursor: pointer; border: 1px solid transparent; border-radius: 8px;
+    background: none; color: var(--texte); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: .1rem;
     font-variant-numeric: tabular-nums;
   }
   .grille button.vide { visibility: hidden; }
