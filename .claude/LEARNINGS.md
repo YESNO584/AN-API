@@ -19,6 +19,57 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-09-02 — Les arguments des groupes sont dans les débats, et rattachables
+
+- **Les comptes rendus de séance se rattachent à nos votes à 97 %**, sans
+  numéro de scrutin — le compte rendu n'en cite aucun (vérifié : 0 mention de
+  « scrutin public n° X » dans les 601 fichiers). La clé qui marche est
+  **(date de séance, votants, pour, contre)** : 8 206 des 8 434 scrutins de la
+  base retrouvés, 13 blocs de résultat sans correspondance, et 154 clés sur
+  8 252 partagées par plusieurs votes (le numéro d'amendement, porté par
+  l'attribut `adt` du `point`, les départage). *Pourquoi ça compte :* c'est ce
+  qui rend possible d'afficher, sous un vote, ce que chaque groupe a dit.
+- **L'archive des débats est `vp/syceronbrut/syseron.xml.zip`** (55,8 Mo,
+  601 séances), et non `vp/syseron/…` : les trois chemins devinés renvoient
+  404, l'adresse se lit sur la page `travaux-parlementaires/debats`.
+- **Chaque prise de parole porte `id_acteur` (`PA…`)**, ce qui donne le groupe
+  par jointure sur notre table `acteur`. Attention : `acteur.groupe_ref` est le
+  groupe **d'aujourd'hui**, pas celui du jour du débat, et seuls 577 acteurs
+  sur 1 066 en ont un.
+- **Le séparateur des chiffres d'un résultat de scrutin est l'espace
+  insécable `\xa0`**, pas l'espace. Un découpage sur `\s{2,}` renvoie donc
+  zéro résultat sans rien signaler — c'est ce qui a fait échouer la première
+  mesure. *La leçon :* un compteur à zéro se vérifie sur un exemple imprimé.
+- **La fenêtre d'attribution est tout le problème, et elle se mesure.** Les
+  paroles retenues autour d'un vote décident de la justesse de ce qu'on
+  affiche. Mesuré sur les annonces explicites d'intention (« nous voterons
+  pour »), comparées au vote réellement émis :
+
+  | Fenêtre | Groupes par vote sur l'ensemble | Annonce conforme au vote |
+  |---|---:|---:|
+  | Tout depuis le scrutin précédent | 8 | 77 % |
+  | Le seul point de l'ordre du jour | 0 (64 % vides) | 81 % |
+  | Toute la section du texte | 11 | 59 % |
+  | **« Explications de vote » + « Discussion générale »** | **10** | **94,5 %** |
+
+  *Pourquoi ça compte :* la bonne fenêtre n'est pas la plus large ni la plus
+  étroite, c'est la **section nommée** du compte rendu — l'Assemblée y donne
+  la parole à un orateur par groupe, sur le vote final et rien d'autre.
+- **Une erreur type, lue à la main :** le 2026-02-25, l'UDR a voté *pour* les
+  soins palliatifs (17-0) alors que son orateur disait « l'ensemble du groupe
+  UDR votera contre » — il parlait de l'aide à mourir, l'autre texte de la même
+  séance. *La leçon :* une phrase d'intention prise dans la mauvaise section
+  produit une contrevérité à l'écran, et c'est le risque principal de cette
+  fonctionnalité.
+- **Les exposés sommaires ne suffisent pas** pour cette fonctionnalité :
+  90 337 amendements en portent un, mais il n'explique que la position de leur
+  **auteur**. Sur les 101 208 couples (vote, groupe) de la base, seuls **2 061
+  (2 %)** recevraient un argument par cette voie.
+- **Les scripts de mesure sont dans le scratchpad de la session**
+  (`mesure.py` … `mesure8.py`), pas versionnés. L'agent
+  `feature-data-coverage-prober` a été écrit pour refaire ce genre de mesure
+  sans redécouvrir la méthode.
+
 ## 2026-08-31 — La maquette en colonnes
 
 ### La maquette se vérifie dans un vrai navigateur, sans réseau
