@@ -2216,6 +2216,20 @@ async function ouvrirFiche(uid) {
   }
   f.append(l);
 
+  // Les sources, tout en haut : c'est ce qu'on veut sous la main pour aller
+  // vérifier, pas une annexe à chercher en bas de fiche.
+  const sources = el("div", "liens");
+  for (const [url, nom, classe] of [
+        [d.url_an, "Dossier à l'Assemblée", "officiel"],
+        [d.url_senat, "Dossier au Sénat", null],
+        [d.loi_url_jo, "Texte au Journal officiel", null]]) {
+    if (!url) continue;
+    const a = el("a", classe, nom);
+    a.href = url; a.target = "_blank"; a.rel = "noopener";
+    sources.append(a);
+  }
+  if (sources.children.length) f.append(sources);
+
   if (d.auteur) f.append(personne(d.auteur, "Auteur du texte"));
   if (d.cosignatairesTotal) {
     const b = bloc(`Cosignataires — ${nb.format(d.cosignatairesTotal)}`);
@@ -2227,32 +2241,25 @@ async function ouvrirFiche(uid) {
     f.append(b);
   }
 
-  const liens = bloc("Voir la source");
-  const zone = el("div", "liens");
-  if (d.url_an) {
-    const a = el("a", "officiel", "Dossier officiel");
-    a.href = d.url_an; a.target = "_blank"; a.rel = "noopener";
-    zone.append(a);
-  }
-  if (d.url_senat) {
-    const a = el("a", null, "Dossier au Sénat");
-    a.href = d.url_senat; a.target = "_blank"; a.rel = "noopener";
-    zone.append(a);
-  }
-  if (d.loi_url_jo) {
-    const a = el("a", null, "Texte de loi au Journal officiel");
-    a.href = d.loi_url_jo; a.target = "_blank"; a.rel = "noopener";
-    zone.append(a);
-  }
-  liens.append(zone);
-  f.append(liens);
-
   // Ce que la loi change au droit. Le détail vit sur son propre écran : la
   // loi de finances pour 2025 touche 574 articles, qui n'ont rien à faire au
   // milieu d'une fiche.
   if (d.statut === "promulgue" && !ETAT.droitConsolideIndisponible) {
     f.append(...ceQueLaLoiChange({ ...d, uid, change: (
       TEXTES.find((x) => x.uid === uid) || {}).change, etape: PROMULGUEE }));
+  }
+
+  // Le vote qui décide : celui sur l'ensemble du texte. Le plus récent, car un
+  // texte peut être voté dans les deux chambres. Les votes sur des amendements
+  // ou des articles restent dans le parcours, à leur place chronologique.
+  const finaux = (d.votes || []).filter((v) => v.portee === "ensemble");
+  if (finaux.length) {
+    const v = finaux.reduce((a, b) => (a.date >= b.date ? a : b));
+    const boite = bloc("Vote sur l'ensemble du texte");
+    const seule = el("ul", "parcours");
+    seule.append(ligneVoteParcours(v));
+    boite.append(seule);
+    f.append(boite);
   }
 
   const items = filDuParcours(d);
