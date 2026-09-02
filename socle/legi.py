@@ -217,6 +217,22 @@ def part_commune(avant: str, apres: str) -> int:
     return round(100 * difflib.SequenceMatcher(None, a, b).ratio())
 
 
+def etat_du_precedent(precedent: str | None, texte_avant: str | None) -> str:
+    """Dit **pourquoi** il n'y a pas de comparaison, quand il n'y en a pas.
+
+    Trois cas, qu'il serait malhonnête de confondre :
+
+    - `connu` — on a la rédaction d'avant, on peut superposer ;
+    - `aucun` — l'article n'en avait pas : la loi vient de le créer ;
+    - `manquant` — il en avait une, et nous ne l'avons pas retrouvée dans les
+      archives lues. C'est un trou dans nos données, pas un fait sur la loi,
+      et l'afficher comme un « texte nouveau » ferait mentir l'application.
+    """
+    if texte_avant:
+        return "connu"
+    return "manquant" if precedent else "aucun"
+
+
 def url_legifrance(identifiant: str) -> str:
     """L'adresse publique d'une rédaction, pour qui veut lire la source.
 

@@ -249,7 +249,7 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str) -> list[dict]:
     """
     groupes: dict[str, list] = {}
     for ligne in legi_cx.execute(
-            "SELECT r.id, r.numero, r.ou, r.debut, r.texte,"
+            "SELECT r.id, r.numero, r.ou, r.debut, r.texte, r.precedent,"
             " GROUP_CONCAT(DISTINCT c.quoi) actions,"
             " (SELECT texte FROM redaction WHERE id = r.precedent) avant"
             " FROM changement c JOIN redaction r ON r.id = c.redaction_id"
@@ -267,8 +267,8 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str) -> list[dict]:
             "actions": [ACTIONS.get(a, a) for a in actions] if len(actions) > 1 else None,
             "debut": ligne["debut"],
             "mots": len(apres.split()),
-            # Rien à comparer quand la loi crée l'article : il n'a pas d'avant.
             "commun": legi.part_commune(avant, apres) if avant else None,
+            "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
         })
     return [{"ou": ou, "articles": articles} for ou, articles in groupes.items()]
 
@@ -285,7 +285,9 @@ def article_compare(legi_cx: sqlite3.Connection, identifiant: str) -> dict:
         "nota": ligne["nota"] or None,
         "commun": legi.part_commune(avant, apres) if avant else None,
         "morceaux": legi.morceaux(avant, apres) if avant
-                    else [{"role": "ajoute", "texte": apres}],
+                    else [{"role": "ajoute" if not ligne["precedent"] else "egal",
+                           "texte": apres}],
+        "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
         "source": legi.url_legifrance(ligne["id"]),
     }
 

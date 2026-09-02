@@ -2235,9 +2235,10 @@ function ligneArticle(uid, a) {
   const nom = el("div", "nom");
   nom.append(el("b", null, "Article " + a.numero));
   // « 19 % du texte a changé » se lit ; « 81 % commun » demande un effort.
-  nom.append(el("span", null, a.commun === null
-    ? `${nb.format(a.mots)} mot${a.mots > 1 ? "s" : ""}, texte nouveau`
-    : `${100 - a.commun} % du texte a changé`));
+  nom.append(el("span", null,
+    a.commun !== null ? `${100 - a.commun} % du texte a changé`
+    : a.avant === "manquant" ? "rédaction précédente non retrouvée"
+    : `${nb.format(a.mots)} mot${a.mots > 1 ? "s" : ""}, texte nouveau`));
   if (a.commun !== null) {
     const jauge = el("div", "jauge");
     const barre = el("i");
@@ -2282,6 +2283,14 @@ function dessinerArticle(f, retour, uid, a) {
     (a.ou || "") + (quand ? " — rédaction en vigueur le " + quand : "")));
 
   const neuf = a.commun === null;
+  if (neuf) {
+    f.append(el("p", "nota", a.avant === "manquant"
+      ? "La rédaction précédente de cet article n'a pas été retrouvée dans les "
+        + "archives lues : le texte ci-dessous est celui en vigueur, sans "
+        + "comparaison possible."
+      : "La loi a créé cet article : il n'a pas de rédaction précédente à lui "
+        + "superposer."));
+  }
   if (!neuf) {
     const bascule = el("div", "bascule-texte");
     for (const [cle, nom] of [["diff", "Ce qui change"], ["apres", "Texte en vigueur"],

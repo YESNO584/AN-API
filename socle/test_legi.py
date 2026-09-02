@@ -177,6 +177,26 @@ class ComparerDeuxRedactions(unittest.TestCase):
         self.assertEqual(legi.part_commune("", ""), 100)
 
 
+class PourquoiPasDeComparaison(unittest.TestCase):
+    """Un trou dans nos données ne doit pas passer pour un fait sur la loi."""
+
+    def test_la_redaction_d_avant_est_connue(self):
+        self.assertEqual(legi.etat_du_precedent("LEGIARTI001", "Le texte d'avant."),
+                         "connu")
+
+    def test_un_article_cree_n_a_pas_de_avant(self):
+        self.assertEqual(legi.etat_du_precedent(None, None), "aucun")
+
+    def test_un_avant_designe_mais_introuvable_se_dit(self):
+        """L'article avait bien une rédaction antérieure, et nous ne l'avons pas
+        retrouvée dans les archives lues. L'afficher comme « texte nouveau »
+        ferait mentir l'application."""
+        self.assertEqual(legi.etat_du_precedent("LEGIARTI001", None), "manquant")
+
+    def test_un_texte_d_avant_vide_compte_comme_absent(self):
+        self.assertEqual(legi.etat_du_precedent("LEGIARTI001", ""), "manquant")
+
+
 class LireUnFichierD_Article(unittest.TestCase):
 
     def test_tout_ce_qu_on_retient_est_lu(self):
