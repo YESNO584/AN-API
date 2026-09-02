@@ -31,6 +31,12 @@ CHANGEMENTS = ("MODIFIE", "CREE", "ABROGE", "TRANSFERE", "DEPLACE")
 
 # LEGI marque la fin des rédactions en vigueur par une date sentinelle.
 SANS_FIN = "2999-01-01"
+# Et par une autre — le 22 février 2222 — les dates **non encore fixées** :
+# la loi prévoit qu'un article entrera en vigueur ou sera abrogé, mais renvoie
+# à un décret qui n'est pas paru. 73 changements sur 2 261 sont dans ce cas
+# (mesuré le 2026-09-02), presque tous à l'état VIGUEUR_DIFF ou ABROGE_DIFF.
+# C'est une information à dire, pas une date à afficher.
+SANS_DATE = "2222-02-22"
 
 _BALISE = re.compile(r"<(\w+)\b([^>]*)/?>")
 _ATTRIBUT = re.compile(r'(\w+)="([^"]*)"')
@@ -215,6 +221,32 @@ def part_commune(avant: str, apres: str) -> int:
     if not a and not b:
         return 100
     return round(100 * difflib.SequenceMatcher(None, a, b).ratio())
+
+
+def date_d_effet(quoi: str, debut: str | None, fin: str | None) -> str | None:
+    """Quand ce changement prend effet — la date qui intéresse le lecteur.
+
+    Ce n'est pas la même selon ce que la loi fait. Une modification crée une
+    rédaction, et c'est son **début** qui compte. Une abrogation, elle, ne crée
+    rien : elle met **fin** à une rédaction, et c'est cette fin qui est la date
+    de l'abrogation.
+
+    Prendre le début dans les deux cas donnait des absurdités : l'article 1700
+    du code général des impôts, abrogé par la loi de finances de 2025,
+    s'affichait comme entrant en vigueur le 1er juillet **1979** — la date à
+    laquelle le texte abrogé avait commencé à s'appliquer.
+
+    Avec cette règle, sur 2 261 changements datés, seuls 34 (1,5 %) prennent
+    effet avant la promulgation de leur loi — et ce sont de vraies
+    rétroactivités : une loi de finances votée en février abroge des taxes au
+    1er janvier. C'est un fait à montrer, pas une anomalie à masquer.
+
+    Rend `None` quand la date n'est **pas encore fixée** (`SANS_DATE`) : la loi
+    renvoie à un décret qui n'est pas paru. Afficher « 22 février 2222 » serait
+    absurde ; le dire est utile.
+    """
+    date = fin if quoi == "ABROGE" else debut
+    return None if not date or date in (SANS_DATE, SANS_FIN) else date
 
 
 def etat_du_precedent(precedent: str | None, texte_avant: str | None) -> str:

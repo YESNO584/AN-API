@@ -177,6 +177,41 @@ class ComparerDeuxRedactions(unittest.TestCase):
         self.assertEqual(legi.part_commune("", ""), 100)
 
 
+class QuandLeChangementPrendEffet(unittest.TestCase):
+    """Une abrogation ne met rien en vigueur : elle met fin à une rédaction."""
+
+    def test_une_modification_prend_effet_au_debut_de_la_nouvelle_redaction(self):
+        self.assertEqual(legi.date_d_effet("MODIFIE", "2026-09-01", legi.SANS_FIN),
+                         "2026-09-01")
+
+    def test_une_abrogation_prend_effet_a_la_fin_de_l_ancienne(self):
+        """L'article 1700 du code général des impôts, abrogé par la loi de
+        finances de 2025, s'affichait comme entrant en vigueur le 1er juillet
+        1979 — la date à laquelle le texte abrogé avait commencé à
+        s'appliquer (mesuré le 2026-09-02)."""
+        self.assertEqual(legi.date_d_effet("ABROGE", "1979-07-01", "2025-01-01"),
+                         "2025-01-01")
+
+    def test_une_creation_prend_effet_a_son_debut(self):
+        self.assertEqual(legi.date_d_effet("CREE", "2026-09-01", legi.SANS_FIN),
+                         "2026-09-01")
+
+    def test_sans_date_utilisable_on_ne_dit_rien(self):
+        self.assertIsNone(legi.date_d_effet("MODIFIE", "", legi.SANS_FIN))
+        self.assertIsNone(legi.date_d_effet("ABROGE", "1979-07-01", ""))
+
+    def test_une_date_non_encore_fixee_n_est_pas_une_date(self):
+        """La loi prévoit l'abrogation mais renvoie à un décret qui n'est pas
+        paru : LEGI écrit alors le 22 février 2222. Afficher cette date serait
+        absurde ; 73 changements sur 2 261 sont dans ce cas."""
+        self.assertIsNone(legi.date_d_effet("ABROGE", "2011-06-01", legi.SANS_DATE))
+        self.assertIsNone(legi.date_d_effet("MODIFIE", legi.SANS_DATE, legi.SANS_FIN))
+
+    def test_la_sentinelle_de_fin_n_est_pas_une_date_d_abrogation(self):
+        """2999-01-01 veut dire « toujours en vigueur », pas « abrogé en 2999 »."""
+        self.assertIsNone(legi.date_d_effet("ABROGE", "2011-06-01", legi.SANS_FIN))
+
+
 class PourquoiPasDeComparaison(unittest.TestCase):
     """Un trou dans nos données ne doit pas passer pour un fait sur la loi."""
 

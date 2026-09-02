@@ -1282,6 +1282,8 @@ function ceQueLaLoiChange(t) {
   const dates = c.dates || [];
   const aujourdhui = new Date().toISOString().slice(0, 10);
   const aVenir = dates.filter((d) => d.date > aujourdhui);
+  const dates_connues = dates.reduce((n, d) => n + d.articles, 0);
+  const sansDate = c.total - dates_connues;
   const boite = el("div", "vigueur" + (aVenir.length ? " attente" : ""));
   const zone = el("div");
   if (!aVenir.length) {
@@ -1300,6 +1302,11 @@ function ceQueLaLoiChange(t) {
       `${nb.format(restants)} article${restants > 1 ? "s" : ""} sur `
       + `${nb.format(c.total)} entre${restants > 1 ? "nt" : ""} en vigueur le `
       + dateLongue.format(enDate(aVenir[0].date)) + "."));
+  }
+  if (sansDate > 0) {
+    zone.append(el("div", null,
+      `${nb.format(sansDate)} article${sansDate > 1 ? "s" : ""} `
+      + `attend${sansDate > 1 ? "ent" : ""} un décret pour s'appliquer.`));
   }
   boite.append(zone);
   boite.addEventListener("click", () => expliquer(
@@ -2278,9 +2285,17 @@ function dessinerArticle(f, retour, uid, a) {
   f.textContent = "";
   f.append(retour);
   f.append(el("h2", "fiche-titre", "Article " + a.numero));
-  const quand = a.debut ? dateLongue.format(enDate(a.debut)) : null;
-  f.append(el("p", "fiche-sous",
-    (a.ou || "") + (quand ? " — rédaction en vigueur le " + quand : "")));
+  // Une abrogation ne met rien en vigueur : elle met fin à une rédaction. Dire
+  // « rédaction en vigueur le… » pour un article abrogé serait le contraire de
+  // ce qui s'est passé.
+  const verbe = a.quoi === "ABROGE" ? "abrogé"
+              : a.quoi === "CREE" ? "créé"
+              : "rédaction en vigueur";
+  // Sans date, ce n'est pas qu'on l'ignore : la loi renvoie à un décret qui
+  // n'est pas paru. Le dire vaut mieux que de se taire.
+  const quand = a.effet ? " le " + dateLongue.format(enDate(a.effet))
+                        : " à une date non encore fixée";
+  f.append(el("p", "fiche-sous", (a.ou || "") + " — " + verbe + quand));
 
   const neuf = a.commun === null;
   if (neuf) {
@@ -2293,8 +2308,10 @@ function dessinerArticle(f, retour, uid, a) {
   }
   if (!neuf) {
     const bascule = el("div", "bascule-texte");
-    for (const [cle, nom] of [["diff", "Ce qui change"], ["apres", "Texte en vigueur"],
-                              ["avant", "Texte précédent"]]) {
+    const noms = a.quoi === "ABROGE"
+      ? [["diff", "Ce qui change"], ["apres", "Dernier texte"], ["avant", "Texte précédent"]]
+      : [["diff", "Ce qui change"], ["apres", "Texte en vigueur"], ["avant", "Texte précédent"]];
+    for (const [cle, nom] of noms) {
       const b = el("button", null, nom);
       b.setAttribute("aria-pressed", String(MODE_TEXTE === cle));
       b.addEventListener("click", () => {

@@ -228,11 +228,14 @@ def changements_par_loi(legi_cx: sqlite3.Connection | None) -> dict[str, dict]:
         resume[ligne["loi"]]["actions"][ligne["quoi"]] = ligne["n"]
     dates: dict[str, dict[str, int]] = {}
     for ligne in legi_cx.execute(
-            "SELECT c.loi, r.debut, COUNT(DISTINCT c.redaction_id) n"
+            "SELECT c.loi, c.quoi, r.debut, r.fin, COUNT(DISTINCT c.redaction_id) n"
             " FROM changement c JOIN redaction r ON r.id = c.redaction_id"
-            " WHERE r.debut IS NOT NULL AND r.debut != ''"
-            " GROUP BY c.loi, r.debut"):
-        dates.setdefault(ligne["loi"], {})[ligne["debut"]] = ligne["n"]
+            " GROUP BY c.loi, c.quoi, r.debut, r.fin"):
+        effet = legi.date_d_effet(ligne["quoi"], ligne["debut"], ligne["fin"])
+        if not effet:
+            continue
+        par_loi = dates.setdefault(ligne["loi"], {})
+        par_loi[effet] = par_loi.get(effet, 0) + ligne["n"]
     for numero, par_date in dates.items():
         resume[numero]["dates"] = [{"date": d, "articles": n}
                                    for d, n in sorted(par_date.items())]
@@ -249,7 +252,7 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str) -> list[dict]:
     """
     groupes: dict[str, list] = {}
     for ligne in legi_cx.execute(
-            "SELECT r.id, r.numero, r.ou, r.debut, r.texte, r.precedent,"
+            "SELECT r.id, r.numero, r.ou, r.debut, r.fin, r.texte, r.precedent,"
             " GROUP_CONCAT(DISTINCT c.quoi) actions,"
             " (SELECT texte FROM redaction WHERE id = r.precedent) avant"
             " FROM changement c JOIN redaction r ON r.id = c.redaction_id"
@@ -265,7 +268,7 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str) -> list[dict]:
             "id": ligne["id"], "numero": ligne["numero"], "quoi": quoi,
             "action": ACTIONS.get(quoi, quoi),
             "actions": [ACTIONS.get(a, a) for a in actions] if len(actions) > 1 else None,
-            "debut": ligne["debut"],
+            "effet": legi.date_d_effet(quoi, ligne["debut"], ligne["fin"]),
             "mots": len(apres.split()),
             "commun": legi.part_commune(avant, apres) if avant else None,
             "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
@@ -276,11 +279,18 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str) -> list[dict]:
 def article_compare(legi_cx: sqlite3.Connection, identifiant: str) -> dict:
     """Un article : son texte entier, découpé en morceaux égaux, retirés, ajoutés."""
     ligne = legi_cx.execute(
-        "SELECT r.*, (SELECT texte FROM redaction WHERE id = r.precedent) avant"
+        "SELECT r.*, (SELECT texte FROM redaction WHERE id = r.precedent) avant,"
+        " (SELECT GROUP_CONCAT(DISTINCT quoi) FROM changement"
+        "  WHERE redaction_id = r.id) actions"
         " FROM redaction r WHERE r.id = ?", (identifiant,)).fetchone()
     avant, apres = ligne["avant"], ligne["texte"] or ""
+    actions = (ligne["actions"] or "").split(",")
+    quoi = min(actions, key=lambda a: PRIORITE.index(a) if a in PRIORITE
+                                      else len(PRIORITE))
     return {
         "id": ligne["id"], "numero": ligne["numero"], "ou": ligne["ou"],
+        "quoi": quoi, "action": ACTIONS.get(quoi, quoi),
+        "effet": legi.date_d_effet(quoi, ligne["debut"], ligne["fin"]),
         "debut": ligne["debut"], "fin": ligne["fin"], "etat": ligne["etat"],
         "nota": ligne["nota"] or None,
         "commun": legi.part_commune(avant, apres) if avant else None,
