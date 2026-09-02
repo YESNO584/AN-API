@@ -7,9 +7,30 @@ cette page.
 
 ## La réponse en une phrase
 
-**C'est faisable, entièrement, avec des fichiers en libre accès, sans compte
-ni clé : 64 de nos 107 lois changent le droit écrit, et pour chacune on peut
-afficher article par article la rédaction d'avant et celle d'après.**
+**C'est fait.** Les chiffres ci-dessous sont ceux de la récupération complète
+du 2026-09-02 : les 419 archives du dépôt lues, **72 de nos 107 lois changent
+le droit écrit**, et pour chacune l'application affiche article par article la
+rédaction d'avant et celle d'après.
+
+| | |
+|---|---:|
+| Archives lues | 419 (le socle de 1,1 Go + 418 quotidiennes) |
+| **Lois qui changent le droit** | **72 sur 107** |
+| Articles changés | 5 713 |
+| **dont comparables** (rédaction d'avant retrouvée) | **4 287 — 75 %** |
+| créés par la loi : rien à comparer, c'est normal | 1 425 |
+| **rédaction d'avant désignée mais introuvable** | **1** |
+| Articles par loi — médiane | 10 |
+| La plus grosse : loi de finances pour 2025 | **1 056 articles** |
+
+Ce que les lois font : **4 164 modifications**, 1 078 créations, 457
+abrogations, 101 transferts ou déplacements.
+
+Les 35 lois sans changement se répartissent en **23 ratifications de traités**
+— elles n'ont rien à modifier, c'est leur nature — et 12 lois qui créent des
+règles autonomes sans les insérer dans un code : une loi spéciale de budget,
+l'élévation d'Alfred Dreyfus au grade de général, la reconnaissance d'un
+préjudice.
 
 ## Ce qu'on peut montrer, concrètement
 
