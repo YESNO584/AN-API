@@ -784,8 +784,14 @@ const filtres = { etapes: new Set(), chambres: new Set(), types: new Set(),
                   activite: null, programme: false, vote: null, etat: null, mots: "" };
 
 const nb = new Intl.NumberFormat("fr-FR");
-const dateCourte = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
-const dateLongue = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+const _dateCourte = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+const _dateLongue = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+/* En français, le premier jour du mois s'écrit « 1er ». Le navigateur écrit
+   « 1 janvier », qui se lit mal — et les dates d'entrée en vigueur tombent
+   presque toujours un premier. */
+const premier = (rendu, d) => d.getDate() === 1 ? rendu.replace(/^1\b/, "1er") : rendu;
+const dateCourte = { format: (d) => premier(_dateCourte.format(d), d) };
+const dateLongue = { format: (d) => premier(_dateLongue.format(d), d) };
 
 // Les six étapes du parcours, pour la frise. « Promulguée » n'en fait pas
 // partie : c'est l'après, pas une septième étape.
