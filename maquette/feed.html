@@ -419,6 +419,13 @@
                          font-weight: inherit; }
   .texte-loi del.forme { color: var(--forme-retrait); background: var(--forme-retrait-fond);
                          text-decoration: line-through; }
+  /* Une espace surlignée n'a rien à montrer : sans cette largeur minimale, le
+     seul changement de l'article serait invisible. `pre-wrap` empêche aussi le
+     navigateur de la ravaler. */
+  .texte-loi ins.forme, .texte-loi del.forme {
+    white-space: pre-wrap; min-width: .3em; display: inline-block;
+    border-radius: 3px; padding: 0 .1rem;
+  }
   .nota { font-size: .78rem; color: var(--gris); background: var(--doux);
           border-radius: 9px; padding: .6rem .7rem; margin-bottom: .8rem; line-height: 1.5; }
   .lien-source { display: block; background: var(--carte); border: 1px solid var(--trait);
@@ -2405,15 +2412,19 @@ function dessinerArticle(f, retour, uid, a) {
   }
 
   const corps = el("div", "texte-loi");
+  let debut = true;
   for (const m of a.morceaux || []) {
     if (mode === "avant" && m.role === "ajoute") continue;
     if (mode === "apres" && m.role === "retire") continue;
     const balise = mode === "diff" && m.role === "retire" ? "del"
                  : mode === "diff" && m.role === "ajoute" ? "ins" : "span";
-    // La ponctuation reste dans le texte, mais en bleu si elle arrive et en
-    // gris si elle part : le droit, lui, n'a pas changé.
+    // Une retouche de forme est découpée au caractère : « I- », l'espace
+    // ajoutée, « Sont ». Ces morceaux se collent au précédent — sinon on
+    // insérerait des espaces au milieu des mots.
+    if (!m.colle && !debut) corps.append(document.createTextNode(" "));
     const classe = mode === "diff" && m.forme ? "forme" : null;
-    corps.append(el(balise, classe, m.texte), document.createTextNode(" "));
+    corps.append(el(balise, classe, m.texte));
+    debut = false;
   }
   f.append(corps);
 

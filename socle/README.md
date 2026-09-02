@@ -82,8 +82,12 @@ Deux conséquences, dans `legi.py` :
   modifiés** (`articles_de_pure_forme` dans `publier.py`). 5 articles sur
   4 431 comparables. Ils ne disparaissent pas : l'écran les range à part,
   sous « articles retouchés sans changement de fond ».
-- **Dans les autres, ces morceaux changent de couleur** au lieu d'être
-  supprimés — le texte de loi doit rester complet, ponctuation comprise.
+- **Dans les autres, le mot ne s'écrit qu'une fois**, découpé au caractère :
+  « Etat-membre » devenu « Etat membre » donne `Etat` + le tiret barré + une
+  espace surlignée + `membre` (`au_caractere`). Le texte de loi reste complet,
+  ponctuation comprise ; seul ce qui bouge est marqué. Chaque morceau porte un
+  drapeau `colle` : sans lui, l'affichage insérerait des espaces au milieu des
+  mots.
 
 **Le piège de la règle :** juger chaque morceau isolément ne suffit pas. La
 comparaison est mot à mot, donc « 222-33,222-33-2 » devenu « 222-33, 222-33-2 »

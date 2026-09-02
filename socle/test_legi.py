@@ -164,7 +164,7 @@ class ComparerDeuxRedactions(unittest.TestCase):
         self.assertEqual(legi.morceaux("les articles  222-33\n et 223-14",
                                        "les articles 222-33 et 223-14"),
                          [{"role": "egal", "texte": "les articles 222-33 et 223-14",
-                           "forme": False}])
+                           "forme": False, "colle": False}])
 
     def test_l_espace_insecable_compte_comme_un_espace(self):
         self.assertEqual(legi.normaliser("article L401-1"), "article L401-1")
@@ -244,6 +244,45 @@ class CeQuiN_EstQueDeLaForme(unittest.TestCase):
     def test_le_tiret_compte_comme_ponctuation(self):
         self.assertTrue(legi.remplacement_de_forme("sous-traitant", "sous traitant"))
 
+    def test_une_espace_ajoutee_se_montre_une_seule_fois(self):
+        """Afficher « ~~I-Sont~~ I- Sont » oblige à lire le mot deux fois pour
+        trouver une espace. On descend au caractère : « I- », l'espace ajoutée,
+        « Sont »."""
+        m = legi.morceaux("I-Sont applicables", "I- Sont applicables")
+        self.assertEqual([(x["role"], x["texte"]) for x in m[:3]],
+                         [("egal", "I-"), ("ajoute", " "), ("egal", "Sont")])
+        self.assertTrue(m[1]["forme"])
+
+    def test_un_tiret_retire_se_montre_une_seule_fois(self):
+        """« 222-33 » devenu « 22233 » : « 222 », le tiret retiré, « 33 »."""
+        m = legi.morceaux("les 222-33 du code", "les 22233 du code")
+        self.assertEqual([(x["role"], x["texte"]) for x in m[1:4]],
+                         [("egal", "222"), ("retire", "-"), ("egal", "33")])
+
+    def test_les_morceaux_au_caractere_se_collent_au_precedent(self):
+        """Sans quoi l'affichage insérerait une espace au milieu du mot."""
+        m = legi.morceaux("I-Sont applicables", "I- Sont applicables")
+        self.assertFalse(m[0]["colle"])
+        self.assertTrue(all(x["colle"] for x in m[1:3]))
+
+    def test_le_mot_reste_lisible_une_fois_recompose(self):
+        """Le texte affiché doit être exactement celui en vigueur."""
+        m = legi.morceaux("I-Sont applicables", "I- Sont applicables")
+        rendu = ""
+        for x in m:
+            if x["role"] == "retire":
+                continue
+            rendu += ("" if x["colle"] or not rendu else " ") + x["texte"]
+        self.assertEqual(rendu, "I- Sont applicables")
+
+    def test_un_vrai_changement_reste_mot_a_mot(self):
+        """On ne descend au caractère que pour la forme : « trois » devenu
+        « cinq » se lit comme un mot remplacé, pas comme cinq lettres."""
+        m = legi.morceaux("la durée de trois ans", "la durée de cinq ans")
+        change = [x for x in m if x["role"] != "egal"]
+        self.assertEqual([(x["role"], x["texte"]) for x in change],
+                         [("retire", "trois"), ("ajoute", "cinq")])
+
     def test_un_article_dont_tout_est_de_forme_n_a_pas_change_au_fond(self):
         m = legi.morceaux("les articles 222-33,222-33-2 du code",
                           "les articles 222-33, 222-33-2 du code")
@@ -261,10 +300,18 @@ class CeQuiN_EstQueDeLaForme(unittest.TestCase):
 
     def test_le_texte_reste_complet_meme_quand_il_est_de_forme(self):
         """On ne retire rien du texte affiché : la ponctuation fait partie de
-        la loi. On la rend seulement discrète."""
+        la loi. On la rend seulement discrète.
+
+        La recomposition suit `colle`, comme l'affichage : un morceau collé se
+        rattache au précédent sans espace, sinon on couperait les mots.
+        """
         m = legi.morceaux("le maire décide", "le maire, décide")
-        self.assertEqual(" ".join(x["texte"] for x in m if x["role"] != "retire"),
-                         "le maire, décide")
+        rendu = ""
+        for x in m:
+            if x["role"] == "retire":
+                continue
+            rendu += ("" if x["colle"] or not rendu else " ") + x["texte"]
+        self.assertEqual(rendu, "le maire, décide")
 
 
 class PourquoiPasDeComparaison(unittest.TestCase):

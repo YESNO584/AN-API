@@ -212,11 +212,19 @@ change* (les retraits barrés en rouge, les ajouts en vert), *Texte en vigueur*,
 *Texte précédent*. Puis les conditions d'entrée en vigueur si le texte officiel
 en porte, et le lien vers Légifrance.
 
-**Quatre couleurs, pas deux.** Une part des différences signalées n'est que de
-la typographie : une virgule déplacée, une espace restituée, un tiret. Mesuré :
-**13,6 % des morceaux signalés**. Les effacer donnerait un texte de loi faux ;
-les laisser en rouge et vert noierait les vrais changements. Ils passent donc
-en **bleu** quand ils arrivent et en **gris** quand ils partent.
+**Une retouche de typographie se montre une seule fois.** Une part des
+différences signalées n'est que de la forme : une virgule déplacée, une espace
+restituée, un tiret. Mesuré : **13,6 % des morceaux signalés**.
+
+Les effacer donnerait un texte de loi faux. Les afficher comme le reste —
+l'ancien barré, puis le nouveau — oblige à lire le mot deux fois pour trouver
+l'espace. On descend donc **au caractère**, et le mot s'écrit une fois :
+
+| Le texte devient | Ce qui s'affiche |
+|---|---|
+| « I-Sont » → « I- Sont » | `I-`[espace en **bleu**]`Sont` |
+| « 222-33 » → « 22233 » | `222`[tiret barré en **gris**]`33` |
+| « Etat-membre » → « Etat membre » | `Etat`[tiret **gris**][espace **bleue**]`membre` |
 
 | | |
 |---|---|
@@ -225,7 +233,9 @@ en **bleu** quand ils arrivent et en **gris** quand ils partent.
 | **bleu** | **ponctuation ou espace ajoutée** |
 | **gris barré** | **ponctuation ou espace retirée** |
 
-La légende n'affiche que les couleurs réellement présentes dans l'article.
+Les vrais changements restent mot à mot : « trois » devenu « cinq » se lit
+comme un mot remplacé, pas comme quatre lettres. La légende n'affiche que les
+couleurs réellement présentes dans l'article.
 
 **Et un article dont *tout* le changement est de cette nature ne compte pas
 comme modifié.** Il serait faux d'annoncer qu'une loi a changé quelque chose là
