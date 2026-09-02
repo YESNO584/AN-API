@@ -2255,11 +2255,9 @@ async function ouvrirFiche(uid) {
   const finaux = (d.votes || []).filter((v) => v.portee === "ensemble");
   if (finaux.length) {
     const v = finaux.reduce((a, b) => (a.date >= b.date ? a : b));
-    const boite = bloc("Vote sur l'ensemble du texte");
     const seule = el("ul", "parcours");
     seule.append(ligneVoteParcours(v));
-    boite.append(seule);
-    f.append(boite);
+    f.append(seule);
   }
 
   const items = filDuParcours(d);
