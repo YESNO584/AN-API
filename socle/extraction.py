@@ -23,7 +23,7 @@ import re
 import time
 import urllib.request
 import zipfile
-from typing import Iterator
+from typing import Iterable, Iterator
 
 DEPOT = "https://data.assemblee-nationale.fr/static/openData/repository/17/"
 URL_ARCHIVE = DEPOT + "loi/dossiers_legislatifs/Dossiers_Legislatifs.json.zip"
@@ -1187,3 +1187,281 @@ def lire_amendements(archive: pathlib.Path) -> Iterator[dict]:
                 a = analyser_amendement(json.load(fichier))
             a["dossier"] = morceaux[1]
             yield a
+
+
+# ---------------------------------------------------------------------------
+# Les débats : ce que les groupes disent d'un texte
+# ---------------------------------------------------------------------------
+
+# Le compte rendu de séance, mot pour mot. C'est la seule source du projet où
+# un député explique un texte avec ses propres phrases — le reste (dossiers,
+# scrutins, amendements) ne dit que des faits et des décomptes.
+#
+# **Rien n'est résumé, rien n'est reformulé.** Ce module recopie les prises de
+# parole telles que l'Assemblée les publie, avec le nom de l'orateur et son
+# groupe. Il ne cherche pas à savoir si un orateur annonce un vote, ni si son
+# groupe l'a suivi : une phrase d'intention lue dans la mauvaise section
+# produit une contrevérité à l'écran (constaté le 2026-09-02 sur l'UDR, qui a
+# voté « pour » les soins palliatifs pendant que son orateur disait « contre »
+# — il parlait de l'autre texte de la même séance).
+URL_DEBATS = DEPOT + "vp/syceronbrut/syseron.xml.zip"
+
+# Le XML des comptes rendus porte un espace de noms, et `ElementTree` en
+# préfixe chaque balise.
+NS_DEBATS = "{http://schemas.assemblee-nationale.fr/referentiel}"
+
+# Les sections où l'on argumente. Ce sont des **intitulés de la source**, pas
+# un classement de notre fait : l'Assemblée nomme elle-même ses sections, et
+# c'est dans celles-ci qu'elle donne la parole à un orateur par groupe.
+# Ailleurs — discussion des articles, rappels au règlement, questions au
+# gouvernement — on parle d'autre chose que du texte dans son ensemble.
+SECTIONS_ARGUMENTAIRE = ("Discussion générale", "Explications de vote",
+                         "Explication de vote")
+
+# Ce que la source appelle une prise de parole. Les autres codes désignent des
+# interruptions (« Mais non ! » lancé depuis les bancs), des annonces de
+# scrutin ou des changements de présidence : ce ne sont pas des argumentaires,
+# et c'est la source elle-même qui les distingue.
+PAROLE = "PAROLE_GENERIQUE"
+INTERRUPTION = "INTERRUPTION_1_10"
+
+# Le président de séance ne défend pas un texte : il donne la parole. La
+# source le désigne toujours ainsi, sans nom propre.
+PRESIDENCE = re.compile(r"^(M\.|Mme) l[ae] président(e)?$")
+
+
+def _texte_du_noeud(noeud) -> str:
+    """Tout le texte d'un nœud XML, italiques comprises, en une seule chaîne."""
+    if noeud is None:
+        return ""
+    return re.sub(r"[ \t]*\s+", " ", "".join(noeud.itertext())).strip()
+
+
+def est_la_presidence(nom: str | None) -> bool:
+    return bool(PRESIDENCE.match((nom or "").strip()))
+
+
+def sigle_d_orateur(nom: str | None, sigles: set[str]) -> str | None:
+    """Le groupe de l'orateur, tel que le compte rendu l'imprime.
+
+    « M. Éric Martineau (Dem) » — le sigle entre parenthèses est le groupe
+    **du jour du débat**, ce qui vaut mieux que notre table `acteur`, qui ne
+    connaît que le groupe d'aujourd'hui.
+
+    Il faut le confronter à la liste des groupes : la même parenthèse sert à
+    départager deux députés homonymes par leur département — « M. Untel
+    (Alpes-Maritimes) » — et trois orateurs se sont ainsi vu attribuer un
+    groupe qui n'existe pas.
+    """
+    trouve = re.search(r"\(([^()]+)\)\s*$", nom or "")
+    return trouve.group(1) if trouve and trouve.group(1) in sigles else None
+
+
+def numeros_de_texte(valeur: str | None) -> list[str]:
+    """Les numéros de dépôt qu'un titre de section cite.
+
+    L'attribut vaut « (n[[o]] 2406) », ou « (n[[os]] 2406, 2401) » quand deux
+    textes sont discutés ensemble. 665 des 1 093 titres en portent un ; les
+    autres ouvrent un débat sans texte — questions au gouvernement,
+    déclaration du gouvernement, motion de censure.
+    """
+    return re.findall(r"\d{1,5}", valeur or "")
+
+
+def prises_de_parole(racine, sigles: set[str]) -> Iterator[dict]:
+    """Les argumentaires d'une séance, dans l'ordre où ils ont été prononcés.
+
+    Une prise de parole est une **suite de paragraphes du même orateur** dans
+    la même section : le compte rendu la découpe en paragraphes, et les
+    interruptions venues des bancs la coupent en deux sans que l'orateur ait
+    cédé la parole. On recolle donc, en sautant les interruptions.
+
+    Rend des dictionnaires portant `numeros` — les numéros de dépôt du texte
+    discuté — et non un identifiant de dossier : le rapprochement demande la
+    liste des documents, que ce module ne charge pas.
+    """
+    contenu = racine.find(NS_DEBATS + "contenu")
+    if contenu is None:
+        return
+    brut = racine.findtext(f"{NS_DEBATS}metadonnees/{NS_DEBATS}dateSeance") or ""
+    jour = f"{brut[:4]}-{brut[4:6]}-{brut[6:8]}" if len(brut) >= 8 else None
+    seance = racine.findtext(NS_DEBATS + "uid")
+
+    numeros: list[str] = []
+    section: str | None = None
+    courante: dict | None = None
+    rang = 0
+
+    def clore() -> Iterator[dict]:
+        nonlocal courante
+        if courante and courante["texte"]:
+            yield courante
+        courante = None
+
+    for point in contenu:
+        if point.tag != NS_DEBATS + "point":
+            continue
+        niveau = point.get("nivpoint")
+        titre = _texte_du_noeud(point.find(NS_DEBATS + "texte"))
+        if niveau == "1":
+            yield from clore()
+            numeros, section = [], None
+            if point.get("code_grammaire") == "TITRE_TEXTE_DISCUSSION":
+                numeros = numeros_de_texte(point.get("valeur"))
+        elif niveau == "2":
+            yield from clore()
+            section = titre if titre.startswith(SECTIONS_ARGUMENTAIRE) else None
+        if not (numeros and section):
+            continue
+
+        for para in point.findall(NS_DEBATS + "paragraphe"):
+            code = para.get("code_grammaire")
+            if code == INTERRUPTION:
+                # Elle ne rompt pas la prise de parole en cours : l'orateur
+                # reprend son propos au paragraphe suivant.
+                continue
+            if code != PAROLE:
+                yield from clore()
+                continue
+            orateurs = para.find(NS_DEBATS + "orateurs")
+            noms = [o.findtext(NS_DEBATS + "nom") or ""
+                    for o in (orateurs if orateurs is not None else [])]
+            if any(est_la_presidence(n) for n in noms):
+                yield from clore()
+                continue
+            corps = _texte_du_noeud(para.find(NS_DEBATS + "texte"))
+            if not corps:
+                continue
+            ref = para.get("id_acteur")
+            if courante and courante["acteur_ref"] == ref and courante["section"] == section:
+                courante["texte"] += "\n\n" + corps
+                continue
+            yield from clore()
+            qualite = next((o.findtext(NS_DEBATS + "qualite") or ""
+                            for o in (orateurs if orateurs is not None else [])), "")
+            rang += 1
+            courante = {
+                "seance": seance,
+                "date": jour,
+                "numeros": list(numeros),
+                "section": section,
+                "ordre": rang,
+                "acteur_ref": ref,
+                # Le nom tel que la source l'imprime, sigle compris. On le
+                # nettoie du sigle pour l'affichage : il est rangé à part.
+                "nom": re.sub(r"\s*\([^()]+\)\s*$", "", noms[0]).strip() if noms else "",
+                "qualite": qualite,
+                "sigle": next((s for s in (sigle_d_orateur(n, sigles) for n in noms) if s),
+                              None),
+                "texte": corps,
+            }
+    yield from clore()
+
+
+def lire_debats(archive: pathlib.Path, sigles: set[str]) -> list[dict]:
+    """Toutes les prises de parole de l'archive, le groupe de chacune rempli.
+
+    Le sigle n'est imprimé qu'**au premier paragraphe** d'une prise de parole,
+    quand la présidence vient de donner la parole : 8,7 % des paroles le
+    portent. Les autres se rattrapent par l'orateur, vu sous son sigle dans
+    une autre séance — ce qui porte l'attribution à 94,6 % (mesuré le
+    2026-09-02 sur les 601 comptes rendus de la législature).
+
+    Les 5,4 % qui restent sont des ministres, des rapporteurs et des députés
+    non inscrits : ils s'affichent sous leur seul nom. On ne comble pas ce
+    trou avec `acteur.groupe_ref`, qui donne le groupe d'aujourd'hui et non
+    celui du jour du débat.
+    """
+    import xml.etree.ElementTree as ET
+
+    paroles: list[dict] = []
+    observes: list[tuple[str, str]] = []
+    with zipfile.ZipFile(archive) as zf:
+        for nom in zf.namelist():
+            if not nom.endswith(".xml"):
+                continue
+            racine = ET.fromstring(zf.read(nom))
+            paroles.extend(prises_de_parole(racine, sigles))
+            observes.extend(sigles_nommes(racine, sigles))
+    return completer_les_sigles(paroles, observes)
+
+
+def sigles_nommes(racine, sigles: set[str]) -> Iterator[tuple[str, str]]:
+    """Chaque orateur de la séance nommé avec son groupe, où qu'il ait parlé.
+
+    Il faut ratisser **toute** la séance, pas seulement les sections
+    d'argumentaire : M. Stéphane Lenormand y prend la parole 49 fois sans
+    sigle, et les 8 fois où le compte rendu l'imprime « (LIOT) » sont toutes
+    dans la discussion des articles. Chercher le sigle dans les seules
+    sections retenues laissait 582 paroles sans groupe au lieu de 189.
+    """
+    for orateur in racine.iter(NS_DEBATS + "orateur"):
+        sigle = sigle_d_orateur(orateur.findtext(NS_DEBATS + "nom"), sigles)
+        identifiant = orateur.findtext(NS_DEBATS + "id")
+        if sigle and identifiant:
+            yield "PA" + identifiant, sigle
+
+
+def completer_les_sigles(paroles: list[dict],
+                         observes: Iterable[tuple[str, str]] = ()) -> list[dict]:
+    """Donne à chaque orateur le sigle sous lequel la séance l'a nommé ailleurs.
+
+    Trois orateurs sur 521 ont été vus sous plus d'un sigle — un changement de
+    groupe en cours de législature. On retient le plus fréquent, faute de
+    pouvoir dater le changement.
+    """
+    vus: dict[str, dict[str, int]] = {}
+    paires = list(observes) or [(p["acteur_ref"], p["sigle"]) for p in paroles]
+    for ref, sigle in paires:
+        if ref and sigle:
+            compte = vus.setdefault(ref, {})
+            compte[sigle] = compte.get(sigle, 0) + 1
+    connus = {ref: max(compte, key=compte.get) for ref, compte in vus.items()}
+    for p in paroles:
+        if not p["sigle"]:
+            p["sigle"] = connus.get(p["acteur_ref"])
+    return paroles
+
+
+# Le préfixe d'identifiant des documents déposés à l'Assemblée pour cette
+# législature. Il faut le poser : le même numéro de dépôt sert au Sénat et à
+# nous. « n° 698 » désigne quatre documents dans l'archive — une proposition
+# de l'Assemblée, son rapport, et deux propositions du Sénat.
+PREFIXE_DOCUMENT_AN = f"ANR5L{LEGISLATURE}"
+
+
+def documents_par_numero(documents: dict[str, dict]) -> dict[str, set[str]]:
+    """Quel dossier porte le numéro de dépôt cité en séance.
+
+    Un numéro peut en désigner deux : la proposition de loi et le rapport
+    portent le même, et ils appartiennent d'ordinaire au même dossier — mais
+    pas toujours. D'où un ensemble, que `dossier_des_numeros` départage.
+    """
+    par_numero: dict[str, set[str]] = {}
+    for d in documents.values():
+        if d["numero"] and d["dossier"] and PREFIXE_DOCUMENT_AN in d["uid"]:
+            par_numero.setdefault(str(d["numero"]), set()).add(d["dossier"])
+    return par_numero
+
+
+def dossier_des_numeros(numeros: list[str], jour: str | None,
+                        par_numero: dict[str, set[str]],
+                        dates: dict[str, set[str]]) -> str | None:
+    """Le dossier discuté, ou rien du tout.
+
+    Deux textes discutés ensemble donnent deux numéros ; on ne rattache la
+    parole qu'à un seul dossier, celui qui reste après la date. Mesuré le
+    2026-09-02 : 614 des 693 numéros cités désignent un seul dossier,
+    **aucun n'en désigne deux**, et les 79 restants appartiennent à des
+    dossiers de la 16e législature, que le projet ne suit pas.
+
+    La date fait tout le travail : sans elle, 97 numéros désignent deux à
+    quatre dossiers. Un dossier discuté ce jour-là a forcément une étape
+    datée de ce jour-là.
+    """
+    trouves: set[str] = set()
+    for numero in numeros:
+        trouves |= par_numero.get(numero, set())
+    if len(trouves) > 1 and jour:
+        trouves = {uid for uid in trouves if jour in dates.get(uid, ())}
+    return next(iter(trouves)) if len(trouves) == 1 else None

@@ -990,5 +990,252 @@ class LeCalendrier(unittest.TestCase):
         self.assertNotIn("article", extraction.VOTES_AU_CALENDRIER)
 
 
+# ---------------------------------------------------------------------------
+# Les débats
+# ---------------------------------------------------------------------------
+
+NS = extraction.NS_DEBATS
+
+
+def seance(corps: str, date: str = "20260225140000000",
+           uid: str = "CRSANR5L17S2026O1N168"):
+    """Un compte rendu minuscule, à la forme exacte de ceux de l'Assemblée."""
+    import xml.etree.ElementTree as ET
+    return ET.fromstring(
+        f'<compteRendu xmlns="http://schemas.assemblee-nationale.fr/referentiel">'
+        f"<uid>{uid}</uid>"
+        f"<metadonnees><dateSeance>{date}</dateSeance></metadonnees>"
+        f"<contenu>{corps}</contenu></compteRendu>")
+
+
+def titre_de_texte(numeros: str = " (n[[o]]\u00a02406)"):
+    return (f'<point nivpoint="1" code_grammaire="TITRE_TEXTE_DISCUSSION"'
+            f' valeur="{numeros}"><orateurs/><texte>Droit à l\u2019aide à mourir</texte>'
+            f"</point>")
+
+
+def section(titre: str, paragraphes: str = ""):
+    return (f'<point nivpoint="2" code_grammaire="DISC_ARTICLES_1_2">'
+            f"<orateurs/><texte>{titre}</texte>{paragraphes}</point>")
+
+
+def parole(nom: str, texte: str, acteur: str = "PA795100",
+           code: str = "PAROLE_GENERIQUE", qualite: str = ""):
+    return (f'<paragraphe code_grammaire="{code}" id_acteur="{acteur}">'
+            f"<orateurs><orateur><nom>{nom}</nom><id>{acteur[2:]}</id>"
+            f"<qualite>{qualite}</qualite></orateur></orateurs>"
+            f"<texte>{texte}</texte></paragraphe>")
+
+
+SIGLES = {"Dem", "RN", "SOC", "LFI-NFP", "EPR"}
+
+
+class LeGroupeDeLOrateur(unittest.TestCase):
+    def test_le_sigle_est_imprime_apres_le_nom(self):
+        self.assertEqual(
+            extraction.sigle_d_orateur("M. Éric Martineau (Dem)", SIGLES), "Dem")
+
+    def test_un_departement_n_est_pas_un_groupe(self):
+        """La même parenthèse départage deux homonymes par leur département.
+        Sans la liste des groupes, trois orateurs de la législature se
+        retrouvaient dans un groupe « Alpes-Maritimes »."""
+        self.assertIsNone(
+            extraction.sigle_d_orateur("M. Untel (Alpes-Maritimes)", SIGLES))
+
+    def test_sans_parenthese_on_ne_sait_pas(self):
+        self.assertIsNone(extraction.sigle_d_orateur("Mme Océane Godard", SIGLES))
+        self.assertIsNone(extraction.sigle_d_orateur(None, SIGLES))
+
+    def test_la_presidence_se_reconnait_a_son_titre(self):
+        for nom in ("M. le président", "Mme la présidente"):
+            self.assertTrue(extraction.est_la_presidence(nom), nom)
+        for nom in ("M. Éric Martineau", "M. le président de la commission", ""):
+            self.assertFalse(extraction.est_la_presidence(nom), nom)
+
+    def test_le_sigle_vu_ailleurs_sert_partout(self):
+        """Le sigle n'est imprimé qu'au premier paragraphe d'une prise de
+        parole : sans ce rattrapage, 8,7 % des paroles seulement ont un
+        groupe, contre 94,6 % avec."""
+        paroles = [{"acteur_ref": "PA1", "sigle": "SOC"},
+                   {"acteur_ref": "PA1", "sigle": None},
+                   {"acteur_ref": "PA2", "sigle": None}]
+        extraction.completer_les_sigles(paroles)
+        self.assertEqual([p["sigle"] for p in paroles], ["SOC", "SOC", None])
+
+    def test_le_sigle_se_cherche_dans_toute_la_seance(self):
+        """M. Stéphane Lenormand prend la parole 49 fois sans sigle, et les 8
+        fois où le compte rendu l'imprime « (LIOT) » sont toutes dans la
+        discussion des articles — une section qu'on ne publie pas. Chercher le
+        sigle dans les seules sections retenues laissait 582 paroles sans
+        groupe au lieu de 189."""
+        corps = (titre_de_texte()
+                 + section("Discussion des articles",
+                           parole("M. Stéphane Lenormand (LIOT)", "Sur l’alinéa 7…",
+                                  acteur="PA795902"))
+                 + section("Explications de vote",
+                           parole("M. Stéphane Lenormand", "Nous voterons…",
+                                  acteur="PA795902")))
+        racine = seance(corps)
+        paroles = list(extraction.prises_de_parole(racine, SIGLES | {"LIOT"}))
+        self.assertEqual([p["sigle"] for p in paroles], [None])
+        extraction.completer_les_sigles(
+            paroles, extraction.sigles_nommes(racine, SIGLES | {"LIOT"}))
+        self.assertEqual([p["sigle"] for p in paroles], ["LIOT"])
+
+    def test_un_orateur_qui_change_de_groupe_garde_le_plus_frequent(self):
+        paroles = [{"acteur_ref": "PA1", "sigle": "RN"},
+                   {"acteur_ref": "PA1", "sigle": "UDR"},
+                   {"acteur_ref": "PA1", "sigle": "UDR"},
+                   {"acteur_ref": "PA1", "sigle": None}]
+        extraction.completer_les_sigles(paroles)
+        self.assertEqual(paroles[3]["sigle"], "UDR")
+
+
+class LeTexteDontOnParle(unittest.TestCase):
+    def test_un_titre_cite_le_numero_de_depot(self):
+        self.assertEqual(extraction.numeros_de_texte(" (n[[o]]\u00a02406)"), ["2406"])
+
+    def test_deux_textes_discutes_ensemble(self):
+        self.assertEqual(extraction.numeros_de_texte(" (n[[os]] 2406, 2401)"),
+                         ["2406", "2401"])
+
+    def test_un_debat_sans_texte_ne_cite_rien(self):
+        """428 des 1 093 titres n'ont pas de numéro : questions au
+        gouvernement, déclaration du gouvernement, motion de censure."""
+        self.assertEqual(extraction.numeros_de_texte(""), [])
+        self.assertEqual(extraction.numeros_de_texte(None), [])
+
+    def test_le_senat_numerote_comme_nous(self):
+        """« n° 698 » désigne quatre documents : une proposition de
+        l'Assemblée, son rapport, et deux propositions du Sénat. Seuls les
+        documents de l'Assemblée comptent."""
+        docs = {
+            "a": {"uid": "PIONANR5L17BTC0698", "numero": 698, "dossier": "D1"},
+            "b": {"uid": "RAPPANR5L17B0698", "numero": 698, "dossier": "D1"},
+            "c": {"uid": "PIONSNR5S459BTC0698", "numero": 698, "dossier": "D2"},
+        }
+        self.assertEqual(extraction.documents_par_numero(docs), {"698": {"D1"}})
+
+    def test_la_date_departage_deux_dossiers(self):
+        """Sans la date, 97 numéros cités désignent deux à quatre dossiers ;
+        avec elle, aucun."""
+        par_numero = {"698": {"D1", "D2"}}
+        dates = {"D1": {"2026-02-25"}, "D2": {"2025-06-04"}}
+        self.assertEqual(
+            extraction.dossier_des_numeros(["698"], "2026-02-25", par_numero, dates),
+            "D1")
+
+    def test_un_dossier_indecidable_n_est_rattache_a_rien(self):
+        """Mieux vaut ne rien montrer que d'attribuer un discours au mauvais
+        texte."""
+        par_numero = {"698": {"D1", "D2"}}
+        dates = {"D1": {"2026-02-25"}, "D2": {"2026-02-25"}}
+        self.assertIsNone(
+            extraction.dossier_des_numeros(["698"], "2026-02-25", par_numero, dates))
+
+    def test_un_dossier_inconnu_ne_rattache_rien(self):
+        self.assertIsNone(extraction.dossier_des_numeros(["1191"], "2026-02-25", {}, {}))
+
+
+class LesPrisesDeParole(unittest.TestCase):
+    def paroles(self, corps, **kw):
+        return list(extraction.prises_de_parole(seance(corps, **kw), SIGLES))
+
+    def test_une_parole_porte_son_orateur_son_groupe_et_son_texte(self):
+        p = self.paroles(titre_de_texte() + section(
+            "Explications de vote",
+            parole("M. Éric Martineau (Dem)", "La mort appartient à la vie.")))
+        self.assertEqual(len(p), 1)
+        self.assertEqual(p[0]["nom"], "M. Éric Martineau")
+        self.assertEqual(p[0]["sigle"], "Dem")
+        self.assertEqual(p[0]["texte"], "La mort appartient à la vie.")
+        self.assertEqual(p[0]["numeros"], ["2406"])
+        self.assertEqual(p[0]["date"], "2026-02-25")
+        self.assertEqual(p[0]["section"], "Explications de vote")
+
+    def test_seules_les_sections_d_argumentaire_comptent(self):
+        """La discussion des articles parle d'un alinéa, pas du texte."""
+        corps = titre_de_texte() + section(
+            "Discussion des articles",
+            parole("M. Éric Martineau (Dem)", "Sur l’alinéa 7…"))
+        self.assertEqual(self.paroles(corps), [])
+
+    def test_un_debat_sans_texte_ne_donne_rien(self):
+        corps = ('<point nivpoint="1" code_grammaire="TITRE_TEXTE_DISCUSSION">'
+                 "<orateurs/><texte>Questions au gouvernement</texte></point>"
+                 + section("Discussion générale",
+                           parole("M. Éric Martineau (Dem)", "Ma question…")))
+        self.assertEqual(self.paroles(corps), [])
+
+    def test_la_presidence_ne_defend_pas_un_texte(self):
+        """« La parole est à M. Untel » n'est pas un argumentaire."""
+        corps = titre_de_texte() + section(
+            "Discussion générale",
+            parole("Mme la présidente", "La parole est à M. Éric Martineau.",
+                   acteur="PA721908")
+            + parole("M. Éric Martineau (Dem)", "La mort appartient à la vie."))
+        p = self.paroles(corps)
+        self.assertEqual([x["nom"] for x in p], ["M. Éric Martineau"])
+
+    def test_une_interruption_ne_coupe_pas_la_parole(self):
+        """Le compte rendu insère « Mais non ! » au milieu d'un discours. Sans
+        recollage, un même orateur apparaît deux fois de suite."""
+        corps = titre_de_texte() + section(
+            "Explications de vote",
+            parole("M. Éric Martineau (Dem)", "Première partie.")
+            + parole("M. Frédéric Valletoux", "Mais non !", acteur="PA795350",
+                     code="INTERRUPTION_1_10")
+            + parole("M. Éric Martineau", "Seconde partie."))
+        p = self.paroles(corps)
+        self.assertEqual(len(p), 1)
+        self.assertEqual(p[0]["texte"], "Première partie.\n\nSeconde partie.")
+
+    def test_deux_orateurs_font_deux_paroles(self):
+        corps = titre_de_texte() + section(
+            "Explications de vote",
+            parole("M. Éric Martineau (Dem)", "Pour nous…")
+            + parole("Mme Océane Godard (SOC)", "Deux cents heures.",
+                     acteur="PA840939"))
+        p = self.paroles(corps)
+        self.assertEqual([(x["nom"], x["sigle"], x["ordre"]) for x in p],
+                         [("M. Éric Martineau", "Dem", 1),
+                          ("Mme Océane Godard", "SOC", 2)])
+
+    def test_la_qualite_de_l_orateur_est_recopiee(self):
+        corps = titre_de_texte() + section(
+            "Discussion générale",
+            parole("M. Frédéric Valletoux", "Mon rapport…", acteur="PA795350",
+                   qualite="rapporteur"))
+        self.assertEqual(self.paroles(corps)[0]["qualite"], "rapporteur")
+
+    def test_un_nouveau_texte_ferme_la_section_precedente(self):
+        """Deux textes se suivent dans la même séance : la parole du second ne
+        doit pas se rattacher au premier."""
+        corps = (titre_de_texte(" (n[[o]] 2406)")
+                 + section("Explications de vote",
+                           parole("M. Éric Martineau (Dem)", "Sur le premier."))
+                 + titre_de_texte(" (n[[o]] 2401)")
+                 + section("Explications de vote",
+                           parole("Mme Océane Godard (SOC)", "Sur le second.",
+                                  acteur="PA840939")))
+        p = self.paroles(corps)
+        self.assertEqual([x["numeros"] for x in p], [["2406"], ["2401"]])
+
+    def test_le_texte_des_italiques_est_garde(self):
+        """« (Applaudissements sur les bancs du groupe SOC.) » fait partie du
+        compte rendu : le retirer serait choisir ce qui compte."""
+        corps = titre_de_texte() + section(
+            "Explications de vote",
+            parole("Mme Océane Godard (SOC)",
+                   "Deux cents heures.<italique> (Applaudissements.)</italique>",
+                   acteur="PA840939"))
+        self.assertIn("(Applaudissements.)", self.paroles(corps)[0]["texte"])
+
+    def test_une_parole_vide_n_est_pas_publiee(self):
+        corps = titre_de_texte() + section(
+            "Explications de vote", parole("M. Éric Martineau (Dem)", ""))
+        self.assertEqual(self.paroles(corps), [])
+
+
 if __name__ == "__main__":
     sys.exit(0 if unittest.main(exit=False, verbosity=2).result.wasSuccessful() else 1)

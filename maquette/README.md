@@ -160,6 +160,9 @@ partageable et ouvrable directement. Elle contient :
 - les **liens officiels** : dossier à l'Assemblée, dossier au Sénat, et le
   **texte de loi au Journal officiel** quand elle est promulguée ;
 - **l'étape où il se trouve**, ou son issue s'il est promulgué ou arrêté ;
+- le **vote sur l'ensemble du texte**, celui qui décide, seul et juste avant
+  le parcours ;
+- **ce que les groupes en ont dit** en séance, chargé à la demande ;
 - le **parcours complet**, étape par étape, datée, **les votes intercalés à
   leur date** — voir la section suivante ;
 - les **amendements**, chargés à la demande.
@@ -287,6 +290,32 @@ affiché reste celui de la source, à la lettre près.
 Deux plafonds, imposés par le volume — un texte compte jusqu'à 19 510
 amendements : **150 amendements détaillés par texte**, les adoptés d'abord,
 et l'exposé de l'auteur écourté à 400 caractères. Le compte réel est affiché.
+
+### Ce que les groupes en ont dit
+
+Sous le vote sur l'ensemble, **les prises de parole en séance, recopiées mot
+pour mot** du compte rendu de l'Assemblée : nom de l'orateur, son groupe du
+jour du débat, la date, la section. 3 384 prises de parole sur 172 textes de
+loi.
+
+**Rien n'est résumé et rien n'est relié au vote.** La page ne dit pas « ce
+groupe a voté ainsi parce que » : elle montre ce qui a été dit, et le vote est
+juste au-dessus. C'est un choix, pas une limite technique — le 25 février 2026,
+l'UDR a voté *pour* les soins palliatifs pendant que son orateur disait
+« l'ensemble du groupe UDR votera contre », parce qu'il parlait de l'autre
+texte de la même séance.
+
+**Une pastille par groupe, en haut**, dans l'ordre de l'hémicycle, avec le
+nombre de paroles. La toucher ne montre que ce groupe ; la retoucher les
+remontre tous.
+
+**Les paroles sont repliées, pas coupées.** Une prise de parole fait 4 260
+caractères en médiane : elle s'affiche sur quatre lignes, et « Lire la suite »
+déroule le reste. Le texte entier est dans la page dès le premier affichage —
+rien n'est allé chercher un complément, rien n'a été tronqué à la publication.
+
+**Le fichier est chargé à la demande** — 54 Ko en médiane, 300 Ko pour le
+PLFSS. La fiche s'ouvre sans l'attendre.
 
 ## Les explications
 

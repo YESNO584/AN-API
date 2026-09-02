@@ -209,3 +209,38 @@ CREATE TABLE IF NOT EXISTS journal (
     etapes_ecrites INTEGER,
     message       TEXT
 );
+
+-- Ce que les groupes ont dit d'un texte, mot pour mot.
+--
+-- Une ligne par prise de parole, recopiée du compte rendu de séance. **Rien
+-- n'est résumé ni reformulé** : `texte` est celui de la source, italiques
+-- comprises. On ne dit pas non plus si l'orateur annonçait un vote — une
+-- phrase d'intention lue dans la mauvaise section produit une contrevérité.
+--
+-- Seules deux sections sont retenues, nommées par la source elle-même :
+-- « Discussion générale » et « Explications de vote ». Ailleurs on discute
+-- d'un alinéa, pas du texte.
+--
+-- `sigle` est le groupe **du jour du débat**, imprimé par le compte rendu
+-- après le nom de l'orateur. Il est vide pour 5,4 % des paroles — ministres,
+-- rapporteurs, non-inscrits. On ne le comble pas avec `acteur.groupe_ref`,
+-- qui donne le groupe d'aujourd'hui.
+CREATE TABLE IF NOT EXISTS parole (
+    dossier_uid TEXT    NOT NULL REFERENCES dossier(uid) ON DELETE CASCADE,
+    seance      TEXT    NOT NULL,   -- CRSANR5L17S2026O1N168
+    date        TEXT    NOT NULL,
+    section     TEXT    NOT NULL,   -- l'intitulé de la source, mot pour mot
+    ordre       INTEGER NOT NULL,   -- rang dans la séance
+    acteur_ref  TEXT,
+    nom         TEXT,               -- « M. Éric Martineau », sigle retiré
+    qualite     TEXT,               -- rapporteur, ministre…
+    sigle       TEXT,
+    texte       TEXT    NOT NULL
+);
+
+-- L'ordre d'affichage est (jour, séance, rang) et non (jour, rang) : deux
+-- séances ont lieu le même jour, et `ordre` repart de 1 à chaque compte
+-- rendu. Sans la séance au milieu, la première et la deuxième séance
+-- s'entrelacent.
+CREATE INDEX IF NOT EXISTS parole_par_dossier
+    ON parole (dossier_uid, date, seance, ordre);

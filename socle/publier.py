@@ -192,6 +192,43 @@ def amendements_du_texte(cx: sqlite3.Connection, uid: str) -> dict:
             "amendements": amendements}
 
 
+def paroles_du_texte(cx: sqlite3.Connection, uid: str) -> dict:
+    """Ce que les groupes ont dit du texte en séance, mot pour mot.
+
+    Rien n'est coupé ni résumé : une prise de parole fait 4 260 caractères en
+    médiane, 12 377 au plus long, et la tronquer reviendrait à choisir ce qui
+    compte. C'est l'affichage qui la replie, pas la publication.
+
+    L'ordre est celui de la séance — (jour, compte rendu, rang). Le groupe est
+    celui du jour du débat, imprimé par le compte rendu : 95,6 % des paroles
+    en ont un, les autres sont des ministres, des rapporteurs et des
+    non-inscrits, qui s'affichent sous leur seul nom.
+    """
+    lignes = cx.execute(
+        "SELECT p.date, p.section, p.nom, p.qualite, p.sigle, p.texte,"
+        " g.couleur, a.photo"
+        " FROM parole p"
+        " LEFT JOIN groupe g ON g.sigle = p.sigle"
+        " LEFT JOIN acteur a ON a.ref = p.acteur_ref"
+        " WHERE p.dossier_uid = ?"
+        " ORDER BY p.date, p.seance, p.ordre", (uid,)).fetchall()
+    if not lignes:
+        return {"total": 0, "groupes": [], "paroles": []}
+
+    # Les groupes qui ont parlé, dans l'ordre de l'hémicycle : c'est celui de
+    # la table `groupe`, mesuré sur les numéros de siège.
+    compte: dict[str, dict] = {}
+    for l in lignes:
+        if l["sigle"]:
+            g = compte.setdefault(l["sigle"], {"sigle": l["sigle"],
+                                               "couleur": l["couleur"], "paroles": 0})
+            g["paroles"] += 1
+    rangs = {s: r for s, r in cx.execute("SELECT sigle, rang FROM groupe")}
+    groupes = sorted(compte.values(), key=lambda g: rangs.get(g["sigle"], 99))
+    return {"total": len(lignes), "groupes": groupes,
+            "paroles": [dict(l) for l in lignes]}
+
+
 def calendrier(cx: sqlite3.Connection) -> dict[str, list[dict]]:
     """Les moments où le Parlement se réunit et décide, rangés par mois.
 
@@ -448,6 +485,10 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     change = changements_par_loi(legi_cx, forme_seule)
     compte_amendements = {l["dossier_uid"]: l["n"] for l in cx.execute(
         "SELECT dossier_uid, COUNT(*) n FROM amendement GROUP BY dossier_uid")}
+    # Combien de prises de parole par texte, pour que la carte du fil puisse
+    # annoncer la rubrique sans charger le fichier.
+    compte_paroles = {l["dossier_uid"]: l["n"] for l in cx.execute(
+        "SELECT dossier_uid, COUNT(*) n FROM parole GROUP BY dossier_uid")}
 
     comptes = {l["statut"]: l["n"] for l in cx.execute(
         "SELECT statut, COUNT(*) n FROM dossier WHERE est_loi = 1 GROUP BY statut")}
@@ -491,11 +532,20 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "textesAvecAmendements": cx.execute(
             "SELECT COUNT(DISTINCT dossier_uid) n FROM amendement").fetchone()["n"],
         "amendementsMaxParTexte": AMENDEMENTS_MAX,
+        # Les débats sont facultatifs eux aussi : leur archive pèse 55,8 Mo.
+        # Sans eux, la fiche s'affiche sans les argumentaires plutôt que de
+        # laisser croire que personne n'a parlé du texte.
+        "debatsIndisponibles":
+            cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"] == 0,
+        "paroles": cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"],
+        "textesAvecParoles": cx.execute(
+            "SELECT COUNT(DISTINCT dossier_uid) n FROM parole").fetchone()["n"],
         "issues": {cle: {"nom": nom, "quoi": quoi, "textes": comptes.get(cle, 0)}
                    for cle, (nom, quoi) in extraction.FINS.items()},
         "fichiers": ["etapes.json", "groupes.json", "textes.json", "promulgues.json",
                      "arretes.json", "travaux.json", "textes/<uid>.json",
-                     "amendements/<uid>.json", "changements/<uid>.json",
+                     "amendements/<uid>.json", "paroles/<uid>.json",
+                     "changements/<uid>.json",
                      "changements/<uid>/<LEGIARTI>.json"],
     })
 
@@ -549,6 +599,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             texte.update(votes.get(l["uid"], {"votes": 0, "votesEnsemble": 0,
                                               "dernierVote": None, "voteEnsemble": None}))
             texte["amendements"] = compte_amendements.get(l["uid"], 0)
+            texte["paroles"] = compte_paroles.get(l["uid"], 0)
             if l["statut"] == extraction.PROMULGUE:
                 texte.update(loiNumero=l["loi_numero"], loiDate=l["loi_date"],
                              loiUrlJO=l["loi_url_jo"])
@@ -566,7 +617,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     # Le détail, un fichier par texte. Seulement pour ceux que les listes
     # citent : publier les 708 dossiers qui ne font pas de loi n'aurait
     # aucun lecteur.
-    details, amendements = 0, 0
+    details, amendements, paroles = 0, 0, 0
     for l in cx.execute(
             "SELECT * FROM dossier WHERE est_loi = 1 AND statut != ?",
             (extraction.SANS_ACTE,)):
@@ -591,9 +642,18 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         if amdts["total"]:
             amendements += ecrire(sortie / "amendements" / f'{l["uid"]}.json',
                                   {"genereLe": genere_le, **amdts})
+
+        # Les argumentaires, dans un fichier à part pour la même raison :
+        # 54 Ko en médiane, 286 Ko pour le PLFSS. La fiche s'ouvre sans eux.
+        dits = paroles_du_texte(cx, l["uid"])
+        if dits["total"]:
+            paroles += ecrire(sortie / "paroles" / f'{l["uid"]}.json',
+                              {"genereLe": genere_le, **dits})
     tailles["textes/*.json"] = details
     if amendements:
         tailles["amendements/*.json"] = amendements
+    if paroles:
+        tailles["paroles/*.json"] = paroles
 
     # Le calendrier : un fichier par mois, plus un index qui dit lesquels
     # existent. Le calendrier n'affiche qu'un mois à la fois ; charger deux ans

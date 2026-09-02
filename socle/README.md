@@ -14,10 +14,10 @@ lire aucune donnée.
 | `publier.py` | Écrit la base en fichiers tout prêts — **c'est ce qui est mis en ligne** |
 | `serveur.py` | Sert la base en direct. **Outil de développement local**, pas ce qui tourne en production |
 | `schema.sql` | Le modèle de données |
-| `test_extraction.py` | 86 tests sur les règles de lecture |
+| `test_extraction.py` | 115 tests sur les règles de lecture |
 | `legi.py` | Lit le droit consolidé et compare deux rédactions d'un article. **Ne télécharge rien, n'écrit nulle part.** |
 | `recuperer_legi.py` | Va chercher, dans le droit consolidé, ce que nos lois y ont changé. Écrit dans `legi.db` |
-| `test_legi.py` | 28 tests sur ces règles-là |
+| `test_legi.py` | 56 tests sur ces règles-là |
 
 ### Pourquoi deux bases
 
@@ -407,6 +407,7 @@ signale la panne.
 | `arretes.json` | 57 Ko | — | Les 88 textes **arrêtés en chemin** : rejetés, non adoptés, retirés, caducs |
 | `textes/<uid>.json` | 18 Mo | — | Un fichier par texte : parcours, votes, auteur, cosignataires (médiane 4 Ko) |
 | `amendements/<uid>.json` | 30 Mo | — | Les amendements d'un texte, chargés seulement si on les ouvre (médiane 90 Ko, 289 fichiers) |
+| `paroles/<uid>.json` | 13 Mo | — | **Ce que les groupes ont dit du texte en séance**, mot pour mot, chargé seulement si on l'ouvre (médiane 54 Ko, 172 fichiers) |
 | `travaux.json` | 337 Ko | — | Les 708 dossiers qui n'aboutissent à aucune loi, et leurs catégories : **l'onglet « Travaux »** |
 | `calendrier.json` | 1 Ko | — | Les mois qui portent des événements, et combien : l'index du calendrier |
 | `calendrier/<AAAA-MM>.json` | 404 Ko | — | Un mois par fichier : séances, commissions, décisions, votes, promulgations |
@@ -426,6 +427,70 @@ administratifs, sans heure ni public. Et sur les 2 748 votes rattachés à un
 texte, **2 260 portent sur un amendement** : les afficher noierait le calendrier
 sous des scrutins de détail, alors que la séance du jour est déjà là pour les
 porter. Voir `genre_d_evenement` et `VOTES_AU_CALENDRIER` dans `extraction.py`.
+
+### Ce que les groupes ont dit : recopié, jamais résumé
+
+Le compte rendu de séance est **la seule source du projet où un député
+explique un texte avec ses propres phrases.** Le reste — dossiers, scrutins,
+amendements — ne dit que des faits et des décomptes.
+
+Le socle en recopie **3 384 prises de parole sur 205 textes**, telles quelles.
+Rien n'est résumé, rien n'est reformulé, et rien ne dit ici comment le groupe
+a finalement voté : le vote est publié à part, dans `votes`.
+
+**Pourquoi ne pas rapprocher la parole du vote.** C'était la première idée, et
+elle est fausse. Mesuré le 2026-09-02 : le 25 février 2026, l'UDR a voté *pour*
+les soins palliatifs (17 voix contre 0) alors que son orateur disait « l'ensemble
+du groupe UDR votera contre » — il parlait de l'aide à mourir, l'autre texte de
+la même séance. Une phrase d'intention lue dans la mauvaise section produit une
+contrevérité à l'écran. On affiche donc ce qui a été dit, et à côté ce qui a été
+voté, sans prétendre relier les deux.
+
+**Deux sections, nommées par la source.** « Discussion générale » et
+« Explications de vote » — c'est là que l'Assemblée donne la parole à un
+orateur par groupe sur le texte entier. Ailleurs (discussion des articles,
+rappels au règlement, questions au gouvernement) on parle d'autre chose. Ce
+n'est pas un tri de notre fait : le compte rendu nomme lui-même ses sections.
+
+**Comment une parole retrouve son texte.** Le compte rendu ne cite aucun
+identifiant de dossier, ni aucun numéro de scrutin. Il cite le **numéro de
+dépôt** du texte, dans l'attribut `valeur` du titre de section : « (n° 2406) ».
+
+| | |
+|---|---|
+| Numéros cités dans les débats | 693 |
+| Qui désignent un seul dossier | **614** (89 %) |
+| Qui en désignent plusieurs | **0** |
+| Sans dossier connu | 79 — des textes de la 16e législature, que le projet ne suit pas |
+
+Deux règles y suffisent, et il faut les deux. La première : ne garder que les
+documents de l'Assemblée pour cette législature — « n° 698 » désigne quatre
+documents dans l'archive, dont deux du Sénat. La seconde : **départager par la
+date de séance**, car un dossier discuté ce jour-là a forcément une étape datée
+de ce jour-là. Sans elle, 97 numéros désignaient encore deux à quatre dossiers.
+
+**Le groupe est celui du jour du débat.** Le compte rendu l'imprime après le
+nom : « M. Éric Martineau (Dem) ». C'est mieux que notre table `acteur`, qui ne
+connaît que le groupe d'aujourd'hui. Deux précautions, l'une et l'autre
+mesurées :
+
+- **Le sigle se confronte à la liste des groupes.** La même parenthèse sert à
+  départager deux homonymes par leur département ; sans ce contrôle, trois
+  orateurs se retrouvaient dans un groupe « Alpes-Maritimes ».
+- **Il se cherche dans toute la séance**, pas seulement dans les sections
+  publiées. M. Stéphane Lenormand prend la parole 49 fois sans sigle, et les
+  8 fois où le compte rendu l'imprime « (LIOT) » sont toutes dans la discussion
+  des articles. Chercher au bon endroit fait passer l'attribution de 85,7 % à
+  **95,6 %**.
+
+Les 4,4 % restants sont des ministres, des rapporteurs et des non-inscrits :
+ils s'affichent sous leur seul nom. **On ne comble pas ce trou avec
+`acteur.groupe_ref`**, qui donnerait le groupe d'aujourd'hui pour un discours
+d'il y a deux ans.
+
+**Rien n'est coupé.** Une prise de parole fait 4 260 caractères en médiane,
+12 377 au plus long. La tronquer reviendrait à choisir ce qui compte : c'est
+l'affichage qui la replie, pas la publication.
 
 **Pourquoi deux niveaux pour les changements.** La loi de finances pour 2025
 touche 574 articles. Tout mettre dans un fichier ferait plusieurs méga-octets

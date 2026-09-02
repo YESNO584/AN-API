@@ -47,6 +47,26 @@ a pas encore d'application, de base de données ni de dépendances.
   cache d'un jour sur l'autre par la publication, et l'étape est
   **facultative** : sans elle, tout le reste se publie et l'application
   n'affiche simplement pas ce que les lois changent.
+- **Ce que les groupes disent d'un texte vient des comptes rendus de séance,
+  et n'est jamais relié au vote.** L'archive `vp/syceronbrut/syseron.xml.zip`
+  (55,8 Mo, 601 séances) porte les prises de parole mot pour mot. On en publie
+  celles des sections « Discussion générale » et « Explications de vote »,
+  nommées par la source. **On ne rapproche pas une phrase d'intention du vote
+  émis** : mesuré le 2026-09-02, l'UDR a voté *pour* les soins palliatifs
+  pendant que son orateur disait « votera contre » — il parlait de l'autre
+  texte de la même séance. La parole s'affiche, le vote s'affiche, rien ne
+  prétend les relier.
+- **Une parole retrouve son texte par le numéro de dépôt, pas autrement.** Le
+  compte rendu ne cite ni identifiant de dossier ni numéro de scrutin : il cite
+  « (n° 2406) » dans l'attribut `valeur` du titre de section. Deux règles, et
+  il faut les deux : ne garder que les documents de l'Assemblée pour cette
+  législature (« n° 698 » désigne quatre documents, dont deux du Sénat), puis
+  **départager par la date de séance**. Résultat : 614 numéros sur 693
+  désignent un seul dossier, **aucun n'en désigne deux**, et les 79 restants
+  sont des textes de la 16e législature. Le groupe de l'orateur est celui
+  imprimé par le compte rendu — donc celui du jour du débat — et se cherche
+  dans **toute** la séance, pas dans les seules sections publiées (85,7 %
+  d'attribution contre 95,6 %).
 - **Deux pièges du droit consolidé, mesurés, à ne pas redécouvrir.** La
   rédaction « d'avant » n'est **pas** la précédente dans la liste des versions :
   celle-ci contient des rédactions **mort-nées**, votées mais jamais entrées en

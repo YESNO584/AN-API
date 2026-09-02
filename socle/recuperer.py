@@ -51,6 +51,9 @@ SOURCES = {
     # Sans elle, 716 textes ont un auteur sans nom : un ministre ou un
     # sénateur n'est pas un député en exercice. Voir URL_ACTEURS_LARGE.
     "acteurs": extraction.URL_ACTEURS_LARGE,
+    # Les comptes rendus de séance : la seule source où un député explique un
+    # texte avec ses propres phrases. Voir URL_DEBATS.
+    "debats": extraction.URL_DEBATS,
 }
 
 # Les amendements pèsent 297 Mo à eux seuls, contre 45 Mo pour les cinq autres
@@ -62,7 +65,10 @@ SOURCES = {
 # Ils sont donc facultatifs : leur absence est publiée, pas dissimulée. La
 # page dit qu'ils manquent plutôt que d'afficher « 0 amendement », ce qui
 # serait faux.
-FACULTATIVES = frozenset({"amendements"})
+# Les débats pèsent 55,8 Mo, et ils ne portent que les argumentaires : sans
+# eux le parcours, les votes et les lois s'affichent normalement. Ils sont
+# donc facultatifs au même titre, et leur absence est publiée, pas dissimulée.
+FACULTATIVES = frozenset({"amendements", "debats"})
 def connue(connexion: sqlite3.Connection, url: str) -> sqlite3.Row | None:
     return connexion.execute("SELECT * FROM source WHERE url = ?", (url,)).fetchone()
 def entetes_conditionnelles(ligne: sqlite3.Row | None) -> dict[str, str]:
@@ -83,7 +89,7 @@ def empreinte(fichier: pathlib.Path) -> str:
             condensat.update(morceau)
     return condensat.hexdigest()
 def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
-           aujourdhui: str) -> tuple[int, int, int]:
+           aujourdhui: str) -> tuple[int, int, int, int, int]:
     """Remplace le contenu de la base par celui des archives. Tout ou rien."""
     groupes = extraction.lire_groupes(archives["groupes"])
     organes = extraction.lire_organes(archives["groupes"])
@@ -173,7 +179,31 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
             a["etat"], a["sort"], a["dispositif"], a["expose"],
             json.dumps(a["morceaux"], ensure_ascii=False),
         ))
+    # Les argumentaires : ce que les groupes ont dit du texte en séance,
+    # recopié mot pour mot. Le compte rendu ne cite aucun identifiant de
+    # dossier — il cite le numéro de dépôt du texte, qu'il faut rapprocher des
+    # documents, la date de séance départageant les numéros ambigus.
+    lignes_parole = []
+    if "debats" in archives:
+        sigles = {g["sigle"] for g in rangs if g["sigle"]}
+        par_numero = {n: refs & connus for n, refs
+                      in extraction.documents_par_numero(documents).items()}
+        dates_du_dossier: dict[str, set[str]] = {}
+        for e in etapes:
+            dates_du_dossier.setdefault(e[0], set()).add(e[6])
+        for parole in extraction.lire_debats(archives["debats"], sigles):
+            uid = extraction.dossier_des_numeros(
+                parole["numeros"], parole["date"], par_numero, dates_du_dossier)
+            if not uid:
+                continue
+            lignes_parole.append((
+                uid, parole["seance"], parole["date"], parole["section"],
+                parole["ordre"], parole["acteur_ref"], parole["nom"],
+                parole["qualite"], parole["sigle"], parole["texte"],
+            ))
+
     with connexion:                     # une transaction, ouverte et refermée ici
+        connexion.execute("DELETE FROM parole")
         connexion.execute("DELETE FROM amendement")
         connexion.execute("DELETE FROM acteur")
         connexion.executemany(
@@ -199,7 +229,9 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
             "INSERT INTO vote_groupe VALUES (?,?,?,?,?,?,?,?,?,?)", lignes_groupe)
         connexion.executemany(
             "INSERT INTO amendement VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", lignes_amdt)
-    return len(dossiers), len(etapes), len(lignes_vote), len(lignes_amdt)
+        connexion.executemany(
+            "INSERT INTO parole VALUES (?,?,?,?,?,?,?,?,?,?)", lignes_parole)
+    return len(dossiers), len(etapes), len(lignes_vote), len(lignes_amdt), len(lignes_parole)
 def afficher_journal(connexion: sqlite3.Connection, combien: int = 10) -> None:
     lignes = connexion.execute(
         "SELECT * FROM journal ORDER BY id DESC LIMIT ?", (combien,)).fetchall()
@@ -290,7 +322,8 @@ def main() -> int:
                     print("Rien n'a changé côté Assemblée : base laissée telle quelle.",
                           file=sys.stderr)
                     return 0
-            dossiers, etapes, votes, amendements = ranger(connexion, archives, aujourdhui)
+            dossiers, etapes, votes, amendements, paroles = ranger(
+                connexion, archives, aujourdhui)
         if not options.zip:
             for nom, url in SOURCES.items():
                 cr = comptes_rendus.get(nom)
@@ -303,7 +336,7 @@ def main() -> int:
                     " modifie_le=excluded.modifie_le, empreinte=excluded.empreinte,"
                     " vu_le=excluded.vu_le",
                     (url, cr["etag"], cr["modifieLe"], cr["empreinte"], maintenant()))
-        message = f"{votes} scrutins, {amendements} amendements"
+        message = f"{votes} scrutins, {amendements} amendements, {paroles} paroles"
         if manquantes:
             message += " — source indisponible : " + ", ".join(sorted(manquantes))
         clore("succes" if not manquantes else "partiel",

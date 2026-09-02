@@ -19,6 +19,61 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-09-02 — Les argumentaires, écrits : recopiés, jamais reliés au vote
+
+- **La décision qui a tout simplifié : ne pas relier la parole au vote.** La
+  mesure de la veille cherchait à afficher « pourquoi ce groupe a voté ainsi »,
+  et son risque principal était une contrevérité à l'écran. En affichant les
+  prises de parole **sans prétendre qu'elles expliquent un vote**, ce risque
+  disparaît entièrement — et la fenêtre d'attribution, qui était tout le
+  problème, redevient un simple choix de sections. *La leçon :* quand une
+  fonctionnalité ne tient qu'à une inférence risquée, retirer l'inférence peut
+  la rendre à la fois plus juste et plus simple.
+- **Le compte rendu cite le numéro de dépôt du texte, pas son dossier.** Il est
+  dans l'attribut `valeur` du titre de section : `" (n[[o]] 2406)"`, ou
+  `" (n[[os]] 2406, 2401)"` quand deux textes sont discutés ensemble. La clé
+  (date, votants, pour, contre) mesurée la veille n'a pas servi : le numéro est
+  plus direct et rattache à un **texte**, ce qu'on voulait, plutôt qu'à un vote.
+- **Un numéro de dépôt ne suffit pas seul : il faut la date de séance.**
+  « n° 698 » désigne quatre documents de l'archive — une proposition de
+  l'Assemblée, son rapport, et deux propositions du Sénat. Filtrer sur les
+  documents de l'Assemblée (`uid` contenant `ANR5L17`) laisse encore 97 numéros
+  sur 693 pointant vers deux à quatre dossiers ; **départager par la date de
+  séance en lève la totalité** — un dossier discuté ce jour-là a forcément une
+  étape datée de ce jour-là. Résultat : 614 numéros sur 693 rattachés,
+  **0 ambigu**, 79 appartenant à la 16e législature.
+- **Chercher un renseignement au mauvais endroit donne un chiffre bas qui a
+  l'air d'un fait.** Le sigle du groupe est imprimé après le nom de l'orateur
+  (« M. Éric Martineau (Dem) »), mais seulement quand la présidence vient de
+  lui donner la parole. Le chercher dans les seules sections publiées donnait
+  85,7 % d'attribution ; le chercher dans **toute** la séance donne 95,6 %.
+  M. Stéphane Lenormand parle 49 fois sans sigle, et ses 8 mentions « (LIOT) »
+  sont toutes ailleurs. *La leçon :* avant de conclure « la source ne le dit
+  pas », vérifier qu'on a lu toute la source.
+- **La même parenthèse ne veut pas toujours dire la même chose.** Elle porte le
+  sigle du groupe, mais aussi le département quand deux députés sont homonymes.
+  Sans confronter le contenu à la liste des groupes, trois orateurs se
+  retrouvaient dans un groupe « Alpes-Maritimes ».
+- **Le XML des comptes rendus est plat, pas imbriqué.** Les `<point>` se
+  suivent tous au même niveau sous `<contenu>` ; c'est l'attribut `nivpoint`
+  qui donne la hiérarchie. Un parcours récursif ne trouve donc rien, et un
+  découpage par section se fait à l'état, pas à la structure.
+- **Une mesure sur des paragraphes ne se transpose pas à des prises de
+  parole.** Le taux d'attribution du groupe passait de 94,6 % (par paragraphe)
+  à 85,7 % (par prise de parole recollée) sans qu'aucune règle ait changé :
+  les orateurs sans groupe — ministres, rapporteurs — parlent en interventions
+  courtes, et pèsent donc plus une fois les paragraphes regroupés. *La
+  leçon :* quand un chiffre bouge après un changement de découpage, le
+  dénominateur a changé avant le code.
+- **Un test peut échouer parce que son décor est trop pauvre.** Le test du
+  rattrapage de sigle échouait : mon `<orateur>` de fabrication n'avait pas de
+  `<id>`, alors que tous ceux de l'archive en ont un. C'est le décor qui était
+  faux, pas la règle. *Même famille que les trois échecs déjà notés dans
+  `CLAUDE.md` :* quand l'outil et le code se contredisent, chercher lequel des
+  deux a tort.
+
+---
+
 ## 2026-09-02 — Les arguments des groupes sont dans les débats, et rattachables
 
 - **Les comptes rendus de séance se rattachent à nos votes à 97 %**, sans

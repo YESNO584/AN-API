@@ -639,6 +639,36 @@
                          border-radius: 3px; padding: 0 .15rem; }
   .amdt .expose { font-size: .78rem; color: var(--gris); margin: .5rem 0 0;
                   padding-top: .5rem; border-top: 1px solid var(--trait); }
+  /* Ce que les groupes ont dit. Une prise de parole fait 4 260 caractères en
+     médiane : on la replie, on ne la coupe pas — le texte entier est là, et
+     un mot en moins serait un choix de notre part. */
+  .parole { background: var(--carte); border: 1px solid var(--trait);
+            border-left: 3px solid var(--trait-fort);
+            border-radius: var(--rayon); padding: .7rem .8rem; margin-bottom: .5rem; }
+  .parole .tete { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
+                  font-size: .74rem; color: var(--gris); margin-bottom: .45rem; }
+  .parole .qui { font-weight: 640; color: var(--texte); }
+  .parole .grp { display: inline-flex; align-items: center; gap: .25rem; }
+  .parole .grp i { width: .4rem; height: .8rem; border-radius: 2px; display: block; }
+  .parole .quand { margin-left: auto; }
+  .parole .dit { font-size: .84rem; line-height: 1.6; margin: 0;
+                 white-space: pre-wrap; }
+  .parole .dit.replie { display: -webkit-box; -webkit-line-clamp: 4;
+                        -webkit-box-orient: vertical; overflow: hidden; }
+  .parole .plus { display: block; margin-top: .4rem; padding: 0; font: inherit;
+                  font-size: .76rem; border: 0; background: none;
+                  color: var(--accent); cursor: pointer; text-align: left; }
+  /* Les groupes qui ont parlé, dans l'ordre de l'hémicycle. Choisir un groupe
+     ne cache pas les autres paroles : il y saute. */
+  .chips { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .6rem; }
+  .chips button { font: inherit; font-size: .74rem; padding: .25rem .5rem;
+                  border-radius: 999px; border: 1px solid var(--trait);
+                  background: var(--carte); color: var(--gris); cursor: pointer;
+                  display: inline-flex; align-items: center; gap: .3rem; }
+  .chips button[aria-pressed="true"] { border-color: var(--trait-fort);
+                                       color: var(--texte); }
+  .chips button i { width: .4rem; height: .8rem; border-radius: 2px; display: block; }
+
   .avertissement { font-size: .76rem; color: var(--faible); margin: 0 0 .7rem;
                    line-height: 1.5; }
   .charger { width: 100%; padding: .7rem; font: inherit; font-size: .85rem;
@@ -2166,6 +2196,96 @@ async function blocAmendements(uid, total) {
   return b;
 }
 
+/* ---------- ce que les groupes en ont dit ---------- */
+
+/* Une prise de parole, telle que le compte rendu de séance la publie. **Rien
+   n'est résumé ni reformulé** : le texte affiché est celui de la source, et
+   le repliement est une affaire de hauteur d'écran, pas de contenu — le
+   paragraphe entier est dans la page dès le premier affichage. */
+function carteParole(p) {
+  const c = el("article", "parole");
+  if (p.couleur) c.style.borderLeftColor = p.couleur;
+
+  const tete = el("div", "tete");
+  tete.append(el("span", "qui", p.nom || "—"));
+  if (p.sigle) {
+    const g = el("span", "grp");
+    const teinte = el("i");
+    if (p.couleur) teinte.style.background = p.couleur;
+    g.append(teinte);
+    g.append(document.createTextNode(p.sigle));
+    tete.append(g);
+  }
+  if (p.qualite) tete.append(el("span", null, p.qualite));
+  tete.append(el("span", "quand",
+                 `${dateCourte.format(enDate(p.date))} · ${p.section}`));
+  c.append(tete);
+
+  const dit = el("p", "dit replie", p.texte);
+  c.append(dit);
+  // Le bouton n'apparaît que si le texte dépasse vraiment : sur une parole
+  // courte, « Lire la suite » ne mènerait nulle part.
+  const plus = el("button", "plus", "Lire la suite");
+  c.append(plus);
+  requestAnimationFrame(() => {
+    if (dit.scrollHeight <= dit.clientHeight + 2) plus.remove();
+  });
+  plus.addEventListener("click", () => {
+    const replie = dit.classList.toggle("replie");
+    plus.textContent = replie ? "Lire la suite" : "Replier";
+  });
+  return c;
+}
+
+async function blocParoles(uid, total) {
+  const b = bloc(`Ce que les groupes en ont dit — ${nb.format(total)} `
+                 + `prise${total > 1 ? "s" : ""} de parole`);
+  b.append(el("p", "avertissement",
+    "Les prises de parole en séance, recopiées du compte rendu de l'Assemblée, " +
+    "mot pour mot. Elles viennent de la discussion générale et des explications " +
+    "de vote — les moments où l'Assemblée donne la parole à un orateur par " +
+    "groupe sur le texte entier. Rien n'est résumé, et rien ne dit ici comment " +
+    "le groupe a finalement voté : le vote est plus haut, la parole est ici."));
+  const bouton = el("button", "charger", "Charger les prises de parole");
+  b.append(bouton);
+  bouton.addEventListener("click", async () => {
+    bouton.textContent = "Chargement…";
+    try {
+      const d = await lire(`paroles/${uid}.json`, true);
+      bouton.remove();
+      if (d.groupes.length) {
+        const chips = el("div", "chips");
+        for (const g of d.groupes) {
+          const bt = el("button", null);
+          const teinte = el("i");
+          teinte.style.background = g.couleur;
+          bt.append(teinte);
+          bt.append(document.createTextNode(`${g.sigle} · ${g.paroles}`));
+          bt.setAttribute("aria-pressed", "false");
+          bt.addEventListener("click", () => {
+            const actif = bt.getAttribute("aria-pressed") === "true";
+            for (const x of chips.children) x.setAttribute("aria-pressed", "false");
+            bt.setAttribute("aria-pressed", actif ? "false" : "true");
+            for (const carte of b.querySelectorAll(".parole")) {
+              carte.hidden = !actif && carte.dataset.sigle !== g.sigle;
+            }
+          });
+          chips.append(bt);
+        }
+        b.append(chips);
+      }
+      for (const p of d.paroles) {
+        const carte = carteParole(p);
+        if (p.sigle) carte.dataset.sigle = p.sigle;
+        b.append(carte);
+      }
+    } catch (e) {
+      bouton.textContent = "Prises de parole indisponibles : " + e.message;
+    }
+  });
+  return b;
+}
+
 async function ouvrirFiche(uid) {
   const f = $("fiche");
   f.textContent = "";
@@ -2258,6 +2378,22 @@ async function ouvrirFiche(uid) {
     const seule = el("ul", "parcours");
     seule.append(ligneVoteParcours(v));
     f.append(seule);
+  }
+
+  // Ce qui a été dit avant le vote. Sa place est ici, juste après lui : c'est
+  // l'argumentaire du texte entier, pas le détail d'une étape.
+  const nbParoles = (TEXTES.find((t) => t.uid === uid) || {}).paroles || 0;
+  if (nbParoles) {
+    f.append(await blocParoles(uid, nbParoles));
+  } else if (ETAT.debatsIndisponibles) {
+    // Ne pas laisser croire que personne n'a parlé du texte alors que c'est
+    // la source qui a manqué.
+    const b = bloc("Ce que les groupes en ont dit");
+    b.append(el("p", "avertissement",
+      "Les comptes rendus de séance n'ont pas pu être récupérés ce matin : leur "
+      + "archive de 55,8 Mo n'est pas arrivée entière. Le reste de la fiche est "
+      + "à jour. La récupération est retentée chaque matin."));
+    f.append(b);
   }
 
   const items = filDuParcours(d);
