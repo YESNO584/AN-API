@@ -206,7 +206,37 @@ def ouvrir_legi() -> sqlite3.Connection | None:
     return cx
 
 
-def changements_par_loi(legi_cx: sqlite3.Connection | None) -> dict[str, dict]:
+def articles_de_pure_forme(legi_cx: sqlite3.Connection | None) -> set[str]:
+    """Les articles dont **rien du fond** n'a bougé : une virgule, une espace.
+
+    Ils sortent du compte des articles modifiés — les annoncer comme modifiés
+    ferait dire à l'application qu'une loi a changé quelque chose là où elle
+    n'a rien changé. Ils ne disparaissent pas pour autant : l'écran les range
+    à part, sous « articles retouchés sans changement de fond ».
+
+    Mesuré le 2026-09-02 : 5 articles sur 4 431 comparables (0,1 %). Rare,
+    mais chacun est un article qu'on annonçait modifié à tort.
+    """
+    if legi_cx is None:
+        return set()
+    forme_seule = set()
+    for ligne in legi_cx.execute(
+            "SELECT r.id, r.texte,"
+            " (SELECT texte FROM redaction WHERE id = r.precedent) avant"
+            " FROM redaction r"
+            " WHERE EXISTS (SELECT 1 FROM changement c WHERE c.redaction_id = r.id)"
+            "   AND r.precedent IS NOT NULL"):
+        if not ligne["avant"]:
+            continue
+        decoupe = legi.morceaux(ligne["avant"], ligne["texte"] or "")
+        change = [m for m in decoupe if m["role"] != "egal"]
+        if change and not legi.changement_de_fond(decoupe):
+            forme_seule.add(ligne["id"])
+    return forme_seule
+
+
+def changements_par_loi(legi_cx: sqlite3.Connection | None,
+                        forme_seule: set[str] | None = None) -> dict[str, dict]:
     """Pour chaque loi, de quoi remplir sa carte : combien d'articles, et quand.
 
     « Quand » est la question qui manquait : une loi promulguée peut ne
@@ -215,34 +245,44 @@ def changements_par_loi(legi_cx: sqlite3.Connection | None) -> dict[str, dict]:
     """
     if legi_cx is None:
         return {}
+    ecartes = forme_seule or set()
     resume: dict[str, dict] = {}
     # Le total compte les **articles**, pas les liens : une même loi peut à la
     # fois modifier et déplacer un article, ce qui ferait deux liens et un seul
-    # article. « Voir les 7 articles » doit dire vrai.
+    # article. « Voir les 7 articles » doit dire vrai. Et il ne compte pas les
+    # articles dont seule la ponctuation a bougé.
+    par_loi_articles: dict[str, set[str]] = {}
+    par_loi_actions: dict[str, dict[str, set[str]]] = {}
+    par_loi_dates: dict[str, dict[str, set[str]]] = {}
+    retouches: dict[str, set[str]] = {}
     for ligne in legi_cx.execute(
-            "SELECT loi, COUNT(DISTINCT redaction_id) n FROM changement GROUP BY loi"):
-        resume[ligne["loi"]] = {"total": ligne["n"], "actions": {}, "dates": []}
-    for ligne in legi_cx.execute(
-            "SELECT loi, quoi, COUNT(DISTINCT redaction_id) n"
-            " FROM changement GROUP BY loi, quoi"):
-        resume[ligne["loi"]]["actions"][ligne["quoi"]] = ligne["n"]
-    dates: dict[str, dict[str, int]] = {}
-    for ligne in legi_cx.execute(
-            "SELECT c.loi, c.quoi, r.debut, r.fin, COUNT(DISTINCT c.redaction_id) n"
-            " FROM changement c JOIN redaction r ON r.id = c.redaction_id"
-            " GROUP BY c.loi, c.quoi, r.debut, r.fin"):
-        effet = legi.date_d_effet(ligne["quoi"], ligne["debut"], ligne["fin"])
-        if not effet:
+            "SELECT c.loi, c.quoi, c.redaction_id, r.debut, r.fin"
+            " FROM changement c JOIN redaction r ON r.id = c.redaction_id"):
+        loi, article = ligne["loi"], ligne["redaction_id"]
+        if article in ecartes:
+            retouches.setdefault(loi, set()).add(article)
             continue
-        par_loi = dates.setdefault(ligne["loi"], {})
-        par_loi[effet] = par_loi.get(effet, 0) + ligne["n"]
-    for numero, par_date in dates.items():
-        resume[numero]["dates"] = [{"date": d, "articles": n}
-                                   for d, n in sorted(par_date.items())]
+        par_loi_articles.setdefault(loi, set()).add(article)
+        par_loi_actions.setdefault(loi, {}).setdefault(ligne["quoi"], set()).add(article)
+        effet = legi.date_d_effet(ligne["quoi"], ligne["debut"], ligne["fin"])
+        if effet:
+            par_loi_dates.setdefault(loi, {}).setdefault(effet, set()).add(article)
+
+    for loi in set(par_loi_articles) | set(retouches):
+        resume[loi] = {
+            "total": len(par_loi_articles.get(loi, ())),
+            "actions": {q: len(s) for q, s in par_loi_actions.get(loi, {}).items()},
+            "dates": [{"date": d, "articles": len(s)}
+                      for d, s in sorted(par_loi_dates.get(loi, {}).items())],
+            # Comptés à part, et dits à part : ce sont des articles que la loi
+            # touche sans rien changer au fond.
+            "retouches": len(retouches.get(loi, ())),
+        }
     return resume
 
 
-def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str) -> list[dict]:
+def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str,
+                       forme_seule: set[str] | None = None) -> tuple[list[dict], list[dict]]:
     """Les articles qu'une loi a changés, groupés par code, avec la part modifiée.
 
     La liste ne porte aucun texte : elle sert à choisir. Le texte entier et sa
@@ -250,7 +290,9 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str) -> list[dict]:
     séparation, la loi de finances pour 2025 — 574 articles — ferait un fichier
     de plusieurs méga-octets pour un écran de téléphone.
     """
+    ecartes = forme_seule or set()
     groupes: dict[str, list] = {}
+    retouches: list[dict] = []
     for ligne in legi_cx.execute(
             "SELECT r.id, r.numero, r.ou, r.debut, r.fin, r.texte, r.precedent,"
             " GROUP_CONCAT(DISTINCT c.quoi) actions,"
@@ -264,7 +306,7 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str) -> list[dict]:
         actions = (ligne["actions"] or "").split(",")
         quoi = min(actions, key=lambda a: PRIORITE.index(a) if a in PRIORITE
                                           else len(PRIORITE))
-        groupes.setdefault(ligne["ou"] or "Textes non codifiés", []).append({
+        article = {
             "id": ligne["id"], "numero": ligne["numero"], "quoi": quoi,
             "action": ACTIONS.get(quoi, quoi),
             "actions": [ACTIONS.get(a, a) for a in actions] if len(actions) > 1 else None,
@@ -272,8 +314,13 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str) -> list[dict]:
             "mots": len(apres.split()),
             "commun": legi.part_commune(avant, apres) if avant else None,
             "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
-        })
-    return [{"ou": ou, "articles": articles} for ou, articles in groupes.items()]
+        }
+        if ligne["id"] in ecartes:
+            retouches.append({**article, "ou": ligne["ou"] or "Textes non codifiés"})
+        else:
+            groupes.setdefault(ligne["ou"] or "Textes non codifiés", []).append(article)
+    return ([{"ou": ou, "articles": articles} for ou, articles in groupes.items()],
+            retouches)
 
 
 def article_compare(legi_cx: sqlite3.Connection, identifiant: str) -> dict:
@@ -294,9 +341,12 @@ def article_compare(legi_cx: sqlite3.Connection, identifiant: str) -> dict:
         "debut": ligne["debut"], "fin": ligne["fin"], "etat": ligne["etat"],
         "nota": ligne["nota"] or None,
         "commun": legi.part_commune(avant, apres) if avant else None,
+        # Sans rédaction d'avant, il n'y a rien à comparer : le texte est d'un
+        # seul tenant. Le champ `forme` reste présent pour que l'affichage
+        # n'ait pas à se demander s'il existe.
         "morceaux": legi.morceaux(avant, apres) if avant
                     else [{"role": "ajoute" if not ligne["precedent"] else "egal",
-                           "texte": apres}],
+                           "texte": apres, "forme": False}],
         "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
         "source": legi.url_legifrance(ligne["id"]),
     }
@@ -322,7 +372,10 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     genere_le = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     votes = resume_votes(cx)
     legi_cx = ouvrir_legi()
-    change = changements_par_loi(legi_cx)
+    # Les articles dont seule la ponctuation a bougé : repérés une fois, puis
+    # écartés des comptes et rangés à part.
+    forme_seule = articles_de_pure_forme(legi_cx)
+    change = changements_par_loi(legi_cx, forme_seule)
     compte_amendements = {l["dossier_uid"]: l["n"] for l in cx.execute(
         "SELECT dossier_uid, COUNT(*) n FROM amendement GROUP BY dossier_uid")}
 
@@ -504,20 +557,23 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
                 "SELECT uid, loi_numero FROM dossier"
                 " WHERE statut = ? AND loi_numero IS NOT NULL AND loi_numero != ''",
                 (extraction.PROMULGUE,)):
-            groupes = articles_de_la_loi(legi_cx, l["loi_numero"])
-            if not groupes:
+            groupes, retouches = articles_de_la_loi(legi_cx, l["loi_numero"],
+                                                    forme_seule)
+            if not groupes and not retouches:
                 continue
             lois_couvertes += 1
             listes += ecrire(sortie / "changements" / f'{l["uid"]}.json', {
                 "genereLe": genere_le, "loi": l["loi_numero"],
                 **change.get(l["loi_numero"], {}),
                 "groupes": groupes,
+                # Les articles retouchés sans changement de fond : listés à
+                # part, consultables, mais hors du compte des modifications.
+                "articlesRetouches": retouches,
             })
-            for groupe in groupes:
-                for article in groupe["articles"]:
-                    fiches += ecrire(
-                        sortie / "changements" / l["uid"] / f'{article["id"]}.json',
-                        article_compare(legi_cx, article["id"]))
+            for article in [a for g in groupes for a in g["articles"]] + retouches:
+                fiches += ecrire(
+                    sortie / "changements" / l["uid"] / f'{article["id"]}.json',
+                    article_compare(legi_cx, article["id"]))
         if listes:
             tailles["changements/*.json"] = listes
             tailles["changements/<loi>/*.json"] = fiches

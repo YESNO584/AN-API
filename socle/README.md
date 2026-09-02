@@ -70,6 +70,27 @@ citations pour 2 711 modifications. Les compter comme des changements ferait
 dire n'importe quoi à l'application. Seuls `MODIFIE`, `CREE`, `ABROGE`,
 `TRANSFERE` et `DEPLACE` sont retenus.
 
+**Et une virgule déplacée n'est pas un changement non plus.** Mesuré le
+2026-09-02 : sur 27 751 morceaux de texte signalés comme différents,
+**3 785 (13,6 %) ne sont que de la ponctuation ou des espaces** — une espace
+restituée dans « 222-33,222-33-2 », un « Etat-membre » devenu « Etat membre »,
+un « I. - En » devenu « I.-En ».
+
+Deux conséquences, dans `legi.py` :
+
+- **Un article dont *tout* est de cette nature sort du compte des articles
+  modifiés** (`articles_de_pure_forme` dans `publier.py`). 5 articles sur
+  4 431 comparables. Ils ne disparaissent pas : l'écran les range à part,
+  sous « articles retouchés sans changement de fond ».
+- **Dans les autres, ces morceaux changent de couleur** au lieu d'être
+  supprimés — le texte de loi doit rester complet, ponctuation comprise.
+
+**Le piège de la règle :** juger chaque morceau isolément ne suffit pas. La
+comparaison est mot à mot, donc « 222-33,222-33-2 » devenu « 222-33, 222-33-2 »
+est **un seul remplacement**, d'un mot par deux, et le morceau contient des
+chiffres — il ne serait donc pas « de pure forme ». Il faut comparer les deux
+côtés **une fois la forme retirée** : `remplacement_de_forme`.
+
 ## Démarrer
 
 ```bash

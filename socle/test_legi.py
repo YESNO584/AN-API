@@ -163,7 +163,8 @@ class ComparerDeuxRedactions(unittest.TestCase):
         """
         self.assertEqual(legi.morceaux("les articles  222-33\n et 223-14",
                                        "les articles 222-33 et 223-14"),
-                         [{"role": "egal", "texte": "les articles 222-33 et 223-14"}])
+                         [{"role": "egal", "texte": "les articles 222-33 et 223-14",
+                           "forme": False}])
 
     def test_l_espace_insecable_compte_comme_un_espace(self):
         self.assertEqual(legi.normaliser("article L401-1"), "article L401-1")
@@ -211,6 +212,59 @@ class QuandLeChangementPrendEffet(unittest.TestCase):
     def test_la_sentinelle_de_fin_n_est_pas_une_date_d_abrogation(self):
         """2999-01-01 veut dire « toujours en vigueur », pas « abrogé en 2999 »."""
         self.assertIsNone(legi.date_d_effet("ABROGE", "2011-06-01", legi.SANS_FIN))
+
+
+class CeQuiN_EstQueDeLaForme(unittest.TestCase):
+    """Une virgule déplacée n'est pas un changement du droit."""
+
+    def test_une_ponctuation_seule_est_de_la_forme(self):
+        for signe in (",", ".", ";", "-", "—", "«", "…", " ", " "):
+            self.assertTrue(legi.est_de_forme(signe), signe)
+
+    def test_un_seul_caractere_porteur_de_sens_suffit_a_compter(self):
+        self.assertFalse(legi.est_de_forme("222-33"))
+        self.assertFalse(legi.est_de_forme("a"))
+        self.assertFalse(legi.est_de_forme(", et"))
+
+    def test_un_morceau_vide_n_est_pas_un_changement_de_forme(self):
+        self.assertFalse(legi.est_de_forme(""))
+
+    def test_une_espace_ajoutee_dans_une_reference_ne_change_rien(self):
+        """Le cas réel : Légifrance renormalise « 222-33,222-33-2 » en
+        « 222-33, 222-33-2 ». La comparaison étant mot à mot, c'est un seul
+        remplacement d'un mot par deux, et le morceau contient des chiffres —
+        le juger morceau par morceau le manquerait."""
+        self.assertTrue(legi.remplacement_de_forme("222-33,222-33-2",
+                                                   "222-33, 222-33-2"))
+
+    def test_un_ajout_de_fond_dans_la_meme_operation_compte(self):
+        self.assertFalse(legi.remplacement_de_forme("222-33,222-33-2",
+                                                    "222-33, 222-33-2 et 223-14"))
+
+    def test_le_tiret_compte_comme_ponctuation(self):
+        self.assertTrue(legi.remplacement_de_forme("sous-traitant", "sous traitant"))
+
+    def test_un_article_dont_tout_est_de_forme_n_a_pas_change_au_fond(self):
+        m = legi.morceaux("les articles 222-33,222-33-2 du code",
+                          "les articles 222-33, 222-33-2 du code")
+        self.assertFalse(legi.changement_de_fond(m))
+        self.assertTrue(all(x["forme"] for x in m if x["role"] != "egal"))
+
+    def test_un_vrai_changement_reste_un_vrai_changement(self):
+        m = legi.morceaux("pour une durée de trois ans", "pour une durée de cinq ans")
+        self.assertTrue(legi.changement_de_fond(m))
+
+    def test_les_morceaux_identiques_ne_sont_jamais_marques_de_forme(self):
+        """Sinon un texte inchangé passerait tout entier en bleu."""
+        m = legi.morceaux("le maire décide", "le maire décide seul")
+        self.assertFalse(any(x["forme"] for x in m if x["role"] == "egal"))
+
+    def test_le_texte_reste_complet_meme_quand_il_est_de_forme(self):
+        """On ne retire rien du texte affiché : la ponctuation fait partie de
+        la loi. On la rend seulement discrète."""
+        m = legi.morceaux("le maire décide", "le maire, décide")
+        self.assertEqual(" ".join(x["texte"] for x in m if x["role"] != "retire"),
+                         "le maire, décide")
 
 
 class PourquoiPasDeComparaison(unittest.TestCase):

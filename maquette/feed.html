@@ -26,6 +26,13 @@
     --retire-fond: #fbe9e9;
     --ajoute: #1f6f43;
     --ajoute-fond: #e6f4ec;
+    /* Et ce qui n'est que de la typographie : une virgule, une espace, un
+       tiret. Le droit n'a pas bougé — ces morceaux restent lisibles mais
+       cessent de crier. */
+    --forme-ajout: #2a5d8f;
+    --forme-ajout-fond: #e6eef7;
+    --forme-retrait: #6a645b;
+    --forme-retrait-fond: #eeece7;
     --rayon: 14px;
     --marge: 1rem;
   }
@@ -37,6 +44,8 @@
       --senat: #b795c8; --ok: #7cc79b;
       --retire: #f0a0a4; --retire-fond: #3a2224;
       --ajoute: #86d3a6; --ajoute-fond: #1d3328;
+      --forme-ajout: #8fbde6; --forme-ajout-fond: #1e2c39;
+      --forme-retrait: #a49d92; --forme-retrait-fond: #26241f;
     }
   }
   :root[data-theme="dark"] {
@@ -46,6 +55,8 @@
     --senat: #b795c8; --ok: #7cc79b;
     --retire: #f0a0a4; --retire-fond: #3a2224;
     --ajoute: #86d3a6; --ajoute-fond: #1d3328;
+    --forme-ajout: #8fbde6; --forme-ajout-fond: #1e2c39;
+    --forme-retrait: #a49d92; --forme-retrait-fond: #26241f;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -353,6 +364,15 @@
   .code-groupe > summary i { font-style: normal; font-size: .74rem; color: var(--gris);
                              display: block; }
 
+  /* Les articles que la loi touche sans rien changer au fond. En pointillé et
+     replié : ils sont consultables, mais hors du compte des modifications. */
+  .retouches { background: var(--carte); border: 1px dashed var(--trait-fort);
+               border-radius: var(--rayon); overflow: hidden; margin-bottom: .7rem; }
+  .retouches > summary { list-style: none; cursor: pointer; padding: .75rem .9rem;
+                         font-size: .82rem; color: var(--gris); }
+  .retouches > summary::-webkit-details-marker { display: none; }
+  .retouches > summary b { color: var(--texte); font-weight: 620; }
+
   .art { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left;
          font: inherit; background: none; border: 0; border-top: 1px solid var(--trait);
          padding: .7rem .9rem; cursor: pointer; color: inherit; }
@@ -376,12 +396,14 @@
     padding: .4rem; border: 0; background: none; border-radius: 7px;
     color: var(--gris); cursor: pointer; }
   .bascule-texte button[aria-pressed="true"] { background: var(--carte); color: var(--texte); }
-  .legende-diff { display: flex; gap: .8rem; margin: 0 0 .7rem; font-size: .72rem;
-                  color: var(--gris); }
+  .legende-diff { display: flex; flex-wrap: wrap; gap: .8rem; row-gap: .35rem;
+                  margin: 0 0 .7rem; font-size: .72rem; color: var(--gris); }
   .legende-diff s { color: var(--retire); background: var(--retire-fond);
                     padding: 0 .25rem; border-radius: 3px; }
   .legende-diff u { color: var(--ajoute); background: var(--ajoute-fond);
                     text-decoration: none; padding: 0 .25rem; border-radius: 3px; }
+  .legende-diff s.forme { color: var(--forme-retrait); background: var(--forme-retrait-fond); }
+  .legende-diff u.forme { color: var(--forme-ajout); background: var(--forme-ajout-fond); }
   .texte-loi { background: var(--carte); border: 1px solid var(--trait);
     border-radius: var(--rayon); padding: .9rem; font-size: .88rem; line-height: 1.65;
     overflow-wrap: anywhere; margin-bottom: .8rem; }
@@ -390,6 +412,13 @@
   .texte-loi ins { color: var(--ajoute); background: var(--ajoute-fond);
                    border-radius: 3px; padding: 0 .12rem; text-decoration: none;
                    font-weight: 520; }
+  /* Une virgule, une espace, un tiret : le droit n'a pas bougé. On ne les
+     retire pas du texte — la ponctuation fait partie de la loi — mais elles
+     cessent d'avoir l'air d'un changement de fond. */
+  .texte-loi ins.forme { color: var(--forme-ajout); background: var(--forme-ajout-fond);
+                         font-weight: inherit; }
+  .texte-loi del.forme { color: var(--forme-retrait); background: var(--forme-retrait-fond);
+                         text-decoration: line-through; }
   .nota { font-size: .78rem; color: var(--gris); background: var(--doux);
           border-radius: 9px; padding: .6rem .7rem; margin-bottom: .8rem; line-height: 1.5; }
   .lien-source { display: block; background: var(--carte); border: 1px solid var(--trait);
@@ -1627,6 +1656,10 @@ function dessinerOnglets(barre) {
 
 function dessinerFriseBas(cle) {
   const barre = $("frise-bas");
+  // La frise décrit le fil. Elle ne doit pas réapparaître par-dessus une
+  // fiche : le défilement du fil déclenche un événement **après** que la
+  // fiche s'est ouverte, et la barre revenait alors toute seule.
+  if (!$("fiche").hidden) { barre.hidden = true; return; }
   barre.hidden = false;
   barre.textContent = "";
   if (!CATEGORIES.length) { dessinerOnglets(barre); return; }
@@ -2237,22 +2270,43 @@ async function ouvrirChangements(uid) {
     f.append(boite);
   }
 
+  // Les articles retouchés sans changement de fond : hors du compte, mais pas
+  // cachés. Les compter comme modifiés ferait dire à l'application qu'une loi
+  // a changé quelque chose là où elle n'a rien changé.
+  const retouches = d.articlesRetouches || [];
+  if (retouches.length) {
+    const boite = el("details", "retouches");
+    const titre = el("summary");
+    titre.append(el("b", null,
+      `${nb.format(retouches.length)} article${retouches.length > 1 ? "s" : ""} retouché`
+      + `${retouches.length > 1 ? "s" : ""}`));
+    titre.append(document.createTextNode(" sans changement de fond — "
+      + "seule la ponctuation ou les espaces ont bougé."));
+    boite.append(titre);
+    for (const a of retouches) boite.append(ligneArticle(uid, a, true));
+    f.append(boite);
+  }
+
   f.append(el("p", "avertissement",
     "Les articles que la loi se contente de citer ne sont pas comptés ici : "
     + "elle n'y touche pas."));
 }
 
-function ligneArticle(uid, a) {
+function ligneArticle(uid, a, retouche = false) {
   const b = el("button", "art");
   b.append(el("span", "quoi " + a.quoi, a.action));
   const nom = el("div", "nom");
   nom.append(el("b", null, "Article " + a.numero));
   // « 19 % du texte a changé » se lit ; « 81 % commun » demande un effort.
+  // Pour un article retouché, ce pourcentage serait trompeur : il annoncerait
+  // qu'une part du texte a changé alors que seule la typographie a bougé. On
+  // met le code à la place — c'est ce qui manque quand la liste est à plat.
   nom.append(el("span", null,
-    a.commun !== null ? `${100 - a.commun} % du texte a changé`
+    retouche ? a.ou
+    : a.commun !== null ? `${100 - a.commun} % du texte a changé`
     : a.avant === "manquant" ? "rédaction précédente non retrouvée"
     : `${nb.format(a.mots)} mot${a.mots > 1 ? "s" : ""}, texte nouveau`));
-  if (a.commun !== null) {
+  if (a.commun !== null && !retouche) {
     const jauge = el("div", "jauge");
     const barre = el("i");
     barre.style.width = Math.max(2, 100 - a.commun) + "%";
@@ -2333,11 +2387,20 @@ function dessinerArticle(f, retour, uid, a) {
   const mode = neuf ? "apres" : MODE_TEXTE;
   if (mode === "diff") {
     const legende = el("div", "legende-diff");
-    const gauche = el("span");
-    gauche.append(el("s", null, "retiré"), document.createTextNode(" par la loi"));
-    const droite = el("span");
-    droite.append(el("u", null, "ajouté"), document.createTextNode(" par la loi"));
-    legende.append(gauche, droite);
+    const entree = (balise, classe, mot, suite) => {
+      const s = el("span");
+      s.append(el(balise, classe, mot), document.createTextNode(" " + suite));
+      return s;
+    };
+    // Chaque entrée n'apparaît que si le texte en contient : une légende qui
+    // annonce une couleur absente fait chercher pour rien. Un article
+    // simplement retouché n'a ni retrait ni ajout de fond.
+    const ya = (role, forme) => (a.morceaux || [])
+      .some((m) => m.role === role && Boolean(m.forme) === forme);
+    if (ya("retire", false)) legende.append(entree("s", null, "retiré", "par la loi"));
+    if (ya("ajoute", false)) legende.append(entree("u", null, "ajouté", "par la loi"));
+    if (ya("ajoute", true)) legende.append(entree("u", "forme", "ponctuation", "ajoutée"));
+    if (ya("retire", true)) legende.append(entree("s", "forme", "ponctuation", "retirée"));
     f.append(legende);
   }
 
@@ -2347,7 +2410,10 @@ function dessinerArticle(f, retour, uid, a) {
     if (mode === "apres" && m.role === "retire") continue;
     const balise = mode === "diff" && m.role === "retire" ? "del"
                  : mode === "diff" && m.role === "ajoute" ? "ins" : "span";
-    corps.append(el(balise, null, m.texte), document.createTextNode(" "));
+    // La ponctuation reste dans le texte, mais en bleu si elle arrive et en
+    // gris si elle part : le droit, lui, n'a pas changé.
+    const classe = mode === "diff" && m.forme ? "forme" : null;
+    corps.append(el(balise, classe, m.texte), document.createTextNode(" "));
   }
   f.append(corps);
 

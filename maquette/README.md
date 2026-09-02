@@ -212,6 +212,26 @@ change* (les retraits barrés en rouge, les ajouts en vert), *Texte en vigueur*,
 *Texte précédent*. Puis les conditions d'entrée en vigueur si le texte officiel
 en porte, et le lien vers Légifrance.
 
+**Quatre couleurs, pas deux.** Une part des différences signalées n'est que de
+la typographie : une virgule déplacée, une espace restituée, un tiret. Mesuré :
+**13,6 % des morceaux signalés**. Les effacer donnerait un texte de loi faux ;
+les laisser en rouge et vert noierait les vrais changements. Ils passent donc
+en **bleu** quand ils arrivent et en **gris** quand ils partent.
+
+| | |
+|---|---|
+| rouge barré | retiré par la loi |
+| vert | ajouté par la loi |
+| **bleu** | **ponctuation ou espace ajoutée** |
+| **gris barré** | **ponctuation ou espace retirée** |
+
+La légende n'affiche que les couleurs réellement présentes dans l'article.
+
+**Et un article dont *tout* le changement est de cette nature ne compte pas
+comme modifié.** Il serait faux d'annoncer qu'une loi a changé quelque chose là
+où elle n'a rien changé. Ces articles — 5 sur 4 431 — sont rangés en bas de
+l'écran, dans un bloc replié : consultables, mais hors du compte.
+
 **Rien n'est rédigé par une IA.** Les textes sont ceux du Journal officiel, et
 la comparaison est un calcul mot à mot — la même bibliothèque standard que
 partout ailleurs dans ce projet.

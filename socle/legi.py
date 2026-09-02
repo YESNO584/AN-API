@@ -196,6 +196,48 @@ def lire_article(xml: str) -> dict:
 # Comparer deux rédactions
 # ---------------------------------------------------------------------------
 
+# Ce qui ne fait pas le fond d'un texte de loi. Le tiret en fait partie, à la
+# demande de l'utilisateur : Légifrance passe de « 222-33,222-33-2 » à
+# « 222-33, 222-33-2 » sans que rien du droit n'ait bougé. Attention, le tiret
+# **à l'intérieur d'un mot** ne compte pas pour autant : « 222-33 » contient
+# des chiffres, donc ce morceau-là n'est pas de pure forme.
+PONCTUATION = set(" \t\n\u00a0\u202f.,;:!?…«»\"'’‘“”()[]{}-–—/\\*·•")
+
+
+def sans_forme(texte: str) -> str:
+    """Le texte débarrassé de tout ce qui n'en fait pas le fond."""
+    return "".join(c for c in texte if c not in PONCTUATION)
+
+
+def est_de_forme(texte: str) -> bool:
+    """Ce morceau n'est-il que de la ponctuation et des espaces ?
+
+    Sert aux ajouts et aux suppressions isolés : une virgule qui apparaît, une
+    espace qui disparaît. Il suffit d'**un seul** caractère porteur de sens —
+    une lettre, un chiffre — pour que le morceau compte.
+    """
+    return texte != "" and sans_forme(texte) == ""
+
+
+def remplacement_de_forme(avant: str, apres: str) -> bool:
+    """Ce remplacement ne change-t-il que la ponctuation ou les espaces ?
+
+    C'est **le** cas qu'il fallait attraper, et le juger morceau par morceau ne
+    suffit pas. La comparaison se fait mot à mot : « 222-33,222-33-2 » devenu
+    « 222-33, 222-33-2 » est un seul remplacement, d'un mot par deux, et le
+    morceau contient des chiffres — donc il ne serait pas « de pure forme ».
+
+    Il faut donc comparer les deux côtés **une fois la forme retirée** : si le
+    fond est identique, seule la typographie a bougé.
+    """
+    return sans_forme(avant) == sans_forme(apres)
+
+
+def changement_de_fond(decoupe: list[dict[str, str]]) -> bool:
+    """Y a-t-il au moins un changement qui ne soit pas de pure forme ?"""
+    return any(m["role"] != "egal" and not m["forme"] for m in decoupe)
+
+
 def morceaux(avant: str, apres: str) -> list[dict[str, str]]:
     """Le texte découpé en morceaux « égal », « retiré », « ajouté ».
 
@@ -205,13 +247,18 @@ def morceaux(avant: str, apres: str) -> list[dict[str, str]]:
     a, b = normaliser(avant).split(), normaliser(apres).split()
     decoupe = []
     for operation, i1, i2, j1, j2 in difflib.SequenceMatcher(None, a, b).get_opcodes():
-        if operation in ("equal", "delete"):
-            decoupe.append({"role": "egal" if operation == "equal" else "retire",
-                            "texte": " ".join(a[i1:i2])})
-        if operation in ("insert", "replace"):
-            if operation == "replace":
-                decoupe.append({"role": "retire", "texte": " ".join(a[i1:i2])})
-            decoupe.append({"role": "ajoute", "texte": " ".join(b[j1:j2])})
+        cote_a, cote_b = " ".join(a[i1:i2]), " ".join(b[j1:j2])
+        if operation == "equal":
+            decoupe.append({"role": "egal", "texte": cote_a, "forme": False})
+            continue
+        # Le jugement « de pure forme » porte sur l'opération entière, pas sur
+        # chaque morceau : un remplacement se juge en comparant ses deux côtés.
+        forme = (remplacement_de_forme(cote_a, cote_b) if operation == "replace"
+                 else est_de_forme(cote_a or cote_b))
+        if operation in ("delete", "replace") and cote_a:
+            decoupe.append({"role": "retire", "texte": cote_a, "forme": forme})
+        if operation in ("insert", "replace") and cote_b:
+            decoupe.append({"role": "ajoute", "texte": cote_b, "forme": forme})
     return [m for m in decoupe if m["texte"]]
 
 
