@@ -19,6 +19,64 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-09-03 — Les articles propres d'une loi sont dans LEGI, et on les rate
+
+Correction d'une conclusion écrite plus tôt le même jour. L'utilisateur a
+contesté « une loi de fin de gestion ne change presque rien » : ses articles
+sont nouveaux, donc ils ajoutent du droit. **Il avait raison, et la source les
+publie.** Mesuré sur deux archives quotidiennes de LEGI (12,7 et 6,3 Mo, donc
+sans la passe de 16 minutes sur le socle).
+
+- **Les articles propres d'une loi sont bien dans LEGI**, sous
+  `code_et_TNC_en_vigueur/TNC_en_vigueur/JORF/TEXT/<JORFTEXT…>/article/…`, avec
+  leur texte. `legi.parcourir_archive` les lit déjà : le filtre `/article/` les
+  attrape. Ce ne sont pas des données manquantes.
+- **Chaque article nomme sa propre loi, dans son propre XML** :
+  `<TEXTE … nature="LOI" num="2026-796" nor="AGRS2603566L" cid="JORFTEXT…">`,
+  dans `CONTEXTE`. C'est la clé qui manque à `legi.py`, et elle est directe —
+  aucun rapprochement par titre.
+- **Pourquoi on les rate.** `legi.changements()` ne garde qu'un lien
+  `sens="cible"` dont le `typelien` est un **verbe** (`MODIFIE`, `CREE`, …)
+  *et* qui porte un `numtexte`. Un article de loi n'en porte jamais : rien n'a
+  agi sur lui. Ce qu'il porte, c'est la forme **nominale** — `MODIFICATION`,
+  `CREATION`, `ABROGATION` — avec un `numtexte` **vide**, qui dit ce que *lui*
+  fait aux autres. Les deux vocabulaires sont les deux bouts du même lien : le
+  verbe est sur la cible, le nom est sur la source.
+- **Chiffres.** 642 articles hors code dans les deux quotidiennes : **0** porte
+  un lien de changement venant de sa propre loi. Et sur les 5 880 articles
+  publiés pour les 72 lois suivies, **0** est un article de la loi elle-même.
+  Ce n'est pas un cas limite, c'est systématique.
+- **Ce n'est pas la source qui manque, et c'est vérifiable d'un coup d'œil.**
+  La loi 2026-798 affiche 208 articles changés chez nous et a **138 de ses
+  propres articles** dans ces deux archives ; la loi 2026-796, 95 affichés et
+  **61** présents.
+- **`TYPE` dit lesquels valent d'être montrés, et c'est mesuré.** Sur 667
+  articles de loi :
+
+  | `TYPE` | Part | Contenu |
+  |---|---:|---|
+  | `AUTONOME` | 48 % | du texte lisible (89 % d'entre eux) |
+  | `ENTIEREMENT_MODIF` | 36 % | « A modifié les dispositions suivantes : – Code rural… » — rien à lire |
+  | `PARTIELLEMENT_MODIF` | 16 % | du texte lisible (88 %) |
+
+  *Pourquoi ça compte :* montrer les `ENTIEREMENT_MODIF` ferait doublon — leur
+  substance est déjà à l'écran, sous forme des articles de code modifiés — et
+  n'afficherait qu'une phrase de renvoi. Le filtre à écrire est `TYPE`, pas
+  une heuristique sur le texte.
+- **Deux pièges pour la suite.** Un article tout neuf peut porter
+  « **en cours de traitement** » au lieu de son texte : 69 des 138 articles de
+  la loi 2026-798, promulguée la veille. Et le même article a **deux
+  rédactions**, l'une côté JORF (`DATE_DEBUT` = `2999-01-01`) et l'autre côté
+  LEGI (la vraie date) — les deux `TITRE_TXT` du `CONTEXTE` le montrent. Les
+  afficher toutes les deux ferait un doublon.
+- **Les quotidiennes suffisent à trancher une question sur LEGI.** 419
+  quotidiennes au dépôt, de 5,3 Ko à 12,7 Mo, couvrant environ un an et deux
+  mois. Toute cette mesure a tenu en deux téléchargements. *La leçon :* avant
+  de renoncer à vérifier une règle du droit consolidé parce que « le socle fait
+  1,1 Go », regarder si une quotidienne répond.
+
+---
+
 ## 2026-09-03 — Deux chiffres d'une même fiche ne comptent pas la même chose
 
 Enquête sur la loi de finances de fin de gestion pour 2024 (loi 2024-1167,
@@ -46,13 +104,13 @@ d'affichage dans la maquette**, et deux faits de droit à ne pas redécouvrir.
   4 026 728 396 → 3 976 056 557). Mesures de contrôle : fin de gestion 2025 →
   4 articles, lois spéciales (2024-1188, 2025-1316) → 0, loi de finances pour
   2025 → 1 053. **Le chiffre est juste** ; c'est l'attente qui est fausse.
-- **Le socle ne voit pas les articles propres à une loi, et ne peut pas.** Un
-  changement se lit dans un lien `sens="cible"` porté par l'article *visé* ;
-  les articles qu'une loi crée pour elle-même n'en portent pas. Vérifié : sur
-  les 231 `CREE` de la loi de finances pour 2025, **aucun** n'appartient à la
-  loi 2025-127 elle-même. Ce n'est pas un trou à combler — « ce que la loi
-  change » parle du droit d'avant — mais il faut le savoir avant de chercher
-  un bug là où il n'y en a pas.
+- **Le socle ne voit pas les articles propres à une loi.** Un changement se lit
+  dans un lien `sens="cible"` porté par l'article *visé* ; les articles qu'une
+  loi crée pour elle-même n'en portent pas. Vérifié : sur les 231 `CREE` de la
+  loi de finances pour 2025, **aucun** n'appartient à la loi 2025-127 elle-même.
+  **Correction du 2026-09-03 :** j'avais ajouté « et ne peut pas », et c'était
+  faux — voir l'entrée du 2026-09-03 ci-dessus. La source les publie, avec leur
+  texte, et l'article nomme sa propre loi. C'est bien un trou à combler.
 - **Le défaut, lui : « 0 % du texte a changé » sur un vrai changement.**
   `feed.html:2542` affiche `100 - a.commun`, et `legi.part_commune` arrondit.
   Huit mots changés sur 5 377 donnent 99,85 % → 100 % → « 0 % ». Sur un texte
