@@ -19,6 +19,48 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-09-03 — Mesuré sur le socle entier : ce que la passe complète a appris
+
+- **417 articles propres pour 2 767 changés**, sur 56 lois (socle du
+  2025-07-13 plus deux quotidiennes ; la production en couvre davantage parce
+  qu'elle lit aussi les 419 quotidiennes). La loi de finances pour 2025 en
+  compte 146. La loi de fin de gestion 2024 — celle qui a fait découvrir le
+  manque — passe de 2 articles à **2 changés et 6 propres, soit 8 134 mots**
+  de texte de loi qui n'apparaissaient nulle part.
+- **La rédaction « d'avant » n'est pas figée, et le pourcentage de changement
+  bouge avec elle.** Sur une seule quotidienne, **2 965 rédactions sur 4 498
+  étaient closes avant la date du socle** — une rédaction de la loi n° 78-17
+  datée de 1980, un décret de 1969. La source corrige donc en permanence des
+  rédactions anciennes. Conséquence constatée : l'article 156 de la loi de
+  finances 2024 donne **76 %** de texte commun avec l'instantané de juillet
+  2025 seul (l'en-tête du tableau des plafonds manquait à la rédaction d'avant)
+  et **100 %** avec les quotidiennes qui l'ont corrigée. *La leçon :* un
+  pourcentage d'avant/après mesuré sur une base partielle ne se compare pas à
+  celui du site, et ce n'est pas un bug — c'est pourquoi la publication lit le
+  socle *et* toutes les quotidiennes.
+- **Ne pas conclure à une régression de vitesse sans savoir ce que le chiffre
+  contient.** La passe s'est affichée en **29,6 min** contre 15,7 min
+  documentées, et j'ai commencé à chercher le coût dans mon code. Le chronomètre
+  de `recuperer_legi.py` englobe le **téléchargement** : 15 min de réseau plus
+  **14,6 min de lecture**, soit un peu moins qu'avant. Le test de sous-chaîne
+  que j'allais ajouter pour « réparer » cela valait 40 s sur 15 min, mesuré —
+  0,4 %. Il n'a pas été ajouté.
+- **Six rédactions sur 5 091 n'ont aucun numéro**, et ce sont exactement les
+  états et annexes des lois de finances et de financement de la sécurité
+  sociale — dont l'état A de la loi de fin de gestion, le tableau des recettes.
+  L'écran affichait « Article » suivi de rien. On montre à la place le début de
+  leur propre texte, coupé à un mot entier, en disant que c'est un début de
+  texte et non un intitulé. *Pourquoi ne pas deviner où le titre s'arrête :* la
+  source l'écrit en capitales, mais « (En euros.) » et « Voies et moyens »
+  cassent la règle dès le deuxième exemple.
+- **Le défaut « 0 % du texte a changé » est toujours là, et se voit maintenant
+  à côté du correctif.** Sur la fiche de la fin de gestion 2024, l'article 46
+  de la loi 2005-1719 affiche « 0 % du texte a changé » pour 50,7 millions
+  d'euros de TVA en moins. Il a été laissé hors de ce lot exprès, un changement
+  à la fois — mais c'est le prochain.
+
+---
+
 ## 2026-09-03 — Ce qu'une loi ajoute, écrit : trois règles, dont deux trouvées en vérifiant
 
 Mise en œuvre du constat de l'entrée suivante. Ce qui compte ici n'est pas le

@@ -669,6 +669,29 @@ class CeQueLaLoiAjoute(unittest.TestCase):
         self.assertEqual(legi.date_d_effet(legi.AJOUTE, "2026-08-20", legi.SANS_FIN),
                          "2026-08-20")
 
+    def test_un_article_sans_numero_se_nomme_par_son_debut(self):
+        """Les états et annexes des lois de finances n'ont pas de numéro dans la
+        source. Six sur 5 091 rédactions, et ce ne sont pas des cas perdus :
+        l'état A de la loi de fin de gestion 2024 est le tableau des recettes.
+        « Article » suivi de rien ne dit rien."""
+        debut = ("ÉTATS LÉGISLATIFS ANNEXÉS ÉTAT A (ARTICLE 3 DE LA LOI) "
+                 "VOIES ET MOYENS POUR 2024 RÉVISÉS I. - BUDGET GÉNÉRAL")
+        self.assertEqual(
+            legi.intitule_de_secours(debut),
+            "ÉTATS LÉGISLATIFS ANNEXÉS ÉTAT A (ARTICLE 3 DE LA LOI) VOIES…")
+
+    def test_un_intitule_de_secours_coupe_a_un_mot_entier(self):
+        self.assertEqual(legi.intitule_de_secours("un deux trois quatre", 12),
+                         "un deux…")
+
+    def test_un_texte_court_n_est_pas_coupe(self):
+        self.assertEqual(legi.intitule_de_secours("Court.", 62), "Court.")
+        self.assertEqual(legi.intitule_de_secours(""), "")
+
+    def test_un_seul_mot_trop_long_est_coupe_quand_meme(self):
+        """Sans ce cas, `rsplit` rend la chaîne vide et l'article perd son nom."""
+        self.assertEqual(legi.intitule_de_secours("abcdefghij", 5), "abcde…")
+
     def test_ajoute_n_est_pas_un_type_de_lien_de_la_source(self):
         """C'est notre mot. Le confondre avec le vocabulaire de LEGI ferait
         chercher dans les liens un renseignement qui n'y est pas."""

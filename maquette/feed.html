@@ -2605,7 +2605,11 @@ function ligneArticle(uid, a, retouche = false) {
   const b = el("button", "art");
   b.append(el("span", "quoi " + a.quoi, a.action));
   const nom = el("div", "nom");
-  nom.append(el("b", null, "Article " + a.numero));
+  // Les états et annexes des lois de finances n'ont pas de numéro dans la
+  // source : « Article » suivi de rien ne dit rien. On montre alors le début
+  // de leur texte, tel qu'il est écrit.
+  nom.append(el("b", null, a.numero ? "Article " + a.numero
+                                    : a.intitule || "Article sans numéro"));
   // « 19 % du texte a changé » se lit ; « 81 % commun » demande un effort.
   // Pour un article retouché, ce pourcentage serait trompeur : il annoncerait
   // qu'une part du texte a changé alors que seule la typographie a bougé. On
@@ -2657,7 +2661,8 @@ async function ouvrirArticle(uid, identifiant) {
 function dessinerArticle(f, retour, uid, a) {
   f.textContent = "";
   f.append(retour);
-  f.append(el("h2", "fiche-titre", "Article " + a.numero));
+  f.append(el("h2", "fiche-titre", a.numero ? "Article " + a.numero
+                                            : a.intitule || "Article sans numéro"));
   // Une abrogation ne met rien en vigueur : elle met fin à une rédaction. Dire
   // « rédaction en vigueur le… » pour un article abrogé serait le contraire de
   // ce qui s'est passé.
@@ -2672,6 +2677,14 @@ function dessinerArticle(f, retour, uid, a) {
   const quand = a.effet ? " le " + dateLongue.format(enDate(a.effet))
                         : " à une date non encore fixée";
   f.append(el("p", "fiche-sous", (a.ou || "") + " — " + verbe + quand));
+  // Le titre ci-dessus est alors le début du texte, pas un intitulé : le dire,
+  // pour qu'on ne le prenne pas pour un nom officiel.
+  if (!a.numero) {
+    f.append(el("p", "nota",
+      "La source ne donne aucun numéro à cet article — c'est le cas des états "
+      + "et annexes des lois de finances. Le titre ci-dessus est le début de "
+      + "son texte, recopié tel quel."));
+  }
 
   const neuf = a.commun === null;
   if (a.enAttente) {

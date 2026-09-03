@@ -17,7 +17,7 @@ lire aucune donnée.
 | `test_extraction.py` | 115 tests sur les règles de lecture |
 | `legi.py` | Lit le droit consolidé et compare deux rédactions d'un article. **Ne télécharge rien, n'écrit nulle part.** |
 | `recuperer_legi.py` | Va chercher, dans le droit consolidé, ce que nos lois y ont changé. Écrit dans `legi.db` |
-| `test_legi.py` | 79 tests sur ces règles-là |
+| `test_legi.py` | 86 tests sur ces règles-là |
 
 ### Pourquoi deux bases
 
@@ -69,6 +69,18 @@ La bonne règle : **la rédaction qui se termine au moment où la nôtre commenc
 les mort-nées écartées.** Elle remonte le même article à **97 %** et ne change
 rien pour les six autres articles de la même loi. Elle est dans
 `legi.version_precedente`, avec ses tests.
+
+**La rédaction « d'avant » n'est pas figée, et le pourcentage bouge avec elle.**
+La source corrige des rédactions closes depuis des années : sur une seule
+archive quotidienne, **2 965 rédactions sur 4 498 étaient closes avant la date
+du socle** — une rédaction de la loi n° 78-17 datée de 1980, un décret de 1969.
+Conséquence mesurée le 2026-09-03 sur l'article 156 de la loi de finances 2024 :
+avec l'instantané de juillet 2025 seul, la comparaison donne 76 % de texte
+commun, parce que l'en-tête du tableau des plafonds manquait à la rédaction
+d'avant ; avec les quotidiennes qui l'ont corrigée, 100 %. **Ce n'est pas un
+défaut du code** : c'est pourquoi la publication lit le socle *et* toutes les
+quotidiennes, et pourquoi un pourcentage mesuré sur une base partielle ne se
+compare pas à celui du site.
 
 **Deux autres pièges, trouvés le 2026-09-03**, tous deux venant de la date
 sentinelle `2999-01-01`. Un article dont l'entrée en vigueur n'est pas encore
@@ -131,6 +143,21 @@ une « part de texte changé » qui ne veut rien dire pour un article neuf. D'o�
 `articlesAjoutes` dans `changements/<uid>.json`, et `ajouts` dans le résumé par
 loi — comptés **hors** de `total`, `actions` et `dates`, qui disent depuis
 toujours « ce qu'elle change dans le droit d'avant ».
+
+**Mesuré sur le socle entier** (instantané du 2025-07-13 plus deux
+quotidiennes, lu en 14,6 min — le reste des 29,6 min chronométrées est le
+téléchargement) : **417 articles propres** pour 2 767 articles changés, sur
+56 lois. La loi de finances pour 2025 en compte 146, celle de financement de la
+sécurité sociale pour 2025 en compte 75. Et la loi de finances de fin de gestion
+pour 2024, celle qui a fait découvrir le manque : **2 articles changés et
+6 articles propres**, soit 8 134 mots de texte de loi qui n'apparaissaient
+nulle part — l'article liminaire, les articles 3 à 6 et l'état A.
+
+**Six rédactions sur 5 091 n'ont aucun numéro**, et ce sont justement des états
+et annexes de lois de finances. « Article » suivi de rien ne dit rien : on
+affiche à la place le début de leur propre texte, coupé à un mot entier
+(`legi.intitule_de_secours`), et l'écran dit que c'est un début de texte et non
+un intitulé. Rien n'est rédigé.
 
 **Un article peut arriver sans son texte.** La source publie parfois « en cours
 de traitement » à sa place : 69 des 138 articles de la loi 2026-798, promulguée

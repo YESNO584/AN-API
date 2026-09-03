@@ -316,6 +316,35 @@ def est_un_ajout(xml: str, precedent: str | None) -> bool:
     return not (est_en_attente(utile) and champ(xml, "TYPE") == TYPE_SANS_TEXTE)
 
 
+# Au plus tant de caractères pour identifier un article que la source ne
+# numérote pas. Assez pour reconnaître « ÉTAT A », pas assez pour recopier un
+# tableau de recettes dans une liste.
+INTITULE_MAX = 62
+
+
+def intitule_de_secours(texte: str, maximum: int = INTITULE_MAX) -> str:
+    """De quoi nommer un article auquel la source ne donne aucun numéro.
+
+    Six rédactions sur 5 091 sont dans ce cas (mesuré le 2026-09-03), et ce ne
+    sont pas des cas perdus : ce sont les **états et annexes** des lois de
+    finances et de financement de la sécurité sociale — l'état A de la loi de
+    fin de gestion pour 2024 en est un, et c'est le tableau des recettes.
+    Écrire « Article » suivi de rien ne dit à personne ce qu'on ouvre.
+
+    On recopie donc le début du texte, coupé à un mot entier. **Rien n'est
+    rédigé** : la source écrit elle-même son titre en tête — « ÉTATS
+    LÉGISLATIFS ANNEXÉS ÉTAT A (ARTICLE 3 DE LA LOI) ». Et on ne cherche pas à
+    deviner où ce titre s'arrête : les capitales et la mise en page ne le
+    disent pas de façon fiable d'une loi à l'autre. C'est un début de texte,
+    présenté comme tel, pas un intitulé que nous aurions fabriqué.
+    """
+    propre = normaliser(texte or "")
+    if len(propre) <= maximum:
+        return propre
+    coupe = propre[:maximum].rsplit(" ", 1)[0]
+    return (coupe or propre[:maximum]) + "…"
+
+
 def est_en_attente(texte: str | None) -> bool:
     """La source a publié l'article sans avoir encore saisi son texte.
 

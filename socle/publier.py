@@ -469,6 +469,12 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str,
             "mots": len(apres.split()),
             "commun": legi.part_commune(avant, apres) if avant else None,
             "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
+            # Six rédactions sur 5 091 n'ont aucun numéro : les états et
+            # annexes des lois de finances. On leur donne pour nom le début de
+            # leur propre texte — c'est la liste qui, sinon, afficherait
+            # « Article » suivi de rien. Écrit seulement dans ce cas.
+            **({"intitule": legi.intitule_de_secours(apres)}
+               if not ligne["numero"] else {}),
             # La source publie parfois l'article avant d'en avoir saisi le
             # texte. Le drapeau ne s'écrit que dans ce cas — rare — pour ne pas
             # ajouter un « false » à chacun des 5 880 articles publiés.
@@ -517,7 +523,9 @@ def article_compare(legi_cx: sqlite3.Connection, identifiant: str) -> dict:
                     else [{"role": "ajoute" if not ligne["precedent"] else "egal",
                            "texte": apres, "forme": False}],
         "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
-        # Voir `articles_de_la_loi` : écrit seulement quand c'est vrai.
+        # Voir `articles_de_la_loi` : les deux ne s'écrivent qu'au besoin.
+        **({"intitule": legi.intitule_de_secours(apres)}
+           if not ligne["numero"] else {}),
         **({"enAttente": True} if legi.est_en_attente(apres) else {}),
         "source": legi.url_legifrance(ligne["id"]),
     }
