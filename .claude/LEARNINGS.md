@@ -19,6 +19,79 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-09-03 — Ce qu'une loi ajoute, écrit : trois règles, dont deux trouvées en vérifiant
+
+Mise en œuvre du constat de l'entrée suivante. Ce qui compte ici n'est pas le
+code — il fait une centaine de lignes — mais **l'ordre dans lequel les règles
+se sont révélées fausses**. Les deux tiers de ce qui suit ont été trouvés en
+vérifiant sur les vraies données une règle que je croyais bonne.
+
+- **La règle publiée d'abord était fausse deux fois, et les deux erreurs
+  n'étaient visibles que sur les données.** Version 1 : « le `TYPE` de la
+  source dit lesquels montrer ». Elle laissait passer 8 articles sur 87 qui
+  n'affichaient qu'une liste de références — un `PARTIELLEMENT_MODIF` peut
+  n'être fait que de renvois. Version 2 : « le `TYPE`, plus un test sur le
+  texte ». Elle **perdait du droit réel** : l'article 32 de la loi 2026-201 est
+  annoncé `ENTIEREMENT_MODIF` et 92 % de son contenu est une servitude au
+  profit des jeux Olympiques d'hiver. Version 3, celle qui tient : **le texte
+  seul décide**, le `TYPE` n'est plus qu'un renseignement. *La leçon :* une
+  étiquette que la source pose sur son propre contenu se trompe dans les deux
+  sens, et rien ne le montre avant de l'avoir confrontée au contenu.
+- **Un renvoi se reconnaît à la structure, pas aux mots.** Ma première
+  détection était ancrée au début de la chaîne ; or la source écrit « I. A
+  modifié les dispositions suivantes », « I. à V. - A modifié… ». La forme
+  stable est ailleurs : **un `<p>` d'annonce suivi d'un `<blockquote>`** qui
+  porte la liste des articles visés. `legi.sans_les_renvois` retire les
+  `<blockquote>` du plus imbriqué vers l'extérieur, puis les paragraphes
+  d'annonce. Contrôle de non-régression : les **321 articles de fond**
+  rencontrés ressortent **intacts au caractère près**.
+- **Le garde-fou qui évite d'attribuer un article au mauvais texte : « pas de
+  rédaction d'avant ».** Toutes les rédactions d'un article nomment le même
+  porteur. Sans ce test, l'article 156 de la loi de finances 2024 *tel que la
+  loi de fin de gestion l'a modifié* passait pour un article que la loi de
+  finances avait écrit. Un article de loi compte jusqu'à **six rédactions
+  successives** (article 31 de la loi n° 78-17).
+- **Et ce garde-fou a révélé un vrai bug, vieux, dans `version_precedente` :
+  un article se donnait pour son propre « avant ».** Un article dont l'entrée
+  en vigueur n'est pas fixée porte la sentinelle `2999-01-01` en début **et**
+  en fin, et figure dans sa propre liste de versions : « celle qui finit quand
+  la nôtre commence » le désignait lui-même. **61 des 130 articles** des lois
+  d'août 2026. Bénin jusqu'ici — la rédaction était déjà en base — mais il
+  rendait le nouveau test inutilisable. *La leçon :* une règle nouvelle
+  s'appuie sur les anciennes, et c'est ce qui fait sortir leurs angles morts.
+- **Une donnée dérivée ne se verse pas dans un chiffre déjà publié.** `total`,
+  `actions` et `dates` disent depuis toujours « ce qu'elle change dans le droit
+  d'avant ». Les ajouts ont leur propre compteur (`ajouts`) et leur propre
+  liste (`articlesAjoutes`). Y verser des articles neufs aurait changé le sens
+  d'un chiffre que l'écran affiche déjà, sans que rien ne le signale.
+- **Le tri avant la lecture, sur 2,5 millions de fichiers.** `lire_article`
+  déplie tout le texte ; l'appeler pour chaque fichier de l'archive coûterait
+  des minutes. Le test d'appartenance (`loi_qui_porte`, une regex sur
+  `CONTEXTE`) vient donc avant, et `lire_article` après. C'est la seule raison
+  pour laquelle le test « est-ce un ajout » n'est pas au même endroit que
+  l'autre : il a besoin de `precedent`.
+- **Trois défauts d'accent trouvés en regardant l'écran, pas le code.**
+  « les 1 article qu'elle change » (déjà là avant), « les 28 qu'elle ajoute »
+  sans le nom, et trois tuiles à zéro pour une loi qui n'amende rien. Aucun
+  n'apparaît dans un test ; tous les trois sautent aux yeux sur une capture.
+  D'où `combienDArticles`, qui fait l'accord une fois pour toutes.
+- **Une maquette se vérifie dans un navigateur, et ça tient en deux
+  commandes.** `python3 -m http.server --directory socle/public`, puis
+  Playwright sur le Chromium déjà installé
+  (`/opt/pw-browsers/chromium-1194/chrome-linux/chrome`, le paquet Python
+  s'installe avec `pip install playwright` — ne pas lancer
+  `playwright install`). Cela a confirmé le libellé, les tuiles, la pastille,
+  l'absence de bascule avant/après, le thème sombre, et l'absence d'erreur JS.
+  **Un `404 /favicon.ico` apparaît en console : il est antérieur et sans
+  rapport** — la page ne déclare aucune icône.
+- **Fabriquer le décor manquant vaut mieux que d'attendre les données.** Le cas
+  « la loi n'amende rien mais écrit ses propres articles » — celui de la loi de
+  finances — n'était pas dans la base partielle. Une copie des fichiers publiés
+  dans le bac à sable, deux champs mis à zéro, et le chemin d'affichage était
+  vérifié sans attendre la passe de 16 minutes.
+
+---
+
 ## 2026-09-03 — Les articles propres d'une loi sont dans LEGI, et on les rate
 
 Correction d'une conclusion écrite plus tôt le même jour. L'utilisateur a

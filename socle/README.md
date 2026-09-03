@@ -17,7 +17,7 @@ lire aucune donnée.
 | `test_extraction.py` | 115 tests sur les règles de lecture |
 | `legi.py` | Lit le droit consolidé et compare deux rédactions d'un article. **Ne télécharge rien, n'écrit nulle part.** |
 | `recuperer_legi.py` | Va chercher, dans le droit consolidé, ce que nos lois y ont changé. Écrit dans `legi.db` |
-| `test_legi.py` | 56 tests sur ces règles-là |
+| `test_legi.py` | 79 tests sur ces règles-là |
 
 ### Pourquoi deux bases
 
@@ -29,6 +29,13 @@ neuve à chaque publication, il n'y a rien à conserver.
 d'articles que nos lois ont changées. Elle est donc **gardée d'un jour sur
 l'autre** (mise en cache par la publication), et on n'y ajoute ensuite que les
 archives quotidiennes, de 1 à 4 Mo.
+
+**La clé de ce cache porte l'empreinte de `legi.py` et de `recuperer_legi.py`**
+(`.github/workflows/donnees.yml`). Sans cela, changer une règle ne changerait
+rien pour les lois anciennes : la base d'hier ne contient que ce que les règles
+retenaient hier, et la règle nouvelle ne s'appliquerait qu'aux archives du jour.
+Avec l'empreinte, une modification des règles refait la passe complète une
+fois, d'elle-même — personne n'a à y penser.
 
 Elle est **facultative** : sans elle, tout le reste se publie normalement et
 l'application n'affiche simplement pas ce que les lois changent. Une passe de
@@ -63,12 +70,82 @@ les mort-nées écartées.** Elle remonte le même article à **97 %** et ne cha
 rien pour les six autres articles de la même loi. Elle est dans
 `legi.version_precedente`, avec ses tests.
 
+**Deux autres pièges, trouvés le 2026-09-03**, tous deux venant de la date
+sentinelle `2999-01-01`. Un article dont l'entrée en vigueur n'est pas encore
+fixée la porte en début **et** en fin : « celle qui finit quand la nôtre
+commence » désignait alors n'importe quelle rédaction encore en vigueur, et
+même **l'article lui-même**, présent dans sa propre liste de versions. 61 des
+130 articles des lois d'août 2026 se donnaient ainsi pour leur propre « avant ».
+La règle refuse donc la sentinelle, et refuse de se désigner soi-même.
+
+### Ce qu'une loi ajoute, et pourquoi on le ratait
+
+Une loi ne fait pas que modifier le droit d'avant : elle écrit **ses propres
+articles**. On les ratait tous — **0 sur les 5 880 articles publiés** pour les
+72 lois suivies — et la réponse que donnait l'application était absurde : la loi
+de finances de fin de gestion pour 2024, dont presque toute la matière tient
+dans ses propres articles, s'affichait comme ne changeant que deux articles.
+
+**La source les publie pourtant**, avec leur texte, sous
+`TNC_en_vigueur/JORF/TEXT/<JORFTEXT…>/article/…`. Le lecteur les traversait déjà
+et les jetait. Ce qui manquait était le rapprochement, et il est direct : chaque
+article nomme sa propre loi dans son `CONTEXTE`.
+
+```xml
+<TEXTE nature="LOI" num="2026-796" cid="JORFTEXT000054707007" …>
+```
+
+**La cause était une confusion de vocabulaire.** Un lien de changement est porté
+par l'article **visé**, à la forme verbale (`MODIFIE`, `CREE`) et avec le numéro
+de la loi qui a agi. Un article de loi n'en porte jamais : rien n'a agi sur lui,
+c'est lui qui agit. Ce qu'il porte, c'est la forme *nominale* (`MODIFICATION`,
+`CREATION`) sans numéro de texte. Mesuré : 642 articles hors code, **aucun** avec
+un lien venant de sa propre loi.
+
+Trois règles décident, et il faut les trois (`legi.est_un_ajout`) :
+
+| Règle | Pourquoi |
+|---|---|
+| Le porteur est une de nos lois | `nature` avant le numéro : « Décret n°2005-850 » a la forme d'un numéro de loi. Les lois organiques comptent (`LOI_ORGANIQUE`) |
+| Il n'a pas de rédaction d'avant | Sans cela, l'article 156 de la loi de finances 2024 *tel que la fin de gestion l'a modifié* passerait pour un article que la loi de finances a écrit |
+| Il reste du texte, renvois retirés | Un article de loi mêle des phrases de droit et des **renvois** : « I. - A modifié les dispositions suivantes : - Code rural Art. L230-5-1 » |
+
+**Le `TYPE` annoncé par la source ne décide de rien**, et s'y fier s'est trompé
+deux fois. Un `PARTIELLEMENT_MODIF` peut n'être fait que de renvois — 8 des
+87 premiers articles retenus n'affichaient qu'une liste de références. Et un
+`ENTIEREMENT_MODIF` peut porter du droit bien réel : l'article 32 de la loi
+2026-201 est annoncé comme n'amendant que d'autres textes, et 92 % de son
+contenu est une servitude au profit des jeux Olympiques d'hiver. Le juge est
+donc le texte, une fois les renvois retirés — `legi.sans_les_renvois`, qui suit
+la **structure** de la source (un `<p>` d'annonce, puis un `<blockquote>`) et
+non ses mots.
+
+Contrôle de non-régression, sur les vraies données : les **321 articles de
+fond** rencontrés ressortent **intacts**, au caractère près. Un article de code
+n'est jamais nettoyé — ce qu'on en montre sert à une comparaison, et en retirer
+un morceau la ferait mentir.
+
+**Ils s'affichent à part.** Ils n'ont pas d'avant : il n'y a rien à superposer,
+seulement un texte à lire. Les mêler aux articles changés obligerait à annoncer
+une « part de texte changé » qui ne veut rien dire pour un article neuf. D'où
+`articlesAjoutes` dans `changements/<uid>.json`, et `ajouts` dans le résumé par
+loi — comptés **hors** de `total`, `actions` et `dates`, qui disent depuis
+toujours « ce qu'elle change dans le droit d'avant ».
+
+**Un article peut arriver sans son texte.** La source publie parfois « en cours
+de traitement » à sa place : 69 des 138 articles de la loi 2026-798, promulguée
+la veille. On le garde — il existe — et le drapeau `enAttente` le dit à l'écran,
+plutôt que de faire passer cette phrase pour de la loi. Seule exception : un
+article dont le `TYPE` annonce qu'il ne fera que des renvois **et** dont le
+texte n'est pas saisi. Celui-là, on sait déjà qu'il n'y aura rien à lire.
+
 ### Ce qui n'est pas un changement
 
 Une loi **cite** deux fois plus d'articles qu'elle n'en modifie : 5 520
 citations pour 2 711 modifications. Les compter comme des changements ferait
 dire n'importe quoi à l'application. Seuls `MODIFIE`, `CREE`, `ABROGE`,
-`TRANSFERE` et `DEPLACE` sont retenus.
+`TRANSFERE` et `DEPLACE` sont retenus — plus `AJOUTE`, qui est **notre** mot et
+non celui de LEGI (voir ci-dessus).
 
 **Et une virgule déplacée n'est pas un changement non plus.** Mesuré le
 2026-09-02 : sur 27 751 morceaux de texte signalés comme différents,
@@ -411,7 +488,7 @@ signale la panne.
 | `travaux.json` | 337 Ko | — | Les 708 dossiers qui n'aboutissent à aucune loi, et leurs catégories : **l'onglet « Travaux »** |
 | `calendrier.json` | 1 Ko | — | Les mois qui portent des événements, et combien : l'index du calendrier |
 | `calendrier/<AAAA-MM>.json` | 404 Ko | — | Un mois par fichier : séances, commissions, décisions, votes, promulgations |
-| `changements/<uid>.json` | — | — | Ce qu'une loi change au droit : les articles, groupés par code. **Aucun texte** — la liste sert à choisir |
+| `changements/<uid>.json` | — | — | Ce qu'une loi change au droit **et ce qu'elle y ajoute** : les articles changés groupés par code, et ses propres articles à part (`articlesAjoutes`). **Aucun texte** — la liste sert à choisir |
 | `changements/<uid>/<LEGIARTI>.json` | — | — | Un article : son texte entier, découpé en morceaux égaux, retirés, ajoutés |
 
 **Pourquoi un fichier par mois pour le calendrier.** Il n'affiche qu'un mois à

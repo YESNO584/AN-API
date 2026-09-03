@@ -58,9 +58,15 @@ CREATE TABLE IF NOT EXISTS redaction (
 );
 
 -- Ce qu'une loi a fait à une rédaction. Les simples citations n'y sont pas.
+--
+-- `quoi` porte les cinq mots de LEGI — MODIFIE, CREE, ABROGE, TRANSFERE,
+-- DEPLACE — **et un sixième qui est le nôtre** : AJOUTE, pour un article que
+-- la loi a écrit pour elle-même. La source n'a pas de mot pour celui-là ; elle
+-- ne relie pas un article à sa propre loi par un lien, elle le range dedans
+-- (voir `legi.AJOUTE`).
 CREATE TABLE IF NOT EXISTS changement (
     loi          TEXT NOT NULL,         -- « 2026-813 »
-    quoi         TEXT NOT NULL,         -- MODIFIE, CREE, ABROGE, TRANSFERE, DEPLACE
+    quoi         TEXT NOT NULL,         -- MODIFIE, CREE, ABROGE, TRANSFERE, DEPLACE, AJOUTE
     article_loi  TEXT,                  -- l'article de la loi qui a agi
     redaction_id TEXT NOT NULL REFERENCES redaction(id),
     PRIMARY KEY (loi, quoi, redaction_id)
@@ -110,6 +116,13 @@ def page_du_depot() -> str:
 def deux_passes(chemin: pathlib.Path, lois: set[str], base: sqlite3.Connection) -> int:
     """Lit une archive et range ce qui concerne nos lois. Rend le nombre de rédactions.
 
+    Deux choses y sont cherchées, et par deux chemins différents. Ce que nos
+    lois **changent** se lit dans les liens portés par l'article visé ; ce
+    qu'elles **ajoutent** — leurs propres articles — se lit dans le `CONTEXTE`,
+    qui dit quel texte porte l'article. Aucun lien ne relie un article à sa
+    propre loi : c'est ce qui nous les faisait rater (0 sur 5 880 articles
+    publiés, mesuré le 2026-09-03).
+
     Première passe : les rédactions que nos lois ont changées. On note au passage
     l'identité de la rédaction d'avant, que la première passe a pu croiser sans
     savoir qu'elle en aurait besoin — l'ordre des fichiers dans l'archive est
@@ -122,9 +135,21 @@ def deux_passes(chemin: pathlib.Path, lois: set[str], base: sqlite3.Connection) 
         for _, brut in legi.parcourir_archive(flux):
             xml = brut.decode("utf-8", "replace")
             actions = [c for c in legi.changements(xml) if c["loi"] in lois]
-            if not actions:
+            porteuse = legi.loi_qui_porte(xml)
+            # **Le tri avant la lecture.** `lire_article` déplie tout le texte
+            # de l'article ; sur 2,5 millions de fichiers, la payer pour ceux
+            # qui ne nous concernent pas coûte des minutes pour rien.
+            if not actions and porteuse not in lois:
                 continue
             article = legi.lire_article(xml)
+            # Ce que la loi **ajoute** : l'un de ses propres articles. Le
+            # verdict a besoin de `precedent`, donc de l'article lu — c'est la
+            # seule raison pour laquelle ce test vient après.
+            if porteuse in lois and article["ajout"]:
+                actions.append({"loi": porteuse, "quoi": legi.AJOUTE,
+                                "article_loi": article["numero"]})
+            if not actions:
+                continue
             ranger(base, article)
             for action in actions:
                 base.execute(

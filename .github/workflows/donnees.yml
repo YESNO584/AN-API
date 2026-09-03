@@ -87,12 +87,23 @@ jobs:
       # un socle de 1,1 Go — quinze minutes, mesurées — et n'a pas à être
       # refaite : seules les archives quotidiennes de 1 à 4 Mo s'y ajoutent
       # ensuite. Sans ce cache, on relirait le socle chaque matin pour rien.
+      #
+      # **L'empreinte des règles fait partie de la clé, et c'est indispensable.**
+      # La base ne garde que ce que les règles retenaient le jour où elle a été
+      # remplie : changer `legi.py` sans jeter le cache laisserait en ligne une
+      # base d'hier, à qui les nouvelles règles ne s'appliqueraient plus qu'aux
+      # archives du jour. Constaté en ajoutant les articles propres des lois le
+      # 2026-09-03 : le correctif n'aurait rien changé pour les lois anciennes.
+      # Avec l'empreinte, une modification des règles refait la passe complète
+      # une fois, toute seule — personne n'a à y penser.
       - name: Retrouver le droit consolidé de la veille
         uses: actions/cache@v4
+        env:
+          REGLES: ${{ hashFiles('socle/legi.py', 'socle/recuperer_legi.py') }}
         with:
           path: socle/legi.db
-          key: legi-${{ github.run_id }}
-          restore-keys: legi-
+          key: legi-${{ env.REGLES }}-${{ github.run_id }}
+          restore-keys: legi-${{ env.REGLES }}-
 
       # Facultatif, et volontairement : sans lui, tout le reste se publie et
       # l'application n'affiche simplement pas ce que les lois changent. Une

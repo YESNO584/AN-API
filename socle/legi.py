@@ -8,6 +8,14 @@ nouvelle rédaction *et* garde l'ancienne. On peut donc superposer les deux et
 montrer exactement ce qui change. Le raccordement avec nos dossiers est direct :
 chaque rédaction porte le numéro de la loi qui l'a produite.
 
+**Ce qu'on cherche aussi, depuis le 2026-09-03 : ce qu'une loi ajoute.** Ses
+propres articles. Ils n'ont pas d'« avant » — il n'y a donc rien à superposer —
+mais ils sont du droit nouveau, et les taire donnait une réponse absurde : une
+loi de finances de fin de gestion, dont presque toute la matière est dans ses
+propres articles, s'affichait comme ne changeant que deux articles. La source
+les publie, avec leur texte ; c'est le rapprochement qui manquait. Voir
+`AJOUTE`, `loi_qui_porte` et `est_un_ajout`.
+
 **Ce qu'on ne cherche pas.** Les liens `CITATION` : la loi cite l'article sans y
 toucher. Ils sont deux fois plus nombreux que les vraies modifications (5 520
 contre 2 711, mesuré le 2026-09-01) — les compter ferait dire n'importe quoi à
@@ -29,6 +37,43 @@ DEPOT_LEGI = "https://echanges.dila.gouv.fr/OPENDATA/LEGI/"
 # Ce qu'une loi peut faire à un article. `CITATION` n'y est pas, exprès.
 CHANGEMENTS = ("MODIFIE", "CREE", "ABROGE", "TRANSFERE", "DEPLACE")
 
+# Ce qu'une loi **ajoute** : ses propres articles. `AJOUTE` est notre mot, pas
+# celui de LEGI — et c'est précisément pourquoi on ratait ces articles.
+#
+# Un lien de changement est porté par l'article **visé**, à la forme verbale
+# (`MODIFIE`, `CREE`) et avec le numéro de la loi qui a agi. Un article de loi
+# n'en porte jamais : rien n'a agi sur lui, c'est lui qui agit. Ce qu'il porte,
+# c'est la forme *nominale* (`MODIFICATION`, `CREATION`) sans numéro de texte.
+# La source ne relie donc pas un article à sa propre loi par un lien : elle le
+# **range dedans**, et cela se lit dans `CONTEXTE` (voir `loi_qui_porte`).
+#
+# Mesuré le 2026-09-03 sur deux archives quotidiennes : 642 articles hors code,
+# **aucun** portant un lien de changement venant de sa propre loi.
+AJOUTE = "AJOUTE"
+
+# Ce que la source annonce d'un article de loi (balise `TYPE`) : `AUTONOME`,
+# `PARTIELLEMENT_MODIF`, `ENTIEREMENT_MODIF`. Mesuré le 2026-09-03 sur 667
+# articles de loi : 48 %, 16 % et 36 %.
+#
+# **Ce `TYPE` ne décide de rien, et s'y fier était une erreur — deux fois.**
+# Un `PARTIELLEMENT_MODIF` peut n'être fait que de renvois (8 des 87 premiers
+# articles retenus n'affichaient qu'une liste de références : article 82 de la
+# loi 2025-127, article 44 de la loi 2026-725). Et un `ENTIEREMENT_MODIF` peut
+# porter du droit bien réel : l'article 32 de la loi 2026-201 est annoncé comme
+# n'amendant que d'autres textes, et 92 % de son contenu est une servitude au
+# profit des jeux Olympiques d'hiver. Le seul juge est donc le **texte**, une
+# fois les renvois retirés — voir `sans_les_renvois`.
+#
+# Il reste une chose que le `TYPE` sait et que le texte ne dit pas : qu'un
+# article *fera* des renvois et rien d'autre. Utile pour les seuls articles
+# dont la source n'a pas encore saisi le texte — les annoncer aujourd'hui pour
+# les voir disparaître demain ne rendrait service à personne.
+TYPE_SANS_TEXTE = "ENTIEREMENT_MODIF"
+
+# La phrase par laquelle la source remplace un texte qu'elle n'a pas encore
+# saisi. Voir `est_en_attente`.
+EN_COURS = "en cours de traitement"
+
 # LEGI marque la fin des rédactions en vigueur par une date sentinelle.
 SANS_FIN = "2999-01-01"
 # Et par une autre — le 22 février 2222 — les dates **non encore fixées** :
@@ -43,6 +88,7 @@ _ATTRIBUT = re.compile(r'(\w+)="([^"]*)"')
 _LIEN_ART = re.compile(r"<LIEN_ART\b[^>]*>")
 _LIEN = re.compile(r"<LIEN\b[^>]*>")
 _TITRE_TXT = re.compile(r"<TITRE_TXT\b([^>]*)>")
+_TEXTE = re.compile(r"<TEXTE\b([^>]*)>")
 
 
 # ---------------------------------------------------------------------------
@@ -127,7 +173,8 @@ def est_mort_ne(etat: str) -> bool:
     return etat.endswith("MORT_NE")
 
 
-def version_precedente(toutes: list[dict[str, str]], debut: str) -> str | None:
+def version_precedente(toutes: list[dict[str, str]], debut: str,
+                       soi: str | None = None) -> str | None:
     """La rédaction d'« avant » : celle qui se termine quand la nôtre commence.
 
     C'est **la** règle du module, et la règle évidente est fausse. Prendre
@@ -137,11 +184,147 @@ def version_precedente(toutes: list[dict[str, str]], debut: str) -> str | None:
     de texte commun — un avant/après spectaculaire et faux. Avec la règle
     ci-dessous : 97 %, et rien ne change pour les six autres articles de la
     même loi (mesuré le 2026-09-01).
+
+    Deux autres pièges, trouvés le 2026-09-03 en cherchant les articles propres
+    des lois. Les deux viennent de la date sentinelle `2999-01-01` :
+
+    - **elle n'est pas une frontière.** Un article dont l'entrée en vigueur
+      n'est pas encore fixée la porte en `debut` *et* en `fin`. « Celle qui
+      finit quand la nôtre commence » désigne alors n'importe quelle rédaction
+      encore en vigueur — or une rédaction qui n'a pas commencé n'a pas d'avant ;
+    - **un article n'est pas sa propre rédaction d'avant.** Dans ce même cas,
+      la liste des versions contient l'article lui-même, avec `fin == debut`.
+      Sans le contrôle `soi`, **61 des 130 articles** des lois d'août 2026 se
+      donnaient eux-mêmes pour leur « avant ».
+
+    `soi` est l'identifiant de l'article dont on cherche l'avant. Il est
+    facultatif pour ne pas casser les appels qui ne l'ont pas, mais
+    `lire_article` le passe toujours.
     """
+    if debut == SANS_FIN:
+        return None
     for version in toutes:
-        if version.get("fin") == debut and not est_mort_ne(version.get("etat", "")):
+        if (version.get("fin") == debut and version.get("id") != soi
+                and not est_mort_ne(version.get("etat", ""))):
             return version.get("id")
     return None
+
+
+# La phrase par laquelle un article de loi annonce qu'il en amende un autre.
+# Elle vient toujours seule dans son `<p>`, suivie d'un `<blockquote>` qui
+# porte la liste des articles visés. Les cinq verbes sont ceux de Légifrance.
+_ANNONCE_RENVOI = re.compile(
+    r"\ba\s+(?:modifié|créé|abrogé|transféré|déplacé)\s+les\s+dispositions"
+    r"\s+(?:suivantes|ci-après)", re.I)
+# Le plus imbriqué d'abord : un `<blockquote>` en contient un autre, et une
+# expression non gourmande s'arrêterait sur la fermeture de l'intérieur.
+_BLOCKQUOTE = re.compile(r"<blockquote>(?:(?!<blockquote>).)*?</blockquote>", re.S)
+
+
+def sans_les_renvois(bloc: str) -> str:
+    """Le texte d'un article de loi, débarrassé de ce qui n'est pas à lire.
+
+    Un article de loi mêle deux choses : des phrases de droit, et des
+    **renvois** — « I. - A modifié les dispositions suivantes : - Code rural
+    Art. L230-5-1 ». Le renvoi n'est pas du texte : c'est l'instruction, dont
+    le résultat est déjà à l'écran sous forme de l'article de code modifié. Le
+    garder afficherait deux fois la même chose, dont une fois en liste de
+    références illisible.
+
+    La source le dit par sa **structure**, et c'est ce qu'on suit : le renvoi
+    est un `<p>` d'annonce suivi d'un `<blockquote>`. Une règle sur le texte
+    seul se trompait — « I. A modifié… » ne commence pas par le verbe, et
+    « les dispositions suivantes » peut apparaître dans une vraie phrase.
+
+    Rend la chaîne vide quand il ne reste rien : l'article n'a alors rien à
+    montrer. C'est ce qui écarte l'article 82 de la loi 2025-127, fait de dix
+    renvois et de rien d'autre, tout en gardant le III de l'article 8 de la
+    loi 2026-796, seule phrase de droit au milieu de trois renvois.
+
+    **Ne s'applique qu'aux articles d'une loi.** Un article de code n'est
+    jamais nettoyé : ce qu'on en montre sert à une comparaison, et en retirer
+    un morceau la ferait mentir.
+    """
+    ancien = None
+    while ancien != bloc:
+        ancien, bloc = bloc, _BLOCKQUOTE.sub("", bloc)
+    gardes = [propre for morceau in bloc.split("</p>")
+              if (propre := nettoyer(morceau)) and not _ANNONCE_RENVOI.search(propre)]
+    return normaliser(" ".join(gardes))
+
+
+def support(xml: str) -> dict[str, str]:
+    """Le texte qui **porte** cet article : sa nature, son numéro, son identifiant.
+
+    C'est le seul endroit où un article dit à quelle loi il appartient :
+
+        <TEXTE nature="LOI" num="2026-796" cid="JORFTEXT000054707007" …>
+
+    Le renseignement est donc direct — aucun rapprochement par titre.
+    """
+    trouve = _TEXTE.search(champ(xml, "CONTEXTE"))
+    return attributs(trouve.group(1)) if trouve else {}
+
+
+def loi_qui_porte(xml: str) -> str | None:
+    """Le numéro de la loi dont cet article est un article, s'il en est un.
+
+    Deux précautions, nécessaires l'une et l'autre :
+
+    - **la nature avant le numéro.** Un décret porte un numéro de la même forme
+      qu'une loi — « Décret n°2005-850 du 27 juillet 2005 ». Se fier au seul
+      numéro confondrait les deux ;
+    - **les lois organiques comptent.** Leur nature est `LOI_ORGANIQUE`, d'où
+      le préfixe plutôt qu'une égalité. Le projet en suit une (loi 2024-1177).
+
+    Natures rencontrées le 2026-09-03 sur 8 274 articles : `CODE` 6 972,
+    `LOI` 670, `ARRETE` 409, `DECRET` 171, `ORDONNANCE` 36, `CONSTITUTION` 14,
+    `LOI_ORGANIQUE` 2.
+    """
+    porteur = support(xml)
+    if not porteur.get("nature", "").startswith("LOI"):
+        return None
+    return porteur.get("num") or None
+
+
+def est_un_ajout(xml: str, precedent: str | None) -> bool:
+    """Cet article est-il l'un de ceux que sa loi a écrits, et y a-t-il à lire ?
+
+    Deux conditions, et il faut les deux.
+
+    **L'absence de rédaction d'avant.** Elle écarte les rédactions
+    *ultérieures* du même article. Toutes les rédactions d'un article nomment
+    le même porteur : sans ce garde-fou, la rédaction de l'article 156 de la
+    loi de finances pour 2024 telle que **la loi de fin de gestion l'a
+    modifiée** s'afficherait comme un article que la loi de finances a écrit —
+    alors qu'elle ne l'a pas même produite. Un article de loi vient jusqu'à six
+    rédactions successives (article 31 de la loi n° 78-17).
+
+    **Du texte qui reste une fois les renvois retirés.** C'est le seul juge de
+    ce qu'il y a à lire ; le `TYPE` annoncé par la source se trompe dans les
+    deux sens (voir `TYPE_SANS_TEXTE`).
+
+    **Sauf un cas, où le `TYPE` sait quelque chose de plus que le texte** : un
+    article qui ne fera que des renvois, et dont la source n'a pas encore saisi
+    le texte. On sait déjà qu'il n'y aura rien à lire.
+    """
+    if precedent:
+        return False
+    utile = sans_les_renvois(champ(xml, "BLOC_TEXTUEL"))
+    if not utile:
+        return False
+    return not (est_en_attente(utile) and champ(xml, "TYPE") == TYPE_SANS_TEXTE)
+
+
+def est_en_attente(texte: str | None) -> bool:
+    """La source a publié l'article sans avoir encore saisi son texte.
+
+    Mesuré le 2026-09-03 : **69 des 138 articles** de la loi 2026-798,
+    promulguée la veille, portent « en cours de traitement » à la place de leur
+    texte. Le dire vaut mieux que d'afficher cette phrase comme si c'était la
+    loi, et mieux que de faire disparaître un article qui existe.
+    """
+    return (texte or "").strip().lower().startswith(EN_COURS)
 
 
 def changements(xml: str) -> list[dict[str, str]]:
@@ -177,18 +360,27 @@ def ou_se_trouve(xml: str, debut: str) -> str:
 def lire_article(xml: str) -> dict:
     """Tout ce qu'on retient d'une rédaction d'article."""
     debut = champ(xml, "DATE_DEBUT")
-    toutes = versions(xml)
+    identifiant = champ(champ(xml, "META_COMMUN"), "ID")
+    precedent = version_precedente(versions(xml), debut, identifiant)
+    bloc = champ(xml, "BLOC_TEXTUEL")
+    ajout = est_un_ajout(xml, precedent)
     return {
-        "id": champ(champ(xml, "META_COMMUN"), "ID"),
+        "id": identifiant,
         "numero": normaliser(champ(xml, "NUM")),
         "ou": ou_se_trouve(xml, debut),
         "etat": champ(xml, "ETAT"),
         "debut": debut,
         "fin": champ(xml, "DATE_FIN"),
-        "texte": nettoyer(champ(xml, "BLOC_TEXTUEL")),
+        # Un article que la loi a écrit se montre sans ses renvois ; un article
+        # de code se montre entier, parce qu'il sera comparé.
+        "texte": sans_les_renvois(bloc) if ajout else nettoyer(bloc),
         "nota": nettoyer(champ(xml, "NOTA")),
-        "precedent": version_precedente(toutes, debut),
+        "precedent": precedent,
         "changements": changements(xml),
+        # La loi dont cet article **est** un article — à ne pas confondre avec
+        # celles qui l'ont changé, qui sont dans `changements`.
+        "loi_porteuse": loi_qui_porte(xml),
+        "ajout": ajout,
     }
 
 

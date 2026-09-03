@@ -423,6 +423,7 @@
   .resume-change .tuile span { display: block; font-size: .66rem; color: var(--gris);
                                margin-top: .1rem; }
   .resume-change .tuile.CREE b { color: var(--ok); }
+  .resume-change .tuile.AJOUTE b { color: var(--ok); }
   .resume-change .tuile.ABROGE b { color: var(--accent); }
 
   .code-groupe { background: var(--carte); border: 1px solid var(--trait);
@@ -455,6 +456,9 @@
                padding: .14rem .4rem; border-radius: 5px; flex: 0 0 auto;
                background: var(--doux); color: var(--gris); }
   .art .quoi.CREE { background: var(--ajoute-fond); color: var(--ajoute); }
+  /* Un article que la loi a écrit : du texte en plus, comme un article créé
+     dans un code — même couleur, mot différent. */
+  .art .quoi.AJOUTE { background: var(--ajoute-fond); color: var(--ajoute); }
   .art .quoi.ABROGE { background: var(--retire-fond); color: var(--retire); }
   .art .nom { flex: 1; min-width: 0; }
   .art .nom b { display: block; font-size: .88rem; font-weight: 620; }
@@ -1427,15 +1431,50 @@ const POURQUOI_SANS_CHANGEMENT = {
     "ce texte autorise la ratification d'un traité",
 };
 
+// « l'article » ou « les 12 articles ». L'accord se fait ici, une fois : les
+// libellés écrivaient « les 1 article », qui se lit comme une faute.
+function combienDArticles(n) {
+  return n === 1 ? "l'article" : `les ${nb.format(n)} articles`;
+}
+
+// Le bouton qui mène au détail. Son libellé dit les deux choses séparément :
+// ce que la loi change dans le droit d'avant, et ce qu'elle y ajoute. Les
+// additionner ferait un chiffre que rien à l'écran ne recoupe.
+function boutonChange(t, change, ajouts) {
+  const libelle = change && ajouts
+    ? `Voir ${combienDArticles(change)} qu'elle change et `
+      + `${combienDArticles(ajouts)} qu'elle ajoute ›`
+    : change ? `Voir ${combienDArticles(change)} que cette loi change ›`
+    : `Voir ${combienDArticles(ajouts)} que cette loi ajoute ›`;
+  const bouton = el("button", "lien-change", libelle);
+  bouton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    location.hash = "#/change/" + t.uid;
+  });
+  return bouton;
+}
+
 function ceQueLaLoiChange(t) {
   if (ETAT.droitConsolideIndisponible) return [];
   const blocs = [];
   const c = t.change;
-  if (!c || !c.total) {
+  const ajouts = (c && c.ajouts) || 0;
+  if (!c || (!c.total && !ajouts)) {
     const raison = POURQUOI_SANS_CHANGEMENT[t.type];
     blocs.push(el("p", "sans-change",
       "Ne modifie aucun article de loi existante"
       + (raison ? " — " + raison + "." : ".")));
+    return blocs;
+  }
+  // Une loi peut n'amender aucun texte d'avant et pourtant écrire du droit :
+  // c'est le cas des lois de finances, dont presque toute la matière tient
+  // dans leurs propres articles. Le dire, plutôt que d'afficher « ne modifie
+  // rien » et s'arrêter là.
+  if (!c.total) {
+    blocs.push(el("p", "sans-change",
+      "Ne modifie aucun article de loi existante — tout son droit tient dans "
+      + "ses propres articles."));
+    blocs.push(boutonChange(t, 0, ajouts));
     return blocs;
   }
 
@@ -1475,13 +1514,7 @@ function ceQueLaLoiChange(t) {
                      + `le ${dateLongue.format(enDate(d.date))}`).join("\n")));
   blocs.push(boite);
 
-  const bouton = el("button", "lien-change",
-    `Voir les ${nb.format(c.total)} article${c.total > 1 ? "s" : ""} que cette loi change ›`);
-  bouton.addEventListener("click", (e) => {
-    e.stopPropagation();
-    location.hash = "#/change/" + t.uid;
-  });
-  blocs.push(bouton);
+  blocs.push(boutonChange(t, c.total, ajouts));
   return blocs;
 }
 
@@ -2476,18 +2509,32 @@ async function ouvrirChangements(uid) {
 
   const texte = TEXTES.find((x) => x.uid === uid);
   f.append(el("h2", "fiche-titre", texte ? texte.titre : "Ce que cette loi change"));
+  const ajouts = d.articlesAjoutes || [];
   const sous = el("p", "fiche-sous",
-    (d.loi ? "LOI n° " + d.loi + " — " : "") + "ce qu'elle change au droit.");
+    (d.loi ? "LOI n° " + d.loi + " — " : "")
+    + (ajouts.length ? "ce qu'elle change au droit, et ce qu'elle y ajoute."
+                     : "ce qu'elle change au droit."));
   f.append(sous);
 
   // Le résumé : combien d'articles modifiés, créés, abrogés. Un compte, pas
-  // une appréciation.
+  // une appréciation. La quatrième tuile ne s'affiche que si la loi a écrit
+  // ses propres articles — annoncer un zéro pour toutes les autres lois
+  // ferait chercher un chiffre qui n'a rien à dire.
   const actions = d.actions || {};
   const resume = el("div", "resume-change");
-  for (const [cle, nom] of [["MODIFIE", "modifiés"], ["CREE", "créés"],
-                            ["ABROGE", "abrogés"]]) {
+  // Les trois premières restent même à zéro : un « 0 abrogés » se lit, et la
+  // rangée garde la même forme d'une loi à l'autre. Mais une loi qui n'amende
+  // rien n'a aucune raison d'afficher trois zéros — elle n'a que ses propres
+  // articles à montrer.
+  const tuiles = (d.groupes || []).length
+    ? [["MODIFIE", "modifiés", actions.MODIFIE || 0],
+       ["CREE", "créés", actions.CREE || 0],
+       ["ABROGE", "abrogés", actions.ABROGE || 0]]
+    : [];
+  if (ajouts.length) tuiles.push(["AJOUTE", "nouveaux", ajouts.length]);
+  for (const [cle, nom, valeur] of tuiles) {
     const tuile = el("div", "tuile " + cle);
-    tuile.append(el("b", null, nb.format(actions[cle] || 0)), el("span", null, nom));
+    tuile.append(el("b", null, nb.format(valeur)), el("span", null, nom));
     resume.append(tuile);
   }
   f.append(resume);
@@ -2523,9 +2570,35 @@ async function ouvrirChangements(uid) {
     f.append(boite);
   }
 
+  // Ce que la loi **ajoute** : ses propres articles. Une liste à part, parce
+  // qu'ils n'ont pas d'avant — il n'y a rien à superposer, seulement un texte
+  // à lire. Les mêler aux articles changés obligerait à afficher une « part
+  // de texte changé » qui ne veut rien dire pour un article neuf.
+  if (ajouts.length) {
+    const boite = el("details", "code-groupe");
+    // Le même seuil que les groupes d'articles changés, pour la même raison :
+    // sur un texte qui touche à vingt codes, tout déplier noie l'écran ; sur
+    // une loi de finances, qui n'en change que deux, replier ses propres
+    // articles reviendrait à cacher toute sa matière.
+    boite.open = (d.groupes || []).length <= 3;
+    const titre = el("summary");
+    const zone = el("div");
+    zone.append(el("b", null, "Ce que cette loi ajoute"));
+    zone.append(el("i", null,
+      `${nb.format(ajouts.length)} article${ajouts.length > 1 ? "s" : ""} `
+      + `qu'elle a écrit${ajouts.length > 1 ? "s" : ""}`));
+    titre.append(zone);
+    boite.append(titre);
+    for (const a of ajouts) boite.append(ligneArticle(uid, a));
+    f.append(boite);
+  }
+
   f.append(el("p", "avertissement",
     "Les articles que la loi se contente de citer ne sont pas comptés ici : "
-    + "elle n'y touche pas."));
+    + "elle n'y touche pas."
+    + (ajouts.length ? " Et les articles par lesquels elle ne fait qu'en "
+                     + "modifier d'autres non plus : leur contenu est déjà "
+                     + "montré, sous forme des articles qu'ils changent." : "")));
 }
 
 function ligneArticle(uid, a, retouche = false) {
@@ -2539,6 +2612,10 @@ function ligneArticle(uid, a, retouche = false) {
   // met le code à la place — c'est ce qui manque quand la liste est à plat.
   nom.append(el("span", null,
     retouche ? a.ou
+    // La source publie parfois l'article avant d'en avoir saisi le texte.
+    // Annoncer « 4 mots, texte nouveau » ferait passer sa phrase d'attente
+    // pour de la loi.
+    : a.enAttente ? "texte pas encore publié par la source"
     : a.commun !== null ? `${100 - a.commun} % du texte a changé`
     : a.avant === "manquant" ? "rédaction précédente non retrouvée"
     : `${nb.format(a.mots)} mot${a.mots > 1 ? "s" : ""}, texte nouveau`));
@@ -2586,6 +2663,9 @@ function dessinerArticle(f, retour, uid, a) {
   // ce qui s'est passé.
   const verbe = a.quoi === "ABROGE" ? "abrogé"
               : a.quoi === "CREE" ? "créé"
+              // Un article que la loi a écrit pour elle-même : il n'est pas
+              // « en vigueur » à la place d'un autre, il est nouveau.
+              : a.quoi === "AJOUTE" ? "article de cette loi, en vigueur"
               : "rédaction en vigueur";
   // Sans date, ce n'est pas qu'on l'ignore : la loi renvoie à un décret qui
   // n'est pas paru. Le dire vaut mieux que de se taire.
@@ -2594,11 +2674,20 @@ function dessinerArticle(f, retour, uid, a) {
   f.append(el("p", "fiche-sous", (a.ou || "") + " — " + verbe + quand));
 
   const neuf = a.commun === null;
-  if (neuf) {
+  if (a.enAttente) {
+    f.append(el("p", "nota",
+      "La source a publié cet article sans encore en saisir le texte. La "
+      + "phrase ci-dessous est la sienne, en attendant : ce n'est pas le texte "
+      + "de la loi. Il arrivera dans une prochaine mise à jour du droit "
+      + "consolidé."));
+  } else if (neuf) {
     f.append(el("p", "nota", a.avant === "manquant"
       ? "La rédaction précédente de cet article n'a pas été retrouvée dans les "
         + "archives lues : le texte ci-dessous est celui en vigueur, sans "
         + "comparaison possible."
+      : a.quoi === "AJOUTE"
+      ? "Cet article est l'un de ceux que la loi a écrits. Il n'a pas de "
+        + "rédaction précédente : il n'existait pas avant elle."
       : "La loi a créé cet article : il n'a pas de rédaction précédente à lui "
         + "superposer."));
   }

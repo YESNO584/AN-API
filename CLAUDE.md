@@ -72,8 +72,26 @@ a pas encore d'application, de base de données ni de dépendances.
   celle-ci contient des rédactions **mort-nées**, votées mais jamais entrées en
   vigueur (une datée du 22 février 2222 faisait tomber une comparaison à 13 %
   au lieu de 97 %). La bonne règle est « celle qui se termine quand la nôtre
-  commence, mort-nées écartées ». Et **une citation n'est pas un changement** :
-  une loi cite deux fois plus d'articles qu'elle n'en modifie.
+  commence, mort-nées écartées » — **et ni la date sentinelle `2999-01-01`, ni
+  l'article lui-même** : un article dont l'entrée en vigueur n'est pas fixée la
+  porte en début et en fin, et se donnait pour son propre « avant » (61 articles
+  sur 130 en août 2026). Et **une citation n'est pas un changement** : une loi
+  cite deux fois plus d'articles qu'elle n'en modifie.
+- **Une loi ne fait pas que changer le droit : elle écrit ses propres
+  articles.** On les ratait tous — 0 sur 5 880 — et la fiche d'une loi de
+  finances de fin de gestion en devenait absurde. La source les publie pourtant,
+  avec leur texte, et chaque article nomme sa loi dans son `CONTEXTE`
+  (`nature="LOI" num="2026-796"`). Ce qui manquait était le rapprochement :
+  **aucun lien ne relie un article à sa propre loi**, parce qu'un lien de
+  changement est porté par l'article *visé*. Ils s'affichent à part — ils n'ont
+  pas d'avant, donc rien à superposer. Détail et chiffres dans
+  `socle/README.md`, § « Ce qu'une loi ajoute ».
+- **Le `TYPE` que la source donne à un article de loi ne décide de rien.** Il
+  se trompe dans les deux sens : un `PARTIELLEMENT_MODIF` peut n'être fait que
+  de renvois (« A modifié les dispositions suivantes : … »), et un
+  `ENTIEREMENT_MODIF` peut porter du droit bien réel. Ce qui tranche est le
+  texte une fois les renvois retirés, et les renvois se reconnaissent à la
+  **structure** de la source, pas à ses mots (`legi.sans_les_renvois`).
 - **Une page web ne peut pas aller chercher ces données elle-même** — les
   portails n'envoient pas l'en-tête `Access-Control-Allow-Origin`. Toute
   maquette autonome passe donc par une préparation hors ligne.
@@ -121,12 +139,20 @@ a pas encore d'application, de base de données ni de dépendances.
 | Code rules | `cd .claude/scripts && ./code_rule_report.py` | `.claude/reports/code_rule_audit.html` |
 | Code rules, one unit | `cd .claude/scripts && ./code_rule_checker.py <unit_id>` | console |
 | Unit discovery | `cd .claude/scripts && ./discover_units.py` | console |
+| Les tests du droit consolidé voient-ils casser les règles ? | `cd .claude/scripts && ./mutations_legi.py` | console |
 
 **When it MUST be run:** before any commit that adds or changes source files,
 and again before opening a pull request. It is not wired into a git hook —
 nothing runs it for you.
 
-**Caveat that outranks the table:** the checker matches `**/*.cs` only, so
+**`mutations_legi.py` est le seul de ces trois qui mesure quelque chose de
+réel** aujourd'hui : il défait une à une les règles de `socle/legi.py` et exige
+qu'un test nommé le voie. À lancer après toute modification de ces règles, et à
+tenir à jour — un motif introuvable y est signalé comme un manque. Il a trouvé
+deux vrais trous le 2026-09-03, dont **un test qui passait avec ou sans la règle
+qu'il prétendait vérifier** (la mort-née venait après la vraie dans son décor).
+
+**Caveat that outranks the table:** the code-rules checker matches `**/*.cs` only, so
 until `.claude/code_rules.json` is mined against real code it will report
 "0 findings" on a non-C# codebase. A clean run from an unmined rules file is
 not evidence of clean code — it is evidence that nothing was checked.

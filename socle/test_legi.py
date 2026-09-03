@@ -18,7 +18,7 @@ import legi
 
 def article(identifiant="LEGIARTI000000000001", numero="L401-1", debut="2026-09-01",
             fin=legi.SANS_FIN, etat="VIGUEUR", texte="<p>Le texte.</p>",
-            contexte=None, versions=(), liens=(), nota=""):
+            contexte=None, versions=(), liens=(), nota="", type_article=""):
     """Un fichier d'article LEGI, réduit à ce que le module lit."""
     if contexte is None:
         contexte = ('<TEXTE nature="CODE"><TITRE_TXT c_titre_court="Code de l\'éducation" '
@@ -33,6 +33,7 @@ def article(identifiant="LEGIARTI000000000001", numero="L401-1", debut="2026-09-
         f"<META><META_COMMUN><ID>{identifiant}</ID></META_COMMUN><META_SPEC>"
         f"<META_ARTICLE><NUM>{numero}</NUM><ETAT>{etat}</ETAT>"
         f"<DATE_DEBUT>{debut}</DATE_DEBUT><DATE_FIN>{fin}</DATE_FIN>"
+        f"<TYPE>{type_article}</TYPE>"
         "</META_ARTICLE></META_SPEC></META>"
         f"<CONTEXTE>{contexte}</CONTEXTE>"
         f"<VERSIONS>{lignes_versions}</VERSIONS>"
@@ -61,11 +62,25 @@ class LaVersionPrecedente(unittest.TestCase):
         a été votée mais n'est jamais entrée en vigueur. La retenir faisait
         tomber la part de texte commun à 13 % ; l'écarter la remonte à 97 %
         (mesuré le 2026-09-01).
+
+        **La mort-née vient avant la vraie dans la liste, et c'est le point du
+        test.** Écrite dans l'autre ordre, la boucle rendait la vraie avant
+        d'avoir vu la mort-née : le test passait avec ou sans la règle qu'il
+        prétendait vérifier. Trouvé par mutation le 2026-09-03 — la règle était
+        bonne, le décor du test ne la mettait jamais à l'épreuve.
         """
-        toutes = [version("VRAIE", "2024-02-17", "2026-08-26"),
-                  version("MORTE", "2222-02-22", "2026-08-26", "MODIFIE_MORT_NE"),
+        toutes = [version("MORTE", "2222-02-22", "2026-08-26", "MODIFIE_MORT_NE"),
+                  version("VRAIE", "2024-02-17", "2026-08-26"),
                   version("NOTRE", "2026-08-26", legi.SANS_FIN, "VIGUEUR")]
         self.assertEqual(legi.version_precedente(toutes, "2026-08-26"), "VRAIE")
+
+    def test_une_mort_nee_seule_ne_tient_pas_lieu_de_avant(self):
+        """S'il n'y a qu'elle, il n'y a pas d'avant — et l'écran doit dire
+        « rédaction précédente non retrouvée », pas montrer une rédaction qui
+        n'a jamais existé en droit."""
+        toutes = [version("MORTE", "2222-02-22", "2026-08-26", "MODIFIE_MORT_NE"),
+                  version("NOTRE", "2026-08-26", legi.SANS_FIN, "VIGUEUR")]
+        self.assertIsNone(legi.version_precedente(toutes, "2026-08-26"))
 
     def test_l_ordre_de_la_liste_ne_compte_pas(self):
         """La liste `<VERSIONS>` n'est pas chronologique : constaté sur ce même
@@ -77,6 +92,57 @@ class LaVersionPrecedente(unittest.TestCase):
     def test_un_article_cree_n_a_pas_de_avant(self):
         toutes = [version("NEUF", "2026-09-01", legi.SANS_FIN, "VIGUEUR")]
         self.assertIsNone(legi.version_precedente(toutes, "2026-09-01"))
+
+    def test_un_article_n_est_pas_sa_propre_redaction_d_avant(self):
+        """Le piège de la date sentinelle, trouvé le 2026-09-03.
+
+        Un article dont l'entrée en vigueur n'est pas fixée porte `2999-01-01`
+        en début **et** en fin, et la liste des versions le contient lui-même.
+        « Celle qui finit quand la nôtre commence » le désignait donc lui.
+        61 des 130 articles des lois d'août 2026 étaient dans ce cas.
+        """
+        toutes = [version("MOI", legi.SANS_FIN, legi.SANS_FIN, ""),
+                  version("JORF", legi.SANS_FIN, legi.SANS_FIN, "")]
+        self.assertIsNone(legi.version_precedente(toutes, legi.SANS_FIN, "MOI"))
+
+    def test_un_article_ne_se_designe_pas_meme_avec_une_vraie_date(self):
+        """Le refus de la sentinelle ne suffit pas à couvrir le cas.
+
+        Une rédaction peut commencer et finir le même jour — en vigueur zéro
+        jour. Elle figure alors dans sa propre liste avec `fin == debut`, sans
+        que la sentinelle entre en jeu. Trouvé par mutation le 2026-09-03 :
+        les deux tests écrits pour ce garde-fou passaient tous les deux par le
+        refus de la sentinelle, et le garde-fou lui-même n'était pas testé.
+        """
+        toutes = [version("MOI", "2026-03-01", "2026-03-01", "MODIFIE"),
+                  version("AVANT", "2020-01-01", "2026-03-01", "MODIFIE")]
+        self.assertEqual(legi.version_precedente(toutes, "2026-03-01", "MOI"),
+                         "AVANT")
+
+    def test_sans_autre_candidate_il_n_y_a_pas_d_avant(self):
+        """Même cas, mais seule : ne rien rendre plutôt que soi-même."""
+        toutes = [version("MOI", "2026-03-01", "2026-03-01", "MODIFIE")]
+        self.assertIsNone(legi.version_precedente(toutes, "2026-03-01", "MOI"))
+
+    def test_la_sentinelle_de_fin_n_est_pas_une_frontiere(self):
+        """Une rédaction qui n'a pas commencé n'a pas d'avant, même si une autre
+        rédaction « finit » à la sentinelle — c'est-à-dire ne finit pas."""
+        toutes = [version("EN_VIGUEUR", "2020-01-01", legi.SANS_FIN, "VIGUEUR"),
+                  version("MOI", legi.SANS_FIN, legi.SANS_FIN, "")]
+        self.assertIsNone(legi.version_precedente(toutes, legi.SANS_FIN, "MOI"))
+
+    def test_le_garde_fou_ne_gene_pas_le_cas_normal(self):
+        """Une vraie date, un vrai avant : `soi` ne doit rien changer."""
+        toutes = [version("AVANT", "2019-09-02", "2026-09-01"),
+                  version("MOI", "2026-09-01", legi.SANS_FIN, "VIGUEUR")]
+        self.assertEqual(legi.version_precedente(toutes, "2026-09-01", "MOI"), "AVANT")
+
+    def test_lire_article_passe_son_propre_identifiant(self):
+        """La correction ne vaut que si `lire_article` s'en sert."""
+        xml = article(identifiant="MOI", debut=legi.SANS_FIN, fin=legi.SANS_FIN,
+                      etat="", versions=[version("MOI", legi.SANS_FIN,
+                                                 legi.SANS_FIN, "")])
+        self.assertIsNone(legi.lire_article(xml)["precedent"])
 
     def test_les_deux_familles_de_mort_nes_sont_ecartees(self):
         self.assertTrue(legi.est_mort_ne("MODIFIE_MORT_NE"))
@@ -445,6 +511,168 @@ class UneArchiveTronquee(unittest.TestCase):
     def test_un_fichier_qui_n_est_pas_une_archive_est_refuse(self):
         with self.assertRaises((tarfile.TarError, EOFError)):
             list(legi.parcourir_archive(io.BytesIO(b"<html>404</html>")))
+
+
+# Un renvoi tel que Légifrance l'écrit : une annonce, puis la liste des
+# articles visés dans un `<blockquote>` imbriqué.
+RENVOI = ("<p>A modifié les dispositions suivantes :</p>"
+          "<blockquote>- Code rural et de la pêche maritime<blockquote>"
+          " Art. L230-5-1, Art. L230-5-6</blockquote></blockquote>")
+
+
+def loi(numero="2026-796", titre=None, nature="LOI", debut="2026-08-20"):
+    """Le `CONTEXTE` d'un article porté par une loi, et non par un code."""
+    titre = titre or f"LOI n°{numero} du 18 août 2026"
+    return (f'<TEXTE nature="{nature}" num="{numero}" nor="AGRS2603566L" '
+            f'cid="JORFTEXT000054707007"><TITRE_TXT c_titre_court="{titre}" '
+            f'debut="{debut}" fin="{legi.SANS_FIN}">{titre}</TITRE_TXT></TEXTE>')
+
+
+class CeQueLaLoiAjoute(unittest.TestCase):
+    """Les articles qu'une loi écrit pour elle-même.
+
+    On les ratait entièrement : 0 sur les 5 880 articles publiés pour les 72
+    lois suivies, alors que la source les publie avec leur texte. La cause
+    était une confusion de vocabulaire — voir `legi.AJOUTE`.
+    """
+
+    def test_un_article_dit_a_quelle_loi_il_appartient(self):
+        xml = article(numero="12", contexte=loi("2026-796"))
+        self.assertEqual(legi.loi_qui_porte(xml), "2026-796")
+
+    def test_un_article_de_code_n_appartient_a_aucune_loi(self):
+        self.assertIsNone(legi.loi_qui_porte(article()))
+
+    def test_un_decret_n_est_pas_une_loi_meme_avec_le_meme_numero(self):
+        """« Décret n°2005-850 » a la forme d'un numéro de loi. Se fier au seul
+        numéro attribuerait ses articles à une loi qui n'existe pas."""
+        xml = article(contexte=loi("2005-850", "Décret n°2005-850 du 27 juillet 2005",
+                                   nature="DECRET"))
+        self.assertIsNone(legi.loi_qui_porte(xml))
+
+    def test_une_loi_organique_en_est_une(self):
+        """Sa nature est `LOI_ORGANIQUE`. Le projet en suit une (loi 2024-1177)."""
+        xml = article(contexte=loi("2024-1177", nature="LOI_ORGANIQUE"))
+        self.assertEqual(legi.loi_qui_porte(xml), "2024-1177")
+
+    def test_un_article_de_fond_est_un_ajout(self):
+        xml = article(numero="12", contexte=loi(), type_article="AUTONOME")
+        self.assertTrue(legi.est_un_ajout(xml, None))
+
+    def test_un_article_mixte_aussi(self):
+        xml = article(numero="12", contexte=loi(), type_article="PARTIELLEMENT_MODIF")
+        self.assertTrue(legi.est_un_ajout(xml, None))
+
+    def test_un_article_qui_n_amende_que_d_autres_textes_n_en_est_pas_un(self):
+        """Rien à lire : sa substance est déjà à l'écran, sous forme des articles
+        de code modifiés. 36 % des articles de loi sont dans ce cas."""
+        xml = article(numero="1", contexte=loi(), type_article="ENTIEREMENT_MODIF",
+                      texte=RENVOI)
+        self.assertFalse(legi.est_un_ajout(xml, None))
+
+    def test_un_renvoi_ne_se_reconnait_pas_au_debut_de_sa_phrase(self):
+        """L'erreur trouvée le 2026-09-03 en vérifiant sur les vraies données.
+
+        « I. A modifié les dispositions suivantes » ne commence pas par le
+        verbe : une règle ancrée au début de la chaîne laissait passer
+        8 articles sur 87, qui n'affichaient qu'une liste de références —
+        article 82 de la loi 2025-127, article 44 de la loi 2026-725.
+        """
+        xml = article(numero="82", contexte=loi("2025-127"),
+                      type_article="PARTIELLEMENT_MODIF",
+                      texte="<p><br/>I. A modifié les dispositions suivantes :</p>"
+                            "<blockquote>- Code de l'environnement<blockquote>"
+                            " Art. L213-10-1, Art. L213-10-2</blockquote></blockquote>")
+        self.assertFalse(legi.est_un_ajout(xml, None))
+
+    def test_la_seule_phrase_de_droit_au_milieu_des_renvois_est_gardee(self):
+        """Le III de l'article 8 de la loi 2026-796 : trois renvois, et une
+        vraie disposition. La perdre serait pire que d'afficher les renvois."""
+        xml = article(numero="8", contexte=loi("2026-796"),
+                      type_article="PARTIELLEMENT_MODIF",
+                      texte="<p>I. - A modifié les dispositions suivantes :</p>"
+                            "<blockquote>- Code rural<blockquote> Art. L230-5-1"
+                            "</blockquote></blockquote>"
+                            "<p>III. - Le II bis s'applique aux contrats en cours.</p>"
+                            "<p>IV. - A modifié les dispositions suivantes :</p>"
+                            "<blockquote>- Code rural<blockquote> Art. L1"
+                            "</blockquote></blockquote>")
+        self.assertTrue(legi.est_un_ajout(xml, None))
+        self.assertEqual(legi.lire_article(xml)["texte"],
+                         "III. - Le II bis s'applique aux contrats en cours.")
+
+    def test_un_type_qui_se_trompe_ne_fait_pas_perdre_du_droit(self):
+        """L'article 32 de la loi 2026-201 est annoncé `ENTIEREMENT_MODIF`, et
+        92 % de son contenu est une servitude au profit des jeux Olympiques
+        d'hiver. Le `TYPE` de la source se trompe : le texte, non."""
+        xml = article(numero="32", contexte=loi("2026-201"),
+                      type_article="ENTIEREMENT_MODIF",
+                      texte="<p>I. - A modifié les dispositions suivantes :</p>"
+                            "<blockquote>- Code du tourisme<blockquote> Art. L342-20"
+                            "</blockquote></blockquote>"
+                            "<p>II. - La servitude peut être instituée au profit "
+                            "du maître d'ouvrage.</p>")
+        self.assertTrue(legi.est_un_ajout(xml, None))
+
+    def test_un_article_de_renvoi_pas_encore_saisi_ne_s_annonce_pas(self):
+        """Le seul cas où le `TYPE` sait plus que le texte : on connaît d'avance
+        le résultat. L'annoncer aujourd'hui pour le voir disparaître demain ne
+        rendrait service à personne."""
+        xml = article(contexte=loi(), type_article="ENTIEREMENT_MODIF",
+                      texte="<p>en cours de traitement</p>")
+        self.assertFalse(legi.est_un_ajout(xml, None))
+
+    def test_un_article_de_fond_pas_encore_saisi_s_annonce_quand_meme(self):
+        """Lui aura un texte : le taire ferait disparaître un article qui
+        existe. 69 des 138 articles de la loi 2026-798 étaient dans ce cas."""
+        xml = article(contexte=loi(), type_article="AUTONOME",
+                      texte="<p>en cours de traitement</p>")
+        self.assertTrue(legi.est_un_ajout(xml, None))
+
+    def test_une_redaction_ulterieure_n_est_pas_un_ajout(self):
+        """**Le garde-fou qui compte.** Toutes les rédactions d'un article
+        nomment le même porteur. Sans lui, l'article 156 de la loi de finances
+        pour 2024 *tel que la loi de fin de gestion l'a modifié* passerait pour
+        un article que la loi de finances a écrit — alors qu'elle ne l'a même
+        pas produit."""
+        xml = article(numero="156", contexte=loi("2023-1322"), type_article="AUTONOME")
+        self.assertFalse(legi.est_un_ajout(xml, "LEGIARTI000000000009"))
+
+    def test_un_type_inconnu_n_empeche_pas_de_montrer_un_texte(self):
+        """La source peut inventer un `TYPE`, ou n'en mettre aucun. Ce n'est pas
+        une raison pour taire un article qui a du texte."""
+        for type_article in ("AUTRE_CHOSE", ""):
+            with self.subTest(type_article=type_article):
+                xml = article(contexte=loi(), type_article=type_article)
+                self.assertTrue(legi.est_un_ajout(xml, None))
+
+    def test_lire_article_rend_la_loi_porteuse_et_le_verdict(self):
+        xml = article(numero="12", contexte=loi("2026-796"), type_article="AUTONOME")
+        lu = legi.lire_article(xml)
+        self.assertEqual(lu["loi_porteuse"], "2026-796")
+        self.assertTrue(lu["ajout"])
+
+    def test_un_texte_pas_encore_saisi_se_reconnait(self):
+        """69 des 138 articles de la loi 2026-798, promulguée la veille."""
+        self.assertTrue(legi.est_en_attente("en cours de traitement"))
+        self.assertTrue(legi.est_en_attente("  En cours de traitement  "))
+        self.assertFalse(legi.est_en_attente("I. - Le produit des impositions"))
+        self.assertFalse(legi.est_en_attente(None))
+        self.assertFalse(legi.est_en_attente(""))
+
+    def test_un_ajout_n_a_rien_a_comparer(self):
+        """Il n'a pas d'avant : l'écran doit dire « texte nouveau », pas
+        « rédaction précédente non retrouvée »."""
+        self.assertEqual(legi.etat_du_precedent(None, None), "aucun")
+
+    def test_la_date_d_effet_d_un_ajout_est_son_debut(self):
+        self.assertEqual(legi.date_d_effet(legi.AJOUTE, "2026-08-20", legi.SANS_FIN),
+                         "2026-08-20")
+
+    def test_ajoute_n_est_pas_un_type_de_lien_de_la_source(self):
+        """C'est notre mot. Le confondre avec le vocabulaire de LEGI ferait
+        chercher dans les liens un renseignement qui n'y est pas."""
+        self.assertNotIn(legi.AJOUTE, legi.CHANGEMENTS)
 
 
 class L_AdresseDeLaSource(unittest.TestCase):

@@ -27,6 +27,7 @@ import argparse
 import datetime as dt
 import json
 import pathlib
+import re
 import shutil
 import sqlite3
 import sys
@@ -43,10 +44,29 @@ MAQUETTE = RACINE.parent / "maquette" / "feed.html"
 # Ce qu'une loi fait à un article, dit en clair. La clé est le mot de LEGI ;
 # rien n'est reformulé, seulement traduit une fois pour toutes.
 ACTIONS = {"MODIFIE": "modifié", "CREE": "créé", "ABROGE": "abrogé",
-           "TRANSFERE": "transféré", "DEPLACE": "déplacé"}
+           "TRANSFERE": "transféré", "DEPLACE": "déplacé",
+           # Un article que la loi a écrit pour elle-même. « créé » est déjà
+           # pris par un article créé dans un code — les deux ne se rangent
+           # pas au même endroit à l'écran, ils ne portent pas le même mot.
+           legi.AJOUTE: "nouveau"}
 # Du plus parlant au moins parlant, quand une loi en fait plusieurs au même
 # article : ce que le lecteur retient, c'est que le contenu a changé.
 PRIORITE = ("MODIFIE", "CREE", "ABROGE", "TRANSFERE", "DEPLACE")
+
+
+def action_retenue(actions: list[str]) -> str:
+    """Le mot à écrire sur la pastille, quand une loi en fait plusieurs.
+
+    `AJOUTE` passe avant tout le reste : un article que la loi a écrit se range
+    dans une autre liste que les articles changés, et les deux ne peuvent pas
+    porter le même mot. Le cas ne devrait pas se présenter — un ajout n'a pas de
+    rédaction d'avant, donc rien n'a pu le modifier — mais l'écrire évite que
+    l'affichage dépende de ce raisonnement.
+    """
+    if legi.AJOUTE in actions:
+        return legi.AJOUTE
+    return min(actions, key=lambda a: PRIORITE.index(a) if a in PRIORITE
+                                      else len(PRIORITE))
 
 # Les types de dossier qui ne peuvent aboutir à aucune loi, et ce qu'ils sont
 # en clair. Ils ne sont plus écartés : ils ont leur propre onglet, où ces
@@ -362,10 +382,18 @@ def changements_par_loi(legi_cx: sqlite3.Connection | None,
     par_loi_actions: dict[str, dict[str, set[str]]] = {}
     par_loi_dates: dict[str, dict[str, set[str]]] = {}
     retouches: dict[str, set[str]] = {}
+    ajouts: dict[str, set[str]] = {}
     for ligne in legi_cx.execute(
             "SELECT c.loi, c.quoi, c.redaction_id, r.debut, r.fin"
             " FROM changement c JOIN redaction r ON r.id = c.redaction_id"):
         loi, article = ligne["loi"], ligne["redaction_id"]
+        # Ce que la loi ajoute est compté à part, et n'entre ni dans `total`,
+        # ni dans `actions`, ni dans `dates`. Ces trois champs disent depuis
+        # toujours « ce qu'elle change dans le droit d'avant » ; y verser des
+        # articles neufs changerait le sens d'un chiffre déjà publié.
+        if ligne["quoi"] == legi.AJOUTE:
+            ajouts.setdefault(loi, set()).add(article)
+            continue
         if article in ecartes:
             retouches.setdefault(loi, set()).add(article)
             continue
@@ -375,7 +403,7 @@ def changements_par_loi(legi_cx: sqlite3.Connection | None,
         if effet:
             par_loi_dates.setdefault(loi, {}).setdefault(effet, set()).add(article)
 
-    for loi in set(par_loi_articles) | set(retouches):
+    for loi in set(par_loi_articles) | set(retouches) | set(ajouts):
         resume[loi] = {
             "total": len(par_loi_articles.get(loi, ())),
             "actions": {q: len(s) for q, s in par_loi_actions.get(loi, {}).items()},
@@ -384,22 +412,43 @@ def changements_par_loi(legi_cx: sqlite3.Connection | None,
             # Comptés à part, et dits à part : ce sont des articles que la loi
             # touche sans rien changer au fond.
             "retouches": len(retouches.get(loi, ())),
+            # Ses propres articles : du droit nouveau, sans avant/après.
+            "ajouts": len(ajouts.get(loi, ())),
         }
     return resume
 
 
-def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str,
-                       forme_seule: set[str] | None = None) -> tuple[list[dict], list[dict]]:
-    """Les articles qu'une loi a changés, groupés par code, avec la part modifiée.
+def par_numero_d_article(numero: str | None) -> tuple:
+    """De quoi ranger « 1, 2, 10 » dans cet ordre, et non « 1, 10, 2 ».
 
-    La liste ne porte aucun texte : elle sert à choisir. Le texte entier et sa
-    comparaison sont dans un fichier par article, chargé au clic. Sans cette
-    séparation, la loi de finances pour 2025 — 574 articles — ferait un fichier
-    de plusieurs méga-octets pour un écran de téléphone.
+    Les articles d'une loi se numérotent simplement, mais en base dix : un tri
+    alphabétique met l'article 10 avant l'article 2. Les suffixes existent
+    (« 3-1 », « 12 bis »), d'où le découpage en morceaux plutôt qu'un `int`.
+    """
+    morceaux = re.split(r"(\d+)", numero or "")
+    return tuple((1, int(m)) if m.isdigit() else (0, m) for m in morceaux if m)
+
+
+def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str,
+                       forme_seule: set[str] | None = None
+                       ) -> tuple[list[dict], list[dict], list[dict]]:
+    """Ce qu'une loi change, ce qu'elle ajoute, et ce qu'elle a seulement retouché.
+
+    **Trois listes, et non une seule.** Ce qu'elle change dans le droit d'avant
+    se montre en superposant les deux rédactions ; ce qu'elle ajoute — ses
+    propres articles — n'a pas d'avant, donc rien à superposer. Les mélanger
+    obligerait à afficher une « part de texte changé » qui n'a aucun sens pour
+    un article neuf.
+
+    Aucune des listes ne porte de texte : elles servent à choisir. Le texte
+    entier et sa comparaison sont dans un fichier par article, chargé au clic.
+    Sans cette séparation, la loi de finances pour 2025 — 1 053 articles —
+    ferait un fichier de plusieurs méga-octets pour un écran de téléphone.
     """
     ecartes = forme_seule or set()
     groupes: dict[str, list] = {}
     retouches: list[dict] = []
+    ajouts: list[dict] = []
     for ligne in legi_cx.execute(
             "SELECT r.id, r.numero, r.ou, r.debut, r.fin, r.texte, r.precedent,"
             " GROUP_CONCAT(DISTINCT c.quoi) actions,"
@@ -411,8 +460,7 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str,
         # déplacer. Un seul mot tient sur la pastille : on garde le plus
         # parlant, et l'ordre de PRIORITE dit lequel.
         actions = (ligne["actions"] or "").split(",")
-        quoi = min(actions, key=lambda a: PRIORITE.index(a) if a in PRIORITE
-                                          else len(PRIORITE))
+        quoi = action_retenue(actions)
         article = {
             "id": ligne["id"], "numero": ligne["numero"], "quoi": quoi,
             "action": ACTIONS.get(quoi, quoi),
@@ -421,13 +469,28 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str,
             "mots": len(apres.split()),
             "commun": legi.part_commune(avant, apres) if avant else None,
             "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
+            # La source publie parfois l'article avant d'en avoir saisi le
+            # texte. Le drapeau ne s'écrit que dans ce cas — rare — pour ne pas
+            # ajouter un « false » à chacun des 5 880 articles publiés.
+            #
+            # **Il vaut pour tous les articles, pas seulement les nouveaux.**
+            # Si la source livrait ainsi une rédaction *modifiée*, la
+            # comparaison opposerait le texte d'avant à cette phrase d'attente
+            # et annoncerait un article entièrement réécrit. Jamais vu — 0 sur
+            # 605 rédactions changées, mesuré le 2026-09-03 — et c'est
+            # exactement le genre de cas qu'il ne faut pas laisser dépendre
+            # d'une mesure sur deux archives.
+            **({"enAttente": True} if legi.est_en_attente(apres) else {}),
         }
-        if ligne["id"] in ecartes:
+        if legi.AJOUTE in actions:
+            ajouts.append({**article, "ou": ligne["ou"] or "Textes non codifiés"})
+        elif ligne["id"] in ecartes:
             retouches.append({**article, "ou": ligne["ou"] or "Textes non codifiés"})
         else:
             groupes.setdefault(ligne["ou"] or "Textes non codifiés", []).append(article)
+    ajouts.sort(key=lambda a: par_numero_d_article(a["numero"]))
     return ([{"ou": ou, "articles": articles} for ou, articles in groupes.items()],
-            retouches)
+            retouches, ajouts)
 
 
 def article_compare(legi_cx: sqlite3.Connection, identifiant: str) -> dict:
@@ -439,8 +502,7 @@ def article_compare(legi_cx: sqlite3.Connection, identifiant: str) -> dict:
         " FROM redaction r WHERE r.id = ?", (identifiant,)).fetchone()
     avant, apres = ligne["avant"], ligne["texte"] or ""
     actions = (ligne["actions"] or "").split(",")
-    quoi = min(actions, key=lambda a: PRIORITE.index(a) if a in PRIORITE
-                                      else len(PRIORITE))
+    quoi = action_retenue(actions)
     return {
         "id": ligne["id"], "numero": ligne["numero"], "ou": ligne["ou"],
         "quoi": quoi, "action": ACTIONS.get(quoi, quoi),
@@ -455,6 +517,8 @@ def article_compare(legi_cx: sqlite3.Connection, identifiant: str) -> dict:
                     else [{"role": "ajoute" if not ligne["precedent"] else "egal",
                            "texte": apres, "forme": False}],
         "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
+        # Voir `articles_de_la_loi` : écrit seulement quand c'est vrai.
+        **({"enAttente": True} if legi.est_en_attente(apres) else {}),
         "source": legi.url_legifrance(ligne["id"]),
     }
 
@@ -528,6 +592,9 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "droitConsolideIndisponible": legi_cx is None,
         "loisAvecChangements": len(change),
         "articlesChanges": sum(c["total"] for c in change.values()),
+        # Compté à part de `articlesChanges` : ce sont les articles que les
+        # lois ont écrits pour elles-mêmes, pas ce qu'elles ont modifié.
+        "articlesAjoutes": sum(c["ajouts"] for c in change.values()),
         "amendements": cx.execute("SELECT COUNT(*) n FROM amendement").fetchone()["n"],
         "textesAvecAmendements": cx.execute(
             "SELECT COUNT(DISTINCT dossier_uid) n FROM amendement").fetchone()["n"],
@@ -603,10 +670,11 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             if l["statut"] == extraction.PROMULGUE:
                 texte.update(loiNumero=l["loi_numero"], loiDate=l["loi_date"],
                              loiUrlJO=l["loi_url_jo"])
-                # Ce que la loi change au droit, et quand elle s'applique : la
-                # carte le dit sans qu'on ait à l'ouvrir. Une loi absente de
-                # `change` ne modifie aucun article — ce n'est pas une donnée
-                # manquante, c'est un fait, et la carte le dira.
+                # Ce que la loi change au droit, ce qu'elle y ajoute, et quand
+                # elle s'applique : la carte le dit sans qu'on ait à l'ouvrir.
+                # Une loi absente de `change` ne touche à rien et n'écrit aucun
+                # article — ce n'est pas une donnée manquante, c'est un fait, et
+                # la carte le dira.
                 if legi_cx is not None:
                     texte["change"] = change.get(l["loi_numero"])
             textes.append(texte)
@@ -712,9 +780,9 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
                 "SELECT uid, loi_numero FROM dossier"
                 " WHERE statut = ? AND loi_numero IS NOT NULL AND loi_numero != ''",
                 (extraction.PROMULGUE,)):
-            groupes, retouches = articles_de_la_loi(legi_cx, l["loi_numero"],
-                                                    forme_seule)
-            if not groupes and not retouches:
+            groupes, retouches, ajouts = articles_de_la_loi(
+                legi_cx, l["loi_numero"], forme_seule)
+            if not groupes and not retouches and not ajouts:
                 continue
             lois_couvertes += 1
             listes += ecrire(sortie / "changements" / f'{l["uid"]}.json', {
@@ -724,8 +792,13 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
                 # Les articles retouchés sans changement de fond : listés à
                 # part, consultables, mais hors du compte des modifications.
                 "articlesRetouches": retouches,
+                # Ce que la loi ajoute : ses propres articles. Une liste à
+                # part, parce qu'ils n'ont pas d'avant — il n'y a rien à
+                # superposer, seulement un texte à lire.
+                "articlesAjoutes": ajouts,
             })
-            for article in [a for g in groupes for a in g["articles"]] + retouches:
+            for article in ([a for g in groupes for a in g["articles"]]
+                            + retouches + ajouts):
                 fiches += ecrire(
                     sortie / "changements" / l["uid"] / f'{article["id"]}.json',
                     article_compare(legi_cx, article["id"]))
