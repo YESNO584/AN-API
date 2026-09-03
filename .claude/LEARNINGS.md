@@ -19,6 +19,68 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-09-03 — Deux chiffres d'une même fiche ne comptent pas la même chose
+
+Enquête sur la loi de finances de fin de gestion pour 2024 (loi 2024-1167,
+dossier `DLR5L17N50838`) : « beaucoup d'amendements adoptés, mais 2 articles
+changés, avec quasiment pas de diff ». Aucun bug dans le socle ; **un défaut
+d'affichage dans la maquette**, et deux faits de droit à ne pas redécouvrir.
+
+- **Un amendement adopté peut être annulé par le rejet du texte entier, et
+  c'est fréquent en loi de finances.** Le 2024-11-19 l'Assemblée a rejeté la
+  **première partie** du texte (53 pour, 146 contre), ce qui met fin à son
+  examen : les 15 amendements adoptés ce jour-là tombent avec elle. La loi
+  promulguée est le texte de la CMP. *Preuve chiffrée :* l'amendement adopté
+  n° 12 portait la fraction de TVA de l'audiovisuel public de
+  « 3 976 056 557 » à « 3 981 056 557 » ; la loi promulguée écrit
+  « 3 976 056 557 », le montant du gouvernement. *Pourquoi ça compte :* la
+  fiche affiche les amendements adoptés en tête de liste sans dire qu'ils
+  n'ont rien changé — c'est la première cause de l'étonnement, et rien à
+  l'écran ne la signale.
+- **Une loi de fin de gestion ne change presque rien au droit existant, par
+  construction.** Sa substance est dans ses propres articles — article
+  liminaire, crédits, états A, B et C — qui ne modifient aucun article
+  préexistant. Seules ses dispositions de plafonds de taxes affectées le font :
+  ici l'article 156 de la loi 2023-1322 (AFITF 2 044 150 000 → 1 650 811 986,
+  VNF 136 500 → 145 600) et l'article 46 de la loi 2005-1719 (audiovisuel
+  4 026 728 396 → 3 976 056 557). Mesures de contrôle : fin de gestion 2025 →
+  4 articles, lois spéciales (2024-1188, 2025-1316) → 0, loi de finances pour
+  2025 → 1 053. **Le chiffre est juste** ; c'est l'attente qui est fausse.
+- **Le socle ne voit pas les articles propres à une loi, et ne peut pas.** Un
+  changement se lit dans un lien `sens="cible"` porté par l'article *visé* ;
+  les articles qu'une loi crée pour elle-même n'en portent pas. Vérifié : sur
+  les 231 `CREE` de la loi de finances pour 2025, **aucun** n'appartient à la
+  loi 2025-127 elle-même. Ce n'est pas un trou à combler — « ce que la loi
+  change » parle du droit d'avant — mais il faut le savoir avant de chercher
+  un bug là où il n'y en a pas.
+- **Le défaut, lui : « 0 % du texte a changé » sur un vrai changement.**
+  `feed.html:2542` affiche `100 - a.commun`, et `legi.part_commune` arrondit.
+  Huit mots changés sur 5 377 donnent 99,85 % → 100 % → « 0 % ». Sur un texte
+  budgétaire, ces huit mots *sont* la loi. **441 articles sur 4 426 (10 %)**
+  sont dans ce cas, dont 103 pour la seule loi de finances pour 2025. La
+  barre de jauge dit la même chose : `Math.max(2, 0)`, soit 2 % de largeur.
+  *La piste :* dire les mots changés plutôt qu'un pourcentage quand celui-ci
+  arrondit à zéro — le compte est déjà publié.
+- **`publier.py:177` écarte les amendements sans dispositif, et l'écran n'en
+  dit rien.** 227 amendements, 76 publiés : les 151 autres n'ont pas de
+  dispositif dans la source parce qu'ils n'ont jamais été publiés —
+  58 « (sans suite) », 24 « Crédits », 14 « Charge », 5 doublons, 8 retirés
+  avant publication. « Crédits » et « Charge » sont des **motifs
+  d'irrecevabilité** (article 40), pas des catégories : 42 amendements
+  irrecevables se lisent comme s'ils avaient un sort neutre. Le filtre est
+  bon ; le message « 76 affichés sur 227 » laisse croire à un plafond alors
+  que c'est la source qui est vide. Et il coûte **2 adoptés sur 15**.
+- **La maquette ne montre jamais `sorts`**, que `publier.py` publie pourtant
+  par texte. C'est le seul endroit où le compte réel des adoptés, rejetés et
+  irrecevables serait lisible d'un coup d'œil.
+- **Les fichiers déjà publiés remplacent une passe de 16 minutes.**
+  `https://yesno584.github.io/AN-API/changements/<uid>.json` répond en une
+  seconde et porte le résultat de `legi.db`. Toute l'enquête a tenu sans
+  reconstruire le droit consolidé — vérifier `etat.json` (`genereLe`,
+  `droitConsolideIndisponible`) avant de lancer un téléchargement de 1,1 Go.
+
+---
+
 ## 2026-09-02 — Les argumentaires, écrits : recopiés, jamais reliés au vote
 
 - **La décision qui a tout simplifié : ne pas relier la parole au vote.** La
