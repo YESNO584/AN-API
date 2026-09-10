@@ -36,9 +36,10 @@ texte parle. La description répond à cette question en deux phrases.
 | | |
 |---|---|
 | Où elle s'affiche | En haut de la fiche d'un texte, sous les étiquettes, avant les liens vers les sources. Nulle part ailleurs |
-| Comment elle est signalée | Une icône et une mention sous le texte — « Générée par une IA ». Au survol sur un ordinateur, la mention complète ; au toucher sur un téléphone, une explication qui dit d'où elle vient et qu'elle peut se tromper |
+| Quelle forme elle a | Une accroche d'une phrase, puis **une puce par mesure concrète** — trois à six selon la loi. Un pavé se saute, une liste se parcourt. Une accroche seule reste valable : une loi qui autorise l'approbation d'un traité n'a qu'une chose à dire |
+| Comment elle est signalée | Une icône et une mention sous la liste — « Générée par une IA ». Au survol sur un ordinateur, la mention complète ; au toucher sur un téléphone, une explication qui dit d'où elle vient, qu'elle peut se tromper, quand elle a été écrite et par quel modèle |
 | D'où elle vient | `socle/descriptions.json`, un fichier **versionné**, écrit hors ligne. C'est la seule donnée du projet qui ne vienne pas d'une source publique |
-| Sur quoi elle s'appuie | Le titre du texte, sa nature, et ce que la loi change au droit — tous lus dans les données publiées |
+| Sur quoi elle s'appuie | **Le texte réel des articles**, lu dans les fichiers publiés : ce que la loi ajoute au droit, mot pour mot, et ce qu'elle en retire. Pas le titre, qui ne dit rien — « Projet de loi portant diverses dispositions d'adaptation au droit de l'Union européenne » en est la démonstration |
 | Ce qui se passe s'il n'y en a pas | La rubrique ne s'affiche pas. Pas de cadre vide, pas de phrase d'attente |
 
 **Ce qu'elle ne fait pas**
@@ -57,7 +58,23 @@ texte parle. La description répond à cette question en deux phrases.
 **Une entrée peut aussi être écrite par une personne.** Le fichier porte alors
 `origine: "humain"`, et la mention à l'écran change en conséquence. C'est prévu
 dès maintenant pour que remplacer une description générée par une description
-rédigée ne demande aucun changement de code.
+rédigée ne demande aucun changement de code. Le champ `modele` nomme le modèle
+qui a écrit, quand on le connaît ; il reste vide sinon, et la fiche se tait
+alors plutôt que d'annoncer un vide.
+
+**Comment les régénérer**, en deux commandes :
+
+```
+.claude/scripts/faits_pour_descriptions.py --sortie <dossier>
+.claude/scripts/assembler_descriptions.py --lots <dossier>/*.json --origine ia
+```
+
+Le premier récolte le texte réel des articles, loi par loi ; il dit toujours
+combien d'articles il a lus sur combien, et échantillonne les grandes lois
+moitié-moitié — les articles que la loi a écrits elle-même, et les articles de
+code les plus réécrits. Le second contrôle la forme de ce qui a été rédigé
+entre les deux et refuse une entrée qui ne tient pas, plutôt que de publier
+une description à moitié écrite.
 
 ## Ce que la chaîne de publication ne fait toujours pas
 

@@ -628,6 +628,14 @@
                  border-radius: var(--rayon); padding: .75rem .85rem;
                  margin: .9rem 0; }
   .description p { margin: 0; font-size: .93rem; line-height: 1.5; }
+  /* L'accroche porte la phrase, les puces portent les mesures. Le gras
+     distingue les deux sans ajouter de titre, qui ferait une ligne de plus
+     sur un écran déjà court. */
+  .description p.accroche { font-weight: 560; }
+  .description ul { margin: .55rem 0 0; padding-left: 1.05rem; }
+  .description li { font-size: .89rem; line-height: 1.45; margin-top: .3rem;
+                    color: var(--texte); }
+  .description li::marker { color: var(--faible); }
   .description .origine { display: flex; align-items: center; gap: .3rem;
                           margin-top: .55rem; padding: 0; font: inherit;
                           font-size: .74rem; color: var(--gris);
@@ -2342,7 +2350,10 @@ async function blocParoles(uid, total) {
 
 /* ---------- la description du texte ---------- *
  * Écrite, et non recopiée : c'est la seule rubrique de l'application dans ce
- * cas. Elle porte donc son origine à l'écran, en toutes lettres — une icône,
+ * cas. Une phrase d'accroche, puis une puce par mesure concrète — un pavé de
+ * six lignes se saute, une liste se parcourt.
+ *
+ * Elle porte son origine à l'écran, en toutes lettres — une icône,
  * un mot, et l'explication complète au toucher. Le `title` sert l'ordinateur,
  * où le survol existe ; le bouton sert le téléphone, où il n'existe pas. Les
  * deux disent la même chose : sans le bouton, la mention serait invisible sur
@@ -2391,7 +2402,15 @@ function iconeOrigine(origine) {
 function blocDescription(description) {
   const origine = ORIGINES[description.origine] || ORIGINES.ia;
   const boite = el("div", "description");
-  boite.append(el("p", null, description.texte));
+  boite.append(el("p", "accroche", description.accroche));
+  // Une mesure par puce. Une accroche sans puce reste valable : une loi qui
+  // autorise l'approbation d'un traité n'a qu'une chose à dire.
+  const points = description.points || [];
+  if (points.length) {
+    const liste = el("ul");
+    for (const point of points) liste.append(el("li", null, point));
+    boite.append(liste);
+  }
 
   const mention = el("button", "origine");
   mention.append(iconeOrigine(description.origine));
@@ -2402,8 +2421,15 @@ function blocDescription(description) {
   mention.setAttribute("aria-label", origine.mot);
   mention.addEventListener("click", (ev) => {
     ev.preventDefault();
+    // Quand elle a été écrite, et par quel modèle si le socle le dit. Le
+    // modèle n'est pas toujours renseigné — une description rédigée par une
+    // personne n'en a pas — et la ligne se tait alors plutôt que d'annoncer
+    // un vide.
+    const quand = description.le
+      ? "écrite le " + dateLongue.format(enDate(description.le)) : null;
+    const par = description.modele ? "modèle " + description.modele : null;
     expliquer(origine.titre, origine.quoi,
-              description.le ? "écrite le " + dateLongue.format(enDate(description.le)) : null);
+              [quand, par].filter(Boolean).join(" · ") || null);
   });
   boite.append(mention);
   return boite;
