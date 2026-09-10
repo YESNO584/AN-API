@@ -6,1146 +6,1145 @@
  },
  "descriptions": {
   "DLR5L17N50168": {
-   "accroche": "Autorise l'affectation directe d'un montant déterminé d'une imposition aux organismes du secteur public de la communication audiovisuelle, en modifiant la loi organique relative aux lois de finances.",
+   "accroche": "Autorise le versement direct d'un montant déterminé d'impôt aux organismes publics de radio et de télévision, seule mesure inscrite dans cette loi organique.",
    "points": [
-    "Ajoute à l'article 2 de la loi organique du 1er août 2001 qu'« un montant déterminé d'une imposition de toute nature peut […] être directement affecté » à ces organismes",
-    "L'affectation reste soumise aux « mêmes réserves » que celles déjà posées par cet article pour les autres affectations de recettes",
-    "La loi ne compte qu'un article et ne touche qu'un seul texte, cet article 2 de la loi organique du 1er août 2001"
+    "Un montant déterminé d'une imposition, quelle qu'elle soit, peut être affecté directement aux organismes du secteur public de la radio et de la télévision",
+    "Cette affectation directe est soumise aux mêmes réserves que celles déjà posées pour les autres affectations de recettes",
+    "Une seule phrase est ajoutée, applicable à compter du 15 décembre 2024"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50579": {
-   "accroche": "Remplace dans le code électoral le renvoi au mode de scrutin par le seuil des communes de « 1 000 habitants et plus », et supprime une formalité de candidature.",
+   "accroche": "Un critère fondé sur le mode de scrutin de la commune laisse la place à un seuil de population, et une formalité imposée aux candidats européens disparaît.",
    "points": [
-    "À l'article LO 141, la référence à une commune « soumise au mode de scrutin prévu au chapitre III » devient « 1 000 habitants et plus »",
-    "Abroge l'article LO 255-5, qui détaillait les pièces exigées d'un candidat ressortissant d'un autre État de l'Union européenne, dont une attestation d'éligibilité de son pays",
-    "À l'article LO 247-1, supprime la phrase distinguant les communes selon le chapitre du code auquel leur scrutin est soumis",
-    "Ces dispositions « s'appliquent à compter du premier renouvellement général des conseils municipaux » suivant la promulgation de la loi organique"
+    "Là où la règle visait les communes selon leur mode de scrutin, elle vise maintenant celles de « 1 000 habitants et plus »",
+    "Les candidats ressortissants d'un autre pays de l'Union européenne n'ont plus à certifier qu'ils ne sont pas privés du droit d'être élus chez eux, ni à en fournir les justificatifs",
+    "L'indication portée sur la liste des candidats affichée dans chaque bureau de vote ne dépend plus du mode de scrutin de la commune",
+    "Tout cela ne s'applique qu'à partir du premier renouvellement général des conseils municipaux suivant la promulgation"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50715": {
-   "accroche": "Ouvre aux inspections générales l'accès à des informations couvertes par un secret, et permet de suspendre les labels qui conditionnent les aides aux travaux de rénovation énergétique.",
+   "accroche": "Le label exigé pour faire financer des travaux de rénovation énergétique peut être suspendu six mois, et les paiements du compte formation gelés en cas de soupçon de fraude.",
    "points": [
-    "L'inspection générale des finances accède aux documents des administrations relevant des ministres chargés de l'économie et du budget, « sans que puisse être opposé un secret protégé par la loi »",
-    "L'inspection générale de l'administration reçoit un accès comparable, y compris aux données personnelles détenues par les services relevant du ministre de l'intérieur",
-    "L'autorité chargée de la concurrence et de la consommation peut suspendre six mois, renouvelable une fois, le label conditionnant une aide, puis en interdire la demande cinq ans au plus",
-    "Pour les travaux de rénovation énergétique aidés, « le recours à la sous-traitance ne peut excéder deux rangs »",
-    "Plusieurs corps de contrôle peuvent demander à la Caisse des dépôts la suspension des paiements du compte personnel de formation à un organisme soupçonné de fraude",
-    "Ces règles de sous-traitance entrent en vigueur le 1er janvier 2026, l'obligation de signe de qualité pour l'entreprise principale le 1er janvier 2027"
+    "L'administration peut suspendre six mois, renouvelables une fois, le label sans lequel une entreprise ne peut faire financer des travaux d'économies d'énergie",
+    "Une entreprise dont le label a été retiré peut se voir interdire d'en redemander un pendant cinq ans au plus, ses dirigeants également",
+    "Sur plusieurs indices sérieux de fraude, des agents de contrôle peuvent faire geler tous les paiements dus à un organisme de formation au titre du compte personnel de formation",
+    "Pour les travaux de rénovation énergétique aidés, la sous-traitance ne peut plus dépasser deux rangs, à partir du 1er janvier 2026",
+    "Les agents assermentés des réseaux d'électricité et de gaz peuvent constater à distance un compteur dégradé, transmettre leur procès-verbal au procureur et facturer la remise en état",
+    "Les inspections générales des finances et de l'administration accèdent aux documents couverts par un secret protégé par la loi lorsqu'ils sont nécessaires à leurs missions"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50838": {
-   "accroche": "Révise en fin d'année les crédits de l'État pour 2024, avec des ouvertures et des annulations sur le budget général, les budgets annexes et les comptes spéciaux.",
+   "accroche": "Ajuste en fin d'année les crédits de l'État pour 2024 : ouvertures et annulations sur le budget général, les budgets annexes et les comptes spéciaux, prévisions de recettes révisées.",
    "points": [
-    "Ouvre sur le budget général 10 620 540 612 € d'autorisations d'engagement, ce que l'État peut promettre, et 11 504 356 813 € de crédits de paiement, ce qu'il peut décaisser",
-    "Annule sur ce même budget général 6 975 663 290 € d'autorisations d'engagement et 6 475 838 483 € de crédits de paiement",
-    "Annule sur les budgets annexes 25 369 750 € d'autorisations d'engagement et 37 701 937 € de crédits de paiement",
-    "Ouvre 134 337 891 € sur les comptes d'affectation spéciale et annule 2 002 708 029 € d'autorisations d'engagement sur les comptes de concours financiers",
-    "Réécrit le tableau des plafonds de taxes affectées de la loi de finances pour 2024, notamment les lignes revenant à l'Agence de financement des infrastructures de transport de France",
-    "Le reste tient dans ses propres articles : article liminaire de prévision des soldes, article d'équilibre et états annexés répartissant les crédits par mission"
+    "Sur le budget général, 10 620 540 612 € d'engagements et 11 504 356 813 € de paiements sont ouverts en plus pour 2024",
+    "Sur ce même budget général, 6 975 663 290 € d'engagements et 6 475 838 483 € de paiements sont annulés",
+    "Sur les budgets annexes, 25 369 750 € d'engagements et 37 701 937 € de paiements sont annulés",
+    "Sur les comptes d'affectation spéciale, 134 337 891 € sont ouverts en engagements comme en paiements, et 70 521 745 € d'engagements annulés",
+    "Le tableau des plafonds de recettes fiscales reversées à des organismes publics est entièrement réécrit",
+    "Les prévisions de déficit, de dette et de dépense publique pour 2024 sont réactualisées"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51039": {
-   "accroche": "Durcit, dans les articles du code civil applicables à Mayotte, la durée et le nombre de résidences parentales exigées, et change les pièces qui doivent en apporter la preuve.",
+   "accroche": "À Mayotte, la durée de séjour régulier exigée des parents passe de trois mois à un an, et les deux parents doivent maintenant la remplir, non plus un seul.",
    "points": [
-    "À l'article 2493, la condition passe d'« un » parent au moins résidant depuis « trois mois » à « deux » parents résidant depuis « un an »",
-    "Lorsque la filiation n'est établie qu'à l'égard d'un seul parent, la condition ne s'applique qu'à ce parent",
-    "La résidence se justifie par un titre de séjour prévu au code de l'entrée et du séjour des étrangers et un passeport biométrique en cours de validité",
-    "À l'article 2495, la mention par l'officier de l'état civil ne concerne que le parent unique quand la filiation n'est établie qu'à son égard"
+    "La durée de présence régulière exigée passe de trois mois à un an",
+    "Elle devait être remplie par l'un des parents au moins ; elle doit désormais l'être par les deux",
+    "Le séjour se prouve par un titre de séjour accompagné d'un passeport biométrique en cours de validité, portant une photographie permettant d'identifier son titulaire",
+    "Quand la filiation n'est établie qu'à l'égard d'un seul parent, la condition ne concerne que ce parent"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51173": {
-   "accroche": "Permet à une commune de Polynésie française, ou à son intercommunalité, de fixer elle-même par délibération les actions qu'elle mène, sans attendre une « loi du pays ».",
+   "accroche": "Les communes de Polynésie française n'attendent plus un texte de la collectivité pour agir dans huit domaines : leur conseil municipal en décide lui-même par délibération.",
    "points": [
-    "Le conseil municipal ou l'organe délibérant de l'intercommunalité détermine ces actions dans les matières énumérées « aux 1° à 8° » du II de l'article 43, et leurs modalités",
-    "Il agit « dans le respect de la réglementation édictée par la Polynésie française » et au terme d'un délai qui « ne peut être inférieur à six mois »",
-    "La délibération est transmise au président de la Polynésie française, au président de l'assemblée de la Polynésie française et au haut-commissaire de la République",
-    "Les interventions respectives de la commune et de la collectivité, ainsi que les moyens mis à disposition, sont désormais « précisés par convention »"
+    "Le conseil municipal, ou l'intercommunalité compétente, détermine par délibération les actions qu'il entend mener dans les huit matières énumérées et la façon de les conduire",
+    "Ces actions étaient auparavant encadrées par les textes propres à la Polynésie française appelés « lois du pays » ; la réglementation locale reste à respecter",
+    "La délibération est transmise au président de la Polynésie française, au président de son assemblée et au représentant de l'État",
+    "La commune ne peut engager ses actions qu'au terme du délai qu'elle a fixé, lequel ne peut être inférieur à six mois",
+    "Les moyens mis à la disposition des communes étaient précisés par une « loi du pays » ; ils le sont maintenant par une convention"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51346": {
-   "accroche": "Inscrit dans le code de la sécurité intérieure les missions des médecins, pharmaciens, infirmiers, cadres de santé, psychologues et vétérinaires de sapeurs-pompiers.",
+   "accroche": "Inscrit dans la loi les missions des médecins, pharmaciens, infirmiers, psychologues et vétérinaires de sapeurs-pompiers, que le code ne définissait pas jusque-là.",
    "points": [
-    "Les médecins assurent les secours et soins d'urgence, les actes de diagnostic envers les pompiers, la médecine d'aptitude et de prévention, l'expertise, l'enseignement et la recherche",
-    "Ils restent soumis à leurs règles déontologiques, « à l'exception de celle relative à l'exercice exclusif de leur qualification »",
-    "Les infirmiers contribuent aux soins d'urgence, à l'hygiène et à la médecine d'aptitude ; les cadres de santé dirigent et coordonnent leur activité",
-    "Les pharmaciens encadrent les pharmacies à usage intérieur des services d'incendie et de secours et peuvent intervenir sur les risques nucléaires, biologiques ou chimiques",
-    "Les vétérinaires interviennent en matière d'épizootie, de risques sanitaires d'origine animale et de suivi médical des équipes cynotechniques",
-    "La loi vaut pour les personnels de santé civils de la brigade de sapeurs-pompiers de Paris et du bataillon de marins-pompiers de Marseille, et un décret précise ces missions"
+    "Les médecins de sapeurs-pompiers assurent les secours d'urgence, les soins et la médecine d'aptitude des pompiers, l'expertise, l'enseignement et la recherche",
+    "Ils échappent à la règle professionnelle imposant de n'exercer que dans leur seule qualification, mais restent tenus par les autres règles déontologiques, et peuvent déléguer des tâches aux infirmiers",
+    "Les infirmiers participent aux secours d'urgence, à l'hygiène et à la médecine de prévention ; les cadres de santé dirigent et coordonnent leur activité",
+    "Les pharmaciens encadrent les pharmacies internes des services d'incendie et peuvent intervenir sur les risques chimiques, biologiques, radiologiques ou explosifs",
+    "Les psychologues et psychothérapeutes soutiennent psychologiquement les pompiers ; les vétérinaires suivent notamment la santé des équipes de chiens",
+    "Ces règles valent aussi pour les personnels de santé civils de la brigade de sapeurs-pompiers de Paris et du bataillon de marins-pompiers de Marseille"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51434": {
-   "accroche": "Crée un fichier national, géré par la Banque de France, recensant les comptes de paiement et de dépôt que les prestataires de paiement estiment susceptibles d'être frauduleux.",
+   "accroche": "Un fichier national des comptes soupçonnés de fraude, tenu par la Banque de France, est créé, et les banques doivent lui signaler les chèques falsifiés qu'elles rejettent.",
    "points": [
-    "Les prestataires déclarent ces comptes « sous leur seule responsabilité » et corrigent leur déclaration « sans délai » lorsque les raisons de soupçonner la fraude disparaissent",
-    "« Les frais afférents à ces déclarations ne peuvent être directement ou indirectement facturés aux clients concernés »",
-    "La banque qui rejette un chèque pour falsification ou contrefaçon, ou qui en prend connaissance, avise la Banque de France « dans les meilleurs délais »",
-    "La Banque de France informe le banquier qui, lors de la présentation d'un chèque au paiement, souhaite vérifier la régularité de son émission",
-    "Outre-mer, le fichier est adapté pour que l'Institut d'émission d'outre-mer agisse aux côtés de la Banque de France",
-    "Le fichier n'entre en vigueur que six mois après la promulgation de la loi, « à savoir le 6 mai 2026 »"
+    "Les établissements de paiement déclarent dans un fichier national, géré par la Banque de France, les comptes qu'ils estiment susceptibles d'être frauduleux et ce qui caractérise la fraude",
+    "Ils corrigent sans délai leur déclaration lorsque les raisons de soupçonner la fraude disparaissent, et ne peuvent facturer ces déclarations à leurs clients",
+    "Les organismes qui recouvrent les cotisations sociales peuvent signaler au gestionnaire du fichier des comptes qu'ils estiment susceptibles d'être frauduleux",
+    "La banque qui rejette un chèque falsifié ou contrefait, ou qui apprend la falsification, en avise la Banque de France dans les meilleurs délais",
+    "La Banque de France renseigne aussi le banquier qui, au moment où un chèque lui est présenté, veut vérifier que son émission est régulière",
+    "Le fichier n'entre en vigueur que six mois après la promulgation, soit le 6 mai 2026"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51599": {
-   "accroche": "Autorise l'approbation de deux conventions signées avec le Panama le 11 juillet 2023, l'une sur l'entraide judiciaire en matière pénale, l'autre sur l'extradition.",
+   "accroche": "Autorise l'approbation de deux accords signés avec le Panama le 11 juillet 2023 : l'un sur l'entraide judiciaire en matière pénale, l'autre sur l'extradition.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51789": {
-   "accroche": "Autorise la ratification du traité de coopération en matière de défense conclu avec la République de Djibouti, signé à Paris le 24 juillet 2024 et annexé à la loi.",
+   "accroche": "Autorise la ratification du traité de coopération en matière de défense signé avec Djibouti à Paris le 24 juillet 2024, dont le texte est annexé à la loi.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51984": {
-   "accroche": "Écrit dans le code général des collectivités territoriales la procédure par laquelle l'assemblée de la collectivité peut demander à adapter localement une loi ou un règlement.",
+   "accroche": "L'assemblée de Mayotte peut demander à adapter sur place une loi ou un règlement, selon une procédure écrite pour la première fois : délibération motivée, publication, contrôle du Conseil d'État.",
    "points": [
-    "La demande est adoptée par délibération motivée exposant « les caractéristiques et contraintes particulières » qui la justifient et la finalité des mesures envisagées",
-    "Elle ne peut porter sur les matières visées au quatrième alinéa de l'article 73 de la Constitution, ni toucher aux conditions essentielles d'exercice d'une liberté publique",
-    "Une habilitation accordée jusqu'au renouvellement de l'assemblée peut être prorogée « de droit, une seule fois », par délibération prise dans les six mois suivant ce renouvellement",
-    "Les délibérations prises sur habilitation sont adoptées à la majorité absolue des membres, publiées au Journal officiel, et les recours vont devant le Conseil d'État",
-    "Entrée en vigueur à une date fixée par décret et « au plus tard, le 1er janvier 2026 » ; les articles 2 à 4 attendent le prochain renouvellement des conseils départementaux"
+    "L'assemblée demande cette autorisation par délibération motivée, en exposant les contraintes particulières qui la justifient et le but des mesures envisagées",
+    "La demande ne peut pas porter sur les matières que la Constitution réserve à l'État, ni toucher aux conditions essentielles d'exercice d'une liberté publique",
+    "Elle tombe d'elle-même au renouvellement de l'assemblée, à sa dissolution ou à l'annulation de l'élection de tous ses membres",
+    "Une autorisation accordée jusqu'au renouvellement peut être prolongée une seule fois, par délibération prise dans les six mois qui suivent celui-ci",
+    "Les décisions prises grâce à l'autorisation sont adoptées à la majorité absolue, publiées au Journal officiel et contestables devant le Conseil d'État",
+    "L'entrée en vigueur est fixée par décret et, au plus tard, au 1er janvier 2026 ; trois articles attendent le prochain renouvellement des conseils départementaux"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52040": {
-   "accroche": "Crée à titre expérimental un « contrat de valorisation de l'expérience » pour l'embauche de demandeurs d'emploi âgés, et remanie les instances nationales de la formation professionnelle.",
+   "accroche": "Un contrat à durée indéterminée réservé aux demandeurs d'emploi d'au moins soixante ans est ouvert pour cinq ans à titre d'essai, avec négociation obligatoire sur les fins de carrière.",
    "points": [
-    "Ce contrat à durée indéterminée peut être conclu pendant cinq ans avec une personne « âgée d'au moins soixante ans », ou cinquante-sept ans si un accord de branche le prévoit",
-    "La personne doit être inscrite comme demandeur d'emploi, ne pas pouvoir toucher une retraite de base à taux plein et ne pas avoir travaillé dans l'entreprise depuis six mois",
-    "Les branches négocient « une fois tous les trois ans » sur le recrutement, le maintien dans l'emploi, les fins de carrière et la transmission des savoirs des salariés expérimentés",
-    "Une instance paritaire nationale agréée, constituée en association, anime les commissions régionales et fixe les priorités de prise en charge des transitions professionnelles",
-    "Un Conseil national de l'orientation et de la formation professionnelles pour le développement des compétences assure la concertation, chaque collège y disposant d'un nombre égal de voix",
-    "Ces dispositions entrent en vigueur le 1er janvier 2026, certaines seulement le 1er janvier 2027, d'autres le 1er janvier 2028"
+    "Toute entreprise peut embaucher par ce contrat une personne d'au moins soixante ans inscrite comme demandeur d'emploi, cinquante-sept ans si un accord de branche le prévoit",
+    "La personne ne doit pas pouvoir prétendre à une retraite de base à taux plein, ni avoir travaillé dans l'entreprise ou son groupe au cours des six mois précédents",
+    "À la signature, elle remet un document indiquant la date prévisionnelle à laquelle elle remplira, le cas échéant, les conditions d'une retraite à taux plein",
+    "Les branches professionnelles se réunissent tous les trois ans pour négocier sur le recrutement des salariés âgés, leur maintien dans l'emploi et l'aménagement des fins de carrière",
+    "Une instance nationale paritaire, agréée par l'État et liée à lui par convention, anime le réseau des commissions régionales et définit les priorités de financement des transitions professionnelles",
+    "Ces règles sur l'instance nationale entrent en vigueur le 1er janvier 2026, certaines seulement le 1er janvier 2027 ou le 1er janvier 2028"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52230": {
-   "accroche": "Étend le droit de visite des parlementaires à tout lieu où une personne est privée de liberté, et l'ouvre aux bâtonniers sur leur ressort.",
+   "accroche": "Députés et sénateurs peuvent visiter tout lieu où une personne est privée de liberté, et non plus une liste fermée d'établissements ; les chefs de barreau rejoignent les visiteurs.",
    "points": [
-    "Le droit de visite n'est plus limité à une liste de lieux : garde à vue, retenue douanière, rétention administrative, zone d'attente, prison, centre éducatif fermé",
-    "Les bâtonniers, ou leur délégué désigné au sein du conseil de l'ordre, peuvent être accompagnés d'un avocat préalablement désigné",
-    "Députés, sénateurs et représentants au Parlement européen peuvent être accompagnés d'un collaborateur parlementaire ou d'un agent des assemblées parlementaires",
-    "Les journalistes ne peuvent les suivre ni en garde à vue, ni dans les locaux d'attente des juridictions, ni dans les établissements de santé concernés",
-    "Le droit de visite des bâtonniers vaut aussi dans les établissements de santé mentionnés à l'article L. 3222-1 du code de la santé publique",
-    "Un décret en Conseil d'État détermine les conditions d'application de ces accompagnements"
+    "La liste des lieux visitables — garde à vue, retenue douanière, rétention administrative, zone d'attente, prison, centre éducatif fermé — cède la place à tout lieu de privation de liberté",
+    "Le chef du barreau des avocats, ou son délégué, peut visiter les établissements psychiatriques de son ressort, ce que le texte réservait aux parlementaires",
+    "Les journalistes ne peuvent pas les accompagner dans les locaux de garde à vue, dans ceux des tribunaux où l'on attend un magistrat, ni dans les établissements psychiatriques",
+    "Un député, un sénateur ou un élu au Parlement européen peut se faire accompagner d'un collaborateur ou d'un agent de son assemblée",
+    "Les conditions d'application de ces accompagnements sont renvoyées à un décret en Conseil d'État"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52635": {
-   "accroche": "Permet de faire sortir un bien culturel du domaine public pour le restituer à l'État qui le demande, par dérogation au principe d'inaliénabilité des biens publics.",
+   "accroche": "Une œuvre d'une collection publique, que la loi interdit normalement de céder, peut être rendue à l'État qui en a été privé illicitement et devient sa propriété.",
    "points": [
-    "Le bien doit venir du territoire actuel de l'État demandeur et avoir été approprié « entre le 20 novembre 1815 et le 23 avril 1972 » par vol, pillage ou contrainte",
-    "Sont exclus les biens déjà réglés par un accord international, les partages de fouilles archéologiques et les biens saisis ayant contribué aux activités militaires",
-    "Un comité scientifique constitué pour représenter « les deux États de manière équilibrée » examine la demande et remet un rapport, rendu public si l'État demandeur l'approuve",
-    "Une commission nationale de restitution de biens culturels, formation spécialisée du Haut Conseil des musées de France, rend ensuite un avis public et motivé",
-    "La sortie du domaine public est prononcée par décret en Conseil d'État ; si le bien appartient à une autre personne publique, celle-ci doit l'approuver",
-    "Chaque année, le Gouvernement remet au Parlement un rapport sur les demandes reçues et les sorties du domaine public décidées"
+    "Seul peut être rendu un objet provenant du territoire actuel de l'État demandeur et pris entre le 20 novembre 1815 et le 23 avril 1972",
+    "Il doit avoir été volé, pillé, ou cédé sous la contrainte ou par une personne qui n'avait pas le droit d'en disposer",
+    "Un comité scientifique réunissant les deux États examine la demande et remet un rapport ; une commission nationale rend ensuite un avis public et motivé",
+    "La sortie des collections est prononcée par décret en Conseil d'État et, si l'objet appartient à une autre personne publique que l'État, avec son accord",
+    "Un objet reçu par don ou legs peut être rendu ; si l'acte s'y oppose, le donateur ou ses héritiers doivent consentir, leur silence valant accord après six mois",
+    "Chaque année, le Gouvernement remet au Parlement un rapport sur les demandes reçues, celles qui n'ont pas abouti et les restitutions intervenues"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53135": {
-   "accroche": "Révise en fin d'année les crédits de l'État pour 2025, avec des ouvertures et des annulations sur le budget général, les budgets annexes et les comptes spéciaux.",
+   "accroche": "Ajuste en fin d'année les crédits de l'État pour 2025 : ouvertures et annulations sur le budget général, les budgets annexes et les comptes spéciaux, prévisions de recettes révisées.",
    "points": [
-    "Ouvre sur le budget général 3 040 479 860 € d'autorisations d'engagement, ce que l'État peut promettre, et 3 192 704 413 € de crédits de paiement, ce qu'il peut décaisser",
-    "Annule sur ce même budget général 9 812 561 722 € d'autorisations d'engagement et 10 273 859 506 € de crédits de paiement",
-    "Annule sur les budgets annexes 4 874 463 € d'autorisations d'engagement et 15 436 927 € de crédits de paiement",
-    "Ouvre 44 258 953 € sur les comptes d'affectation spéciale et annule 2 696 466 377 € d'autorisations d'engagement sur les comptes de concours financiers",
-    "Réécrit le tableau des plafonds de taxes affectées de la loi de finances pour 2025, notamment les lignes revenant à l'Agence de financement des infrastructures de transport de France",
-    "Le reste tient dans ses propres articles : article liminaire de prévision des soldes, article d'équilibre et états annexés répartissant les crédits par mission"
+    "Sur le budget général, 3 040 479 860 € d'engagements et 3 192 704 413 € de paiements sont ouverts en plus pour 2025",
+    "Sur ce même budget général, 9 812 561 722 € d'engagements et 10 273 859 506 € de paiements sont annulés",
+    "Sur les budgets annexes, 4 874 463 € d'engagements et 15 436 927 € de paiements sont annulés",
+    "Sur les comptes d'affectation spéciale, 44 258 953 € sont ouverts en engagements comme en paiements, et 4 750 920 € annulés",
+    "Le tableau des plafonds de recettes fiscales reversées à des organismes publics est entièrement réécrit",
+    "Les prévisions de déficit, de dette et de dépense publique pour 2025 sont réactualisées"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53315": {
-   "accroche": "Ouvre une procédure permettant à un commissaire de justice d'obtenir, par le greffier du tribunal de commerce, un titre exécutoire sur une facture impayée entre commerçants.",
+   "accroche": "Une facture entre commerçants non contestée dans le mois permet d'obtenir, sans passer devant un juge, un titre pour en réclamer le paiement forcé.",
    "points": [
-    "La créance doit être « certaine, liquide et exigible » et avoir fait l'objet d'une facturation entre commerçants",
-    "Le commissaire de justice signifie un commandement de payer « dans un délai d'un mois » ; la contestation du débiteur dans ce délai met fin à la procédure",
-    "Faute de paiement, et « au plus tôt huit jours » après l'expiration de ce délai, il dresse un procès-verbal de non-contestation",
-    "Le greffier rend ce procès-verbal exécutoire après vérification ; il est non avenu s'il n'est pas signifié dans les six mois, et le débiteur peut s'y opposer",
-    "« Les frais occasionnés par la mise en œuvre de la procédure […] sont à la charge du débiteur »",
-    "Un décret en Conseil d'État fixe les modalités d'application de cette nouvelle procédure de recouvrement"
+    "Pour une facture entre commerçants, certaine et exigible, le créancier peut demander à un commissaire de justice d'engager une procédure simplifiée",
+    "Celui-ci remet au débiteur un commandement de payer sous un mois, qui doit décrire la dette et les sommes réclamées sous peine d'être nul",
+    "Si le débiteur conteste dans ce délai, la procédure s'arrête, le créancier gardant la possibilité d'aller en justice",
+    "Faute de paiement ou de contestation, et au plus tôt huit jours après l'échéance, un constat est dressé puis rendu exécutoire par le greffe du tribunal de commerce",
+    "Ce constat est non avenu s'il n'est pas remis au débiteur dans les six mois, et le débiteur peut s'y opposer",
+    "Les frais sont à la charge du débiteur, et les factures entre commerçants sortent de la procédure simplifiée qui existait déjà"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53690": {
-   "accroche": "Rend remboursables par l'État les frais d'expertise comptable engagés pour un compte de campagne, dans le cadre du remboursement forfaitaire déjà prévu par le code électoral.",
+   "accroche": "Les honoraires de l'expert-comptable liés au compte de campagne d'un candidat entrent dans les dépenses que l'État rembourse forfaitairement.",
    "points": [
-    "Ces frais sont inscrits dans le compte de campagne et « éligibles au remboursement forfaitaire de la part de l'Etat » prévu à l'article L. 52-11-1",
-    "La Commission nationale des comptes de campagne et des financements politiques peut n'en retenir qu'une partie lorsqu'ils s'avèrent « manifestement excessifs »",
-    "Ce caractère excessif s'apprécie au regard des prestations accomplies, des pièces et justificatifs produits ou des difficultés que présente le compte de campagne",
-    "Met à jour, à l'article L. 388, la référence à la dernière loi dont le code électoral applique la rédaction"
+    "Ces frais sont inscrits dans le compte de campagne et deviennent éligibles au remboursement forfaitaire versé par l'État",
+    "La commission qui contrôle les comptes de campagne peut n'en retenir qu'une partie lorsqu'ils s'avèrent manifestement excessifs",
+    "Elle apprécie cet excès au regard des prestations réellement accomplies, des justificatifs produits et des difficultés que présentait le compte"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53980": {
-   "accroche": "Autorise plusieurs expérimentations de captation d'images, élargit les contrôles d'identité le long des frontières terrestres et crée une interdiction de paraître autour des manifestations sportives.",
+   "accroche": "Données de circulation exploitées par le renseignement, caméras pour les agents de sécurité privée et les trains, contrôles d'identité près des frontières : plusieurs dispositifs sont ouverts à l'essai.",
    "points": [
-    "Pendant trois ans, police et gendarmerie peuvent exploiter les données de l'article L. 233-2 du code de la sécurité intérieure pour détecter des mouvements de véhicules",
-    "Les personnes exerçant l'activité mentionnée au 1° de l'article L. 611-1 du code de la sécurité intérieure peuvent porter des caméras individuelles, sans enregistrement permanent",
-    "Le préfet peut interdire, pour une durée qui « ne peut excéder vingt-quatre heures », de paraître dans les lieux ouverts au public autour d'une manifestation sportive",
-    "Entre la frontière terrestre avec les États parties à Schengen et une ligne tracée à quarante kilomètres en deçà, l'identité est contrôlable « quel que soit son comportement »",
-    "Le Gouvernement est autorisé à légiférer par ordonnance dans les six mois pour compléter, dans le code des transports, les interdictions et sanctions visant l'alcool et les stupéfiants",
-    "Une partie de l'article 47 est déclarée « non conforme à la Constitution » par la décision du Conseil constitutionnel n° 2026-915 DC du 14 août 2026"
+    "Pendant trois ans, la police et la gendarmerie peuvent exploiter les données déjà collectées sur les véhicules pour détecter des déplacements révélant un vol ou un trafic organisé",
+    "Ces données sont conservées quatre mois au plus, réservées à des agents du renseignement nommément habilités, et la photographie des occupants ne peut pas être exploitée",
+    "Les agents de sécurité privée peuvent filmer leurs interventions avec une caméra portée de façon apparente, dans les lieux dont ils ont la garde, sans accéder eux-mêmes aux images",
+    "Les trains peuvent recevoir une caméra frontale pour analyser les accidents et former les conducteurs, les images étant effacées au bout de trente jours",
+    "Pour traquer les trafics organisés, toute personne peut être contrôlée à toute heure, quel que soit son comportement, dans les quarante kilomètres bordant les frontières et le littoral",
+    "Une partie du texte a été déclarée contraire à la Constitution, et le Gouvernement peut légiférer seul, par ordonnance, sur l'alcool et les stupéfiants dans les transports"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50169": {
-   "accroche": "Autorise l'infiltration d'informateurs civils dans les enquêtes sur le crime organisé, protège l'identité des enquêteurs et ouvre aux juridictions parisiennes une compétence sur les affaires les plus complexes.",
+   "accroche": "Des indicateurs peuvent être autorisés à infiltrer des réseaux criminels, policiers et surveillants de prison à témoigner sous un numéro, et des drones à survoler les prisons.",
    "points": [
-    "Un procureur de la République anti-criminalité organisée peut autoriser l'« infiltration civile » d'informateurs majeurs, après avis d'une commission et évaluation par un service du ministère de l'intérieur",
-    "Policiers et gendarmes affectés aux enquêtes sur la criminalité organisée peuvent figurer dans les actes de procédure sous un numéro d'immatriculation administrative au lieu de leurs nom et prénom",
-    "Même possibilité pour un agent pénitentiaire victime ou témoin, lorsque révéler son identité mettrait en danger sa vie, son intégrité physique ou celles de ses proches",
-    "Les services pénitentiaires peuvent capter et transmettre des images par « caméras installées sur des aéronefs » autour des établissements exposés aux évasions ou aux trafics",
-    "Les administrations impliquées dans la lutte contre le narcotrafic tiennent une cartographie des risques de corruption, mise à jour tous les deux ans",
-    "Deux dispositions de l'article 56 sont déclarées non conformes à la Constitution ; la compétence des juridictions parisiennes entre en vigueur le 5 janvier 2026"
+    "Un informateur majeur peut infiltrer un réseau pour trois mois au plus, renouvelables trois fois, sans être puni pour les délits inscrits dans sa convention",
+    "Cette participation ne peut porter ni sur des crimes, ni sur des violences volontaires, ni consister à pousser quelqu'un à commettre une infraction",
+    "Policiers et gendarmes des services spécialisés, comme les surveillants de prison menacés, peuvent être identifiés par un numéro administratif plutôt que par leurs nom et prénom",
+    "Les prisons exposées peuvent être surveillées par des caméras embarquées sur des aéronefs, sans filmer l'intérieur des cellules sauf incident grave",
+    "Les agents chargés de la sûreté des ports et des aéroports suivent obligatoirement une formation contre la corruption",
+    "Deux dispositions ont été déclarées contraires à la Constitution, et la compétence des juridictions parisiennes pour les affaires les plus complexes ne s'applique qu'au 5 janvier 2026"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50588": {
-   "accroche": "Fixe pour 2025 les contributions dues par les entreprises du médicament, récrit les règles du complément de garde d'enfant et crée un comité de suivi des allégements de cotisations patronales.",
+   "accroche": "Un déficit de 22,1 milliards d'euros est prévu pour 2025, le calcul des retraites agricoles change et la contribution des laboratoires sur les génériques est abaissée.",
    "points": [
-    "Plafonne à « 1,75 % du chiffre d'affaires » la contribution due pour 2025 par les entreprises au titre des médicaments génériques et de certaines spécialités de référence",
-    "Fixe pour 2025 le montant M mentionné à l'article L. 138-10 du code de la sécurité sociale à 27,25 milliards d'euros et le montant Z à 2,26 milliards",
-    "Un comité de suivi auprès du Premier ministre, où siègent deux députés et deux sénateurs, évalue les allégements de cotisations patronales jusqu'au 31 décembre 2029 et publie ses rapports",
-    "Le complément de libre choix du mode de garde comprend deux parts : l'une calculée sur les cotisations, l'autre sur la rémunération nette de la garde d'enfant, au 1er janvier 2026",
-    "Un employeur particulier peut, avec l'accord écrit du salarié, verser la rémunération par voie dématérialisée via un organisme qui prélève aussi l'impôt à la source",
-    "L'équilibre des comptes et les prévisions chiffrées restent dans les articles et annexes propres à la loi, qui annonce un solde de « - 22,1 milliards d'euros en 2025 »"
+    "L'annexe chiffrée prévoit un solde des comptes de la sécurité sociale de - 22,1 milliards d'euros en 2025",
+    "Les dépenses d'assurance maladie progressent de 4,1 % en 2025 par rapport à l'objectif voté un an plus tôt",
+    "Le plafond de la contribution des laboratoires sur les médicaments génériques passe de 2 % du chiffre d'affaires pour 2024 à 1,75 % pour 2025",
+    "Pour les exploitants agricoles, les anciennes règles de calcul restent appliquées aux pensions prenant effet entre le 1er janvier 2026 et le 31 décembre 2027",
+    "Un comité auprès du Premier ministre, où siègent deux députés et deux sénateurs, évalue les allégements de cotisations patronales jusqu'au 31 décembre 2029",
+    "Le Gouvernement est autorisé à modifier par ordonnance certaines réductions de cotisations, et plusieurs mesures n'entrent en vigueur qu'au 1er janvier 2026"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50724": {
-   "accroche": "Impose à chaque établissement public d'enseignement supérieur une mission « égalité et diversité » et un dispositif de signalement anonyme des faits d'antisémitisme, de racisme, de discrimination, de violence et de haine.",
+   "accroche": "Chaque université met en place une mission « égalité et diversité », un référent contre l'antisémitisme et un dispositif de signalement garantissant l'anonymat des victimes et des témoins.",
    "points": [
-    "Un référent qualifié, au sein de cette mission, est chargé exclusivement de la prévention, de la détection et du traitement des faits d'antisémitisme et de racisme",
-    "Tout membre du personnel qui a connaissance d'un tel fait, dans ou hors de l'établissement mais lié à la vie universitaire, doit le signaler sans délai",
-    "Le président ou le directeur fait retirer « dans les meilleurs délais » les affichages, inscriptions, emblèmes et installations antisémites, racistes ou incitant à la haine visibles dans l'établissement",
-    "Dans chaque région académique, le recteur crée une section disciplinaire commune, présidée par un membre de la juridiction administrative, qui exerce le pouvoir disciplinaire sur les usagers",
-    "Les faits d'antisémitisme, de racisme ou d'incitation à la haine sont une faute disciplinaire ; le président peut interdire l'accès aux locaux jusqu'à la décision",
-    "Chaque année, le Gouvernement transmet au Parlement le bilan quantitatif et qualitatif des signalements ; un décret en Conseil d'État fixe la composition de la section disciplinaire commune"
+    "Au sein de cette mission, un référent qualifié s'occupe exclusivement de prévenir, détecter et traiter les faits d'antisémitisme et de racisme",
+    "Tout membre du personnel qui a connaissance d'un tel fait lié à la vie universitaire doit le signaler sans délai, même s'il s'est produit hors de l'établissement",
+    "Le président fait retirer au plus vite les affiches, inscriptions et emblèmes antisémites, racistes ou appelant à la haine visibles dans l'établissement",
+    "Les faits d'antisémitisme, de racisme et d'incitation à la haine figurent parmi les fautes disciplinaires, et l'étudiant poursuivi peut se voir interdire l'accès aux locaux",
+    "Un jury disciplinaire commun aux universités d'une même région, présidé par un juge administratif, peut statuer à la place de celui de l'établissement",
+    "Le Gouvernement transmet chaque année au Parlement le nombre de signalements, la nature des faits et les suites qui leur ont été données"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50882": {
-   "accroche": "Fait sortir un objet des collections publiques françaises, par dérogation à leur inaliénabilité, et impose son transfert à un État étranger dans un délai d'un an.",
+   "accroche": "Le tambour parleur dit Djidji Ayokwè quitte les collections nationales françaises et doit être transféré à la République de Côte d'Ivoire dans l'année qui suit l'entrée en vigueur.",
    "points": [
-    "Le tambour parleur dit Djidji Ayokwè, conservé au musée du quai Branly-Jacques Chirac, cesse de faire partie des collections nationales à la date d'entrée en vigueur du texte",
-    "L'autorité administrative dispose, à compter de la même date, d'un délai d'un an pour transférer ce bien à la République de Côte d'Ivoire",
-    "La sortie déroge au principe d'inaliénabilité des collections publiques inscrit à l'article L. 451-5 du code du patrimoine",
-    "Une annexe identifie l'objet : numéro d'inventaire 71.1930.5.1, « Tambour “parleur” de la communauté Atchan »"
+    "Le principe qui interdit de céder les objets des collections publiques françaises est écarté pour ce seul objet",
+    "Conservé sous la garde du musée du quai Branly-Jacques Chirac, il cesse de faire partie des collections nationales dès l'entrée en vigueur",
+    "L'administration dispose d'un délai d'un an pour procéder au transfert",
+    "Une annexe désigne l'objet par son numéro d'inventaire au musée : un tambour « parleur » de la communauté Atchan"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51052": {
-   "accroche": "Organise un vote par correspondance sous pli fermé pour les personnes détenues inscrites à ce titre sur une liste électorale, avec remise des plis au bureau de vote.",
+   "accroche": "Les personnes détenues votent par correspondance sous pli fermé, remis au bureau de vote le jour du scrutin, à partir du prochain renouvellement des conseils municipaux.",
    "points": [
-    "Le vote se fait « sous pli fermé dans des conditions permettant de respecter le caractère secret et personnel du vote », le cas échéant après passage par l'isoloir",
-    "Les plis sont remis au président du bureau de vote le jour du scrutin, jusqu'à la fermeture du bureau",
-    "Le président ouvre chaque pli, émarge en lieu et place de l'électeur, puis met aussitôt dans l'urne l'enveloppe contenant le bulletin",
-    "Dans les communes dotées de machines à voter, ces électeurs sont affectés par le maire à un bureau de vote spécifique, rattaché à la circonscription comptant le plus d'inscrits",
-    "Les conséquences financières éventuelles pour l'État sont compensées par une taxe additionnelle à l'accise sur les tabacs",
-    "Le dispositif ne s'applique qu'à compter du premier renouvellement général des conseils municipaux suivant la publication du texte"
+    "Les plis sont remis au président du bureau de vote le jour du scrutin et jusqu'à la fermeture du bureau",
+    "Le président, ou un membre qu'il désigne, ouvre le pli, émarge à la place de l'électeur et met aussitôt l'enveloppe dans l'urne",
+    "Le vote doit rester secret et personnel, le cas échéant après passage par l'isoloir",
+    "Dans les communes équipées de machines à voter, ces électeurs sont affectés par le maire à un bureau de vote spécifique",
+    "Rien ne change avant le premier renouvellement général des conseils municipaux qui suit la publication"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51175": {
-   "accroche": "Inscrit dans le code de l'environnement les programmes d'actions de prévention des inondations, labellisés par l'État, et allège les procédures de consultation du public pour les travaux prévus.",
+   "accroche": "Les collectivités peuvent faire labelliser par l'État leur programme de travaux contre les inondations, prêter des agents aux communes sinistrées et alléger certaines consultations du public.",
    "points": [
-    "Les collectivités ou leurs groupements peuvent élaborer un tel programme répondant à un cahier des charges fixé par l'État, qui le labellise dans des délais d'instruction fixés par arrêté",
-    "L'enquête publique menée pour déclarer les travaux d'utilité publique peut tenir lieu de consultation du public sur le programme lorsque celle-ci n'a pas encore été réalisée",
-    "Les éléments environnementaux déjà produits pour le programme sont réputés faire partie de l'étude d'impact du projet de travaux",
-    "Collectivités et intercommunalités peuvent instituer une « réserve d'ingénierie » d'agents publics territoriaux, pour l'appui technique et administratif aux communes sinistrées ou exposées",
-    "Un décret pris sur avis conforme du Conseil d'État peut autoriser, à titre exceptionnel, la prise de possession d'immeubles quand des risques sérieux pour la sécurité l'exigent",
-    "Dans un délai de deux ans, le Gouvernement remet au Parlement un rapport sur la simplification de la procédure d'élaboration de ces programmes"
+    "Une commune ou un groupement peut soumettre à l'État un programme d'actions contre les inondations en vue de sa labellisation, avec des délais d'instruction maximaux fixés par arrêté",
+    "Les maires étaient entendus pendant l'enquête publique sur un plan de prévention des risques ; le préfet recueille désormais l'avis des conseils municipaux et des intercommunalités chargées de l'urbanisme",
+    "Les collectivités volontaires peuvent constituer une réserve d'agents publics pour épauler techniquement les communes sinistrées ou très exposées",
+    "L'enquête publique organisée pour déclarer les travaux d'utilité publique peut tenir lieu de consultation du public sur le programme de prévention",
+    "Quand des risques sérieux pour la sécurité des personnes l'exigent, un décret peut autoriser à titre exceptionnel la prise de possession des terrains nécessaires",
+    "Dans un délai de deux ans, le Gouvernement doit remettre au Parlement un rapport sur la simplification de ces programmes"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51349": {
-   "accroche": "Définit l'agression sexuelle comme « tout acte sexuel non consenti » et inscrit dans le code pénal ce qu'est, ou n'est pas, un consentement.",
+   "accroche": "Une agression sexuelle se définit maintenant par l'absence de consentement, et non plus par la violence, la contrainte, la menace ou la surprise employées.",
    "points": [
-    "Le consentement « est libre et éclairé, spécifique, préalable et révocable » et « est apprécié au regard des circonstances »",
-    "Il « ne peut être déduit du seul silence ou de la seule absence de réaction de la victime »",
-    "Il n'y a pas de consentement si l'acte est commis avec violence, contrainte, menace ou surprise, « quelle que soit leur nature »",
-    "L'acte visé peut être commis sur la personne d'autrui ou « sur la personne de l'auteur »",
-    "Les mots « ou bucco-anal » sont ajoutés aux trois articles du code pénal qui définissent le viol (222-23, 222-23-1 et 222-23-2)"
+    "L'infraction visait toute atteinte sexuelle commise avec violence, contrainte, menace ou surprise ; elle vise tout acte sexuel non consenti, commis sur autrui ou sur l'auteur",
+    "Le consentement est défini : « libre et éclairé, spécifique, préalable et révocable », et il s'apprécie au regard des circonstances",
+    "Le seul silence ou la seule absence de réaction de la victime ne permet plus d'en déduire un consentement",
+    "Il n'y a pas de consentement lorsque l'acte est commis avec violence, contrainte, menace ou surprise, quelle qu'en soit la nature",
+    "Les actes bucco-anaux s'ajoutent aux actes qui constituent un viol"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51457": {
-   "accroche": "Rend obligatoire, pour les agents des collectivités territoriales, la souscription de garanties minimales couvrant l'incapacité de travail, l'invalidité, l'inaptitude et le décès.",
+   "accroche": "Adhérer au contrat collectif couvrant l'arrêt de travail, l'invalidité, l'inaptitude et le décès devient obligatoire pour les agents des collectivités, l'employeur en payant la moitié.",
    "points": [
-    "La collectivité finance « la moitié » de la cotisation ou de la prime individuelle ouvrant droit à ces garanties, en remplacement de 20 % d'un montant de référence fixé par décret",
-    "Un accord collectif peut rendre obligatoire l'ensemble des garanties du contrat collectif ou ouvrir des garanties optionnelles ; un décret en Conseil d'État fixe les cas de dispense",
-    "L'organisme assureur « ne peut refuser la prise en charge des suites d'états pathologiques survenus avant l'adhésion de l'agent »",
-    "Un agent en congé pour raisons de santé au démarrage du contrat n'est tenu de souscrire qu'après avoir repris ses fonctions trente jours consécutifs au moins",
-    "Les conséquences financières éventuelles pour les collectivités sont compensées par une taxe additionnelle à l'accise sur les tabacs",
-    "Les obligations s'appliquent au 1er janvier 2029 si aucune convention de participation n'est en cours, sinon au terme de cette convention"
+    "La participation de l'employeur passe de 20 % d'un montant de référence fixé par décret à la moitié de la cotisation ouvrant droit aux garanties minimales",
+    "Un accord collectif peut rendre obligatoires toutes les garanties du contrat, et non les seules garanties minimales",
+    "Un décret fixera les situations professionnelles ou personnelles permettant à un agent d'être dispensé d'adhérer",
+    "L'assureur ne peut refuser de prendre en charge les suites d'une maladie survenue avant l'adhésion de l'agent",
+    "L'agent en congé maladie au démarrage du contrat collectif n'y est tenu qu'après trente jours consécutifs de reprise, en gardant l'aide financière de son employeur",
+    "Les collectivités sans convention en cours n'appliquent ces règles qu'au 1er janvier 2029, les autres au terme de leur convention"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51670": {
-   "accroche": "Ouvre une procédure d'« aide à mourir » : demande adressée à un médecin, examen collégial, puis administration d'une substance létale par la personne elle-même ou par un soignant.",
+   "accroche": "Une personne peut demander une aide à mourir à un médecin, qui décide après un examen collégial ; l'administration de la substance létale suit une procédure encadrée.",
    "points": [
-    "La demande est présentée à un médecin en activité qui n'est ni parent, ni allié, ni conjoint, ni ayant droit du demandeur, et jamais par téléconsultation",
-    "Le médecin réunit un collège pluriprofessionnel : un autre médecin spécialiste de la pathologie, sans lien hiérarchique, et un auxiliaire médical ou aide-soignant intervenant dans le traitement",
-    "Une personne « dont le discernement est gravement altéré » lors de la démarche ne peut être reconnue comme manifestant une volonté libre et éclairée",
-    "La personne convient de la date et du lieu — domicile, établissement de santé ou médico-social — et peut être entourée des personnes de son choix ; elle peut renoncer",
-    "Le soignant suspend la procédure s'il constate des pressions ; lorsque le médecin y met fin pour ce motif, il signale les faits sans délai au procureur de la République",
-    "Le Gouvernement est habilité à étendre le texte par ordonnance, dans un délai d'un an, en Nouvelle-Calédonie, en Polynésie française et à Wallis-et-Futuna"
+    "La demande est présentée à un médecin qui n'est ni un parent, ni un conjoint, ni un ayant droit, et jamais lors d'une téléconsultation",
+    "Avant de décider, le médecin réunit un collège comprenant un autre médecin spécialiste extérieur au traitement et un soignant qui suit la personne",
+    "Une personne dont le discernement est gravement altéré lors de la demande ne peut pas être reconnue comme manifestant une volonté libre et éclairée",
+    "La personne fixe la date et le lieu, chez elle, à l'hôpital ou en établissement médico-social, et peut être entourée des personnes de son choix",
+    "L'accompagnant suspend la procédure s'il constate des pressions ; le médecin qui y met fin pour ce motif saisit le procureur",
+    "Le Gouvernement pourra étendre ces règles par ordonnance, en un an, à la Nouvelle-Calédonie, à la Polynésie française et à Wallis-et-Futuna"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51791": {
-   "accroche": "Ajoute aux objets possibles du contrat de professionnalisation l'acquisition d'« un ou plusieurs blocs de compétences de certification professionnelle », selon des modalités définies par décret.",
+   "accroche": "Ce que peut viser un contrat de professionnalisation s'élargit à un ou plusieurs blocs de compétences d'une certification professionnelle, dans des conditions qu'un décret doit fixer.",
    "points": [
-    "Les mêmes mots sont insérés dans deux articles du code du travail, L. 6325-1 et L. 6325-3",
-    "Les blocs visés sont ceux « mentionnés au dernier alinéa de l'article L. 6113-1 » du code du travail",
-    "Les modalités de cette acquisition par blocs sont renvoyées à un décret",
-    "Les conséquences financières éventuelles pour l'État sont compensées, à due concurrence, par une taxe additionnelle à l'accise sur les tabacs"
+    "Aux objectifs que peut poursuivre ce contrat s'ajoutent un ou plusieurs blocs de compétences d'une certification professionnelle",
+    "Le même ajout est fait aux règles encadrant les actions de professionnalisation prévues par le contrat",
+    "Un décret précisera les modalités selon lesquelles ces blocs de compétences peuvent être visés",
+    "Le coût éventuel pour l'État est gagé par une taxe additionnelle sur les tabacs"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51985": {
-   "accroche": "Présente en tableaux les investissements prioritaires à Mayotte pour 2025-2031 et crée des règles propres au territoire sur l'habitat informel, les contrôles en locaux professionnels et le périscolaire.",
+   "accroche": "Après le cyclone de décembre 2024 et la tempête de janvier 2025, des investissements sont programmés à Mayotte jusqu'en 2031 et les pouvoirs de police y sont élargis.",
    "points": [
-    "Les tableaux détaillent, par thème — eau et assainissement, santé, lutte contre l'immigration clandestine —, des investissements qui « peuvent être réévalués » pour la reconstruction",
-    "Le préfet peut ordonner par arrêté l'évacuation puis la démolition d'un habitat informel présentant des risques graves pour la salubrité, la sécurité ou la tranquillité publiques",
-    "Une proposition de relogement ou d'hébergement d'urgence et un rapport motivé des services d'hygiène sont annexés à cet arrêté, qui fixe le délai pour évacuer et démolir",
-    "Le juge des libertés de Mamoudzou peut autoriser, pour quinze jours au plus, les contrôles dans des locaux professionnels situés en habitat informel et la traversée des locaux voisins",
-    "Un fonds de soutien aide les communes à financer les activités périscolaires : montant forfaitaire par élève, majoré selon la répartition des enseignements dans la semaine",
-    "Le Gouvernement est habilité à étendre par ordonnance, dans un délai d'un an, la législation applicable dans l'hexagone en matière de sécurité sociale, d'aide sociale et d'offre de soins"
+    "Le préfet peut ordonner l'évacuation puis la démolition d'un habitat informel dangereux, avec un délai d'au moins quinze jours et une proposition de relogement annexée",
+    "Un juge peut autoriser des agents à entrer pendant quinze jours au plus dans des locaux professionnels d'un quartier d'habitat informel pour rechercher du travail illégal",
+    "Lors d'une visite liée à des armes, une personne peut être retenue sur place quatre heures au maximum, et un mineur seulement avec l'accord exprès du juge",
+    "Un fonds soutient les communes qui organisent des activités périscolaires, avec un montant par élève majoré selon la répartition de la semaine scolaire",
+    "Les règles nationales des services d'incendie et de secours s'appliquent au territoire, avec des adaptations, au plus tard le 1er janvier 2026",
+    "Le Gouvernement est autorisé à étendre par ordonnance, en un an, la sécurité sociale de l'hexagone, sauf l'aide médicale de l'État"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52099": {
-   "accroche": "Autorise l'approbation de la résolution n° F/BG/2023/04 modifiant l'accord qui a créé le Fonds africain de développement, adoptée à Charm el-Cheikh le 23 mai 2023.",
+   "accroche": "L'approbation d'amendements à l'accord ayant créé le Fonds africain de développement, adoptés à Charm el-Cheikh le 23 mai 2023, est autorisée par le Parlement.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52354": {
-   "accroche": "Autorise l'approbation d'un accord entre la France et la Moldavie sur l'échange des permis de conduire, conclu par notes verbales signées à Paris le 12 juillet 2024.",
+   "accroche": "L'approbation d'un accord franco-moldave sur l'échange des permis de conduire, conclu par notes verbales signées à Paris le 12 juillet 2024, est autorisée par le Parlement.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52655": {
-   "accroche": "Reporte les élections des membres du congrès et des assemblées de province de la Nouvelle-Calédonie, qui devaient se tenir au plus tard le 30 novembre 2025.",
+   "accroche": "Le renouvellement du congrès et des assemblées de province de Nouvelle-Calédonie, attendu au plus tard fin novembre 2025, est repoussé au 28 juin 2026 au plus tard.",
    "points": [
-    "Ces élections ont lieu « au plus tard le 28 juin 2026 », par dérogation à l'article 187 de la loi organique du 19 mars 1999 relative à la Nouvelle-Calédonie",
-    "La liste électorale spéciale et le tableau annexe sont mis à jour au plus tard dix jours avant la date du scrutin",
-    "Les mandats en cours des membres du congrès et des assemblées de province prennent fin le jour de la première réunion des assemblées nouvellement élues",
-    "Les fonctions des membres des organes du congrès sont prorogées jusqu'au jour de cette première réunion",
-    "Le texte entre en vigueur le lendemain de sa publication au Journal officiel"
+    "Les élections devaient se tenir au plus tard le 30 novembre 2025 ; elles auront lieu au plus tard le 28 juin 2026",
+    "La liste électorale spéciale et son tableau annexe sont mis à jour au plus tard dix jours avant le scrutin",
+    "Les mandats en cours prennent fin le jour de la première réunion des assemblées nouvellement élues",
+    "Les fonctions des membres des organes du congrès sont prolongées jusqu'à la première réunion du congrès élu",
+    "Le report s'applique dès le lendemain de la publication au Journal officiel"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53187": {
-   "accroche": "Fait figurer dans le projet de chaque école et établissement une partie sur l'usage du numérique et la sensibilisation aux effets nocifs des écrans et des réseaux sociaux.",
+   "accroche": "L'interdiction du téléphone portable à l'école s'étend aux lycées, et chaque projet d'établissement doit traiter des écrans et du caractère addictif des réseaux sociaux.",
    "points": [
-    "Ce volet décrit les actions menées auprès des élèves, du personnel et des parents, notamment sur « le caractère addictif des réseaux sociaux » et les enjeux de santé publique",
-    "L'article sur l'interdiction des appareils dans l'enceinte scolaire est récrit pour viser les écoles élémentaires, les collèges et les lycées",
-    "Ses modalités et ses exceptions sont déterminées « en cohérence avec le projet d'école ou d'établissement » ; des dispositions particulières sont possibles pour les étudiants",
-    "L'article 223-14 du code pénal est ajouté à deux listes d'infractions, à l'article 6 de la loi du 21 juin 2004 et à l'article 131-35-1 du code pénal",
-    "L'article 1er est déclaré non conforme à la Constitution ; les mesures scolaires entrent en vigueur à la rentrée scolaire 2026-2027"
+    "L'interdiction couvrait les écoles élémentaires et les collèges ; elle couvre aussi les lycées, dans toute l'enceinte de l'établissement",
+    "Un lycée pouvait décider lui-même d'interdire ces appareils ; ce sont maintenant les exceptions à l'interdiction qui se fixent en cohérence avec le projet d'établissement",
+    "Les lycées qui dispensent des formations supérieures peuvent prévoir des règles particulières pour leurs étudiants",
+    "Le projet d'école ou d'établissement comporte une partie sur le numérique et sur la sensibilisation des élèves, des personnels et des parents aux effets nocifs des écrans",
+    "Une partie de la loi a été déclarée contraire à la Constitution, et les règles scolaires s'appliquent à la rentrée 2026-2027"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53357": {
-   "accroche": "Étend aux intercommunalités et aux syndicats mixtes, et non plus aux seules communes, la prise en compte des charges nées des compétences d'autorité organisatrice de la petite enfance.",
+   "accroche": "La compensation financière de l'accueil du jeune enfant ira aussi aux intercommunalités et aux syndicats mixtes qui exercent l'ensemble de ces compétences, à partir de 2027.",
    "points": [
-    "À l'article 17 de la loi du 18 décembre 2023, l'exercice « obligatoire » est remplacé par l'exercice de ces compétences par la commune qui ne les a pas transférées",
-    "Sont également visées les intercommunalités et les syndicats mixtes qui exercent l'ensemble des compétences d'autorité organisatrice prévues aux 1° à 4° du même article",
-    "À l'article 188 de la loi du 14 février 2025, la mention des seules communes est remplacée par celle des communes, intercommunalités et syndicats mixtes concernés",
-    "Les conséquences financières éventuelles pour l'État sont compensées, à due concurrence, par une taxe additionnelle à l'accise sur les tabacs",
-    "Les deux modifications n'entrent en vigueur que le 1er janvier 2027, date fixée par l'article unique du texte"
+    "La compensation visait l'exercice obligatoire de ces compétences ; le mot « obligatoire » disparaît des deux textes modifiés",
+    "Une commune reste compensée pour les compétences qu'elle exerce elle-même, faute de les avoir transférées à une intercommunalité ou à un syndicat mixte",
+    "Les intercommunalités et les syndicats mixtes exerçant l'ensemble des compétences d'autorité organisatrice deviennent bénéficiaires de la compensation",
+    "Le changement entre en vigueur le 1er janvier 2027, le coût pour l'État étant gagé par une taxe additionnelle sur les tabacs"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53730": {
-   "accroche": "Autorise l'approbation d'une convention franco-italienne sur l'entretien courant et l'exploitation de la section française de la ligne ferroviaire Coni-Breil-Vintimille, signée à Milan le 12 avril 2024.",
+   "accroche": "L'approbation d'une convention franco-italienne sur l'entretien courant et l'exploitation de la partie française de la ligne ferroviaire Coni-Breil-Vintimille, signée à Milan le 12 avril 2024, est autorisée.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53981": {
-   "accroche": "Complète une phrase de l'article L. 5422-2 du code du travail en y ajoutant le cas des personnes qui « relèvent du 2° du I de l'article L. 5422-1 ».",
+   "accroche": "Transpose dans le droit du travail l'avenant du 25 février 2026 à l'accord conclu en 2023 par les partenaires sociaux sur l'assurance chômage.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50198": {
-   "accroche": "Fixe les ressources, les charges et l'équilibre du budget de l'État pour 2025, et crée deux impôts nouveaux visant les entreprises d'au moins un milliard d'euros de chiffre d'affaires.",
+   "accroche": "Les entreprises réalisant au moins un milliard d'euros de chiffre d'affaires paient une contribution exceptionnelle sur leurs bénéfices, et le rachat de leurs propres actions devient taxé.",
    "points": [
-    "Institue une contribution exceptionnelle sur les bénéfices des entreprises au chiffre d'affaires « supérieur ou égal à 1 milliard d'euros », pour le premier exercice clos à compter du 31 décembre 2025",
-    "Crée une taxe sur les réductions de capital par annulation de titres qu'une société a rachetés à elle-même, pour les sociétés dépassant 1 milliard d'euros de chiffre d'affaires",
-    "Abroge la taxe sur les hydrofluorocarbones, des gaz à effet de serre fluorés, due par celui qui en réalise la première livraison en France",
-    "Permet aux acheteurs d'électricité sous contrat de demander au producteur l'arrêt ou la limitation de sa production lorsque cela réduit les surcoûts compensés par l'État",
-    "Reporte au 1er janvier 2027 l'entrée en vigueur des règles permettant à des entreprises étroitement liées de constituer « un seul assujetti » à la TVA",
-    "Le reste tient dans les articles propres de la loi : équilibre général, plafonds des taxes affectées à des organismes et états annexés ; dix articles sur 1 202 sont décrits ici"
+    "Une contribution exceptionnelle frappe les bénéfices des entreprises dont le chiffre d'affaires atteint un milliard d'euros, au titre du premier exercice clos à compter du 31 décembre 2025",
+    "Réduire son capital en annulant des actions rachetées devient taxable pour les sociétés dépassant un milliard d'euros de chiffre d'affaires, pour les opérations réalisées à partir du 1er mars 2025",
+    "La taxe sur les gaz réfrigérants fluorés, due par celui qui les livre le premier en France et calculée sur les quantités livrées, est supprimée",
+    "Un producteur d'électricité sous contrat d'achat peut se voir demander d'arrêter ou de limiter sa production contre compensation financière, les installations visées faisant au moins dix mégawatts",
+    "À partir du 1er janvier 2027, la taxe sur la valeur ajoutée se déclare chaque trimestre sous 1 000 000 € de chiffre d'affaires l'année précédente, chaque mois au-delà"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50636": {
-   "accroche": "Autorise l'épandage par drone de certains produits de traitement des cultures sur les terrains en forte pente, les bananeraies et certaines vignes, sous conditions fixées par arrêté.",
+   "accroche": "Traiter des cultures en pulvérisant depuis un appareil volant sans pilote à bord peut désormais être autorisé sur les terrains en forte pente, les bananeraies et certaines vignes.",
    "points": [
-    "Ouvre l'application par « aéronef circulant sans personne à bord » aux produits de biocontrôle, aux produits autorisés en agriculture biologique et aux produits à faible risque",
-    "Limite ces programmes aux parcelles agricoles « comportant une pente supérieure ou égale à 20 % », aux bananeraies et aux vignes mères de porte-greffes conduites au sol",
-    "Exige que l'application aérienne présente « des avantages manifestes pour la santé humaine et pour l'environnement par rapport aux applications par voie terrestre »",
-    "Renvoie à un arrêté des ministres de l'environnement, de l'agriculture et de la santé, pris après avis de l'Agence nationale de sécurité sanitaire de l'alimentation, de l'environnement et du travail"
+    "Ces épandages peuvent être autorisés sur les parcelles agricoles dont la pente atteint 20 %, sur les bananeraies et sur les vignes mères de porte-greffes conduites au sol",
+    "Seuls sont concernés les produits de biocontrôle, ceux autorisés en agriculture biologique et ceux dits à faible risque, à l'exclusion des autres traitements",
+    "L'autorisation suppose « des avantages manifestes pour la santé humaine et pour l'environnement » par rapport à un traitement effectué depuis le sol",
+    "Un arrêté des ministres de l'environnement, de l'agriculture et de la santé fixe les conditions, après avis de l'agence sanitaire et consultation des syndicats d'exploitants et de salariés agricoles",
+    "Une seconde voie, dérogatoire, ouvre les mêmes épandages à d'autres parcelles et d'autres cultures, sous des conditions propres à ce régime"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50794": {
-   "accroche": "Autorise l'approbation de l'accord d'adhésion de la France à l'Observatoire du réseau d'antennes d'un kilomètre carré (SKAO), signé à Londres le 11 avril 2022 et annexé à la loi.",
+   "accroche": "Approuver l'accord d'adhésion de la France à l'Observatoire du réseau d'antennes d'un kilomètre carré, signé à Londres le 11 avril 2022, est autorisé.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50915": {
-   "accroche": "Décale des échéances de mandats dans les chambres d'agriculture et la mutualité sociale agricole, impose un règlement intérieur à chaque chambre et modifie le découpage électoral autour de Lyon.",
+   "accroche": "Les listes candidates aux élections de la sécurité sociale agricole devront alterner un candidat de chaque sexe, et une dette de cotisations ne barre plus toute candidature.",
    "points": [
-    "Permet un arrêté du ministre de l'agriculture fixant, au plus tard le 31 décembre 2025, le terme des mandats des élus de la mutualité sociale agricole désignés en 2020",
-    "Prolonge d'un an le mandat des membres de la chambre de l'agriculture, de la pêche et de l'aquaculture de Mayotte, et fixe à cinq ans celui des élus de 2026",
-    "Oblige chaque établissement du réseau des chambres d'agriculture à adopter un règlement intérieur prévoyant la publication des procès-verbaux des réunions de session et du bureau",
-    "Fait de chaque circonscription de la métropole de Lyon, hors commune de Lyon, une circonscription électorale pour l'élection directe des délégués cantonaux",
-    "Prévoit que « chaque liste est composée alternativement d'un candidat de chaque sexe », mais seulement à compter du 1er janvier 2030"
+    "Être à jour de toutes ses cotisations n'est plus exigé pour être éligible ; seules bloquent les sommes dépassant un montant de référence, réclamées depuis six mois au moins",
+    "Chaque chambre d'agriculture doit adopter un règlement intérieur, qui prévoit la publication des comptes rendus des réunions de la session et du bureau",
+    "À Mayotte, le mandat des membres de la chambre d'agriculture en fonction au 31 janvier 2025 est prolongé d'un an, et celui des élus de 2026 durera cinq ans",
+    "Les mandats des élus de la sécurité sociale agricole désignés en 2020 peuvent être clos par arrêté à une autre date que prévu, au plus tard le 31 décembre 2025",
+    "L'alternance femme-homme sur les listes ne s'applique qu'à partir du 1er janvier 2030"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51078": {
-   "accroche": "Inscrit dans l'ordonnance de 1958 sur la magistrature un procureur de la République anti-criminalité organisée au tribunal judiciaire de Paris, et le premier vice-procureur qui lui correspond.",
+   "accroche": "Un procureur chargé de la criminalité organisée entre, à côté du procureur financier, dans le texte qui fixe le statut des magistrats et leurs postes.",
    "points": [
-    "Ajoute le « procureur de la République anti-criminalité organisée, tribunal judiciaire de Paris » à côté du procureur financier, dans l'ordonnance n° 58-1270 du 22 décembre 1958",
-    "Crée la fonction de « premier vice-procureur de la République anti-criminalité organisée »",
-    "Fixe au 5 janvier 2026 l'entrée en vigueur de la loi organique et des deux modifications qu'elle apporte"
+    "Le statut des magistrats ne visait à Paris que le procureur financier ; il désigne aussi, désormais, un procureur de la République chargé de la lutte contre la criminalité organisée",
+    "Un poste de premier vice-procureur rattaché à ce nouveau procureur remplace une mention qui renvoyait seulement au tribunal judiciaire de Paris",
+    "Ces dispositions n'entrent en vigueur que le 5 janvier 2026, et non à la publication de la loi"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51222": {
-   "accroche": "Ouvre à Mayotte, après les événements climatiques survenus à partir du 13 décembre 2024, des dérogations d'urbanisme pour reconstruire, des suspensions de cotisations sociales et un crédit d'impôt.",
+   "accroche": "Après le cyclone Chido, reconstruire à Mayotte échappe aux règles ordinaires d'urbanisme, le paiement des cotisations sociales est suspendu et les prestations sociales sont maintenues sans démarche.",
    "points": [
-    "Ramène à une simple déclaration en mairie la reconstruction ou la réfection à l'identique, « sans modification ni adaptation », des constructions détruites",
-    "Suspend de droit jusqu'au 30 juin 2025 le paiement des cotisations et contributions sociales dues à Mayotte, jusqu'au 31 décembre 2025 en cas de « baisse persistante » du chiffre d'affaires",
-    "Maintient jusqu'au 30 juin 2025 les droits et prestations sociales venant à expiration à compter du 14 décembre 2024, même sans demande de renouvellement ni pièce justificative",
-    "Permet à l'État de construire, rénover et équiper jusqu'au 31 décembre 2027 les écoles publiques des communes désignées par arrêté, à la demande de ces communes",
-    "Ouvre un crédit d'impôt aux banques qui versent des avances remboursables sans intérêt pour des travaux sur des logements mahorais achevés avant le 14 décembre 2024",
-    "Autorise le Gouvernement à légiférer par ordonnance sous trois mois pour transformer l'établissement public foncier et d'aménagement de Mayotte en établissement chargé de coordonner la reconstruction"
+    "Par dérogation aux règles d'urbanisme, refaire à l'identique un bâtiment détruit ne demande qu'une déclaration en mairie, dont copie part au préfet",
+    "La reconstruction peut s'écarter de 5 % du volume d'origine, et jusqu'à 20 % si elle vise la performance énergétique, l'accessibilité, la sécurité ou la création de logements",
+    "Jusqu'au 31 décembre 2027, l'État peut construire et rénover les écoles publiques à la demande des communes, en garantissant plusieurs points d'eau potable et un espace de restauration",
+    "Employeurs et travailleurs indépendants ne sont plus tenus de payer leurs cotisations sociales jusqu'au 30 juin 2025, et jusqu'au 31 décembre 2025 si leur chiffre d'affaires reste en baisse",
+    "Les droits et prestations sociales arrivant à échéance sont maintenus jusqu'au 30 juin 2025 sans demande de renouvellement ni pièces justificatives, hors identité et régularité du séjour",
+    "Le Gouvernement est autorisé à légiférer par ordonnance dans les trois mois pour transformer l'établissement public foncier local en organisme chargé de coordonner la reconstruction"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51351": {
-   "accroche": "Fait reconnaître par la Nation que les dispositions pénalisant l'avortement, aujourd'hui caduques ou abrogées, ont porté atteinte à la santé des femmes et conduit à de nombreux décès.",
+   "accroche": "La Nation reconnaît que la répression de l'avortement, avant 1975, a porté atteinte à la santé et aux droits des femmes, causé des décès et des souffrances.",
    "points": [
-    "Reconnaît une atteinte « à la protection de la santé des femmes, à l'autonomie sexuelle et reproductive, à l'égalité entre les femmes et les hommes » et à la vie privée",
-    "Reconnaît les souffrances et les traumatismes subis par les personnes condamnées pour avoir pratiqué des avortements",
-    "Institue auprès du Premier ministre une commission nationale indépendante chargée de recueillir et de transmettre la mémoire de ces atteintes",
-    "Compose la commission d'un membre du Conseil d'État ou de la Cour de cassation, de trois chercheurs, de trois professionnels de santé et de trois personnes du milieu associatif",
-    "Renvoie à un décret le fonctionnement de la commission, ses attributions et les conditions de son indépendance"
+    "Sont reconnues les atteintes à la santé des femmes, à leur autonomie sexuelle et reproductive, à l'égalité entre femmes et hommes et au respect de la vie privée",
+    "Sont également reconnues les souffrances des personnes condamnées pour avoir pratiqué des avortements, et celles de leurs proches",
+    "Une commission indépendante placée auprès du Premier ministre recueille et transmet la mémoire de ces atteintes",
+    "Elle réunit un haut magistrat, trois chercheurs travaillant sur l'avortement ou l'histoire des femmes, trois professionnels de santé et trois personnes engagées dans le milieu associatif",
+    "Un décret doit fixer son fonctionnement, ses attributions et les conditions dans lesquelles les personnes concernées peuvent être entendues"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51485": {
-   "accroche": "Traite les centrales à charbon converties à un combustible moins émetteur comme des installations neuves, et impose un plan de conversion aux exploitants détenus majoritairement par l'État.",
+   "accroche": "Une centrale à charbon convertie à un combustible moins émetteur compte comme une installation neuve, et remporter l'appel d'offres lui vaut l'autorisation d'exploiter.",
    "points": [
-    "Vise les installations utilisant « du charbon, de la tourbe ou du schiste bitumineux », existantes au 1er janvier 2025 et émettant plus de 550 grammes de dioxyde de carbone par kilowattheure",
-    "Oblige les entreprises dont l'État est actionnaire à plus de 50 % à présenter, au plus tard le 31 décembre 2026, un plan de conversion de ces installations",
-    "Considère les installations ramenées sous le seuil de 550 grammes comme « de nouvelles installations de production »",
-    "Fait valoir la désignation comme lauréate d'une procédure concurrentielle comme autorisation d'exploiter, sauf lorsque l'autorisation environnementale tient lieu de cette autorisation",
-    "Les articles 1er et 2 n'entrent en vigueur qu'à une date fixée par décret ; ce décret l'a fixée au 14 mars 2026"
+    "Sont visées les centrales au charbon, à la tourbe ou au schiste bitumineux qui émettent plus de 550 grammes de CO2 par kilowattheure et passent sous ce seuil",
+    "Une fois converties, ces installations existantes au 1er janvier 2025 comptent comme neuves, leur production commerciale débutant à la date de leur autorisation",
+    "Être désignée lauréate d'une procédure concurrentielle emporte l'autorisation d'exploiter, sauf lorsque l'autorisation environnementale en tient lieu",
+    "Les entreprises détenues à plus de 50 % par l'État qui exploitent des centrales à charbon présentent un plan de conversion au plus tard le 31 décembre 2026",
+    "L'entrée en vigueur des deux premières règles, renvoyée à un décret, est intervenue le 14 mars 2026"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51672": {
-   "accroche": "Crée un plan personnalisé d'accompagnement proposé aux malades graves, une stratégie nationale pluriannuelle des soins palliatifs et des organisations territoriales pilotées par les agences régionales de santé.",
+   "accroche": "Un plan d'accompagnement écrit est proposé à toute personne à qui l'on annonce une maladie grave, et une stratégie nationale pluriannuelle des soins palliatifs est instituée.",
    "points": [
-    "Oblige le médecin ou un soignant à proposer, après l'annonce d'une affection grave ou en cas de début de perte d'autonomie, un « plan personnalisé d'accompagnement » élaboré avec le patient",
-    "Programme année par année, de 2026 à 2034, les crédits de paiement de la stratégie nationale de l'accompagnement et des soins palliatifs",
-    "Poursuit « l'objectif d'atteindre un minimum de deux unités par région avant le 31 décembre 2030 » pour les unités de soins palliatifs",
-    "Confie aux agences régionales de santé des organisations territoriales rassemblant soignants, collectivités et associations pour coordonner l'accès aux soins palliatifs",
-    "Impose un volet « accompagnement et soins palliatifs » dans le projet de certains établissements et services médico-sociaux, avec formation continue et coordination avec les équipes mobiles",
-    "Autorise le Gouvernement à étendre la loi par ordonnance sous un an à la Nouvelle-Calédonie, la Polynésie française et Wallis-et-Futuna, et demande plusieurs rapports au Parlement sous six mois"
+    "Après l'annonce d'une maladie grave, l'aggravation d'une maladie chronique ou une perte d'autonomie qui débute, le médecin propose d'établir un plan personnalisé d'accompagnement",
+    "Ce plan couvre la douleur, les symptômes d'inconfort et la coordination des prises en charge, y compris l'accompagnement des proches après le décès",
+    "Les agences régionales de santé pilotent des organisations locales réunissant hôpitaux, hospitalisation à domicile, collectivités et associations, avec un protocole commun aux équipes mobiles",
+    "Certains établissements et services médico-sociaux doivent ajouter à leur projet un volet sur l'approche palliative, la fin de vie et le deuil, et la formation continue de leurs professionnels",
+    "La stratégie nationale fixe les moyens financiers année par année de 2026 à 2034 et vise au moins deux unités de soins palliatifs par région avant le 31 décembre 2030",
+    "Le Gouvernement doit remettre dans les six mois des rapports sur le financement des soins palliatifs et sur le congé de solidarité familiale, et peut légiférer par ordonnance pour l'outre-mer"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51845": {
-   "accroche": "Ouvre un droit à réparation, sous forme d'allocation forfaitaire, aux personnes transplantées mineures de La Réunion vers la France hexagonale de 1962 à 1984, et à leurs descendants.",
+   "accroche": "Les enfants réunionnais déplacés vers la France hexagonale entre 1962 et 1984, ou leurs descendants, peuvent obtenir une allocation forfaitaire versée par un fonds de l'État.",
    "points": [
-    "Réserve la réparation aux personnes figurant sur la liste nominative établie par la commission temporaire d'information et de recherche historique, ou à leurs descendants si elles sont décédées",
-    "Verse l'allocation par un fonds mis en place par l'État ; son montant « est réputé couvrir l'ensemble des préjudices de toute nature subis en raison de la transplantation »",
-    "Crée une commission de quinze membres chargée notamment d'ouvrir, dans le département de la Creuse, un lieu de mémoire à vocation culturelle, éducative et de recherche",
-    "Demande que la transplantation prenne place dans les programmes scolaires, les formations du travail social et les programmes de recherche en histoire et en sciences humaines",
-    "Institue une journée nationale d'hommage aux mineurs transplantés, fixée au 18 février",
-    "La réparation n'entre en vigueur qu'à une date fixée par décret, « et au plus tard le 1er janvier 2029 », après concertation avec la commission"
+    "Peuvent demander réparation les personnes inscrites sur la liste nominative établie par la commission d'histoire, ou leurs descendants si elles sont décédées",
+    "L'allocation est forfaitaire et son montant est réputé couvrir l'ensemble des préjudices subis en raison du déplacement",
+    "Une commission de quinze membres, dont au moins quatre anciens enfants déplacés, suit la réconciliation et la place de cette histoire dans les programmes scolaires et la recherche",
+    "Elle veille aussi à la création, dans la Creuse, d'un lieu de mémoire à vocation culturelle, éducative et de recherche, et une journée nationale d'hommage est fixée au 18 février",
+    "La réparation n'entre en vigueur qu'à une date fixée par décret, au plus tard le 1er janvier 2029, et les demandes pourront être déposées pendant au moins trois ans"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51986": {
-   "accroche": "Autorise le Gouvernement à intégrer par ordonnance, dans la fonction publique de l'État, les enseignants du premier degré relevant de la mission catholique à Wallis-et-Futuna.",
+   "accroche": "Les enseignants du primaire relevant de la mission catholique à Wallis-et-Futuna pourront être intégrés dans la fonction publique de l'État, par une ordonnance du Gouvernement.",
    "points": [
-    "Vise les enseignants relevant de la convention du 5 juin 2020 portant concession à la mission catholique de l'enseignement du premier degré pour les années 2020-2025",
-    "Permet leur intégration dans les corps de la fonction publique de l'État « quel que soit leur niveau de diplôme »",
-    "Leur laisse le choix entre le régime de retraite de la Caisse des prestations sociales des îles Wallis et Futuna et le régime spécial de leur corps d'intégration",
-    "L'ordonnance doit être prise dans les trois mois suivant la promulgation, et un projet de loi de ratification déposé dans les six mois suivant sa publication"
+    "Le Gouvernement est autorisé à légiférer par ordonnance dans les trois mois suivant la promulgation pour fixer les conditions de cette intégration",
+    "L'intégration est ouverte quel que soit le niveau de diplôme des enseignants concernés",
+    "Elle intervient au terme de la convention du 5 juin 2020 qui confiait l'enseignement du premier degré à la mission catholique pour les années 2020-2025",
+    "Chaque enseignant pourra rester affilié, pour sa retraite, à la caisse locale de Wallis-et-Futuna ou basculer vers le régime spécial de son corps d'accueil",
+    "Un projet de loi ratifiant l'ordonnance doit être déposé au Parlement dans les six mois suivant sa publication"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52100": {
-   "accroche": "Aménage pour les jeux d'hiver de 2030 la circulation, la consultation du public et l'exercice médical, et crée une interdiction de paraître applicable aux grands événements.",
+   "accroche": "Pour les Jeux d'hiver de 2030, le ministre de l'intérieur pourra interdire à une personne de paraître sur les sites, et la publicité y échappera aux règles ordinaires.",
    "points": [
-    "Permet au ministre de l'intérieur d'interdire à une personne de paraître dans les lieux d'un grand événement, pour la durée de celui-ci et dans la limite de deux mois",
-    "Réserve du 1er janvier au 31 mars 2030, par décret, des voies de circulation aux riverains, taxis, transports en commun, secours et personnes accréditées",
-    "Crée dans chaque village olympique une « polyclinique olympique et paralympique », gérée par un établissement de santé de la région et gratuite pour les personnes accréditées",
-    "Autorise les médecins et professionnels de santé accrédités qui ne remplissent pas les conditions d'exercice en France à soigner les athlètes sur les sites de compétition",
-    "Oblige les associations et sociétés sportives à mettre à disposition leurs sportifs français convoqués pour les jeux Olympiques et Paralympiques",
-    "Lève les interdictions de publicité pour les dispositifs portant les emblèmes olympiques, jusqu'au quinzième jour suivant la cérémonie de clôture des jeux Paralympiques de 2030"
+    "Une interdiction de paraître peut viser une personne dont le comportement représente une menace d'une particulière gravité, pour la durée de l'événement et deux mois au plus",
+    "Elle est notifiée au moins soixante-douze heures à l'avance sauf urgence, le tribunal administratif statue en un mois, et s'y soustraire coûte trois ans d'emprisonnement et 45 000 euros d'amende",
+    "Les affichages liés aux Jeux, sur les sites comme sur le parcours de la flamme, échappent aux interdictions de publicité et aux règlements locaux, sur simple déclaration",
+    "Des voies réservées aux riverains, taxis, transports en commun, secours et personnes accréditées sont fixées par décret du 1er janvier au 31 mars 2030",
+    "Une polyclinique gratuite est créée dans chaque village olympique, et des soignants accrédités venus de l'étranger sont autorisés à exercer auprès des délégations",
+    "Ces facilités sont bornées : l'affichage jusqu'au quinzième jour suivant la clôture des jeux Paralympiques, l'exercice des soignants étrangers au plus tard jusqu'au 30 juin 2030"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52428": {
-   "accroche": "Fixe les ressources, les charges et l'équilibre du budget de l'État pour 2026, crée une exonération dans les quartiers prioritaires et supprime une taxe sur les carburants.",
+   "accroche": "Créer une activité dans un quartier prioritaire exonère d'impôt sur les bénéfices pendant cinquante-neuf mois, et une taxe sur les carburants disparaît la veille de son application.",
    "points": [
-    "Exonère d'impôt pendant cinquante-neuf mois les activités créées ou reprises du 1er janvier 2026 au 31 décembre 2030 dans les quartiers prioritaires de la politique de la ville",
-    "Resserre la taxe sur les actifs non professionnels des sociétés : actifs d'au moins 5 millions d'euros, une personne physique détenant au moins 50 %, revenus passifs majoritaires",
-    "Abroge, à compter du 31 décembre 2025, la taxe incitative relative à la réduction de l'intensité d'émission de gaz à effet de serre dans les transports",
-    "Institue pour 2026 un « dispositif de lissage conjoncturel des recettes fiscales des collectivités territoriales » de 740 millions d'euros, mis en réserve puis reversé",
-    "Ouvre une réduction d'impôt pour l'achat, entre 2029 et 2032, d'un logement au Fort des Têtes à Briançon, conservé et occupé ou loué nu pendant quinze ans",
-    "Le reste tient dans les articles propres de la loi : équilibre général et états annexés ; dix articles sur 1 085 sont décrits ici"
+    "Une activité commerciale, artisanale ou de santé créée ou reprise dans un quartier prioritaire entre le 1er janvier 2026 et le 31 décembre 2030 échappe à l'impôt sur ses bénéfices",
+    "L'exonération suppose moins de cinquante salariés, puis les bénéfices redeviennent imposables à 40 %, 60 % et 80 % au cours des trois années suivantes",
+    "Prévue pour 2026 à 100 euros par tonne de CO2 non évitée, la taxe due par ceux qui mettent essences et gazoles à la consommation est supprimée",
+    "Une société détenue à moitié au moins par une personne, possédant au moins cinq millions d'euros d'actifs et vivant surtout de revenus passifs, est taxée sur ses actifs non professionnels",
+    "Un salarié de plus de cinquante-neuf ans d'une imprimerie de presse quotidienne, visé par un plan social et proche de la retraite à taux plein, obtient un congé spécifique",
+    "Acheter entre 2029 et 2032 un logement du Fort des Têtes, à Briançon, ouvre une réduction d'impôt plafonnée à 400 000 euros, à condition de le garder quinze ans"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52746": {
-   "accroche": "Transforme la société anonyme Agence de gestion de l'immobilier de l'État en établissement public industriel et commercial, auquel des biens de l'État peuvent être transférés gratuitement.",
+   "accroche": "L'agence qui gère l'immobilier de l'État, jusqu'ici société anonyme, devient un établissement public auquel des bâtiments publics sont transférés gratuitement en pleine propriété.",
    "points": [
-    "Crée l'« Etablissement public immobilier et foncier de l'Etat », placé sous la tutelle du ministre chargé des domaines et dirigé d'abord par un préfigurateur nommé par décret",
-    "Permet le transfert en pleine propriété et « à titre gratuit » de biens du domaine privé ou public de l'État et de ses établissements publics, la liste étant fixée par décret",
-    "Impose que chaque transfert donne lieu aux études, analyses et diagnostics nécessaires à la bonne connaissance des biens transférés et de leur état",
-    "Oblige l'État, lorsqu'il envisage de céder un immeuble, à en informer les collectivités territoriales et l'intercommunalité à fiscalité propre du territoire concerné",
-    "Abroge l'article du code général de la propriété des personnes publiques qui prévoyait un Conseil de l'immobilier de l'État comprenant deux députés et deux sénateurs",
-    "Plusieurs de ces dispositions n'entrent en vigueur qu'à la date de la transformation de la société anonyme Agence de gestion de l'immobilier de l'État"
+    "La société anonyme Agence de gestion de l'immobilier de l'État se transforme en établissement public industriel et commercial, dirigé d'abord par un préfigurateur nommé par décret",
+    "Des immeubles de l'État et de ses établissements publics lui sont transférés gratuitement ; un décret en fixe la liste et la date, chaque bien faisant l'objet d'un diagnostic",
+    "Le dispositif qui permettait de céder gratuitement des immeubles de l'État à une société de la Caisse des dépôts pour construire des logements sociaux disparaît",
+    "Avant de vendre un immeuble, l'État doit informer les communes et l'intercommunalité sur le territoire desquelles il se trouve",
+    "Le Conseil de l'immobilier de l'État, qui comptait deux députés et deux sénateurs parmi ses membres, est supprimé",
+    "Plusieurs de ces règles ne s'appliqueront qu'à la date de transformation effective de la société en établissement public"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53192": {
-   "accroche": "Reconnaît les diplômes de médecin délivrés par le Royaume-Uni aux personnes ayant commencé leur formation avant le 31 décembre 2020, pour leur permettre d'exercer en France.",
+   "accroche": "Un médecin titulaire d'un diplôme britannique peut exercer en France s'il a commencé ses études avant le 31 décembre 2020, date de sortie du Royaume-Uni de l'Union européenne.",
    "points": [
-    "Ajoute aux titres ouvrant l'exercice de la médecine « les titres de formation de médecin délivrés par le Royaume-Uni », inscrits sur une liste fixée par arrêté ministériel",
-    "Exige que la formation de base et de spécialité ait commencé avant le 31 décembre 2020 et permette d'exercer légalement la médecine au Royaume-Uni",
-    "Réserve cette reconnaissance aux ressortissants français, andorrans, d'un État de l'Union européenne ou de l'Espace économique européen, ou du Royaume-Uni",
-    "Étend la mention du Royaume-Uni à deux autres articles du code de la santé publique, avec la même condition de formation commencée avant le 31 décembre 2020"
+    "Le Royaume-Uni rejoint la liste des pays dont les titres de formation ouvrent l'exercice de la médecine en France",
+    "Sont reconnus les titres britanniques inscrits sur une liste arrêtée par les ministres, sanctionnant une formation commencée avant le 31 décembre 2020 et permettant d'exercer là-bas",
+    "L'ouverture bénéficie aux personnes de nationalité française ou andorrane, aux ressortissants de l'Union européenne ou de l'Espace économique européen et aux Britanniques",
+    "La voie d'autorisation individuelle déjà ouverte à d'autres diplômés européens s'étend aux diplômés britanniques, sous la même condition de date"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53386": {
-   "accroche": "Autorise l'État, tant que la loi de finances pour 2026 n'est pas en vigueur, à percevoir les impôts et à emprunter, et évalue ses versements aux collectivités.",
+   "accroche": "Jusqu'à l'entrée en vigueur du budget pour 2026, la perception des impôts reste autorisée et le ministre des finances peut emprunter au nom de l'État.",
    "points": [
-    "Autorise la perception des ressources de l'État et des impositions affectées à d'autres personnes morales, « conformément aux lois et règlements »",
-    "Évalue à 45 231 897 951 € les prélèvements opérés sur les recettes de l'État au profit des collectivités territoriales, et en détaille la répartition",
-    "Autorise le ministre chargé des finances à emprunter en 2026 à long, moyen et court termes, en euros ou en devises, et à gérer la dette et la trésorerie",
-    "Chacune de ces autorisations ne vaut que « jusqu'à l'entrée en vigueur de la loi de finances pour 2026 »"
+    "La perception des ressources de l'État et des impôts affectés à d'autres organismes que lui reste autorisée, conformément aux lois et règlements en vigueur",
+    "Le ministre chargé des finances peut emprunter en 2026 à court, moyen et long termes, en euros ou en devises, pour couvrir la trésorerie ou renforcer les réserves de change",
+    "Les sommes prélevées sur les recettes de l'État au profit des collectivités locales sont évaluées à 45 231 897 951 euros, réparties entre les différentes dotations",
+    "Ces trois autorisations cessent dès l'entrée en vigueur de la loi de finances pour 2026"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53844": {
-   "accroche": "Autorise l'approbation de l'accord de partenariat et de coopération renforcé entre l'Union européenne, ses États membres et la République kirghize, signé à Bruxelles le 25 juin 2024.",
+   "accroche": "Approuver l'accord de partenariat et de coopération renforcé entre l'Union européenne, ses États membres et la République kirghize, signé à Bruxelles le 25 juin 2024, est autorisé.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N54006": {
-   "accroche": "Crée une commission montagne dans les intercommunalités mixtes, charge le projet régional de santé de garantir l'accès aux soins en altitude et assouplit l'urbanisme autour des grands lacs.",
+   "accroche": "En zone de montagne, garantir l'accès à une pharmacie, aux urgences et à une maternité en un temps raisonnable devient un objectif du plan santé de chaque région.",
    "points": [
-    "Impose une « commission spécifique à la montagne » dans toute intercommunalité comptant au moins une commune classée en zone de montagne sans l'être entièrement, consultée avant les délibérations les concernant",
-    "Charge le projet régional de santé de garantir en zone de montagne l'accès « dans des délais raisonnables » à une pharmacie, à la médecine générale, aux urgences et à une maternité",
-    "Prévoit un transport sanitaire d'urgence par voie aérienne dans les zones de montagne très enclavées où l'accès terrestre à un service d'urgence n'est pas assuré",
-    "Oblige l'État à informer chaque année les collectivités des prévisions d'effectifs scolaires du premier degré et des ouvertures et fermetures de classes possibles sur trois à cinq ans",
-    "Permet au schéma de cohérence territoriale d'écarter les règles littorales, hors de la bande des cent mètres, dans les communes riveraines d'un plan d'eau de plus de 1 000 hectares",
-    "Ouvre l'intégration dans un système d'endiguement des ouvrages existants qui protègent des inondations en commune de montagne, selon des modalités fixées par décret en Conseil d'État"
+    "L'expérimentation limitée à trois ans qui poursuivait déjà cet objectif disparaît, remplacée par une obligation permanente élargie à la pharmacie et à l'urgence psychiatrique",
+    "Là où aucun service d'urgence n'est joignable par la route dans un délai raisonnable, un transport sanitaire d'urgence par voie aérienne doit être prévu",
+    "Une intercommunalité qui mêle communes de montagne et autres communes crée une commission spécifique, consultée avant toute délibération touchant directement ces communes",
+    "L'État informe chaque année les collectivités des prévisions d'effectifs à l'école primaire et des ouvertures ou fermetures de classes possibles sur trois à cinq ans",
+    "Autour d'un lac de plus de 1 000 hectares, les documents d'urbanisme peuvent écarter les règles littorales en dehors de la bande des cent mètres du rivage",
+    "Abris de bergers, cabanes pastorales et bâtiments de stockage agricole deviennent constructibles ; une ruine relevée ne peut servir qu'au pastoralisme ou à la randonnée, sans activité commerciale"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50444": {
-   "accroche": "Crée plusieurs remboursements et expérimentations pour les familles d'enfants gravement malades ou handicapés, du paiement de séances de soins à l'hébergement des parents à l'hôpital.",
+   "accroche": "Ouvre le remboursement de séances d'ergothérapie, de psychomotricité et de diététique pour certains enfants malades, autorise les hôpitaux à héberger leurs parents et accélère, à l'essai, une allocation.",
    "points": [
-    "Les séances d'ergothérapeute, de psychomotricien ou de diététicien sont remboursées par l'assurance maladie pour les mineurs atteints de certaines affections, sur prescription dans un protocole de soins",
-    "Un bilan neuropsychologique chez un psychologue spécialisé est pris en charge pour ces mêmes mineurs, après accord préalable du service du contrôle médical de l'assurance maladie",
-    "Les établissements de santé peuvent héberger les parents pendant l'hospitalisation de l'enfant lorsque leur domicile est éloigné, en confiant si besoin cette prestation à un tiers",
-    "Dans dix départements, dont au moins un outre-mer, la décision sur l'allocation d'éducation de l'enfant handicapé est rendue en deux mois, avec avance automatique à défaut",
-    "L'ouverture de l'allocation aux deux parents en résidence alternée n'entre en vigueur que le 12 décembre 2027, dix-huit mois après la promulgation"
+    "Les séances chez un ergothérapeute, un psychomotricien ou un diététicien sont remboursées pour les enfants atteints de certaines affections, sur prescription et sans dépassement d'honoraires",
+    "Un bilan chez un psychologue spécialisé est remboursé aux mêmes enfants, après sélection du praticien et accord préalable du contrôle médical",
+    "Les hôpitaux peuvent héberger les parents pendant l'hospitalisation de leur enfant lorsque la famille habite loin, en confiant au besoin cet hébergement à un tiers",
+    "Dans dix départements, dont au moins un outre-mer, la demande d'allocation pour enfant handicapé doit être tranchée en deux mois, sinon une avance est versée automatiquement",
+    "Ces mêmes départements repèrent dès le dépôt les dossiers d'enfants atteints d'un cancer, d'une maladie grave ou d'un handicap urgent, pour les traiter en priorité",
+    "En garde alternée, les parents désignent qui touche l'allocation journalière et les deux peuvent y avoir droit sous conditions, à partir du 12 décembre 2027"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50689": {
-   "accroche": "Étend la protection contre les discriminations au travail aux personnes engagées dans un projet parental, et ouvre des absences pour les démarches d'agrément en vue d'une adoption.",
+   "accroche": "Étend aux hommes et aux candidats à l'adoption des protections au travail jusque-là réservées aux femmes engagées dans une procédure médicale de procréation.",
    "points": [
-    "La protection couvre désormais les salariés, et non plus seulement les salariées, engagés dans un projet parental ou dans une procédure d'adoption",
-    "Ces salariés obtiennent des autorisations d'absence « pour se présenter aux entretiens obligatoires nécessaires à l'obtention de l'agrément », dans une limite fixée par décret",
-    "Le code général de la fonction publique cite ces mêmes autorisations d'absence de l'article L. 1225-16 du code du travail parmi les dispositions relatives à la parentalité"
+    "La protection ne visait que les salariées engagées dans une procédure médicale de procréation ; elle vise désormais tous les salariés en projet parental, adoption comprise",
+    "Les salariés qui adoptent obtiennent des autorisations d'absence pour se rendre aux entretiens obligatoires précédant l'agrément, dont le nombre maximal sera fixé par décret",
+    "Les droits liés à la parentalité des agents publics mentionnent expressément ces autorisations d'absence, qui n'y figuraient pas"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50796": {
-   "accroche": "Transpose des directives européennes en matière financière, énergétique, de consommation et de santé, et habilite le Gouvernement à transposer les autres par ordonnance.",
+   "accroche": "Transpose plusieurs textes européens : action collective en justice élargie, rénovation obligatoire des bâtiments publics, accès élargi aux propriétaires réels des sociétés et mise en gage des cryptoactifs.",
    "points": [
-    "Définit une action de groupe unique : plusieurs personnes « placées dans une situation similaire » agissent pour faire cesser un manquement, obtenir réparation des préjudices, ou les deux",
-    "Les informations sur les bénéficiaires effectifs des sociétés deviennent accessibles à qui justifie d'un intérêt légitime ; journalistes et chercheurs sont présumés en justifier",
-    "Crée le nantissement d'actifs numériques, une mise en garantie constituée par déclaration signée du propriétaire, éventuellement « au moyen d'un automate exécuteur de clauses »",
-    "Chaque année, au moins 3 % de la surface cumulée des bâtiments des organismes publics doit être rénovée, avec des exceptions pour plusieurs catégories de logements sociaux",
-    "Le Gouvernement est habilité à légiférer par ordonnance, notamment pour transposer la directive sur le crédit aux consommateurs et adapter le mécanisme d'ajustement carbone aux frontières"
+    "Une action collective peut être engagée pour faire cesser un manquement ou réparer un préjudice de toute nature, par des associations agréées justifiant de douze mois d'activité effective",
+    "Les organismes publics rénovent chaque année au moins 3 % de la surface de leurs bâtiments, les logements sociaux étant exclus de cette obligation",
+    "Journalistes, chercheurs et associations sont présumés fondés à consulter le nom, la nationalité et les intérêts détenus par les propriétaires réels des sociétés",
+    "Des cryptoactifs peuvent être donnés en garantie d'une dette par une déclaration signée du propriétaire, éventuellement au moyen d'un programme informatique qui l'exécute",
+    "Deux séries d'obligations imposant aux fabricants et importateurs de dispositifs médicaux de signaler à l'agence du médicament l'arrêt de la vente d'un produit sont supprimées",
+    "Le Gouvernement est autorisé à écrire seul, par ordonnance et dans les neuf mois, les règles sur le crédit à la consommation et les services financiers vendus à distance"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50946": {
-   "accroche": "Autorise la ratification du traité de coopération dans le domaine de la défense conclu avec le Royaume d'Espagne, signé à Barcelone le 19 janvier 2023 et annexé à la loi.",
+   "accroche": "Autorise la ratification du traité de coopération en matière de défense signé avec l'Espagne à Barcelone le 19 janvier 2023, dont le texte est annexé à la loi.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51079": {
-   "accroche": "Autorise, jusqu'à l'entrée en vigueur de la loi de finances pour 2025, la perception des impôts, les emprunts de l'État et les avances de trésorerie de la sécurité sociale.",
+   "accroche": "Autorise l'État à continuer de percevoir l'impôt et à emprunter tant que le budget pour 2025 n'est pas entré en vigueur.",
    "points": [
-    "La perception des ressources de l'État et des impositions affectées à d'autres personnes morales reste autorisée « conformément aux lois et règlements »",
-    "Le ministre chargé des finances peut emprunter à long, moyen et court termes, en euros ou en devises, pour couvrir les charges de trésorerie de l'État",
-    "Plusieurs caisses, dont l'Agence centrale des organismes de sécurité sociale, peuvent recourir à des ressources non permanentes « dans la seule mesure nécessaire » à leurs besoins de trésorerie",
-    "Les prélèvements sur les recettes de l'État au profit des collectivités territoriales sont évalués à 45 057 825 520 €, répartis prélèvement par prélèvement",
-    "Toutes ces autorisations cessent dès l'entrée en vigueur de la loi de finances pour 2025"
+    "La perception des impôts de l'État et de ceux affectés à d'autres organismes reste autorisée, conformément aux lois et règlements en vigueur",
+    "Le ministre chargé des finances peut emprunter en 2025 à court, moyen et long terme, en euros ou en devises, pour couvrir la trésorerie de l'État",
+    "Les versements de l'État aux collectivités locales sont évalués à 45 057 825 520 euros, dotation globale de fonctionnement comprise",
+    "Quatre caisses de sécurité sociale, dont celles du personnel ferroviaire et des mines, peuvent emprunter à court terme pour leurs seuls besoins de trésorerie",
+    "Chacune de ces autorisations cesse dès l'entrée en vigueur du budget pour 2025"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51237": {
-   "accroche": "Autorise l'approbation de la résolution n° 259 étendant le champ d'action géographique de la Banque européenne pour la reconstruction et le développement à l'Afrique subsaharienne et à l'Irak.",
+   "accroche": "Autorise l'approbation d'une résolution du 18 mai 2023 étendant progressivement le champ d'action de la Banque européenne pour la reconstruction et le développement à l'Afrique subsaharienne et à l'Irak.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51352": {
-   "accroche": "Autorise la ratification de six conventions-cadres sur les « bureaux à contrôles nationaux juxtaposés » conclues avec l'Allemagne, la Belgique, l'Espagne, l'Italie, le Luxembourg et la Suisse.",
+   "accroche": "Autorise la ratification de six conventions-cadres conclues avec l'Allemagne, la Belgique, l'Espagne, l'Italie, le Luxembourg et la Suisse sur les bureaux de contrôle frontaliers communs et les gares d'échange.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51504": {
-   "accroche": "Remplace une amende fixe par une amende calculée sur le chiffre d'affaires, et fixe à 40 % le plafond des promotions sur certains produits de grande consommation.",
+   "accroche": "Plafonne les promotions sur les produits non alimentaires de grande consommation et remplace une amende forfaitaire par une sanction proportionnelle au chiffre d'affaires de l'entreprise.",
    "points": [
-    "Le plafond de l'amende de l'article L. 442-5 du code de commerce passe de 75 000 € à 0,4 % du chiffre d'affaires annuel hors taxes réalisé en France",
-    "Cet article s'applique désormais aux produits vendus sous marque de distributeur acquis dans les conditions prévues à l'article L. 441-7 du même code",
-    "Pour les produits de grande consommation qui ne sont ni alimentaires ni destinés aux animaux de compagnie, les avantages promotionnels cumulés peuvent atteindre 40 % du prix de vente",
-    "Un distributeur qui ne transmet pas le document exigé, ou ne répond pas aux ministres sous quinze jours, encourt une amende administrative plafonnée à 0,4 % de son chiffre d'affaires",
-    "Le Gouvernement doit remettre au Parlement un rapport sur les marges brutes réelles des distributeurs par catégorie de produits alimentaires et leur évolution sur dix ans"
+    "Les réductions accordées au consommateur sur un produit de grande consommation non alimentaire, cumulées, ne peuvent dépasser 40 % du prix de vente",
+    "L'amende encourue passe de 75 000 euros à 0,4 % au plus du chiffre d'affaires annuel réalisé en France lors du dernier exercice clos",
+    "Cette règle s'applique désormais aussi aux produits vendus sous la marque d'un distributeur",
+    "Le distributeur qui ne transmet pas son document aux ministres, ou ne répond pas sous quinze jours, risque la même amende, doublée en cas de récidive sous deux ans",
+    "L'encadrement des promotions devait s'arrêter le 15 avril 2026 ; son terme est repoussé à 2028",
+    "Le Gouvernement doit remettre au Parlement un rapport sur les marges réelles des distributeurs par catégorie de produits et leur évolution sur dix ans"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51729": {
-   "accroche": "Autorise l'approbation de l'accord-cadre signé avec les Nations unies le 16 janvier 2025, portant sur les privilèges et immunités liés aux réunions tenues sur le territoire français.",
+   "accroche": "Autorise l'approbation de l'accord-cadre signé avec les Nations unies le 16 janvier 2025 sur les privilèges et immunités applicables aux réunions de l'ONU tenues en France.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51852": {
-   "accroche": "Permet à une intercommunalité d'adopter un document d'urbanisme unique tenant lieu de schéma de cohérence territoriale et de plan local d'urbanisme, et allège plusieurs procédures.",
+   "accroche": "Permet de fusionner en un seul document deux plans d'urbanisme locaux, autorise des logements temporaires près des chantiers nucléaires et confie au préfet l'aménagement du secteur de La Défense.",
    "points": [
-    "L'intercommunalité dont le périmètre recouvre exactement celui d'un schéma de cohérence territoriale peut élaborer un document unique produisant les effets des deux documents",
-    "Institue un schéma cadre d'aménagement et de planification de l'urbanisme de La Défense, élaboré par le représentant de l'État dans le département et soumis à enquête publique",
-    "Pendant dix ans, un protocole entre l'État, l'exploitant, le département et l'intercommunalité peut fixer les conditions de transformation d'une résidence hôtelière à vocation sociale en logements",
-    "Les constructions temporaires logeant les personnes du chantier d'un réacteur électronucléaire peuvent déroger aux règles d'urbanisme, après accord du maire, le terrain étant remis en état sous vingt ans",
-    "Plusieurs dispositions, dont l'article 5 entier, sont « déclarées non conformes à la Constitution » par la décision du Conseil constitutionnel n° 2025-896 DC du 20 novembre 2025"
+    "Une intercommunalité dont le territoire coïncide avec celui d'un schéma de cohérence territoriale peut n'adopter qu'un seul document d'urbanisme, qui vaut schéma et plan local",
+    "Les logements, installations et transports temporaires nécessaires aux chantiers de réacteurs nucléaires peuvent déroger aux règles de construction, le terrain devant être remis en état sous vingt ans au plus",
+    "Le préfet, et non le maire, délivre ces autorisations, avec l'accord de ce dernier et une garantie financière consignée à la Caisse des dépôts pour le démantèlement",
+    "L'aménagement du secteur de La Défense suit un schéma élaboré par le préfet, soumis à enquête publique et approuvé par décret, auquel les communes doivent rendre leurs plans conformes",
+    "Pendant dix ans, l'État, l'exploitant et les collectivités peuvent fixer par accord la date à laquelle une résidence hôtelière à vocation sociale sera transformée en logements",
+    "Le Conseil constitutionnel a censuré plusieurs dispositions, dont un article entier ; d'autres n'entrent en vigueur que six mois après la promulgation"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52000": {
-   "accroche": "Autorise l'approbation de la convention d'entraide judiciaire en matière pénale signée avec le Suriname le 15 mars 2021, complétée par un avenant signé à Paramaribo le 2 juin 2023.",
+   "accroche": "Autorise l'approbation de la convention d'entraide judiciaire en matière pénale signée avec le Suriname le 15 mars 2021, complétée par un avenant signé le 2 juin 2023.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52103": {
-   "accroche": "Autorise l'approbation de l'avenant signé à Brasilia le 28 mars 2024 à la convention d'entraide judiciaire en matière pénale du 28 mai 1996 conclue avec le Brésil.",
+   "accroche": "Autorise l'approbation de l'avenant signé le 28 mars 2024 à la convention d'entraide judiciaire en matière pénale conclue avec le Brésil le 28 mai 1996.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52429": {
-   "accroche": "Autorise l'approbation de la convention de coopération judiciaire internationale signée à Genève le 12 juin 2024 avec les Nations unies, représentées par le Mécanisme d'enquête indépendant pour le Myanmar.",
+   "accroche": "Autorise l'approbation de la convention de coopération judiciaire signée le 12 juin 2024 avec les Nations unies, représentées par leur mécanisme d'enquête indépendant pour le Myanmar.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52781": {
-   "accroche": "Rend l'avocat obligatoire pour tout mineur dans une procédure d'assistance éducative, « sans condition de discernement », et met son coût intégralement à la charge de l'État.",
+   "accroche": "Dès janvier 2027, tout enfant suivi par le juge des enfants au titre de sa protection sera assisté d'un avocat entièrement payé par l'État.",
    "points": [
-    "Dès l'ouverture de la procédure, le juge des enfants demande au bâtonnier de désigner un avocat, et en informe le mineur ainsi que ses représentants légaux",
-    "Le mineur « peut également choisir librement son avocat » ; le juge peut aussi désigner un administrateur ad hoc prévu à l'article 388-2 du code civil",
-    "Cette assistance est « de droit, intégralement prise en charge par l'État » au titre de l'aide juridictionnelle",
-    "Remplace la règle antérieure, qui réservait la désignation d'un avocat à l'enfant capable de discernement et aux cas où son intérêt l'exigeait",
-    "Ces dispositions n'entrent en vigueur que le 6 janvier 2027, la charge pour l'État étant compensée par une taxe additionnelle à l'accise sur les tabacs"
+    "L'avocat n'était demandé que si l'intérêt de l'enfant l'exigeait et si l'enfant était jugé capable de comprendre ; il est désormais désigné pour tout mineur, sans cette condition",
+    "Le juge saisit le bâtonnier dès l'ouverture de la procédure et en informe l'enfant, ses représentants légaux et, s'il y a lieu, le service qui l'accueille",
+    "L'enfant peut aussi choisir librement son avocat, dont les frais sont intégralement pris en charge par l'État au titre de l'aide juridictionnelle",
+    "Cette règle n'entre en vigueur que le 6 janvier 2027"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53235": {
-   "accroche": "Autorise l'approbation de l'accord signé avec la Communauté des Caraïbes à Bridgetown le 20 février 2025, relatif à l'adhésion au protocole du 14 janvier 1985 sur les privilèges et immunités.",
+   "accroche": "Autorise l'approbation de l'accord signé le 20 février 2025 par lequel la France adhère au protocole du 14 janvier 1985 sur les privilèges et immunités de la Communauté des Caraïbes.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53426": {
-   "accroche": "Institue une stratégie nationale contre les maladies cardio-neuro-vasculaires et ajoute des dépistages à plusieurs moments de la vie : à six ans, aux rendez-vous de prévention et au travail.",
+   "accroche": "Impose à l'État une stratégie nationale contre les maladies du cœur et des vaisseaux, un dépistage des enfants après six ans et un dépistage proposé au travail.",
    "points": [
-    "L'État arrête une stratégie nationale pluriannuelle fixant les orientations de prévention, de dépistage et d'organisation des soins, et visant à réduire les inégalités sociales et territoriales",
-    "Un rendez-vous de dépistage précoce, « notamment de l'hypercholestérolémie familiale », a lieu dans l'année suivant le sixième anniversaire de l'enfant, chez un médecin spécialement formé",
-    "Aux rendez-vous de prévention, un dépistage est proposé, avec évaluation clinique et biologique tenant compte des déterminants propres au risque cardio-neuro-vasculaire des femmes",
-    "Les services de santé au travail mènent des campagnes de dépistage et des actions de sensibilisation annuelles, éventuellement avec des associations, des mutuelles ou des étudiants en santé",
-    "Dans un délai de trois ans, le Gouvernement remet au Parlement un rapport évaluant la mise en œuvre de la loi et le coût des actions engagées"
+    "L'État arrête une stratégie pluriannuelle définissant les priorités de prévention, de dépistage et d'organisation des soins, afin de réduire les écarts sociaux et territoriaux",
+    "Un dépistage précoce est réalisé dans l'année qui suit le sixième anniversaire de l'enfant, par un médecin spécialement formé ; un refus des parents est noté au carnet de santé",
+    "Lors des rendez-vous de prévention, un dépistage comprenant une évaluation clinique et biologique est proposé, en tenant compte des risques propres aux femmes",
+    "Les services de santé au travail mènent des campagnes de dépistage et des actions annuelles de sensibilisation, au besoin avec des associations, des mutuelles ou des assureurs",
+    "Mesurer la pression artérielle figure désormais parmi les actes reconnus aux masseurs-kinésithérapeutes et aux pharmaciens, qui n'y étaient pas mentionnés",
+    "Le Gouvernement doit remettre sous trois ans un rapport chiffrant le coût de ces actions et les économies attendues"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53848": {
-   "accroche": "Autorise l'approbation de l'accord signé le 26 mai 2023 avec le Royaume des Pays-Bas, délimitant la frontière entre Saint-Martin, côté français, et Sint Maarten, côté néerlandais.",
+   "accroche": "Autorise l'approbation de l'accord signé le 26 mai 2023 avec les Pays-Bas, qui délimite la frontière entre Saint-Martin, côté français, et Sint Maarten, côté néerlandais.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N54083": {
-   "accroche": "Actualise la programmation militaire pour 2024-2030 et fixe les règles applicables durant l'« état d'alerte de sécurité nationale » aux marchés de défense et aux travaux d'infrastructure.",
+   "accroche": "Valide 36 milliards d'euros supplémentaires pour les armées sur 2026-2030, encadre les publications des agents du renseignement et permet d'imposer des stocks stratégiques aux entreprises essentielles.",
    "points": [
-    "Durant cet état d'alerte, les marchés portant sur la mise en condition d'emploi des forces armées relèvent du régime des marchés de défense ou de sécurité",
-    "Durant ce même état, une dérogation relative aux espèces protégées peut être délivrée pour des travaux militaires avant que toutes les mesures de compensation soient définies",
-    "L'autorité administrative peut imposer par arrêté à un opérateur d'importance vitale de constituer un stock minimal de matières ou composants indispensables à son activité, réexaminé une fois par an",
-    "Un agent d'un service de renseignement doit déclarer au ministre toute œuvre qu'il souhaite publier sur le service, y compris dix ans après la fin de ses fonctions",
-    "Ratifie cinq ordonnances, dont celle relative au congé du blessé et celle simplifiant la reconversion des militaires dans la fonction publique civile",
-    "Plusieurs mesures sont différées : au plus tard le 1er janvier 2028 pour la reprise de missions sanitaires par l'État, et le 1er juillet 2029 pour d'autres"
+    "L'effort de réarmement se répartit en quatorze domaines, dont la dissuasion, les munitions, les drones, la défense antiaérienne, l'espace et le combat naval",
+    "Un agent du renseignement qui veut publier une œuvre portant sur son service doit la déclarer au ministre avant diffusion, y compris dix ans après avoir quitté ses fonctions",
+    "Le ministre peut exiger des modifications et, en cas de refus, s'opposer à la publication ; son silence pendant un délai fixé par décret, au plus quatre mois, vaut accord",
+    "L'administration peut obliger une entreprise jugée vitale à constituer un stock de composants ou de produits stratégiques, couvrant au plus six mois d'activité",
+    "Un employeur qui ne signale pas ses salariés détenant un savoir-faire critique en zone protégée encourt 45 000 euros d'amende",
+    "Le Gouvernement doit rendre au Parlement, au plus tard le 1er janvier 2029, un rapport sur l'emploi de ces mesures contre les ingérences étrangères et le crime organisé"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50450": {
-   "accroche": "Repousse au 30 novembre 2025 au plus tard les élections des membres du congrès et des assemblées de province de la Nouvelle-Calédonie.",
+   "accroche": "Le scrutin qui devait désigner les élus du congrès et des assemblées de province de Nouvelle-Calédonie avant le 15 décembre 2024 est reporté au 30 novembre 2025 au plus tard.",
    "points": [
-    "Fixe le scrutin « au plus tard le 30 novembre 2025 », par dérogation à la loi organique du 19 mars 1999 relative à la Nouvelle-Calédonie",
-    "La liste électorale spéciale et le tableau annexe sont mis à jour au plus tard dix jours avant la date du scrutin",
-    "Les mandats en cours prennent fin le jour de la première réunion des assemblées nouvellement élues",
-    "Proroge les fonctions des membres des organes du congrès jusqu'à la première réunion du congrès nouvellement élu"
+    "Les mandats en cours des élus du congrès et des assemblées de province ne prennent fin que le jour de la première réunion des assemblées nouvellement élues",
+    "Les fonctions des membres des organes du congrès sont prolongées jusqu'à la première réunion du congrès nouvellement élu",
+    "La liste électorale spéciale et le tableau qui l'accompagne sont mis à jour « au plus tard dix jours avant la date du scrutin »",
+    "Le report s'applique dès le lendemain de la publication au Journal officiel"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50690": {
-   "accroche": "Permet d'assigner à résidence sous surveillance électronique les mineurs d'au moins treize ans et à l'assureur de réclamer jusqu'à 7 500 euros au parent condamné.",
+   "accroche": "Un adolescent d'au moins treize ans peut être assigné à résidence sous bracelet électronique, et un parent condamné peut être appelé à rembourser l'assureur de la victime.",
    "points": [
-    "Un mineur d'au moins treize ans peut être assigné à résidence avec surveillance électronique s'il encourt cinq ans de prison pour terrorisme, ou dix ans en bande organisée",
-    "L'assureur qui a indemnisé un dommage peut exiger du parent définitivement condamné sur le fondement de l'article 227-17 du code pénal une participation ne dépassant pas 7 500 euros",
-    "Punit de trois ans d'emprisonnement et de 45 000 euros d'amende la soustraction du parent à ses obligations qui a directement conduit le mineur à commettre un crime",
-    "Le service d'enquête qui constate qu'un mineur a violé les interdictions qui lui étaient imposées doit en aviser le juge des enfants et en informer les représentants légaux",
-    "La mesure éducative peut comporter l'obligation de se présenter périodiquement, pour six mois au maximum, aux services ou autorités désignés par le juge",
-    "Les articles 4, 5 et 7 ont été déclarés non conformes à la Constitution par la décision du Conseil constitutionnel n° 2025-886 DC du 19 juin 2025"
+    "L'assignation à résidence sous surveillance électronique devient possible dès treize ans, pour des faits terroristes punis d'au moins cinq ans ou commis en bande organisée punis d'au moins dix ans",
+    "L'assureur qui a indemnisé un dommage peut réclamer jusqu'à 7 500 euros au parent définitivement condamné pour s'être soustrait à ses obligations envers l'enfant",
+    "Une clause de contrat d'assurance qui écarterait systématiquement ce remboursement est sans effet",
+    "Trois ans de prison et 45 000 euros d'amende quand ce manquement d'un parent a directement conduit l'enfant à commettre un crime ou plusieurs délits définitivement jugés",
+    "Les enquêteurs qui constatent qu'un mineur suivi a violé une interdiction doivent en aviser le juge des enfants, et les parents en sont informés",
+    "Trois articles ont été déclarés contraires à la Constitution, et deux mesures n'entrent en vigueur qu'à une date fixée par décret, au plus tard six mois après la promulgation"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50819": {
-   "accroche": "Encadre l'examen des pesticides déjà autorisés dans un autre État membre, crée un conseil stratégique global pour les exploitations et autorise les inspecteurs de l'environnement à filmer leurs interventions.",
+   "accroche": "Les entreprises qui utilisent des pesticides n'ont plus à justifier d'un conseil sur cet usage tous les trois ans ; un conseil stratégique global, plus large, est créé.",
    "points": [
-    "L'Agence nationale de sécurité sanitaire de l'alimentation, de l'environnement et du travail tient compte des circonstances françaises pour un produit déjà autorisé ailleurs, et peut restreindre son emploi",
-    "Abroge le conseil stratégique à l'utilisation de produits phytopharmaceutiques et crée un conseil stratégique global portant sur les coûts de production, l'eau, l'énergie et la qualité des sols",
-    "Les inspecteurs de l'environnement, les agents des réserves naturelles et les gardes du littoral peuvent filmer leurs interventions avec des caméras portées de façon apparente",
-    "Crée un comité des solutions à la protection des cultures, chargé de recenser les usages sans méthode de lutte disponible et les méthodes de lutte potentielles",
-    "Quand l'État interdit une substance approuvée au niveau européen, il se donne pour objectif d'indemniser les exploitants subissant des pertes significatives faute d'alternative",
-    "L'article 8 a été déclaré non conforme à la Constitution par la décision du Conseil constitutionnel n° 2025-891 DC du 7 août 2025"
+    "Supprimée, l'obligation de se faire délivrer un conseil écrit sur l'usage des pesticides au moins tous les trois ans, exigée pour renouveler le certificat de l'exploitant",
+    "Le nouveau conseil global, écrit, porte sur les débouchés, les coûts de production, l'énergie, la gestion de l'eau et la qualité des sols",
+    "Quand la France interdit un pesticide approuvé au niveau européen, elle se fixe pour objectif d'indemniser les agriculteurs qui subissent des pertes tant qu'aucune solution de rechange n'existe",
+    "L'agence sanitaire peut ajouter des restrictions d'emploi, ou exclure certaines zones du territoire, lorsqu'elle reconnaît une autorisation de vente délivrée par un autre pays européen",
+    "Les inspecteurs de l'environnement et les gardes du littoral peuvent filmer leurs interventions avec une caméra portée ; les images sont effacées au bout de trente jours",
+    "Un article a été déclaré contraire à la Constitution, et le Gouvernement doit remettre chaque année, avant le 1er octobre, un rapport sur l'assurance des prairies"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50957": {
-   "accroche": "Autorise l'approbation de l'accord créant le Centre de développement des capacités cyber dans les Balkans occidentaux (C3BO), fait à Tirana le 16 octobre 2023.",
+   "accroche": "Autorise la France à approuver l'accord créant le Centre de développement des capacités cyber dans les Balkans occidentaux, conclu à Tirana le 16 octobre 2023.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51115": {
-   "accroche": "Ouvre pendant cinq ans, dans les collectivités d'outre-mer régies par l'article 73 de la Constitution, la possibilité d'encadrer les loyers et interdit certains compléments de loyer.",
+   "accroche": "L'encadrement des loyers peut être expérimenté cinq ans dans les collectivités d'outre-mer, sans qu'aucun supplément de loyer puisse être demandé pour un logement qui n'est pas décent.",
    "points": [
-    "À titre expérimental et pour cinq ans, un encadrement des loyers peut être mis en place dans ces collectivités, dans les conditions de la loi du 23 novembre 2018",
-    "La proposition du demandeur doit être transmise dans un délai de deux ans à compter de la promulgation",
-    "Aucun complément de loyer ne peut être appliqué lorsque le logement n'est pas décent au sens de la loi du 6 juillet 1989",
-    "Le représentant de l'État met en place des « comités référentiels construction » qui contribuent à l'exemption au règlement européen 2024/3110 sur les produits de construction",
-    "Le Gouvernement remet au Parlement un rapport d'évaluation de l'expérimentation au plus tard six mois avant son terme"
+    "L'expérimentation dure cinq ans à compter de la promulgation, et la demande doit être transmise dans les deux ans",
+    "Aucun complément de loyer ne peut s'ajouter lorsque le logement ne remplit pas les conditions de décence",
+    "Des « comités référentiels construction » sont installés par le représentant de l'État pour appliquer l'exemption aux règles européennes sur les produits de construction",
+    "Ces comités définissent des référentiels de construction tenant compte de la production, des spécificités et des contraintes locales, et peuvent recevoir des financements publics",
+    "Le Gouvernement remet au Parlement un rapport d'évaluation au plus tard six mois avant la fin de l'expérimentation"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51328": {
-   "accroche": "Punit d'une contravention de cinquième classe le fait d'ignorer les mesures ordonnées par l'administration, et donne aux agents de contrôle un pouvoir d'injonction.",
+   "accroche": "Ne pas respecter les mesures ordonnées par l'administration devient une contravention de cinquième classe, et les agents de contrôle peuvent d'abord exiger une mise en conformité.",
    "points": [
-    "Punit de l'amende prévue pour les contraventions de la cinquième classe le non-respect des mesures édictées par l'autorité administrative en application du II de l'article L. 201-4",
-    "Les agents habilités qui constatent un manquement ou une infraction peuvent « enjoindre à l'intéressé de se conformer à ses obligations dans un délai qu'ils fixent »",
-    "Devient aussi punissable le fait de ne pas déférer, dans le délai imparti, à une injonction adressée en application du nouvel article L. 250-10"
+    "Nouvelle amende de cinquième classe pour qui ne respecte pas les mesures prises par l'autorité administrative",
+    "Les agents habilités qui constatent un manquement peuvent enjoindre à la personne de se conformer à ses obligations dans un délai qu'ils fixent",
+    "Ne pas obéir à cette injonction dans le délai imparti s'ajoute à la liste des faits punis"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51362": {
-   "accroche": "Autorise la ratification de la résolution LP.3(4) modifiant l'article 6 du Protocole de Londres de 1996 sur la pollution des mers par immersion de déchets.",
+   "accroche": "Autorise la France à ratifier l'amendement adopté le 30 octobre 2009 au protocole international sur la prévention de la pollution des mers par immersion de déchets.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51519": {
-   "accroche": "Autorise l'approbation de l'accord franco-chypriote du 9 septembre 2022 sur la coopération lors des évacuations depuis le Moyen-Orient via Chypre en situation de crise.",
+   "accroche": "Autorise la France à approuver l'accord signé avec Chypre le 9 septembre 2022 sur les évacuations depuis le Moyen-Orient passant par le territoire chypriote en situation de crise.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51732": {
-   "accroche": "Impose à chaque fédération un organisme de contrôle financier des clubs, punit la diffusion non autorisée de compétitions et réorganise le lien avec les ligues professionnelles.",
+   "accroche": "Diffuser un match sans autorisation devient un délit puni de trois ans de prison et 300 000 euros d'amende ; les supporters obtiennent un comité consulté sur le prix des billets.",
    "points": [
-    "Chaque fédération ayant créé une ligue professionnelle met en place un organisme, composé aux deux tiers au moins de professionnels qualifiés, contrôlant les clubs et les changements d'actionnaires",
-    "Punit de trois ans d'emprisonnement et de 300 000 euros d'amende la mise à disposition du public en ligne d'une compétition sportive sans l'autorisation des titulaires de droits",
-    "Une fédération peut, dans les six mois, retirer la subdélégation de sa ligue ; à défaut d'accord, le retrait est de plein droit et la ligue est dissoute",
-    "Les titulaires d'une licence d'agent sportif reçoivent une carte professionnelle, et les personnes condamnées pour les faits énumérés par le code du sport sont frappées d'incapacité d'exercer",
-    "Chaque ligue met en place un comité de dialogue permanent composé à parts égales de représentants des clubs, de la ligue et des associations agréées de supporters",
-    "Autorise à titre expérimental, du 1er janvier 2027 au 30 juin 2028, la publicité et le parrainage virtuels lors de la diffusion de certaines compétitions"
+    "Fabriquer, vendre ou installer un appareil ou un logiciel permettant d'accéder à ces diffusions illégales est puni des mêmes peines",
+    "Les peines montent à sept ans de prison et 750 000 euros d'amende lorsque les faits sont commis en bande organisée",
+    "Chaque ligue met en place un comité de dialogue permanent, réuni au moins trois fois par an et consulté avant tout changement de calendrier ou de prix des billets",
+    "Chaque fédération crée un organisme indépendant chargé de contrôler les comptes des clubs et de se prononcer sur les rachats et changements d'actionnaires",
+    "Diriger la société commerciale d'une ligue devient incompatible avec des intérêts chez un diffuseur ou un opérateur de paris sportifs, et la rémunération y est plafonnée",
+    "Du 1er janvier 2027 au 30 juin 2028, la publicité et le parrainage virtuels incrustés dans les retransmissions sont autorisés à l'essai, avec rapport au Parlement avant 2029"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51968": {
-   "accroche": "Permet de réserver des logements aux agents publics en dérogeant au plan local d'urbanisme et d'inscrire au bail une clause liant le logement à l'emploi occupé.",
+   "accroche": "Un agent public logé par son employeur devait partir six mois après la fin de ses fonctions ; l'employeur a maintenant un an pour demander la résiliation du bail.",
    "points": [
-    "L'autorité d'urbanisme peut déroger aux règles de destination du plan local d'urbanisme pour créer des logements sur un terrain public, si la moitié au moins est réservée à ces agents",
-    "Une « clause de fonction » inscrite au contrat de location mentionne l'emploi dont l'exercice justifie le maintien dans les lieux de l'agent public logé",
-    "Dans l'année suivant la fin de cet emploi, l'employeur peut demander la résiliation du bail ; le préavis ne peut être inférieur à six mois à compter de la notification",
-    "Les logements sociaux appartenant à une société d'économie mixte agréée, ou gérés par elle, peuvent aussi comporter cette clause de fonction",
-    "Les établissements publics de santé peuvent valoriser leur patrimoine immobilier pour réaliser des logements destinés à leur personnel, y compris en créant des filiales"
+    "Le dispositif ne visait que les fonctionnaires civils et militaires de l'État ; il couvre aussi les salariés d'entreprises assurant un service public de transport, en zone tendue",
+    "Le bail doit nommer l'emploi qui justifie l'occupation, et un décret permet un an de plus en cas de situation médicale, familiale ou professionnelle exceptionnelle",
+    "Le locataire ou ses ayants droit en situation de handicap inconnue à la signature gardent le logement malgré la fin de l'emploi",
+    "L'autorité qui délivre les permis de construire peut écarter les règles du plan local d'urbanisme pour un immeuble d'habitation dont la moitié au moins est réservée à ces agents",
+    "Les hôpitaux publics peuvent valoriser leur patrimoine immobilier pour réaliser ou financer des logements destinés à leur personnel, y compris par des filiales",
+    "Un terrain public peut désormais être mis à disposition par un bail de très longue durée au lieu d'être vendu avec une décote"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52002": {
-   "accroche": "Remplace au 1er janvier 2026 la chambre de commerce et d'industrie de Corse par un établissement public de la collectivité de Corse, qui reprend ses biens et ses missions.",
+   "accroche": "La chambre de commerce et d'industrie de Corse est remplacée le 1er janvier 2026 par un établissement public de la collectivité de Corse, qui reprend biens et personnel.",
    "points": [
-    "Le transfert des biens, droits et obligations est réalisé à titre gratuit et ne donne lieu au paiement d'aucun impôt, droit, taxe ni frais perçus au profit du Trésor",
-    "L'établissement exerce les missions confiées au réseau des chambres de commerce et d'industrie : appui aux créateurs et repreneurs d'entreprises, développement international, formation professionnelle",
-    "Ses ressources sont les impositions qui lui sont affectées, la vente de ses activités et services, les dividendes de ses participations et les subventions, dons et legs",
-    "Le personnel est recruté dans les conditions du code du travail et un comité social et économique est compétent pour l'ensemble du personnel",
-    "Dans toutes les lois en vigueur appliquées en Corse, la référence aux chambres de commerce et d'industrie est remplacée par la référence au nouvel établissement",
-    "Le président du conseil d'administration est désigné au plus tard le 1er janvier 2026, date à laquelle l'Assemblée de Corse élit aussi ses représentants"
+    "Biens, droits et obligations de la chambre sont transférés au nouvel établissement à titre gratuit, sans impôt, droit ni taxe",
+    "Le personnel est transféré à la même date, les salariés de droit privé conservant le bénéfice de leur contrat de travail",
+    "Vingt membres désignés par l'assemblée générale de la chambre siègent au conseil d'administration jusqu'à l'élection des représentants des professionnels",
+    "L'établissement accompagne les créateurs d'entreprise, agit pour la formation professionnelle, gère des équipements portuaires et aéroportuaires et délivre des cartes professionnelles",
+    "La Corse est retirée du découpage des circonscriptions des chambres de commerce et d'industrie",
+    "Dans toutes les lois applicables en Corse, la référence aux chambres de commerce et d'industrie devient une référence au nouvel établissement"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52104": {
-   "accroche": "Ajoute au corps électoral du congrès et des assemblées de province de la Nouvelle-Calédonie les personnes nées sur place et inscrites sur la liste électorale générale.",
+   "accroche": "Les personnes nées en Nouvelle-Calédonie et inscrites sur la liste électorale générale peuvent voter aux élections du congrès et des assemblées de province.",
    "points": [
-    "Ajoute à l'article 188 de la loi organique de 1999 les personnes « nées en Nouvelle-Calédonie et inscrites sur la liste électorale générale à la date de l'élection »",
-    "Complète l'article 189 de la même loi organique, relatif à la liste électorale spéciale, pour y viser ces nouvelles personnes",
-    "Entre en vigueur le lendemain de sa publication au Journal officiel de la République française"
+    "S'ajoute aux conditions existantes le fait d'être né en Nouvelle-Calédonie et d'être inscrit sur la liste électorale générale à la date de l'élection",
+    "Ces électeurs sont visés dans les règles de tenue de la liste électorale spéciale et de son tableau annexe",
+    "Le texte s'applique dès le lendemain de sa publication au Journal officiel"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52549": {
-   "accroche": "Autorise l'approbation de la convention franco-finlandaise contre la double imposition des revenus, signée le 4 avril 2023, et de l'avenant à la convention franco-suédoise, signé le 22 mai 2023.",
+   "accroche": "Autorise la France à approuver la convention conclue avec la Finlande contre la double imposition des revenus, ainsi qu'un avenant à la convention équivalente signée avec la Suède.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52922": {
-   "accroche": "Porte les prévisions de recettes et les objectifs de dépenses de la sécurité sociale pour 2026, réduit une cotisation maladie et fixe les dotations d'agences sanitaires.",
+   "accroche": "L'aide qui prenait en charge les cotisations des jeunes médecins s'installant en zone manquant de soignants est supprimée, et la cotisation maladie de certains employeurs baisse.",
    "points": [
-    "Réduit de six points le taux de la cotisation d'assurance maladie sur les rémunérations n'excédant pas un plafond annuel fixé par décret par référence au salaire minimum de croissance",
-    "Fixe pour 2026 la dotation de l'assurance maladie à 202,20 millions d'euros pour l'Office national d'indemnisation des accidents médicaux et à 390,54 millions pour l'Agence nationale de santé publique",
-    "Valide, sauf décisions de justice définitives, les montants de la contribution de l'article L. 138-10 du code de la sécurité sociale notifiés aux entreprises redevables pour 2021 à 2024",
-    "Étale sur une période transitoire d'au plus huit ans, à partir du 1er janvier 2027, le passage à la nouvelle dotation globale de financement d'établissements médico-sociaux",
-    "Le reste tient dans ses propres articles : prévisions de recettes, objectifs de dépenses par branche et objectif national de dépenses d'assurance maladie pour les années 2026 à 2029"
+    "Supprimée, l'aide couvrant les cotisations sociales des médecins installés dans une zone à l'offre de soins insuffisante dans les trois ans suivant leur diplôme, pendant vingt-quatre mois",
+    "La cotisation maladie est réduite de six points et la cotisation d'allocations familiales de 1,8 point sur les rémunérations inférieures à des plafonds fixés par décret",
+    "Disparaissent les règles qui plafonnaient le revenu d'une activité indépendante cumulée avec une retraite et réduisaient la pension à hauteur du dépassement",
+    "Les sommes réclamées aux laboratoires pharmaceutiques au titre d'années allant de 2014 à 2024 sont validées et ne peuvent plus être contestées, sauf jugements déjà définitifs",
+    "L'expérimentation qui renforçait, dans certains départements, les garanties contre les pensions alimentaires impayées est supprimée le 1er avril 2026",
+    "La nouvelle façon de financer les établissements accueillant des enfants handicapés n'entre en vigueur qu'au 1er janvier 2027, avec une transition d'au plus huit ans"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53259": {
-   "accroche": "Autorise l'approbation de l'accord entre la France et l'Agence spatiale européenne sur les installations de cette agence en France, signé à Paris le 22 mars 2023.",
+   "accroche": "Autorise la France à approuver l'accord signé le 22 mars 2023 avec l'Agence spatiale européenne au sujet des installations de celle-ci sur le territoire français.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53530": {
-   "accroche": "Met fin aux concessions hydroélectriques et attribue à leurs titulaires, pour soixante-dix ans, un droit réel sur les ouvrages, contre indemnité et ouverture de capacités aux concurrents.",
+   "accroche": "Les concessions hydroélectriques sont résiliées et remplacées par un droit d'exploitation de soixante-dix ans attribué aux exploitants en place, moyennant indemnité et contrepartie financière.",
    "points": [
-    "Attribue aux titulaires des concessions résiliées, pour soixante-dix ans, un droit réel et un droit d'occupation du domaine public sur les ouvrages et installations qu'ils exploitaient",
-    "Des experts indépendants, désignés sur avis conforme de la Commission de régulation de l'énergie, évaluent l'indemnité de résiliation anticipée de chaque contrat de concession",
-    "Chaque concessionnaire dispose de deux mois pour signer la convention de résiliation, délai porté à six mois en dessous de 100 mégawatts de capacités concédées",
-    "Électricité de France met vingt ans à disposition de tiers une capacité virtuelle « initialement fixée à 6 gigawatts », visant l'ouverture d'au moins 40 % des capacités installées",
-    "Soumet les installations hydroélectriques autorisées à une redevance au profit de l'État et des établissements publics territoriaux de bassin, assise sur l'électricité injectée sur le réseau",
-    "Ces articles du code de l'énergie entrent en vigueur à une date fixée par décret, et au plus tard le 1er septembre 2026"
+    "Chaque concessionnaire reçoit pour soixante-dix ans la jouissance des barrages qu'il exploitait, avec le droit d'y construire à ses frais des extensions",
+    "Des experts indépendants évaluent l'indemnité due par l'État ; si la contrepartie due par l'exploitant est plus élevée, celui-ci verse la différence",
+    "Le concessionnaire a deux mois pour signer la convention, délai porté à six mois en dessous de 100 mégawatts exploités",
+    "EDF met aux enchères 6 gigawatts de capacité dite virtuelle pendant vingt ans, pour ouvrir au moins 40 % des capacités hydroélectriques françaises à d'autres entreprises",
+    "Une redevance nouvelle frappe chaque mégawattheure injecté sur le réseau, à un taux croissant selon le résultat net rapporté à l'énergie produite",
+    "Un comité local d'information sur les usages de l'eau devient obligatoire au-delà de 500 mégawatts, et ces règles s'appliquent au plus tard le 1er septembre 2026"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53940": {
-   "accroche": "Ouvre un appel limité aux peines complémentaires, jugé par une cour d'assises sans jury, et généralise l'information de la victime et de l'auteur sur la justice restaurative.",
+   "accroche": "La détention provisoire peut être maintenue cinq jours ouvrables quand l'audience n'a pu se tenir, et l'appel devant les assises peut ne porter que sur les peines complémentaires.",
    "points": [
-    "L'appel de l'accusé ou du ministère public peut être limité aux peines complémentaires ; la cour d'assises statue alors sans jury, avec un président et deux assesseurs, à la majorité",
-    "La victime et l'auteur qui a reconnu les faits sont informés, à tout moment de la procédure, de leur droit de se voir proposer une mesure de justice restaurative",
-    "Si le débat sur la prolongation d'une détention provisoire n'a pu se tenir, le procureur général peut saisir le premier président de la cour d'appel, qui statue en quarante-huit heures",
-    "Le tribunal judiciaire de Paris reçoit compétence exclusive, en matière civile, sur les demandes des victimes ayant saisi le fonds de garantie des victimes des actes de terrorisme",
-    "À Saint-Pierre-et-Miquelon, un magistrat temporairement affecté peut, en cas de circonstances exceptionnelles, participer à l'audience et au délibéré par un moyen de communication audiovisuelle",
-    "Des dispositions des articles 5, 8 et 12 ont été déclarées non conformes à la Constitution par la décision du Conseil constitutionnel n° 2026-909 DC du 23 juillet 2026"
+    "Faute d'audience tenue à temps, le premier président de la cour d'appel peut maintenir en détention cinq jours ouvrables, pour un crime ou un délit puni d'au moins cinq ans",
+    "Il décide en quarante-huit heures ; la personne et son avocat disposent de vingt-quatre heures pour écrire, et elle est libérée si l'audience ne se tient pas dans ce délai",
+    "Quand l'appel ne vise que les peines complémentaires, la cour d'assises siège avec trois magistrats, sans jury, et décide à la majorité",
+    "La victime et l'auteur qui a reconnu les faits doivent être informés qu'une mesure de justice restaurative peut leur être proposée, même après un classement sans suite",
+    "Un magistrat empêché de rejoindre à temps le tribunal de Saint-Pierre-et-Miquelon peut siéger et délibérer par liaison audiovisuelle, dans une liste de procédures énumérées",
+    "Plusieurs dispositions ont été déclarées contraires à la Constitution, et d'autres n'entrent en vigueur qu'au 1er janvier 2027 ou six mois après la promulgation"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N54085": {
-   "accroche": "Rend obligatoire l'indication de l'origine des viandes servant d'ingrédients, sanctionne les recours abusifs contre certains projets et crée une amende pour les denrées interdites d'importation.",
+   "accroche": "L'origine des viandes utilisées comme ingrédient dans les plats préemballés devient obligatoire, et attaquer abusivement un projet agricole ou industriel peut coûter des dommages et intérêts.",
    "points": [
-    "L'origine devient obligatoire pour les viandes bovine, porcine, ovine, caprine et de volaille utilisées comme ingrédients dans des denrées préemballées, sauf appellation d'origine",
-    "Crée une amende administrative pouvant atteindre 10 % du chiffre d'affaires moyen annuel pour l'introduction ou la mise sur le marché de denrées visées par une mesure d'interdiction",
-    "Le juge administratif peut condamner à des dommages et intérêts l'auteur d'un recours abusif contre un projet agricole, industriel ou énergétique ; le seul rejet du recours ne suffit pas",
-    "À peine de nullité, le notaire informe la société d'aménagement foncier et d'établissement rural, deux mois à l'avance, de toute conclusion ou cession d'un bail emphytéotique agricole",
-    "Habilite le Gouvernement à légiférer par ordonnance dans les neuf mois sur le financement de la lutte sanitaire, et dans les six mois sur les régimes applicables aux élevages"
+    "L'origine doit être indiquée pour le bœuf, le porc, le mouton, la chèvre et la volaille servant d'ingrédient dans une denrée préemballée",
+    "Les produits sous appellation d'origine et les produits issus de l'agriculture biologique échappent à cette obligation",
+    "Importer ou vendre en France des aliments visés par une mesure de protection expose à une amende pouvant atteindre 10 % du chiffre d'affaires annuel moyen",
+    "Un recours formé dans l'intention de nuire peut être sanctionné par des dommages et intérêts, le seul rejet du recours ne suffisant pas à le caractériser",
+    "Le notaire doit prévenir l'organisme d'aménagement foncier rural deux mois avant la signature d'un bail de très longue durée sur des terres agricoles, sous peine de nullité",
+    "Le Gouvernement est autorisé à légiférer par ordonnance dans les neuf mois sur la lutte contre les dangers sanitaires et dans les six mois sur les règles applicables aux élevages"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50548": {
-   "accroche": "Fait sortir des collections nationales, par dérogation à leur caractère inaliénable, des restes humains kali'nas et arawaks conservés au Muséum national d'histoire naturelle.",
+   "accroche": "Des squelettes et des moulages d'Amérindiens conservés par le Muséum national d'histoire naturelle cessent d'appartenir aux collections nationales, normalement incessibles, dès leur arrivée dans une commune de Guyane.",
    "points": [
-    "Écarte pour ces restes le « principe d'inaliénabilité des collections publiques » inscrit à l'article L. 451-5 du code du patrimoine",
-    "La sortie des collections prend effet à l'entrée des restes sur le territoire de la commune d'Iracoubo",
-    "Fixe une échéance : « au plus tard six mois après l'entrée en vigueur de la présente loi »",
-    "Une annexe énumère les pièces avec leur numéro d'inventaire du Muséum, dont le squelette de Couani, décédé à Paris le 8 avril 1892"
+    "Les collections publiques ne peuvent en principe pas être cédées ; il est fait exception à ce principe pour les restes énumérés en annexe",
+    "La sortie des collections prend effet à l'entrée des restes sur le territoire de la commune d'Iracoubo, et « au plus tard six mois après l'entrée en vigueur »",
+    "Chaque personne est identifiée en annexe par son nom, son âge, la date et le lieu de son décès et le numéro sous lequel le muséum l'avait inventoriée"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50692": {
-   "accroche": "Sépare l'élection des conseillers de Paris, Lyon et Marseille de celle des conseillers d'arrondissement, et réunit chaque année le maire de la ville et les maires d'arrondissement.",
+   "accroche": "À Paris, Lyon et Marseille, conseillers de la ville et conseillers d'arrondissement seront élus sur des listes séparées, un même candidat pouvant se présenter sur les deux.",
    "points": [
-    "Une liste de candidats aux sièges de conseiller d'arrondissement est désormais distincte, et un candidat peut figurer sur les deux listes",
-    "La liste ayant la majorité absolue au premier tour, ou le plus de voix au second, reçoit un quart des sièges à pourvoir, arrondi à l'entier supérieur",
-    "Abroge la règle qui répartissait les sièges de conseiller d'arrondissement entre les listes après l'attribution des sièges au conseil",
-    "Crée une « conférence des maires », présidée par le maire de la ville et réunissant les maires d'arrondissement, réunie au moins une fois par an",
-    "Le maire d'arrondissement peut assister au conseil municipal sans en être membre et y être entendu sur les affaires de son arrondissement",
-    "Les articles 1er à 5 ne s'appliquent qu'au premier renouvellement général des conseils municipaux ; un rapport au Parlement est demandé sous six mois"
+    "Les sièges d'arrondissement se répartissaient entre les listes une fois attribués les sièges de la ville, dans l'ordre de présentation ; cette règle est supprimée",
+    "La liste majoritaire au premier tour, ou arrivée en tête au second, reçoit un nombre de sièges égal au quart des sièges à pourvoir, arrondi à l'entier supérieur",
+    "Une « conférence des maires » réunit le maire de la ville et les maires d'arrondissement au moins une fois par an, sur tout sujet d'intérêt municipal",
+    "Un maire d'arrondissement peut assister au conseil de la ville même s'il n'en est pas membre, et y être entendu sur les affaires de son arrondissement",
+    "Ces règles ne s'appliqueront qu'au prochain renouvellement général des conseils municipaux ; un rapport sur le transfert de compétences aux mairies d'arrondissement est attendu sous six mois"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N50820": {
-   "accroche": "Repousse à 2026 l'échéance inscrite à l'article 6 de la loi du 16 août 2022, celui que le titre présente comme la dérogation d'usage des titres-restaurant.",
+   "accroche": "Payer tout produit alimentaire avec des titres-restaurant restait permis jusqu'à une échéance fixée en 2024 ; cette échéance est repoussée à 2026.",
    "points": [
-    "Un seul article, une seule modification : « 2024, » est remplacé par « 2026, »",
-    "Aucun code n'est touché : la loi ne modifie que la loi du 16 août 2022",
-    "Le changement prend effet le 23 janvier 2025, deux jours après la date de la loi"
+    "Un seul mot change dans la loi de 2022 qui porte cette autorisation : « 2024 » devient « 2026 »",
+    "Aucune autre condition d'usage des titres-restaurant n'est touchée : le texte ne comporte qu'un article",
+    "Le changement inscrit dans la loi de 2022 prend effet le 23 janvier 2025"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51002": {
-   "accroche": "Redéfinit ce que fait un infirmier : consultation, diagnostic infirmier et prescription de produits de santé et d'examens inscrits sur une liste arrêtée par les ministres.",
+   "accroche": "Le métier d'infirmier est redéfini : consultation, diagnostic infirmier et prescription remplacent une définition qui le résumait aux soins donnés sur conseil médical ou dans son rôle propre.",
    "points": [
-    "L'infirmier « effectue des consultations infirmières et pose un diagnostic infirmier », dans le cadre de son rôle propre et en coordination avec les autres professionnels",
-    "La liste des produits de santé et des examens qu'il peut prescrire est fixée par arrêté et « mise à jour au moins tous les trois ans »",
-    "Fait des infirmiers de l'éducation nationale une spécialité autonome, au rôle « principalement éducatif et préventif »",
-    "Une interruption d'activité au-delà d'un seuil fixé par décret, qui ne peut excéder trois ans, doit être signalée à l'ordre ; au-delà de six ans, les compétences peuvent être évaluées",
-    "Ouvre la pratique avancée aux infirmiers anesthésistes, de bloc opératoire et puériculteurs, selon des modalités définies par décret en Conseil d'État",
-    "Une expérimentation de trois ans, dans cinq départements, autorise l'infirmier à prendre en charge directement des patients pour des actes ne relevant pas de son rôle propre"
+    "L'infirmier pouvait prescrire certains vaccins ; il prescrit désormais les produits de santé et examens nécessaires à son exercice, sur une liste ministérielle revue au moins tous les trois ans",
+    "Les infirmiers de l'éducation nationale deviennent une spécialité autonome, au rôle « principalement éducatif et préventif », pouvant être sanctionnée par un diplôme",
+    "Une interruption d'activité doit être signalée à l'ordre au-delà d'un seuil fixé par décret, qui « ne peut excéder trois ans » ; après six ans, les compétences peuvent être évaluées",
+    "Infirmiers anesthésistes, de bloc opératoire et puériculteurs peuvent exercer en pratique avancée selon des règles propres à leur spécialité",
+    "Pendant trois ans et dans cinq départements, l'État peut laisser des infirmiers prendre en charge directement des patients pour des actes hors de leur rôle propre, avec rapport au Parlement"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51161": {
-   "accroche": "Repousse à 2028 deux échéances de l'ordonnance du 3 mars 2021 sur l'accès à certaines écoles de service public, et ratifie cette ordonnance.",
+   "accroche": "L'expérimentation d'accès à certaines écoles de service public, dont l'échéance tombait en décembre 2024, est prolongée jusqu'en août 2028 et concerne aussi les militaires.",
    "points": [
-    "À l'article 1er de l'ordonnance, « décembre 2024 » devient « août 2028 »",
-    "Le public visé s'élargit : là où le texte disait « fonctionnaires », il dit « fonctionnaires ou de militaires »",
-    "L'échéance de l'article 5, fixée au 30 juin 2024, est reportée au 31 mars 2028",
-    "L'article 3 de la loi ratifie l'ordonnance n° 2021-238 du 3 mars 2021",
-    "Ces dispositions « sont applicables aux concours ouverts à compter du 1er août 2024 », soit avant la promulgation"
+    "L'échéance principale passe de « décembre 2024 » à « août 2028 », et une seconde échéance du 30 juin 2024 est reportée au 31 mars 2028",
+    "Le dispositif visait les fonctionnaires ; il s'ouvre aux « fonctionnaires ou [aux] militaires »",
+    "L'ordonnance de 2021 qui a créé ce dispositif, prise par le Gouvernement, est définitivement approuvée par le Parlement",
+    "Ces règles valent pour les concours « ouverts à compter du 1er août 2024 », soit avant la promulgation du texte"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51329": {
-   "accroche": "Permet à un indivisaire de vendre seul un bien indivis sur autorisation de la justice, et détaille la vente décidée devant notaire par les deux tiers des indivisaires.",
+   "accroche": "Vendre un bien hérité à plusieurs devient possible sans l'accord de tous : le juge peut autoriser un seul héritier à signer seul l'acte de vente.",
    "points": [
-    "Le juge peut « autoriser un indivisaire à conclure seul un acte de vente d'un bien indivis »",
-    "Les titulaires d'au moins deux tiers des droits indivis expriment leur intention devant un notaire, qui signifie le projet aux autres et le publie",
-    "En cas d'opposition dans les trois mois, le tribunal judiciaire peut autoriser la vente si elle ne porte pas « une atteinte excessive aux droits des autres indivisaires »",
-    "Le juge commis aux opérations de partage tranche les contestations qui s'y élèvent et peut ordonner les licitations, ventes aux enchères entre indivisaires",
-    "L'administration fiscale transmet au maire, à sa demande, les informations nécessaires pour acquérir un immeuble dont le propriétaire est douteux ou introuvable",
-    "Abroge l'article 841-1 du code civil, qui permettait au notaire de mettre en demeure un indivisaire inerte de se faire représenter"
+    "Un héritier peut être autorisé par le juge à conclure seul la vente d'un bien détenu en commun avec les autres héritiers",
+    "Le curateur, qui gère une succession, ne pouvait vendre un immeuble que si la vente des meubles ne suffisait pas ; cette condition disparaît et il peut donner mandat pour signer",
+    "Face à un héritier inerte, le notaire pouvait le mettre en demeure et faire désigner un représentant à sa place ; cette procédure est supprimée",
+    "Les héritiers réunissant deux tiers des droits déclarent devant notaire leur intention de vendre ; les autres ont trois mois pour s'y opposer, et le tribunal tranche alors",
+    "Les avis de vente doivent aussi paraître dans un journal d'annonces légales du lieu du bien, et peuvent l'être sur le site internet de l'administration",
+    "Les maires obtiennent de l'administration fiscale, à leur demande, les informations utiles pour reprendre un bien dont le propriétaire est inconnu ou dont on ignore s'il vit encore"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51429": {
-   "accroche": "Permet de renouveler une fois la prolongation de la rétention administrative, jusqu'à quatre-vingt-dix jours, et autorise le relevé d'empreintes sans le consentement de la personne.",
+   "accroche": "Un étranger retenu en vue de son éloignement peut voir sa rétention prolongée une fois de plus, jusqu'à quatre-vingt-dix jours, et ses empreintes prises sans son accord.",
    "points": [
-    "La prolongation de la rétention « peut être renouvelée une fois » ; la durée maximale « n'excède alors pas quatre-vingt-dix jours », depuis le 11 novembre 2025",
-    "En cas de refus caractérisé, empreintes et photographies peuvent être prises sans consentement, sur autorisation du procureur et en présence de l'avocat",
-    "Le recours à la contrainte est « strictement proportionné », tient compte de la vulnérabilité de la personne, et fait l'objet d'un procès-verbal",
-    "La mesure ne vise que l'étranger « qui n'est titulaire d'aucun document de séjour en cours de validité » et qui présente un risque de fuite",
-    "Le procès-verbal de retenue mentionne les heures de début et de fin, les prises d'empreintes ou de photographies et la fouille des bagages",
-    "Les articles 1er et 2 et le 3° de l'article 4 sont « déclarés non conformes à la Constitution » par le Conseil constitutionnel"
+    "« La prolongation de la rétention peut être renouvelée une fois » ; la durée maximale « n'excède alors pas quatre-vingt-dix jours »",
+    "Un refus caractérisé de donner empreintes et photographie peut être surmonté par la contrainte, sur autorisation du procureur et en présence de l'avocat, si c'est l'unique moyen d'identifier la personne",
+    "Cette contrainte doit rester « strictement proportionnée » et tenir compte de la vulnérabilité de la personne ; un procès-verbal est dressé et une copie lui est remise",
+    "La rétention pour menace à l'ordre public ne vise que l'étranger sans document de séjour valide présentant un risque de fuite, quand l'assignation à résidence s'avère insuffisante",
+    "Deux articles entiers et une partie d'un troisième ont été déclarés contraires à la Constitution et ne s'appliquent pas",
+    "L'entrée en vigueur a été renvoyée à un décret, « au plus tard trois mois » après la promulgation ; le Gouvernement est habilité à adapter le texte outre-mer par ordonnance"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51581": {
-   "accroche": "Supprime la limitation de la société portuaire aux ports visés par la loi du 13 août 2004, en récrivant l'article 35 de la loi du 5 janvier 2006.",
+   "accroche": "Les chambres de commerce et d'industrie peuvent entrer au capital des sociétés créées par les collectivités pour exploiter leurs ports, et une dispense de règles anticorruption disparaît.",
    "points": [
-    "Les chambres de commerce et d'industrie « dans le ressort géographique desquelles les ports exploités se situent peuvent participer au capital de la société portuaire »",
-    "Le III de l'article 35 est abrogé : il écartait certaines règles de la loi du 29 janvier 1993 sur la prévention de la corruption pour ces opérations",
-    "En cas de cession ou d'apport d'une concession, la référence à l'article L. 122-12 est remplacée par celle à l'article L. 1224-1"
+    "Les chambres de commerce du secteur où se trouve le port « peuvent participer au capital de la société portuaire »",
+    "Ces opérations échappaient à plusieurs règles de la loi de 1993 sur la prévention de la corruption et la transparence de la vie économique ; ce paragraphe est abrogé",
+    "La mention limitant le dispositif aux ports visés par la loi de 2004 sur les libertés et responsabilités locales est retirée du texte"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51783": {
-   "accroche": "Autorise l'approbation de l'avenant signé à Paris le 27 juin 2023 à la convention franco-suisse du 9 septembre 1966 sur les doubles impositions du revenu et de la fortune.",
+   "accroche": "Approuver l'avenant signé à Paris le 27 juin 2023 à la convention fiscale franco-suisse de 1966, sur les doubles impositions du revenu et de la fortune, est autorisé.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N51973": {
-   "accroche": "Abroge une disposition de la loi du 14 février 2025 qui devait entrer en vigueur le 1er janvier 2026, et fait s'appliquer le reste depuis le 1er mars 2025.",
+   "accroche": "Une mesure fiscale votée en février 2025, qui devait s'appliquer au 1er janvier 2026, est supprimée avant d'avoir jamais pris effet.",
    "points": [
-    "Le 1° du I de l'article 32 de la loi du 14 février 2025 est abrogé ; son entrée en vigueur était fixée au 1er janvier 2026",
-    "Dans les articles 231, 293 B et 293 D du code général des impôts, la référence au « II » devient « I bis »",
-    "Ces changements « s'appliquent à compter du 1er mars 2025 », donc avant la promulgation de la loi",
-    "La perte de recettes pour l'État est « compensée, à due concurrence, par la création d'une taxe additionnelle à l'accise sur les tabacs »"
+    "La phrase qui repoussait cette mesure au 1er janvier 2026 disparaît, et la mesure elle-même est abrogée",
+    "Les règles rétablies s'appliquent « à compter du 1er mars 2025 », soit huit mois avant la promulgation du texte",
+    "La perte de recettes pour l'État est compensée par une taxe additionnelle sur les tabacs"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52037": {
-   "accroche": "Confère à titre posthume à Alfred Dreyfus le grade de général de brigade, en un article unique qui ne modifie ni code ni autre loi.",
+   "accroche": "Alfred Dreyfus est élevé au grade de général de brigade à titre posthume, par une décision prise au nom de « la Nation française ».",
    "points": [
-    "L'article unique dispose : « La Nation française élève, à titre posthume, Alfred Dreyfus au grade de général de brigade »",
-    "Aucun code n'est touché et aucun décret n'est prévu : le texte tient en cette seule phrase",
-    "Datée du 17 novembre 2025, la loi prend effet le 19 novembre 2025"
+    "La promotion est prononcée « à titre posthume », en un article unique qui tient en une phrase",
+    "Aucun code ni aucune autre règle de droit n'est modifié par ce texte",
+    "La promotion prend effet le 19 novembre 2025, deux jours après la promulgation du texte"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52226": {
-   "accroche": "Autorise l'approbation de l'accord de coopération de défense entre la France et la Macédoine du Nord, signé à Paris le 14 octobre 2022 et annexé à la loi.",
+   "accroche": "Approuver l'accord de coopération dans le domaine de la défense signé avec la Macédoine du Nord à Paris le 14 octobre 2022 est autorisé.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52561": {
-   "accroche": "Autorise l'approbation de l'accord de coopération de défense entre la France et le Monténégro, signé à Paris le 3 avril 2024 et annexé à la loi.",
+   "accroche": "Approuver l'accord de coopération dans le domaine de la défense signé avec le Monténégro à Paris le 3 avril 2024 est autorisé.",
    "points": [],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N52985": {
-   "accroche": "Permet aux agents qui contrôlent la fraude d'être identifiés par un numéro plutôt que par leur nom, et ouvre de nouveaux accès aux données des plateformes en ligne.",
+   "accroche": "Les agents qui traquent le travail dissimulé peuvent taire leur nom et n'être identifiés que par un numéro quand le révéler mettrait leur vie en danger.",
    "points": [
-    "Un agent de contrôle peut être identifié par « un numéro d'immatriculation administrative » lorsque révéler son identité mettrait en danger sa vie ou celle de ses proches",
-    "Les juridictions administratives et judiciaires ont accès aux nom et prénom de l'agent identifié par un numéro dans un acte de procédure",
-    "Les agents antifraude de France Travail peuvent réclamer aux plateformes en ligne les informations nécessaires pour établir une inscription ou une allocation obtenue frauduleusement",
-    "Refuser de communiquer un document aux agents antifraude des institutions garantissant le paiement des salaires est puni d'une amende de 1 500 €",
-    "Le ministre chargé des finances évalue le montant des fraudes ; les résultats sont publics et transmis au Parlement « avant le 30 juin de chaque année »",
-    "Plusieurs mesures sont différées : la sanction financière visant un gestionnaire d'établissement social qui fausse ses données de financement n'entre en vigueur que le 1er janvier 2028"
+    "Un contrôleur des cotisations ou un inspecteur du travail peut être désigné par un numéro d'immatriculation lorsque son identité menacerait sa vie ou celle de ses proches",
+    "Saisi par une partie, le juge décide de communiquer ou non le nom réel, en pesant la menace pour l'agent et les besoins de la défense",
+    "France Travail peut réclamer aux plateformes en ligne le type d'activité, les dates et les coordonnées professionnelles des personnes inscrites soupçonnées de fraude, sans excéder le strict nécessaire",
+    "Ne pas répondre à l'organisme qui garantit les salaires en cas de faillite coûte « 1 500 € par bénéficiaire », dans la limite de « 10 000 € »",
+    "Un gestionnaire d'établissement ou de service médico-social qui fausse délibérément les données servant à fixer ses financements encourt une sanction financière, à compter du 1er janvier 2028",
+    "Le montant des fraudes est évalué chaque année, publié « avant le 30 juin » avec le détail des méthodes, et transmis au Parlement, à moyens constants"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53284": {
-   "accroche": "Crée une rétention de sûreté pour les condamnés terroristes jugés très dangereux en fin de peine, et allonge la rétention administrative des étrangers à éloigner.",
+   "accroche": "Une personne condamnée à quinze ans au moins pour terrorisme peut, à la fin de sa peine, être maintenue enfermée dans un centre de sûreté si elle reste très dangereuse.",
    "points": [
-    "Un condamné à quinze ans de réclusion au moins pour crime terroriste peut être placé, en fin de peine, dans un « centre socio-médico-judiciaire de sûreté »",
-    "La mesure suppose que la cour d'assises l'ait « expressément prévu » et un réexamen un an avant la libération, avec six semaines d'observation et deux experts",
-    "Pour une peine d'au moins dix ans, le tribunal de l'application des peines de Paris peut imposer une prise en charge sanitaire, sociale, éducative ou psychiatrique",
-    "Le préfet peut imposer un examen psychiatrique dans un délai « qui ne peut être inférieur à quinze jours, sauf urgence dûment justifiée »",
-    "La rétention pour une même mesure d'éloignement ne peut dépasser trois cent soixante jours, portés à cinq cent quarante après prolongation, ni cinq placements",
-    "Une demande de changement de prénom ou de nom doit joindre le bulletin n° 3 du casier et un document sur l'inscription aux fichiers d'auteurs d'infractions terroristes ou sexuelles"
+    "Cette « rétention de sûreté terroriste » n'existait pas : elle place la personne dans un centre où lui sont proposées en permanence une prise en charge médicale, sociale et psychologique",
+    "Elle suppose une adhésion persistante à une idéologie appelant au terrorisme, un trouble grave de la personnalité et une probabilité de récidive « très élevée »",
+    "La situation est examinée au moins un an avant la libération, après six semaines au moins d'observation en détention et une expertise médicale confiée à deux experts",
+    "Le préfet peut imposer un examen psychiatrique à une personne jugée menaçante, dans un délai d'au moins quinze jours ; le juge administratif, saisi sous quarante-huit heures, statue avant l'exécution",
+    "Changer de prénom ou de nom exige désormais de joindre son extrait de casier judiciaire et un document indiquant si l'on figure aux fichiers des auteurs d'infractions terroristes ou sexuelles",
+    "Une nouvelle rétention pour un même éloignement n'attend plus sept jours ; la durée cumulée ne peut dépasser « trois cent soixante jours » ni « cinq placements »"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53600": {
-   "accroche": "Habilite l'assemblée de Martinique à fixer elle-même des règles locales en matière d'énergie, et à créer une autorité unique de l'eau et de l'assainissement.",
+   "accroche": "L'assemblée de Martinique peut fixer elle-même les règles applicables sur son territoire en matière d'énergie et créer une autorité unique pour l'eau potable et l'assainissement.",
    "points": [
-    "L'habilitation en énergie couvre la maîtrise de la demande, la réglementation thermique des bâtiments, les énergies renouvelables et la mobilité durable",
-    "En sont exclues les dispositions ayant un impact sur les charges de service public de l'énergie prises en compte dans le calcul de la péréquation tarifaire",
-    "L'autorité unique reçoit les compétences en eau et assainissement prévues aux articles L. 2224-7 à L. 2224-8 du code général des collectivités territoriales",
-    "Les deux habilitations s'exercent dans les limites fixées par des délibérations de l'assemblée du 21 décembre 2023 et du 26 juillet 2024",
-    "Elles courent « jusqu'à son prochain renouvellement général » et peuvent être prorogées dans les conditions de l'article LO 7411-7 du même code"
+    "L'habilitation en matière d'énergie couvre la maîtrise de la demande, la réglementation thermique des bâtiments, le développement des énergies renouvelables et la mobilité durable",
+    "En sont exclues les dispositions qui pèseraient sur les charges de service public de l'énergie entrant dans le calcul de la péréquation tarifaire",
+    "Cette autorité unique se verrait confier les compétences en matière d'eau et d'assainissement déjà définies par la loi pour ces services",
+    "Les deux habilitations courent jusqu'au prochain renouvellement général de l'assemblée et peuvent être prorogées"
    ],
    "origine": "ia",
    "le": "2026-09-10"
   },
   "DLR5L17N53942": {
-   "accroche": "Inscrit dans le statut de la magistrature le recrutement d'avocats honoraires comme assesseurs des cours criminelles départementales, et crée deux obligations de formation.",
+   "accroche": "Des avocats honoraires peuvent être nommés assesseurs dans les cours criminelles départementales, pour un mandat de cinq ans renouvelable une fois, et jusqu'à soixante-quinze ans.",
    "points": [
-    "Des avocats honoraires peuvent être nommés assesseurs pour cinq ans, renouvelables une fois, sans pouvoir rester en fonctions au-delà de soixante-quinze ans",
-    "Ils ne doivent pas avoir exercé comme avocat, depuis au moins trois ans, dans le ressort de la cour d'appel où ils sont affectés",
-    "Ils peuvent garder une activité professionnelle, mais aucune activité d'agent public hors enseignement supérieur, et ne siègent pas au Conseil supérieur de la magistrature",
-    "Pendant un an après la fin de leurs fonctions, ils s'abstiennent de « toute prise de position publique en relation avec les fonctions juridictionnelles qu'ils ont exercées »",
-    "Tout magistrat traitant habituellement des violences intrafamiliales suit une formation de l'École nationale de la magistrature dans l'année suivant sa prise de fonctions",
-    "Les magistrats déjà en poste ont jusqu'au 31 décembre 2028 ; la formation des assesseurs sur les violences sexuelles s'applique au sixième mois suivant la promulgation"
+    "Ils ne doivent pas avoir exercé comme avocat depuis au moins trois ans là où ils siègent, et suivent une formation préalable organisée par l'École nationale de la magistrature",
+    "Ils peuvent garder une activité professionnelle si elle ne porte atteinte ni à la dignité ni à l'indépendance de la fonction, et signalent tout changement d'activité",
+    "Ils ne peuvent juger une affaire liée à leur activité ou à une partie avec laquelle ils ont eu des relations professionnelles ; l'affaire est renvoyée à une autre formation",
+    "Ils ne siègent pas au Conseil supérieur de la magistrature, ne reçoivent aucun avancement de grade, ne peuvent être mutés sans leur accord et sont indemnisés",
+    "Tout magistrat traitant habituellement des violences intrafamiliales suit une formation dans l'année suivant sa prise de fonctions ; ceux déjà en poste ont jusqu'au 31 décembre 2028",
+    "La formation aux violences sexuelles et sexistes exigée de tout assesseur entre en vigueur le premier jour du sixième mois suivant la promulgation"
    ],
    "origine": "ia",
    "le": "2026-09-10"

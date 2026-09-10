@@ -749,3 +749,32 @@ sur l'ancien champ. Rien ne plantait — la rubrique disparaissait simplement.
 **Un changement de schéma se cherche à l'usage, pas à la lecture du diff** :
 c'est le navigateur qui l'a montré.
 
+### L'avant existe rarement, et c'est une donnée, pas un défaut
+
+Deuxième passage sur les descriptions, cette fois centré sur ce qui change.
+Mesure faite avant d'écrire : sur **598 articles récoltés, 118 seulement
+portent un « avant » lisible** — les autres sont des articles créés, où rien
+ne précède. L'angle « avant/après » vaut donc pour un cinquième de la matière,
+et le savoir avant de rédiger évite de le réclamer partout.
+
+Résultat : **66 puces sur 420 énoncent un vrai passage** d'un état à l'autre.
+Les six rédactions ont refusé de l'écrire ailleurs, y compris là où c'était
+tentant — l'une a écarté « la rétention passait de soixante à quatre-vingt-dix
+jours », qui était l'exemple de sa propre consigne, parce que la source ne
+donnait que l'après. C'est le comportement voulu : une consigne illustrée par
+un exemple ne doit pas faire écrire l'exemple.
+
+Deux autres acquis de ce passage :
+
+- **Sortir les références juridiques des puces a plus fait pour la lisibilité
+  que tout le reste.** « L'article L. 233-2 du code de la sécurité intérieure »
+  mange la moitié d'une ligne et n'apprend rien à qui lit. Contrôle après
+  écriture : zéro numéro d'article, zéro nom de code, zéro renvoi numéroté
+  dans les 420 puces.
+- **Un refus de rédiger peut être juste sur le fond et faux en pratique.** Une
+  loi a été refusée parce que son unique article remplace un mot par un renvoi
+  que la source n'explicite pas. Le refus était fondé — mais l'intitulé du
+  dossier, lui, est publié par l'Assemblée et dit ce que la loi transpose. Une
+  accroche tirée du titre vaut mieux qu'une fiche muette ; c'est la puce, qui
+  prétend décrire une mesure, qui exige le texte.
+
