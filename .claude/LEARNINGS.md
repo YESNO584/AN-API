@@ -632,3 +632,26 @@ une façon de *regarder* ces données, pas une source de plus.
 
 **Corollaire :** avant de chercher à contourner un site, chercher d'où il tire
 ses données. C'est souvent publié à côté, sans barrière.
+
+### « Qui a écrit ce texte ? » — la réponse est dans `docs/CE-QUE-L-ON-ECRIT.md`
+
+Question posée le 2026-09-10 : dans tout ce que l'application affiche, qu'est-ce
+qui vient de l'IA et qu'est-ce qui vient de la source ? L'inventaire complet
+est écrit, écran par écran. Trois choses à ne pas refaire :
+
+- **La bonne question n'a pas deux réponses, mais trois.** « Source » et
+  « écrit par nous » laissent de côté le plus gros : ce que le programme
+  **calcule** — comptes, pourcentages, dates mises en forme, et le mot choisi
+  dans une table fixe d'après un code de la source. Classer un « Adopté » comme
+  venant de la source est faux : la source publie un code, le mot est de nous.
+- **« Aucune IA » se prouve en quatre constats, pas en un `grep`.** Les noms de
+  fournisseurs dans le code, les dépendances réellement installées, ce que la
+  publication automatique installe, et la bibliothèque qui fait la
+  transformation qui *ressemble* à de la génération (ici `difflib`).
+- **J'ai annoncé 17 explications et 13 champs d'étape ; il y en a 15 et 11.**
+  Comptés à l'œil dans un fichier de 3 080 lignes. Le réflexe de
+  `CLAUDE.md` — « lire le fichier avant de citer un chiffre » — vaut aussi
+  quand on croit avoir lu le fichier : compter avec une commande.
+
+Un agent générique fait ce travail sur n'importe quelle interface :
+`.claude/agents/displayed-text-provenance-auditor.md`.
