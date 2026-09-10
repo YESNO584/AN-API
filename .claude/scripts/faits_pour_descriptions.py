@@ -43,7 +43,13 @@ SOCLE = "https://yesno584.github.io/AN-API"
 # loi de finances ne noie pas les autres.
 ARTICLES_MAX = 10
 # De quoi lire une disposition entière sans recopier un tableau de recettes.
-EXTRAIT_MAX = 1200
+# Relevé à 2 000 après la première rédaction : à 1 200, plusieurs articles
+# étaient coupés en cours de phrase, et les mesures concernées ont été
+# abandonnées faute de savoir ce qu'elles visaient — « une ligne tracée à
+# quarante ki », « Le s'applique : a) Aux ; b) Aux ». Une coupure au milieu
+# d'une phrase ne se voit pas : elle se lit comme une phrase complète et
+# absurde.
+EXTRAIT_MAX = 2000
 
 
 def lire(url: str):

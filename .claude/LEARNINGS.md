@@ -704,3 +704,48 @@ Vérifié dans un vrai navigateur (Playwright, Chromium préinstallé) sur une
 copie locale des fichiers publiés : bloc présent, mention lisible, fenêtre
 d'explication, mode sombre, pas de débordement à 390 px de large.
 
+### Décrire une loi : la matière est dans le diff, pas dans le titre
+
+Les descriptions ont d'abord été écrites à partir du titre, du type et du
+nombre d'articles touchés. Elles étaient creuses, et pour une bonne raison :
+**le titre d'une loi ne dit pas ce qu'elle fait.** « Projet de loi portant
+diverses dispositions d'adaptation au droit de l'Union européenne » en est la
+démonstration.
+
+Ce qui a changé la qualité d'un coup : lire les morceaux `ajoute` des fichiers
+`changements/<uid>/<id>.json`. Ce sont, mot pour mot, les phrases que la loi
+écrit dans le droit. On passe de « concerne l'éducation numérique » à « le
+projet d'école doit comporter une partie sur la sensibilisation aux effets
+nocifs d'une exposition non raisonnée aux écrans ».
+
+Quatre pièges rencontrés, tous à connaître avant de recommencer :
+
+- **Un article `abrogé` porte le texte supprimé dans `ajoute`.** Rencontré cinq
+  fois dans un seul lot. Le lire comme un ajout fait dire à la loi l'inverse de
+  ce qu'elle fait.
+- **Une troncature ne se voit pas.** Coupé à 1 200 caractères, un article se
+  lisait « une ligne tracée à quarante ki » — et la mesure a failli être
+  décrite avec une unité déduite. La limite est passée à 2 000, et la règle
+  reste : vérifier au fichier d'article avant de compléter une phrase coupée.
+- **Le titre du dossier et le droit écrit se contredisent parfois.** La loi
+  organique 2025-531 est intitulée « procureur national anti-stupéfiants » ;
+  le texte dit « procureur de la République anti-criminalité organisée ». Et
+  la convention « France-Myanmar » est en réalité conclue avec les Nations
+  unies. **Suivre le texte.**
+- **Un grand tableau aplati en une ligne est un piège à chiffres.** États
+  annexés, équilibre général, plafonds de taxes : deux colonnes s'y confondent
+  sans que rien ne le signale. Les six lots ont pour consigne de n'en tirer
+  aucune valeur, et de ne citer que les montants figurant dans une phrase.
+
+Sur la forme : un pavé de six lignes se saute. Une accroche puis une puce par
+mesure se parcourt — et le repliement doit cacher **des puces entières**, pas
+un nombre de lignes, sinon la dernière visible s'arrête au milieu d'un mot.
+Mesuré : sans repliement, la description des soins palliatifs occupait 820 px
+sur un écran de 844.
+
+Et une erreur à ne pas refaire : en changeant la forme de la donnée, la
+condition d'affichage (`if (d.description && d.description.texte)`) est restée
+sur l'ancien champ. Rien ne plantait — la rubrique disparaissait simplement.
+**Un changement de schéma se cherche à l'usage, pas à la lecture du diff** :
+c'est le navigateur qui l'a montré.
+

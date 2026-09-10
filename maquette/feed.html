@@ -636,6 +636,15 @@
   .description li { font-size: .89rem; line-height: 1.45; margin-top: .3rem;
                     color: var(--texte); }
   .description li::marker { color: var(--faible); }
+  /* Repliée, la liste s'arrête à la troisième puce. On cache des puces
+     entières et non un nombre de lignes : mesurée, la description des soins
+     palliatifs occupait 820 px sur un écran de 844, et la fiche entière
+     passait sous le pli. Couper au milieu d'une phrase aurait été pire. */
+  .description ul.replie li:nth-child(n+4) { display: none; }
+  .description .deplier { display: block; margin-top: .45rem; padding: 0;
+                          font: inherit; font-size: .78rem; border: 0;
+                          background: none; color: var(--accent);
+                          cursor: pointer; text-align: left; }
   .description .origine { display: flex; align-items: center; gap: .3rem;
                           margin-top: .55rem; padding: 0; font: inherit;
                           font-size: .74rem; color: var(--gris);
@@ -2360,6 +2369,9 @@ async function blocParoles(uid, total) {
  * la moitié des écrans.
  * ------------------------------------------------------------------ */
 
+// Combien de mesures s'affichent avant qu'il faille les demander.
+const VISIBLES = 3;
+
 const ORIGINES = {
   ia: {
     mot: "Description générée par une intelligence artificielle",
@@ -2410,6 +2422,21 @@ function blocDescription(description) {
     const liste = el("ul");
     for (const point of points) liste.append(el("li", null, point));
     boite.append(liste);
+    // Au-delà de trois mesures, la description prenait tout l'écran et la
+    // fiche commençait sous le pli. Les autres se demandent.
+    if (points.length > VISIBLES) {
+      const reste = points.length - VISIBLES;
+      liste.classList.add("replie");
+      const bouton = el("button", "deplier",
+        `Voir ${reste} autre${reste > 1 ? "s" : ""} mesure${reste > 1 ? "s" : ""}`);
+      bouton.addEventListener("click", () => {
+        const replie = liste.classList.toggle("replie");
+        bouton.textContent = replie
+          ? `Voir ${reste} autre${reste > 1 ? "s" : ""} mesure${reste > 1 ? "s" : ""}`
+          : "Replier";
+      });
+      boite.append(bouton);
+    }
   }
 
   const mention = el("button", "origine");
@@ -2489,7 +2516,7 @@ async function ouvrirFiche(uid) {
   // la règle « rien n'est écrit par une IA »**, décidée pour cette rubrique et
   // pour elle seule : le reste de la fiche est recopié de la source ou calculé.
   // Elle ne s'affiche que si le socle en publie une — pas de cadre vide.
-  if (d.description && d.description.texte) f.append(blocDescription(d.description));
+  if (d.description && d.description.accroche) f.append(blocDescription(d.description));
 
   // Les sources, tout en haut : c'est ce qu'on veut sous la main pour aller
   // vérifier, pas une annexe à chercher en bas de fiche.
