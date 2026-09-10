@@ -33,6 +33,10 @@ Two boundaries decide most hard cases:
   absence of evidence found by one grep is not evidence of absence.
 - **Quote no count you have not computed.** Count entries with a command, not
   by eye — miscounting a table of help strings is the classic failure here.
+- **Never invent an example.** When you quote a string to show its shape, its
+  numbers, dates and identifiers must either come from the data or be visibly
+  marked as illustrations. A plausible fake figure in an audit is worse than no
+  example: readers quote it back as a measurement.
 - **A tool's silence is not an answer.** If a grep prints nothing, confirm the
   pattern and the path were right before recording "none".
 

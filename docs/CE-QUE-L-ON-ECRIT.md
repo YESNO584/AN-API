@@ -37,13 +37,19 @@ choix d'un mot dans une liste fermée écrite à l'avance.
 
 ## L'inventaire, écran par écran
 
+Les textes entre guillemets montrent la **forme** de ce qui s'affiche. Sauf
+quand une valeur est attribuée à une mesure, **leurs chiffres, dates et
+numéros sont fictifs** : ils illustrent la mise en page, ils ne décrivent pas
+l'état des données un jour donné. Les chiffres qui, eux, sont vérifiés sont
+rassemblés en fin de document.
+
 ### Bandeau, en-tête, pied de page
 
 | Texte affiché | |
 |---|---|
 | « Maquette — données réelles, lues en direct sur le socle du projet » | **N** |
 | « Où en sont les lois », « Filtres », « Chercher dans les titres… » | **N** |
-| « **1 729** textes sur 2 151, dont 96 devenus des lois » | **C** (les chiffres) + **N** (les mots) |
+| « **2 151** textes, dont 107 devenus des lois » | **C** (les chiffres) + **N** (les mots) |
 | Le pied de page entier (source, licence, « Rien n'est écarté ») | **N** |
 | « Dernière mise à jour : … » | **C** (date de la publication) |
 
@@ -237,3 +243,39 @@ Trois lignes à tenir quand on ajoute quelque chose à l'écran :
 3. **Un calcul n'est jamais présenté comme une donnée.** Un pourcentage, un
    classement ou une couleur qui vient de nous le dit, dans la fenêtre
    d'explication.
+
+## Les chiffres vérifiés
+
+**Relevés le 2026-09-10**, chacun par une commande sur le dépôt. Les autres
+chiffres du document sont des exemples de mise en page.
+
+| Chiffre | Ce qu'il compte | Où il se vérifie |
+|---|---:|---|
+| Descriptions d'étape | 8 | `ETAPES`, `maquette/feed.html` |
+| Descriptions d'issue | 4 | `ISSUES`, `maquette/feed.html` |
+| Descriptions de nature de texte | 10 | `TYPES`, `maquette/feed.html` |
+| Descriptions de chambre | 3 | `CHAMBRES`, `maquette/feed.html` |
+| Explications générales | 15 | `EXPLICATIONS`, `maquette/feed.html` |
+| Descriptions de portée de vote | 5 | `PORTEES`, `maquette/feed.html` |
+| Descriptions de genre d'événement | 5 | `GENRES`, `maquette/feed.html` |
+| Descriptions de champ d'étape | 11 | `CHAMPS_ETAPE`, `maquette/feed.html` |
+| Descriptions d'issue publiées avec les données | 6 | `FINS`, `socle/extraction.py` |
+| Descriptions de portée publiées avec les données | 5 | `PORTEES`, `socle/extraction.py` |
+| Descriptions de catégorie de travaux | 9 | `TRAVAUX`, `socle/publier.py` |
+| Mots de pastille traduits de la source | 5 + 1 | `ACTIONS`, `socle/publier.py` (`MODIFIE`…`DEPLACE`, plus « nouveau ») |
+| Coupure de l'exposé sommaire | 400 caractères | `EXPOSE_MAX`, `socle/publier.py` |
+| Coupure du nom d'un article sans numéro | 62 caractères | `INTITULE_MAX`, `socle/legi.py` |
+| Amendements détaillés par texte | 150 | `AMENDEMENTS_MAX`, `socle/publier.py` |
+| Record d'amendements sur un seul dossier | 19 510 | mesure notée dans `socle/publier.py` |
+| Longueur médiane d'une prise de parole | 4 260 caractères | mesure notée dans `socle/publier.py` |
+| Textes suivis | 2 151 | `docs/CE-QUE-L-ON-SUIT.md`, mesuré le 2026-09-01 |
+| Lois promulguées | 107 | `docs/CE-QUE-L-ON-SUIT.md`, mesuré le 2026-09-01 |
+
+Et les quatre constats sur l'absence d'IA, refaits le 2026-09-10 :
+
+| Constat | Résultat |
+|---|---|
+| Noms de fournisseurs et de bibliothèques cherchés dans `socle/`, `maquette/`, `.github/` et `docs/` | 0 occurrence |
+| Modules importés par les 8 fichiers Python de `socle/` | 24 modules, **tous de la bibliothèque standard**, plus `extraction` et `legi` du projet |
+| Fichier de dépendances (`requirements.txt`, `pyproject.toml`, `package.json`…) | Aucun dans le dépôt ; la publication n'exécute aucun `pip install` |
+| Fichiers extérieurs chargés par la maquette (`<script src>`, `<link href>`) | Aucun : `feed.html` est un seul fichier |

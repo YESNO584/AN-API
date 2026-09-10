@@ -655,3 +655,24 @@ est écrit, écran par écran. Trois choses à ne pas refaire :
 
 Un agent générique fait ce travail sur n'importe quelle interface :
 `.claude/agents/displayed-text-provenance-auditor.md`.
+
+### Un exemple inventé dans un document se lit comme une mesure
+
+Suite du même travail. Le document affichait « 1 729 textes sur 2 151, dont
+96 devenus des lois » pour montrer à quoi ressemble le compteur de
+l'application. Les deux premiers chiffres venaient d'ailleurs et ne
+signifiaient pas ce que la phrase leur faisait dire ; **le troisième, je
+l'avais inventé** — la mesure du projet est 107. Personne ne pouvait le voir :
+un chiffre plausible, dans un tableau, se lit comme un fait.
+
+Deux règles qui en sortent, valables pour tout document de ce dépôt :
+
+- **Un exemple porte des chiffres vrais, ou il est annoncé comme un exemple.**
+  Le document le dit maintenant en une phrase, avant l'inventaire, et rassemble
+  en fin de page les chiffres qui, eux, sont vérifiés — avec la commande ou le
+  fichier qui les donne.
+- **Se relire en cherchant les nombres, pas les phrases.** `grep -noE '[0-9]+'`
+  sur le document sort la liste ; c'est en la parcourant que les trois erreurs
+  ont été trouvées (le compteur, « 9 fichiers » pour 8, « 23 modules » pour 24).
+  Aucune n'aurait été vue à la relecture normale.
+
