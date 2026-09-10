@@ -1,19 +1,69 @@
 # Ce que l'on écrit, et ce que l'on recopie
 
 **Relevé le 2026-09-10** sur `maquette/feed.html`, `socle/extraction.py`,
-`socle/legi.py` et `socle/publier.py`. Écrit pour répondre à une question
-simple : dans tout ce que l'application affiche, qu'est-ce qui vient du
-Parlement, et qu'est-ce qui vient de nous ?
+`socle/legi.py`, `socle/publier.py` et `socle/descriptions.json`. Écrit pour
+répondre à une question simple : dans tout ce que l'application affiche,
+qu'est-ce qui vient du Parlement, et qu'est-ce qui vient de nous ?
 
 ## En une phrase
 
-**Aucun texte de l'application n'est écrit par une intelligence artificielle,
-et aucun texte de la source n'est reformulé.** Quand nous écrivons, c'est à
-côté de la source — jamais à sa place.
+**Une seule rubrique de l'application est écrite par une intelligence
+artificielle — la description, en haut de la fiche d'un texte — et elle le dit
+à l'écran.** Tout le reste est recopié de la source, écrit à la main dans le
+code, ou calculé. Aucun texte de la source n'est reformulé nulle part.
 
-## Aucune IA dans la chaîne : ce qui le prouve
+## Les quatre catégories
 
-Quatre constats, vérifiables en une commande chacun :
+| Marque | Ce que c'est | Qui l'a écrit |
+|---|---|---|
+| **S** | **Source** — le mot pour mot de l'Assemblée, du Sénat ou du droit consolidé | Le Parlement, la DILA |
+| **N** | **Nous** — libellés, explications, avertissements, fixés une fois pour toutes dans le code | Un humain, à la main |
+| **C** | **Calculé** — comptes, pourcentages, dates mises en forme, classements | Le programme, à partir de la source |
+| **IA** | **La description d'un texte, et rien d'autre** | Une intelligence artificielle, hors ligne |
+
+Un **C** n'est jamais une phrase inventée : c'est un chiffre, une date, ou le
+choix d'un mot dans une liste fermée écrite à l'avance.
+
+## L'exception : la description d'un texte
+
+C'est la seule entorse à la règle, et elle est délibérée. Une fiche s'ouvrait
+sur un titre officiel — « Projet de loi portant diverses dispositions
+d'adaptation au droit de l'Union européenne… » — qui ne dit pas de quoi le
+texte parle. La description répond à cette question en deux phrases.
+
+**Ce qu'elle est**
+
+| | |
+|---|---|
+| Où elle s'affiche | En haut de la fiche d'un texte, sous les étiquettes, avant les liens vers les sources. Nulle part ailleurs |
+| Comment elle est signalée | Une icône et une mention sous le texte — « Générée par une IA ». Au survol sur un ordinateur, la mention complète ; au toucher sur un téléphone, une explication qui dit d'où elle vient et qu'elle peut se tromper |
+| D'où elle vient | `socle/descriptions.json`, un fichier **versionné**, écrit hors ligne. C'est la seule donnée du projet qui ne vienne pas d'une source publique |
+| Sur quoi elle s'appuie | Le titre du texte, sa nature, et ce que la loi change au droit — tous lus dans les données publiées |
+| Ce qui se passe s'il n'y en a pas | La rubrique ne s'affiche pas. Pas de cadre vide, pas de phrase d'attente |
+
+**Ce qu'elle ne fait pas**
+
+- Elle **ne remplace aucun texte de la source**. Le titre, le parcours, les
+  votes, les prises de parole et le texte des articles restent au mot près.
+- Elle **ne s'étend pas ailleurs**. Étendre l'exception à une autre rubrique
+  demande une décision écrite ici, pas une initiative de session.
+- Elle **n'est pas produite par la chaîne de publication**. Aucun appel à un
+  service d'IA, aucune clé d'accès, aucune dépendance : le fichier est déjà
+  écrit quand la publication le lit.
+- Elle **ne vieillit pas toute seule**. Une description écrite avant qu'un
+  texte n'avance dans son parcours reste telle quelle. Sa date est stockée et
+  affichée ; rien ne la périme automatiquement.
+
+**Une entrée peut aussi être écrite par une personne.** Le fichier porte alors
+`origine: "humain"`, et la mention à l'écran change en conséquence. C'est prévu
+dès maintenant pour que remplacer une description générée par une description
+rédigée ne demande aucun changement de code.
+
+## Ce que la chaîne de publication ne fait toujours pas
+
+Les descriptions sont écrites **hors ligne** et déposées dans un fichier. Le
+programme qui récupère, range et publie les données, lui, n'appelle aucun
+modèle de langage. Quatre constats, vérifiables en une commande chacun :
 
 | Ce qui a été vérifié | Résultat |
 |---|---|
@@ -21,19 +71,6 @@ Quatre constats, vérifiables en une commande chacun :
 | Les `import` de tous les fichiers de `socle/` | Bibliothèque standard de Python uniquement |
 | La publication quotidienne (`.github/workflows/donnees.yml`) | Aucun `pip install` : rien n'est installé, donc rien ne peut appeler un service |
 | La comparaison de deux rédactions d'un article | `difflib`, module standard (`socle/legi.py`, `morceaux`) — le code le dit : « aucun modèle de langage, aucun coût, et un résultat qui ne dépend que des deux textes » |
-
-Il n'y a donc pas deux catégories de texte à l'écran, mais **trois**.
-
-## Les trois catégories
-
-| Marque | Ce que c'est | Qui l'a écrit |
-|---|---|---|
-| **S** | **Source** — le mot pour mot de l'Assemblée, du Sénat ou du droit consolidé | Le Parlement, la DILA |
-| **N** | **Nous** — libellés, explications, avertissements, fixés une fois pour toutes dans le code | Un humain, à la main |
-| **C** | **Calculé** — comptes, pourcentages, dates mises en forme, classements | Le programme, à partir de la source |
-
-Un **C** n'est jamais une phrase inventée : c'est un chiffre, une date, ou le
-choix d'un mot dans une liste fermée écrite à l'avance.
 
 ## L'inventaire, écran par écran
 
@@ -138,6 +175,8 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 | | | |
 |---|---|---|
 | Le titre | **S** | |
+| **La description, sous les étiquettes** | **IA** | `socle/descriptions.json` — voir l'exception ci-dessus |
+| « Générée par une IA », et l'explication au toucher | **N** | |
 | « Dossier à l'Assemblée », « Dossier au Sénat », « Texte au Journal officiel » | **N** (les mots) + **S** (les adresses) | |
 | Auteur et cosignataires : civilité, prénom, nom, nom du groupe | **S** | |
 | « Auteur du texte », « et 42 autres. » | **N** / **C** | |
@@ -234,7 +273,7 @@ S'y ajoutent deux reformulations d'**un seul mot**, assumées : « Première » 
 
 ## La règle, pour la suite
 
-Trois lignes à tenir quand on ajoute quelque chose à l'écran :
+Quatre lignes à tenir quand on ajoute quelque chose à l'écran :
 
 1. **Rien de la source n'est réécrit.** Si un texte est trop long, on le
    coupe et on le dit ; on ne le résume pas.
@@ -243,6 +282,10 @@ Trois lignes à tenir quand on ajoute quelque chose à l'écran :
 3. **Un calcul n'est jamais présenté comme une donnée.** Un pourcentage, un
    classement ou une couleur qui vient de nous le dit, dans la fenêtre
    d'explication.
+4. **L'exception reste une exception.** La description est le seul texte
+   écrit par une IA, elle le dit à l'écran, et l'étendre à une autre rubrique
+   se décide ici — en modifiant ce document — avant d'écrire une ligne de
+   code.
 
 ## Les chiffres vérifiés
 
@@ -270,8 +313,11 @@ chiffres du document sont des exemples de mise en page.
 | Longueur médiane d'une prise de parole | 4 260 caractères | mesure notée dans `socle/publier.py` |
 | Textes suivis | 2 151 | `docs/CE-QUE-L-ON-SUIT.md`, mesuré le 2026-09-01 |
 | Lois promulguées | 107 | `docs/CE-QUE-L-ON-SUIT.md`, mesuré le 2026-09-01 |
+| Descriptions écrites | 107 | `socle/descriptions.json` — 107 par une IA, 0 par une personne |
+| Rubriques de l'application concernées par l'exception | 1 | la description sur la fiche d'un texte |
 
-Et les quatre constats sur l'absence d'IA, refaits le 2026-09-10 :
+Et les quatre constats sur la chaîne de publication — celle qui récupère,
+range et publie les données —, refaits le 2026-09-10 :
 
 | Constat | Résultat |
 |---|---|

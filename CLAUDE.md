@@ -17,7 +17,7 @@ a pas encore d'application, de base de données ni de dépendances.
 |---|---|
 | `docs/` | Le plan, les fiches de sources, la note d'accès réseau, et trois inventaires : `CE-QUE-L-ON-SUIT.md` (ce que le projet suit, chiffré), `CE-QUE-LA-LOI-CHANGE.md` (montrer l'avant/après du droit) et `CE-QUE-L-ON-ECRIT.md` (qui a écrit chaque texte affiché : la source, nous, ou un calcul — et la preuve qu'aucune IA n'intervient). Documents, pas du code |
 | `docs/sources/` | Ce que valent les sources de données, **mesuré** (étape 0, faite le 2026-08-31) |
-| `socle/` | **Le cœur du code.** Récupère, range, publie. `extraction.py` (les règles, testées), `recuperer.py` (le programme quotidien), `publier.py` (écrit les fichiers mis en ligne), `serveur.py` (développement local seulement), `schema.sql`. Et pour le droit consolidé : `legi.py` (les règles, testées) et `recuperer_legi.py`. Voir `socle/README.md` |
+| `socle/` | **Le cœur du code.** Récupère, range, publie. `extraction.py` (les règles, testées), `recuperer.py` (le programme quotidien), `publier.py` (écrit les fichiers mis en ligne), `serveur.py` (développement local seulement), `schema.sql`, `descriptions.json` (la seule donnée non publique du projet — voir la règle ci-dessous). Et pour le droit consolidé : `legi.py` (les règles, testées) et `recuperer_legi.py`. Voir `socle/README.md` |
 | `.github/workflows/` | La publication quotidienne des données, exécutée par GitHub |
 | `maquette/` | La maquette de l'étape 1 : `feed.html`, un seul fichier, qui **lit les données publiées par le socle**. Voir `maquette/README.md` |
 | `.claude/` | La configuration Claude Code |
@@ -92,6 +92,18 @@ a pas encore d'application, de base de données ni de dépendances.
   `ENTIEREMENT_MODIF` peut porter du droit bien réel. Ce qui tranche est le
   texte une fois les renvois retirés, et les renvois se reconnaissent à la
   **structure** de la source, pas à ses mots (`legi.sans_les_renvois`).
+- **Une seule rubrique est écrite par une IA, et c'est voulu : la description
+  d'un texte, en haut de sa fiche.** C'est l'unique exception à « rien n'est
+  écrit par une IA », décidée le 2026-09-10, et elle **n'est pas une erreur à
+  corriger**. Trois choses la tiennent : elle se signale à l'écran (icône,
+  mention « Générée par une IA », explication au toucher) ; elle vit dans
+  `socle/descriptions.json`, versionné et écrit **hors ligne**, si bien que la
+  chaîne de publication n'appelle toujours aucun service et n'a toujours
+  aucune dépendance ; et un texte sans description n'affiche pas la rubrique.
+  Le champ `origine` vaut `ia` ou `humain` — remplacer une description
+  générée par une description rédigée ne demande aucun code. **Étendre
+  l'exception à une autre rubrique se décide d'abord dans
+  `docs/CE-QUE-L-ON-ECRIT.md`.**
 - **Une page web ne peut pas aller chercher ces données elle-même** — les
   portails n'envoient pas l'en-tête `Access-Control-Allow-Origin`. Toute
   maquette autonome passe donc par une préparation hors ligne.

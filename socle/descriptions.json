@@ -1,0 +1,544 @@
+{
+ "_lisezmoi": "La description d'un texte, telle qu'elle s'affiche en haut de sa fiche. C'est la SEULE donnée du projet qui ne vienne pas d'une source publique, et la seule exception à la règle « rien n'est écrit par une IA » — d'où le champ `origine`, qui est affiché à l'écran. Voir docs/CE-QUE-L-ON-ECRIT.md. Une entrée peut être écrite par une personne : mettre alors origine à « humain ». Un texte absent de ce fichier n'affiche aucune description, plutôt qu'un cadre vide.",
+ "_origines": {
+  "ia": "écrite par une intelligence artificielle",
+  "humain": "écrite par une personne"
+ },
+ "descriptions": {
+  "DLR5L17N53940": {
+   "texte": "Une refonte du procès criminel et de la place faite aux victimes. La loi retouche surtout le code de procédure pénale, ainsi que l'organisation des tribunaux et la justice pénale des mineurs.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53942": {
+   "texte": "Le pendant organique de la réforme de la justice criminelle : elle modifie le statut de la magistrature, fixé par l'ordonnance de 1958, pour renforcer les juridictions criminelles.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52104": {
+   "texte": "Qui a le droit de voter aux élections du congrès et des assemblées de province de Nouvelle-Calédonie. La loi met à jour le corps électoral spécial inscrit dans la loi de 1999.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52100": {
+   "texte": "Organise les jeux Olympiques et Paralympiques de 2030. Elle écrit les règles propres à l'événement dans le code du sport, et touche aussi à la sécurité, aux transports et au tourisme.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52428": {
+   "texte": "Le budget de l'État pour 2026 : ses recettes, ses dépenses et les mesures fiscales de l'année. Comme toute loi de finances, l'essentiel de sa matière tient dans ses propres articles, et elle retouche au passage un grand nombre de codes.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52922": {
+   "texte": "Le budget de la Sécurité sociale pour 2026 : ses recettes, ses dépenses et les règles de l'assurance maladie, des retraites et de la famille. Elle modifie surtout le code de la sécurité sociale et le code de la santé publique.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52655": {
+   "texte": "Repousse les élections du congrès et des assemblées de province de Nouvelle-Calédonie, le temps de mettre en œuvre l'accord du 12 juillet 2025.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50588": {
+   "texte": "Le budget de la Sécurité sociale pour 2025 : ses recettes, ses dépenses et les règles de l'assurance maladie, des retraites et de la famille.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53187": {
+   "texte": "Encadre l'usage des réseaux sociaux par les mineurs. Elle crée des obligations pour les plateformes, des sanctions pénales, et fait une place au sujet dans le code de l'éducation.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51670": {
+   "texte": "Le texte sur la fin de vie, examiné en même temps que celui sur les soins palliatifs et voté à part. Il inscrit ses règles dans le code de la santé publique et organise leur prise en charge par l'assurance maladie et les assurances.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52746": {
+   "texte": "Change les règles de gestion, de vente et d'occupation des bâtiments et terrains de l'État. Elle touche la propriété des personnes publiques, l'urbanisme et la fiscalité.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53980": {
+   "texte": "Un texte d'ensemble sur l'ordre public et la sécurité du quotidien. Il modifie plus de deux cents articles répartis dans de nombreux codes, et écrit aussi ses propres dispositions.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N54006": {
+   "texte": "Un ensemble de mesures propres aux territoires de montagne : urbanisme, environnement, école et énergie.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N54085": {
+   "texte": "Des mesures d'urgence pour l'agriculture : règles environnementales applicables aux exploitations, relations commerciales et protection des productions.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N54083": {
+   "texte": "Actualise la programmation militaire pour les années 2024 à 2030 et porte diverses dispositions intéressant la défense. Elle modifie près de trois cents articles, de l'urbanisme à l'éducation.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51732": {
+   "texte": "L'organisation, la gestion et le financement du sport professionnel. C'est le code du sport qu'elle réécrit pour l'essentiel.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53284": {
+   "texte": "Renforce la rétention administrative et la prévention du risque d'attentat. Elle touche surtout le droit des étrangers, le code civil et la santé publique.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53426": {
+   "texte": "Un plan de prévention des maladies du cœur et des vaisseaux, inscrit dans le code de la santé publique, avec un volet école et un volet travail.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53848": {
+   "texte": "Autorise l'approbation de l'accord qui fixe la frontière entre Saint-Martin, du côté français, et Sint Maarten, du côté néerlandais.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52781": {
+   "texte": "Donne à chaque enfant le droit d'être assisté d'un avocat lorsqu'un juge décide d'une mesure de protection le concernant.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52000": {
+   "texte": "Autorise l'approbation de la convention d'entraide judiciaire en matière pénale conclue avec le Suriname.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53844": {
+   "texte": "Autorise l'approbation de l'accord de partenariat et de coopération renforcé entre l'Union européenne, ses États membres et la République kirghize.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53600": {
+   "texte": "Autorise l'assemblée de Martinique à fixer elle-même, sur son territoire, les règles applicables en matière d'énergie, d'eau et d'assainissement.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51845": {
+   "texte": "Reconnaît et répare les préjudices subis par les mineurs déplacés de La Réunion vers la France hexagonale entre 1962 et 1984.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51968": {
+   "texte": "Facilite l'accès au logement des agents des services publics, par des règles d'urbanisme, de construction et de gestion des biens publics.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53530": {
+   "texte": "Relance les investissements dans l'hydroélectricité. Elle réécrit une large part du code de l'énergie et adapte les règles d'environnement et d'urbanisme qui s'y rattachent.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50548": {
+   "texte": "Fait sortir des collections publiques des restes humains kali'nas et les remet à la collectivité de Guyane, pour qu'ils reçoivent une sépulture.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52985": {
+   "texte": "La lutte contre les fraudes aux prestations sociales et à l'impôt : contrôles, sanctions et échanges d'informations. Elle modifie plus de trois cents articles répartis dans de nombreux codes.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52549": {
+   "texte": "Autorise l'approbation de la convention fiscale conclue avec la Finlande et d'un avenant à celle conclue avec la Suède, pour éviter qu'un même revenu soit imposé dans les deux pays.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50444": {
+   "texte": "Renforce la protection et l'accompagnement des parents d'enfants atteints d'un cancer, d'une maladie grave ou d'un handicap.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53981": {
+   "texte": "Inscrit dans le code du travail l'avenant du 25 février 2026 à l'accord des partenaires sociaux sur l'assurance chômage.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51791": {
+   "texte": "Rend définitif le contrat de professionnalisation expérimental, jusque-là autorisé pour une durée limitée.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53357": {
+   "texte": "Étend à toutes les communes la compensation financière réservée jusqu'ici à celles de plus de 3 500 habitants au titre du service public de la petite enfance.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51672": {
+   "texte": "Organise l'accès aux soins palliatifs et à l'accompagnement. C'est le second des deux textes sur la fin de vie, votés séparément le même printemps.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51175": {
+   "texte": "Aide les collectivités à prévenir les inondations et à en réparer les suites : compétences, travaux, et expropriation dans les zones les plus exposées.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53192": {
+   "texte": "Permet aux médecins titulaires d'un diplôme obtenu au Royaume-Uni avant le Brexit de continuer à exercer en France.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52230": {
+   "texte": "Garantit aux parlementaires et aux bâtonniers le droit de visiter les lieux où des personnes sont privées de liberté.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52635": {
+   "texte": "Crée une procédure permettant de rendre à un État les biens culturels dont il a été privé par une appropriation illicite.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53235": {
+   "texte": "Autorise l'approbation de l'accord par lequel la France adhère au protocole sur les privilèges et immunités de la Communauté des Caraïbes.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53315": {
+   "texte": "Crée une procédure simplifiée pour se faire payer une créance commerciale que le débiteur ne conteste pas.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53259": {
+   "texte": "Autorise l'approbation de l'accord réglant le statut des installations de l'Agence spatiale européenne situées en France.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53730": {
+   "texte": "Autorise l'approbation de la convention conclue avec l'Italie sur l'entretien et l'exploitation de la section française d'une ligne commune aux deux pays.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52429": {
+   "texte": "Autorise l'approbation de la convention de coopération judiciaire internationale conclue avec le Myanmar.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53690": {
+   "texte": "Permet aux candidats à une élection de se faire rembourser les honoraires d'expert-comptable qu'ils ont engagés.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51329": {
+   "texte": "Simplifie la sortie de l'indivision : les règles qui s'appliquent quand plusieurs héritiers possèdent ensemble un même bien.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51346": {
+   "texte": "Crée un cadre d'emploi pour les personnels de santé des services d'incendie et de secours.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52561": {
+   "texte": "Autorise l'approbation de l'accord de coopération dans le domaine de la défense conclu avec le Monténégro.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52103": {
+   "texte": "Autorise l'approbation d'un avenant à la convention d'entraide judiciaire en matière pénale conclue avec le Brésil en 1996.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52099": {
+   "texte": "Autorise l'approbation d'amendements à l'accord fondateur du Fonds africain de développement.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50794": {
+   "texte": "Autorise l'approbation de l'accord par lequel la France adhère à l'Observatoire du réseau d'antennes d'un kilomètre carré, un grand instrument de radioastronomie international.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52354": {
+   "texte": "Autorise l'approbation de l'accord avec la Moldavie sur l'échange des permis de conduire entre les deux pays.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51173": {
+   "texte": "Modifie une disposition du statut d'autonomie de la Polynésie française, fixé par la loi organique de 2004.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51351": {
+   "texte": "Reconnaît le préjudice subi par les personnes condamnées pour avortement avant la loi du 17 janvier 1975, et par les femmes concernées.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51519": {
+   "texte": "Autorise l'approbation de l'accord avec Chypre sur les opérations d'évacuation depuis le Moyen-Orient passant par le territoire chypriote en cas de crise.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53386": {
+   "texte": "La loi spéciale qui autorise l'État à continuer de percevoir l'impôt lorsque le budget de l'année n'a pas été adopté à temps.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51457": {
+   "texte": "Réorganise la protection sociale complémentaire — santé et prévoyance — des agents publics territoriaux.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51581": {
+   "texte": "Permet à davantage de collectivités d'exploiter leurs ports sous la forme d'une société portuaire.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51352": {
+   "texte": "Autorise la ratification de plusieurs conventions-cadres sur les contrôles frontaliers effectués côte à côte, les contrôles en cours de route et les gares communes.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N53135": {
+   "texte": "La loi de finances de fin de gestion pour 2025 : elle ajuste les crédits de l'État en fin d'année. Presque toute sa matière tient dans ses propres articles.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51852": {
+   "texte": "Simplifie le droit de l'urbanisme et du logement. Elle réécrit une grande partie du code de l'urbanisme, à elle seule plus de cent articles.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52037": {
+   "texte": "Élève Alfred Dreyfus, à titre posthume, au grade de général de brigade.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51349": {
+   "texte": "Modifie la définition du viol et des agressions sexuelles dans le code pénal.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51434": {
+   "texte": "Renforce la lutte contre les fraudes aux moyens de paiement autres que les espèces — virement, carte, prélèvement. Elle modifie le code monétaire et financier.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52226": {
+   "texte": "Autorise l'approbation de l'accord de coopération dans le domaine de la défense conclu avec la Macédoine du Nord.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51973": {
+   "texte": "Vise un cadre fiscal plus stable et plus lisible pour les micro-entrepreneurs et les petites entreprises.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52040": {
+   "texte": "Inscrit dans le code du travail les accords des partenaires sociaux sur l'emploi des salariés expérimentés et sur le dialogue social. Elle en modifie près de soixante articles.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50692": {
+   "texte": "Change le mode d'élection du Conseil de Paris et des conseils municipaux de Lyon et de Marseille.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50819": {
+   "texte": "Allège les contraintes pesant sur l'exercice du métier d'agriculteur, principalement dans le code rural et le code de l'environnement.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51429": {
+   "texte": "Facilite le maintien en rétention des personnes condamnées pour des faits graves et présentant un fort risque de récidive.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51984": {
+   "texte": "Crée le Département-Région de Mayotte et organise ses institutions. Elle réécrit une large part du code général des collectivités territoriales pour ce territoire.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51985": {
+   "texte": "Une loi de programmation pour la refondation de Mayotte : elle fixe des moyens et adapte au territoire un très grand nombre de règles, du droit du travail à l'urbanisme.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50724": {
+   "texte": "Renforce la lutte contre l'antisémitisme dans l'enseignement supérieur, par des modifications du code de l'éducation.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51599": {
+   "texte": "Autorise l'approbation de la convention d'entraide judiciaire en matière pénale et de la convention d'extradition conclues avec le Panama.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51052": {
+   "texte": "Ouvre aux personnes détenues la possibilité de voter par correspondance.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50882": {
+   "texte": "Autorise la restitution d'un bien culturel à la République de Côte d'Ivoire.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N52002": {
+   "texte": "Crée l'établissement public du commerce et de l'industrie de la collectivité de Corse.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50689": {
+   "texte": "Protège contre les discriminations au travail les personnes engagées dans un projet parental.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50715": {
+   "texte": "Lutte contre les fraudes aux aides publiques. Elle modifie près d'une centaine d'articles, surtout dans le code de la consommation et le code de l'énergie.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51002": {
+   "texte": "Redéfinit la profession d'infirmier : ses missions et sa place dans le système de soins.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51789": {
+   "texte": "Autorise la ratification du traité de coopération en matière de défense conclu avec Djibouti.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50690": {
+   "texte": "Durcit la réponse judiciaire à la délinquance des mineurs et engage davantage la responsabilité de leurs parents. Elle modifie surtout le code de la justice pénale des mineurs.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51362": {
+   "texte": "Autorise la ratification d'un amendement au protocole de Londres de 1996, qui encadre l'immersion de déchets en mer.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51783": {
+   "texte": "Autorise l'approbation d'un avenant à la convention fiscale conclue avec la Suisse en 1966.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50169": {
+   "texte": "Un texte d'ensemble contre le narcotrafic : moyens d'enquête, sanctions et organisation judiciaire. Il modifie plus de trois cents articles répartis dans de nombreux codes.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51078": {
+   "texte": "Fixe le statut du procureur national anti-stupéfiants, en modifiant l'ordonnance de 1958 sur la magistrature.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51115": {
+   "texte": "Ouvre une expérimentation d'encadrement des loyers outre-mer et prévoit des mesures pour l'habitat. Tout son droit tient dans ses propres articles.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51328": {
+   "texte": "Crée une contravention pour les vignes laissées sans culture, qui font peser un risque sanitaire sur le vignoble voisin.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51986": {
+   "texte": "Transfère à l'État les personnels enseignants du premier degré à Wallis-et-Futuna.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50957": {
+   "texte": "Autorise l'approbation de l'accord créant le Centre de développement des capacités cyber dans les Balkans occidentaux.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51729": {
+   "texte": "Autorise l'approbation de l'accord-cadre entre la France et les Nations unies sur les privilèges et immunités.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50579": {
+   "texte": "Harmonise le mode de scrutin des élections municipales, au nom de la parité et de la cohésion des conseils élus.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51039": {
+   "texte": "Durcit les conditions d'accès à la nationalité française à Mayotte, par une modification du code civil.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50796": {
+   "texte": "Adapte le droit français à une série de textes européens, en matière économique, financière, environnementale, énergétique, de transport, de santé et de circulation des personnes. Elle modifie plus de cinq cents articles.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50636": {
+   "texte": "Autorise l'emploi de drones pour traiter les maladies des cultures.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51237": {
+   "texte": "Autorise l'approbation d'une modification de l'accord fondateur de la Banque européenne pour la reconstruction et le développement, qui étend son action à l'Afrique subsaharienne et à l'Irak.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51485": {
+   "texte": "Permet de convertir des centrales à charbon vers des combustibles moins émetteurs de dioxyde de carbone.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51504": {
+   "texte": "Cherche à stabiliser les relations commerciales du secteur agroalimentaire, par des modifications du code de commerce.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51161": {
+   "texte": "Prolonge l'expérimentation destinée à ouvrir plus largement l'accès à certaines écoles de service public.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50946": {
+   "texte": "Autorise la ratification du traité de coopération dans le domaine de la défense conclu avec l'Espagne.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51222": {
+   "texte": "Des mesures d'urgence pour Mayotte. Presque tout son droit tient dans ses propres articles plutôt que dans des modifications de textes existants.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50198": {
+   "texte": "Le budget de l'État pour 2025 : ses recettes, ses dépenses et les mesures fiscales de l'année. C'est, parmi les lois promulguées de cette législature, celle qui touche le plus d'articles — plus de mille.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50915": {
+   "texte": "Modifie les règles de la représentation professionnelle agricole, dans le code rural.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50820": {
+   "texte": "Prolonge la possibilité de payer tout produit alimentaire avec un titre-restaurant.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N51079": {
+   "texte": "La loi spéciale qui autorise l'État à continuer de percevoir l'impôt lorsque le budget de l'année n'a pas été adopté à temps.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50168": {
+   "texte": "Réforme le financement de l'audiovisuel public, en modifiant la loi organique relative aux lois de finances.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50838": {
+   "texte": "La loi de finances de fin de gestion pour 2024 : elle ajuste les crédits de l'État en fin d'année.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  },
+  "DLR5L17N50450": {
+   "texte": "Repousse les élections du congrès et des assemblées de province de Nouvelle-Calédonie.",
+   "origine": "ia",
+   "le": "2026-09-10"
+  }
+ }
+}

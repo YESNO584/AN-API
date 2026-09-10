@@ -39,6 +39,7 @@ RACINE = pathlib.Path(__file__).resolve().parent
 BASE = RACINE / "parlement.db"
 BASE_LEGI = RACINE / "legi.db"
 SORTIE = RACINE / "public"
+DESCRIPTIONS = RACINE / "descriptions.json"
 MAQUETTE = RACINE.parent / "maquette" / "feed.html"
 
 # Ce qu'une loi fait à un article, dit en clair. La clé est le mot de LEGI ;
@@ -531,6 +532,39 @@ def article_compare(legi_cx: sqlite3.Connection, identifiant: str) -> dict:
     }
 
 
+def lire_descriptions() -> dict[str, dict]:
+    """La description d'un texte, telle qu'elle s'affiche en haut de sa fiche.
+
+    **C'est la seule donnée du projet qui ne vienne pas d'une source publique**,
+    et la seule exception à la règle « rien n'est écrit par une IA ». D'où le
+    champ `origine`, publié avec le texte et affiché à l'écran : le lecteur doit
+    savoir qui a écrit ce qu'il lit. Voir `docs/CE-QUE-L-ON-ECRIT.md`.
+
+    Le fichier est versionné, contrairement aux bases : rien ne le reconstruit.
+    Un texte qui n'y figure pas n'a pas de description, et la fiche n'affiche
+    alors pas la rubrique — plutôt qu'un cadre vide.
+
+    Absent ou illisible, on publie sans descriptions : elles sont un confort de
+    lecture, pas une donnée du Parlement, et rien ne doit s'arrêter pour elles.
+    """
+    if not DESCRIPTIONS.exists():
+        return {}
+    try:
+        contenu = json.loads(DESCRIPTIONS.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as erreur:
+        print(f"  descriptions ignorées : {erreur}", file=sys.stderr)
+        return {}
+    retenues = {}
+    for uid, d in (contenu.get("descriptions") or {}).items():
+        texte = (d.get("texte") or "").strip()
+        # Une origine inconnue ne s'affiche pas comme « écrite par une
+        # personne » : sans mention sûre, on ne publie pas la description.
+        if texte and d.get("origine") in ("ia", "humain"):
+            retenues[uid] = {"texte": texte, "origine": d["origine"],
+                             "le": d.get("le")}
+    return retenues
+
+
 def ecrire(chemin: pathlib.Path, contenu, brut: bytes | None = None) -> int:
     """Écrit du JSON, ou des octets tels quels si `brut` est fourni."""
     chemin.parent.mkdir(parents=True, exist_ok=True)
@@ -550,6 +584,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     tailles: dict[str, int] = {}
     genere_le = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     votes = resume_votes(cx)
+    descriptions = lire_descriptions()
     legi_cx = ouvrir_legi()
     # Les articles dont seule la ponctuation a bougé : repérés une fois, puis
     # écartés des comptes et rangés à part.
@@ -613,6 +648,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "debatsIndisponibles":
             cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"] == 0,
         "paroles": cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"],
+        "descriptions": len(descriptions),
         "textesAvecParoles": cx.execute(
             "SELECT COUNT(DISTINCT dossier_uid) n FROM parole").fetchone()["n"],
         "issues": {cle: {"nom": nom, "quoi": quoi, "textes": comptes.get(cle, 0)}
@@ -710,6 +746,11 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             "auteur": (signataires(cx, [l["auteur_ref"]]) or [None])[0],
             "parcours": parcours,
             "votes": votes_du_texte(cx, l["uid"]),
+            # La description ne va que dans le fichier de détail : la liste est
+            # chargée en entier au démarrage, et 2 151 descriptions la
+            # feraient grossir pour un texte lu à la fois.
+            **({"description": descriptions[l["uid"]]}
+               if l["uid"] in descriptions else {}),
         })
 
         # Les amendements dans un fichier séparé : la fiche s'ouvre sans les

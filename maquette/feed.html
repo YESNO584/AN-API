@@ -618,6 +618,27 @@
   .bloc > summary::before { content: "▸"; font-size: .7rem; transition: transform .15s; }
   .bloc[open] > summary::before { transform: rotate(90deg); }
 
+  /* La description du texte. C'est la seule partie de l'application qui ne
+     soit ni recopiée de la source, ni calculée : elle est écrite, aujourd'hui
+     par une IA. D'où le trait de couleur, l'étiquette d'origine et
+     l'explication au toucher — un lecteur doit voir d'un coup d'œil que ces
+     phrases-là n'ont pas le même statut que le reste de la fiche. */
+  .description { background: var(--carte); border: 1px solid var(--trait);
+                 border-left: 3px solid var(--trait-fort);
+                 border-radius: var(--rayon); padding: .75rem .85rem;
+                 margin: .9rem 0; }
+  .description p { margin: 0; font-size: .93rem; line-height: 1.5; }
+  .description .origine { display: flex; align-items: center; gap: .3rem;
+                          margin-top: .55rem; padding: 0; font: inherit;
+                          font-size: .74rem; color: var(--gris);
+                          background: none; border: 0; cursor: pointer;
+                          text-align: left; }
+  .description .origine:active { color: var(--accent); }
+  .description .origine svg { width: .95rem; height: .95rem; flex: 0 0 auto;
+                              fill: currentColor; }
+  .description .origine u { text-decoration: none;
+                            border-bottom: 1px dotted currentColor; }
+
   .liens { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
   .liens a { font-size: .8rem; padding: .4rem .7rem; border-radius: 8px;
              background: var(--doux); color: var(--gris); text-decoration: none; }
@@ -2319,6 +2340,75 @@ async function blocParoles(uid, total) {
   return b;
 }
 
+/* ---------- la description du texte ---------- *
+ * Écrite, et non recopiée : c'est la seule rubrique de l'application dans ce
+ * cas. Elle porte donc son origine à l'écran, en toutes lettres — une icône,
+ * un mot, et l'explication complète au toucher. Le `title` sert l'ordinateur,
+ * où le survol existe ; le bouton sert le téléphone, où il n'existe pas. Les
+ * deux disent la même chose : sans le bouton, la mention serait invisible sur
+ * la moitié des écrans.
+ * ------------------------------------------------------------------ */
+
+const ORIGINES = {
+  ia: {
+    mot: "Description générée par une intelligence artificielle",
+    court: "Générée par une IA",
+    titre: "Cette description est générée par une IA",
+    quoi: "Elle ne vient pas de l'Assemblée nationale : elle a été écrite par " +
+      "une intelligence artificielle à partir du titre du texte et de ce que la " +
+      "loi change au droit. Elle peut donc se tromper ou vieillir. Tout le reste " +
+      "de la fiche — le titre, le parcours, les votes, les prises de parole, le " +
+      "texte des articles — est recopié de la source, mot pour mot.",
+  },
+  humain: {
+    mot: "Description écrite par une personne",
+    court: "Écrite par une personne",
+    titre: "Cette description est écrite par une personne",
+    quoi: "Elle ne vient pas de l'Assemblée nationale : c'est une présentation " +
+      "rédigée pour cette application. Tout le reste de la fiche — le titre, le " +
+      "parcours, les votes, les prises de parole, le texte des articles — est " +
+      "recopié de la source, mot pour mot.",
+  },
+};
+
+// L'icône de l'origine : une étincelle pour l'IA, une silhouette pour une
+// personne. Dessinée ici plutôt qu'écrite en emoji, dont le rendu change d'un
+// téléphone à l'autre.
+function iconeOrigine(origine) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 16 16");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  const forme = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  forme.setAttribute("d", origine === "humain"
+    ? "M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm0 1.5c-3 0-5.5 1.6-5.5 3.6V15h11v-1.9c0-2-2.5-3.6-5.5-3.6Z"
+    : "M8 0.8 9.5 5 13.7 6.5 9.5 8 8 12.2 6.5 8 2.3 6.5 6.5 5 8 0.8Z"
+      + "M13 10.5 13.7 12.3 15.5 13 13.7 13.7 13 15.5 12.3 13.7 10.5 13 12.3 12.3 13 10.5Z");
+  svg.append(forme);
+  return svg;
+}
+
+function blocDescription(description) {
+  const origine = ORIGINES[description.origine] || ORIGINES.ia;
+  const boite = el("div", "description");
+  boite.append(el("p", null, description.texte));
+
+  const mention = el("button", "origine");
+  mention.append(iconeOrigine(description.origine));
+  mention.append(el("u", null, origine.court));
+  // Sur un ordinateur, la mention complète apparaît au survol ; sur un
+  // téléphone, où il n'y a pas de survol, le toucher ouvre la même explication.
+  mention.title = origine.mot + " — touchez pour en savoir plus.";
+  mention.setAttribute("aria-label", origine.mot);
+  mention.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    expliquer(origine.titre, origine.quoi,
+              description.le ? "écrite le " + dateLongue.format(enDate(description.le)) : null);
+  });
+  boite.append(mention);
+  return boite;
+}
+
 async function ouvrirFiche(uid) {
   const f = $("fiche");
   f.textContent = "";
@@ -2368,6 +2458,12 @@ async function ouvrirFiche(uid) {
       d.loi_numero ? "loi n° " + d.loi_numero : null));
   }
   f.append(l);
+
+  // La description du texte, avant les sources. **C'est la seule exception à
+  // la règle « rien n'est écrit par une IA »**, décidée pour cette rubrique et
+  // pour elle seule : le reste de la fiche est recopié de la source ou calculé.
+  // Elle ne s'affiche que si le socle en publie une — pas de cadre vide.
+  if (d.description && d.description.texte) f.append(blocDescription(d.description));
 
   // Les sources, tout en haut : c'est ce qu'on veut sous la main pour aller
   // vérifier, pas une annexe à chercher en bas de fiche.

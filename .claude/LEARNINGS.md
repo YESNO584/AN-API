@@ -676,3 +676,31 @@ Deux règles qui en sortent, valables pour tout document de ce dépôt :
   ont été trouvées (le compteur, « 9 fichiers » pour 8, « 23 modules » pour 24).
   Aucune n'aurait été vue à la relecture normale.
 
+### L'exception « description générée par une IA », et comment elle est tenue
+
+Décidée le 2026-09-10. Ce qui compte pour la prochaine session, c'est **la
+forme donnée à l'exception**, pas la décision elle-même :
+
+- **Le texte écrit vit dans une donnée, pas dans le code.**
+  `socle/descriptions.json` porte le texte, son origine (`ia` ou `humain`) et
+  sa date. Le code ne sait pas qui a écrit : il affiche ce que la donnée dit.
+  Passer d'une description générée à une description rédigée par une personne
+  ne demande donc aucune modification de programme.
+- **La publication reste sans dépendance.** Les descriptions sont écrites hors
+  ligne et déposées dans le dépôt. Aucun appel à un service, aucune clé dans
+  la publication automatique : les quatre constats du document tiennent
+  toujours, à condition de dire ce qu'ils vérifient — la chaîne, pas
+  l'application entière.
+- **L'origine est affichée deux fois, pour deux écrans.** Un attribut `title`
+  pour l'ordinateur, où le survol existe ; un bouton qui ouvre la fenêtre
+  d'explication pour le téléphone, où il n'existe pas. N'en mettre qu'un
+  rendait la mention invisible sur la moitié des écrans — c'est la raison pour
+  laquelle tout le reste de l'application passe déjà par cette fenêtre.
+- **Une règle écrite dans `CLAUDE.md` en même temps que le code.** Sans elle,
+  une prochaine session lit « aucun texte n'est écrit par une IA » quelque
+  part, trouve une description générée, et « corrige » l'exception.
+
+Vérifié dans un vrai navigateur (Playwright, Chromium préinstallé) sur une
+copie locale des fichiers publiés : bloc présent, mention lisible, fenêtre
+d'explication, mode sombre, pas de débordement à 390 px de large.
+
