@@ -774,6 +774,33 @@
            font-size: .76rem; color: var(--faible);
            border-top: 1px solid var(--trait); margin-top: 2rem; line-height: 1.6; }
   footer a { color: var(--gris); }
+
+  /* Sur un écran de détail — une fiche, la liste des articles d'une loi, un
+     article, le calendrier — la source se colle en bas de l'écran : d'où
+     viennent ces données et de quand elles datent restent sous les yeux
+     pendant la lecture. La place est libre, la frise du fil s'étant retirée,
+     et c'est la même façon de se poser qu'elle. Le fil, lui, ne change pas.
+     Le troisième paragraphe décrit l'organisation du fil — les onglets, les
+     colonnes : il n'a rien à dire sur une fiche, et il s'y retire. */
+  body.fiche-ouverte footer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    margin-top: 0;
+    background: color-mix(in srgb, var(--fond) 97%, transparent);
+    backdrop-filter: blur(8px);
+    padding: .55rem var(--marge) calc(.55rem + env(safe-area-inset-bottom));
+  }
+  body.fiche-ouverte footer .dans-le-fil { display: none; }
+  /* Collé, ce bloc mange la même hauteur sur toute la fiche : mesuré, 152 px
+     en 390 px de large et 191 px en 320 px, soit près d'un quart de l'écran.
+     Il se resserre donc — texte plus petit, lignes plus serrées, paragraphes
+     rapprochés. Les phrases, elles, ne changent pas : c'est la provenance des
+     données, elle se lit telle quelle. */
+  body.fiche-ouverte footer { font-size: .7rem; line-height: 1.35; }
+  body.fiche-ouverte footer p { margin: 0 0 .25rem; }
+  body.fiche-ouverte footer p:last-of-type { margin-bottom: 0; }
+  /* La hauteur du bas de page est mesurée, pas devinée : deux phrases tiennent
+     sur deux lignes ici et sur quatre ailleurs, selon la largeur de l'écran. */
+  body.fiche-ouverte #fiche { padding-bottom: calc(var(--haut-pied, 5rem) + 1rem); }
 </style>
 </head>
 <body>
@@ -820,7 +847,7 @@
       <em>les deux chambres</em>.</p>
     <p>Lues sur <a id="lien-socle" href="#">le socle du projet</a>,
       mis à jour chaque matin. Dernière mise à jour : <span id="maj">…</span>.</p>
-    <p><strong>Rien n'est écarté.</strong> Les dossiers qui ne fabriquent pas de loi
+    <p class="dans-le-fil"><strong>Rien n'est écarté.</strong> Les dossiers qui ne fabriquent pas de loi
       — résolutions, rapports d'information, commissions d'enquête, motions —
       sont dans l'onglet <em>Travaux</em>. Les textes arrêtés en chemin sont la
       première colonne de l'onglet <em>Textes</em>.</p>
@@ -2755,6 +2782,8 @@ async function ouvrirFiche(uid) {
   const f = $("fiche");
   f.textContent = "";
   f.hidden = false;
+  document.body.classList.add("fiche-ouverte");
+  mesurerLePied();
   $("fil").hidden = true;
   $("filtres").hidden = true;
   // La frise décrit la colonne du fil, pas le texte ouvert : elle se retire.
@@ -2929,6 +2958,8 @@ function ouvrirEcran() {
   const f = $("fiche");
   f.textContent = "";
   f.hidden = false;
+  document.body.classList.add("fiche-ouverte");
+  mesurerLePied();
   $("fil").hidden = true;
   $("filtres").hidden = true;
   $("frise-bas").hidden = true;
@@ -3441,6 +3472,7 @@ function ligneEvenement(e) {
 }
 
 function fermerFiche() {
+  document.body.classList.remove("fiche-ouverte");
   $("frise-bas").hidden = false;
   $("fiche").hidden = true;
   $("fiche").textContent = "";
@@ -3472,6 +3504,16 @@ function mesurerLeBandeau() {
 }
 mesurerLeBandeau();
 window.addEventListener("resize", mesurerLeBandeau, { passive: true });
+
+// Le bas de page collé sur une fiche recouvre autant de hauteur qu'il en fait.
+// On la mesure — deux phrases tiennent sur deux lignes ou sur quatre selon la
+// largeur — pour réserver dessous exactement ce qu'il faut.
+function mesurerLePied() {
+  const p = document.querySelector("footer");
+  if (p) document.documentElement.style
+          .setProperty("--haut-pied", p.offsetHeight + "px");
+}
+window.addEventListener("resize", mesurerLePied, { passive: true });
 
 // Une seule fois, sur le fil lui-même : les colonnes sont redessinées à
 // chaque filtre, l'écouteur ne doit pas l'être avec elles.

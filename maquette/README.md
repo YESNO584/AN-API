@@ -222,6 +222,22 @@ vide derrière eux.
 Toucher un onglet depuis le bas d'une longue liste remonte à la barre
 d'onglets, sans déroulé — le même choix que pour les colonnes du fil.
 
+#### La source reste sous les yeux
+
+Sur une fiche — et sur les écrans qui la prolongent : la liste des articles
+d'une loi, un article, le calendrier — **le bas de page se colle en bas de
+l'écran**, à la place qu'occupe la frise sur le fil. D'où viennent ces données
+et de quand elles datent se lisent donc sans descendre. **Sur le fil, rien ne
+change** : le bas de page y reste en fin de page, avec ses trois paragraphes.
+
+Le troisième — « Rien n'est écarté… » — ne s'affiche pas sur une fiche : il
+décrit l'organisation du fil, ses onglets et ses colonnes, et n'a rien à dire
+là. Les deux autres se resserrent : collé, ce bloc mangeait **152 px de haut
+en 390 px de large et 191 px en 320 px**, soit près d'un quart de l'écran ;
+resserré, il en fait 102 et 117. Les phrases, elles, ne changent pas. La
+hauteur est **mesurée** à chaque ouverture, et réservée sous la fiche : rien
+ne passe derrière le bloc.
+
 ### Le parcours, et pourquoi deux lignes du même jour ne sont pas un doublon
 
 Chaque étape porte **une pastille de chambre** — Assemblée, Sénat, ou « hors
