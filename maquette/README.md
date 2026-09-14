@@ -164,26 +164,37 @@ partageable et ouvrable directement. Elle contient :
 - son **auteur** — photo, nom, groupe en couleur — et ses **cosignataires** ;
 - le **vote sur l'ensemble du texte**, celui qui décide, seul et juste avant
   les onglets ;
-- **ce que les groupes en ont dit** en séance, chargé à la demande ;
-- puis **trois onglets** : ce que la loi change, le parcours, les amendements.
+- puis **quatre onglets** : les articles, ce que les groupes en ont dit, le
+  parcours, les amendements.
 
-### Les trois onglets du bas de fiche
+### Les quatre onglets du bas de fiche
 
-**Articles** — ce que la loi change au droit, et le bouton vers le détail.
-**Parcours** — le parcours complet, étape par étape, datée, **les votes
-intercalés à leur date** — voir la section suivante. **Amendements** —
+**Articles** — ce que la loi change au droit, **en entier ici** : les trois
+compteurs, les articles groupés par code, les retouches de forme et ce que la
+loi ajoute. **Paroles** — ce que les groupes en ont dit en séance, chargé à la
+demande. **Parcours** — le parcours complet, étape par étape, datée, **les
+votes intercalés à leur date** — voir la section suivante. **Amendements** —
 chargés à la demande.
 
-Des onglets plutôt que trois dépliants empilés : ces rubriques ne se lisent
-pas ensemble, et les 150 amendements d'un texte obligeaient à défiler à
-l'aveugle pour savoir ce qu'il y avait plus bas. **Une rubrique
-sans contenu n'a pas d'onglet** : un texte qui n'est pas encore une loi n'a
-pas d'onglet « Articles », un texte sans amendement n'a pas le leur. Chaque
-onglet garde le titre exact de sa rubrique, avec ses comptes — « Parcours —
-12 étapes, 3 votes ».
+Des onglets plutôt que des dépliants empilés : ces rubriques ne se lisent pas
+ensemble, et les 150 amendements d'un texte obligeaient à défiler à l'aveugle
+pour savoir ce qu'il y avait plus bas. **Une rubrique sans contenu n'a pas
+d'onglet** : un texte qui n'est pas encore une loi n'a pas d'onglet
+« Articles », un texte dont personne n'a parlé en séance n'a pas le sien.
+Chaque onglet garde le titre exact de sa rubrique, avec ses comptes —
+« Parcours — 12 étapes, 3 votes ».
+
+**La liste des articles est demandée à l'ouverture de l'onglet**, pas à celle
+de la fiche, et elle **ne porte aucun texte d'article** : c'est la raison pour
+laquelle le socle la publie à part du texte de chaque article. L'onglet
+« Articles » étant le premier, sa demande part avec la fiche ; les paroles et
+les amendements, eux, attendent leur bouton.
 
 Changer d'onglet depuis le bas d'une longue liste remonte à la barre
-d'onglets, sans déroulé — le même choix que pour les colonnes du fil.
+d'onglets, sans déroulé — le même choix que pour les colonnes du fil. Sur un
+téléphone étroit — mesuré en 320 px de large, où « Amendements » dépassait
+l'écran — les onglets passent à **deux par ligne** plutôt que d'être coupés
+ou de défiler : un onglet qu'on ne voit pas ne dit plus ce qui existe.
 
 ### Le parcours, et pourquoi deux lignes du même jour ne sont pas un doublon
 
@@ -231,15 +242,17 @@ elle n'en touche aucun, la carte le dit aussi, plutôt que de rester muette :
 d'un traité. » La raison n'est donnée **que lorsque la donnée la porte** : elle
 vient du type du dossier, pas d'une interprétation.
 
-#### L'écran des articles
-
-On y accède depuis la fiche d'un texte, jamais depuis le fil : ce n'est pas une
-rubrique, c'est le détail d'une loi.
+#### La liste des articles
 
 Trois compteurs — modifiés, créés, abrogés — puis **un repli par code**. Chaque
 article est une ligne avec **une barre qui montre la part du texte qui a
 bougé**. C'est ce qui rend une loi de 574 articles parcourable : on va droit
 aux gros changements au lieu de tout lire.
+
+Elle s'affiche à deux endroits, **écrite une seule fois** : dans l'onglet
+« Articles » de la fiche, et sur son propre écran (`#/change/<identifiant>`),
+où mène le bouton de la carte du fil. Deux copies auraient divergé au premier
+changement.
 
 #### La fiche d'un article
 
@@ -308,10 +321,11 @@ et l'exposé de l'auteur écourté à 400 caractères. Le compte réel est affic
 
 ### Ce que les groupes en ont dit
 
-Sous le vote sur l'ensemble, **les prises de parole en séance, recopiées mot
+Dans l'onglet « Paroles », **les prises de parole en séance, recopiées mot
 pour mot** du compte rendu de l'Assemblée : nom de l'orateur, son groupe du
 jour du débat, la date, la section. 3 384 prises de parole sur 172 textes de
-loi.
+loi. L'onglet vient juste après les articles, et le vote sur l'ensemble reste
+au-dessus de la barre d'onglets, visible quel que soit l'onglet ouvert.
 
 **Rien n'est résumé et rien n'est relié au vote.** La page ne dit pas « ce
 groupe a voté ainsi parce que » : elle montre ce qui a été dit, et le vote est
