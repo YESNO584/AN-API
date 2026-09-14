@@ -155,20 +155,35 @@ Ils se combinent, chacun affiche son nombre de textes, ceux qui ne mèneraient
 Toucher un titre ouvre **une fiche**, à l'adresse `#/texte/<identifiant>`,
 partageable et ouvrable directement. Elle contient :
 
-- le **titre** et la **description** du texte ;
-- son **auteur** — photo, nom, groupe en couleur — et ses **cosignataires** ;
+- le **titre** du texte, **l'étape où il se trouve** ou son issue, et — pour
+  une loi promulguée — **quand elle s'applique**, juste sous le titre : c'est
+  un état du texte entier, au même titre que son étape ;
+- la **description** du texte ;
 - les **liens officiels** : dossier à l'Assemblée, dossier au Sénat, et le
   **texte de loi au Journal officiel** quand elle est promulguée ;
-- **l'étape où il se trouve**, ou son issue s'il est promulgué ou arrêté ;
+- son **auteur** — photo, nom, groupe en couleur — et ses **cosignataires** ;
 - le **vote sur l'ensemble du texte**, celui qui décide, seul et juste avant
-  le parcours ;
+  les onglets ;
 - **ce que les groupes en ont dit** en séance, chargé à la demande ;
-- le **parcours complet**, étape par étape, datée, **les votes intercalés à
-  leur date** — voir la section suivante ;
-- les **amendements**, chargés à la demande.
+- puis **trois onglets** : ce que la loi change, le parcours, les amendements.
 
-Chaque bloc est un dépliant : la fiche s'ouvre sur le parcours, le reste se
-déroule à la demande.
+### Les trois onglets du bas de fiche
+
+**Articles** — ce que la loi change au droit, et le bouton vers le détail.
+**Parcours** — le parcours complet, étape par étape, datée, **les votes
+intercalés à leur date** — voir la section suivante. **Amendements** —
+chargés à la demande.
+
+Des onglets plutôt que trois dépliants empilés : ces rubriques ne se lisent
+pas ensemble, et les 150 amendements d'un texte obligeaient à défiler à
+l'aveugle pour savoir ce qu'il y avait plus bas. **Une rubrique
+sans contenu n'a pas d'onglet** : un texte qui n'est pas encore une loi n'a
+pas d'onglet « Articles », un texte sans amendement n'a pas le leur. Chaque
+onglet garde le titre exact de sa rubrique, avec ses comptes — « Parcours —
+12 étapes, 3 votes ».
+
+Changer d'onglet depuis le bas d'une longue liste remonte à la barre
+d'onglets, sans déroulé — le même choix que pour les colonnes du fil.
 
 ### Le parcours, et pourquoi deux lignes du même jour ne sont pas un doublon
 

@@ -618,6 +618,24 @@
   .bloc > summary::before { content: "▸"; font-size: .7rem; transition: transform .15s; }
   .bloc[open] > summary::before { transform: rotate(90deg); }
 
+  /* Les trois rubriques de fond d'une fiche — ce que la loi change, le
+     parcours, les amendements — ne se lisent pas ensemble : on en regarde une
+     à la fois. Des onglets plutôt que trois dépliants empilés, pour que ce
+     qui existe se voie d'un coup d'œil au lieu de se découvrir en défilant. */
+  .onglets-fiche { display: flex; gap: .2rem; margin-top: 1.6rem;
+                   border-bottom: 1px solid var(--trait); }
+  .onglets-fiche button {
+    flex: 1; font: inherit; font-size: .8rem; font-weight: 600;
+    padding: .55rem .3rem; background: none; cursor: pointer;
+    border: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    color: var(--faible);
+  }
+  .onglets-fiche button[aria-selected="true"] {
+    color: var(--texte); border-bottom-color: var(--accent);
+  }
+  .panneau { margin-top: .9rem; }
+  .panneau > .bloc { margin-top: 0; }
+
   /* La description du texte. C'est la seule partie de l'application qui ne
      soit ni recopiée de la source, ni calculée : elle est écrite, aujourd'hui
      par une IA. D'où le trait de couleur, l'étiquette d'origine et
@@ -1492,29 +1510,15 @@ function boutonChange(t, change, ajouts) {
   return bouton;
 }
 
-function ceQueLaLoiChange(t) {
-  if (ETAT.droitConsolideIndisponible) return [];
-  const blocs = [];
+// Quand la loi s'applique. Séparé du reste parce que les deux morceaux n'ont
+// pas la même place sur la fiche : celui-ci est l'état du texte, et il se lit
+// sous son titre ; le détail des articles vit dans son onglet.
+function laVigueur(t) {
+  if (ETAT.droitConsolideIndisponible) return null;
   const c = t.change;
-  const ajouts = (c && c.ajouts) || 0;
-  if (!c || (!c.total && !ajouts)) {
-    const raison = POURQUOI_SANS_CHANGEMENT[t.type];
-    blocs.push(el("p", "sans-change",
-      "Ne modifie aucun article de loi existante"
-      + (raison ? " — " + raison + "." : ".")));
-    return blocs;
-  }
-  // Une loi peut n'amender aucun texte d'avant et pourtant écrire du droit :
-  // c'est le cas des lois de finances, dont presque toute la matière tient
-  // dans leurs propres articles. Le dire, plutôt que d'afficher « ne modifie
-  // rien » et s'arrêter là.
-  if (!c.total) {
-    blocs.push(el("p", "sans-change",
-      "Ne modifie aucun article de loi existante — tout son droit tient dans "
-      + "ses propres articles."));
-    blocs.push(boutonChange(t, 0, ajouts));
-    return blocs;
-  }
+  // Une loi qui ne modifie aucun article d'une loi d'avant n'a pas de date
+  // d'entrée en vigueur à montrer : la source ne les publie que là.
+  if (!c || !c.total) return null;
 
   const dates = c.dates || [];
   const aujourdhui = new Date().toISOString().slice(0, 10);
@@ -1550,10 +1554,39 @@ function ceQueLaLoiChange(t) {
     EXPLICATIONS.vigueur[0], EXPLICATIONS.vigueur[1],
     dates.map((d) => `${nb.format(d.articles)} article${d.articles > 1 ? "s" : ""} `
                      + `le ${dateLongue.format(enDate(d.date))}`).join("\n")));
-  blocs.push(boite);
+  return boite;
+}
 
-  blocs.push(boutonChange(t, c.total, ajouts));
-  return blocs;
+// Ce que la loi change au droit : la phrase quand elle ne change rien, et le
+// bouton vers le détail. C'est le contenu de l'onglet « Articles » de la fiche.
+function leChangement(t) {
+  if (ETAT.droitConsolideIndisponible) return [];
+  const c = t.change;
+  const ajouts = (c && c.ajouts) || 0;
+  if (!c || (!c.total && !ajouts)) {
+    const raison = POURQUOI_SANS_CHANGEMENT[t.type];
+    return [el("p", "sans-change",
+      "Ne modifie aucun article de loi existante"
+      + (raison ? " — " + raison + "." : "."))];
+  }
+  // Une loi peut n'amender aucun texte d'avant et pourtant écrire du droit :
+  // c'est le cas des lois de finances, dont presque toute la matière tient
+  // dans leurs propres articles. Le dire, plutôt que d'afficher « ne modifie
+  // rien » et s'arrêter là.
+  if (!c.total) {
+    return [el("p", "sans-change",
+      "Ne modifie aucun article de loi existante — tout son droit tient dans "
+      + "ses propres articles."),
+      boutonChange(t, 0, ajouts)];
+  }
+  return [boutonChange(t, c.total, ajouts)];
+}
+
+// Sur la carte du fil, les deux morceaux restent l'un sous l'autre : une carte
+// n'a ni titre à part ni onglets.
+function ceQueLaLoiChange(t) {
+  const v = laVigueur(t);
+  return (v ? [v] : []).concat(leChangement(t));
 }
 
 /* ---------- la carte d'un travail de l'Assemblée ---------- *
@@ -1998,7 +2031,15 @@ function personne(p, role) {
   return bloc;
 }
 
-function bloc(titre, ouvert) {
+// Une rubrique de la fiche. Par défaut un dépliant ; `plat` la rend toujours
+// ouverte, pour une rubrique posée dans un onglet — l'onglet a déjà fait le
+// choix de ce qu'on regarde, et il n'y aurait rien à déplier de plus.
+function bloc(titre, ouvert, plat) {
+  if (plat) {
+    const b = el("div", "bloc");
+    b.append(el("h3", null, titre));
+    return b;
+  }
   const b = el("details", "bloc");
   if (ouvert) b.open = true;
   b.append(el("summary", null, titre));
@@ -2240,8 +2281,8 @@ function carteAmendement(a) {
   return c;
 }
 
-async function blocAmendements(uid, total) {
-  const b = bloc(`Amendements — ${nb.format(total)}`);
+async function blocAmendements(uid, total, plat) {
+  const b = bloc(`Amendements — ${nb.format(total)}`, false, plat);
   b.append(el("p", "avertissement",
     "Un amendement n'est pas une version modifiée du texte : c'est une instruction, " +
     "reproduite ici mot pour mot. Le texte original des articles n'est pas publié, " +
@@ -2462,6 +2503,44 @@ function blocDescription(description) {
   return boite;
 }
 
+/* ---------- les onglets de la fiche ---------- *
+ * Trois rubriques de fond — ce que la loi change, le parcours, les
+ * amendements — et une seule à l'écran. Empilées, elles obligeaient à
+ * défiler à l'aveugle pour savoir ce qu'il y avait plus bas : un texte affiche
+ * jusqu'à 150 amendements, et chacun tient sa propre carte.
+ * Une rubrique sans contenu n'a pas d'onglet : un onglet vide ferait chercher
+ * quelque chose qui n'existe pas.
+ * ------------------------------------------------------------------ */
+function ongletsDeFiche(rubriques) {
+  const barre = el("div", "onglets-fiche");
+  barre.setAttribute("role", "tablist");
+  const boutons = [];
+  const zones = [];
+  rubriques.forEach(([libelle, contenu], i) => {
+    const bt = el("button", null, libelle);
+    bt.type = "button";
+    bt.setAttribute("role", "tab");
+    bt.setAttribute("aria-selected", i === 0 ? "true" : "false");
+    const zone = el("section", "panneau");
+    zone.setAttribute("role", "tabpanel");
+    zone.setAttribute("aria-label", libelle);
+    zone.append(...[].concat(contenu));
+    zone.hidden = i > 0;
+    bt.addEventListener("click", () => {
+      boutons.forEach((x, j) => x.setAttribute("aria-selected", j === i ? "true" : "false"));
+      zones.forEach((z, j) => { z.hidden = j !== i; });
+      // Changer d'onglet depuis le bas d'une longue liste laissait la page au
+      // milieu de la suivante. On remonte à la barre, et seulement si elle est
+      // sortie par le haut — sans déroulé, comme pour les colonnes du fil.
+      if (barre.getBoundingClientRect().top < 0) barre.scrollIntoView();
+    });
+    boutons.push(bt);
+    zones.push(zone);
+    barre.append(bt);
+  });
+  return [barre, ...zones];
+}
+
 async function ouvrirFiche(uid) {
   const f = $("fiche");
   f.textContent = "";
@@ -2512,6 +2591,20 @@ async function ouvrirFiche(uid) {
   }
   f.append(l);
 
+  // Ce que la loi change au droit se lit en deux endroits, parce que ce sont
+  // deux questions. **Quand elle s'applique est une question sur le texte
+  // entier** : elle vient sous son titre, avec l'étape et l'issue. Le détail
+  // de ses articles, lui, est une rubrique parmi d'autres — il est dans son
+  // onglet, plus bas.
+  const loi = d.statut === "promulgue" && !ETAT.droitConsolideIndisponible
+    ? { ...d, uid, change: (TEXTES.find((x) => x.uid === uid) || {}).change,
+        etape: PROMULGUEE }
+    : null;
+  if (loi) {
+    const vigueur = laVigueur(loi);
+    if (vigueur) f.append(vigueur);
+  }
+
   // La description du texte, avant les sources. **C'est la seule exception à
   // la règle « rien n'est écrit par une IA »**, décidée pour cette rubrique et
   // pour elle seule : le reste de la fiche est recopié de la source ou calculé.
@@ -2543,14 +2636,6 @@ async function ouvrirFiche(uid) {
     f.append(b);
   }
 
-  // Ce que la loi change au droit. Le détail vit sur son propre écran : la
-  // loi de finances pour 2025 touche 574 articles, qui n'ont rien à faire au
-  // milieu d'une fiche.
-  if (d.statut === "promulgue" && !ETAT.droitConsolideIndisponible) {
-    f.append(...ceQueLaLoiChange({ ...d, uid, change: (
-      TEXTES.find((x) => x.uid === uid) || {}).change, etape: PROMULGUEE }));
-  }
-
   // Le vote qui décide : celui sur l'ensemble du texte. Le plus récent, car un
   // texte peut être voté dans les deux chambres. Les votes sur des amendements
   // ou des articles restent dans le parcours, à leur place chronologique.
@@ -2578,11 +2663,29 @@ async function ouvrirFiche(uid) {
     f.append(b);
   }
 
+  // Les trois rubriques de fond, en onglets. Chacune garde son titre exact,
+  // avec ses comptes : l'onglet dit laquelle on regarde, le titre dit ce
+  // qu'elle contient.
+  const rubriques = [];
+
+  // Ce que la loi change au droit. Le détail vit sur son propre écran : la
+  // loi de finances pour 2025 touche 574 articles, qui n'ont rien à faire au
+  // milieu d'une fiche. L'onglet mène là-bas.
+  if (loi) {
+    const change = leChangement(loi);
+    if (change.length) {
+      const b = bloc("Ce que cette loi change", false, true);
+      b.append(...change);
+      rubriques.push(["Articles", b]);
+    }
+  }
+
   const items = filDuParcours(d);
   const nbVotes = (d.votes || []).length;
   const parcours = bloc(
     `Parcours — ${nb.format((d.parcours || []).length)} étapes`
-    + (nbVotes ? `, ${nb.format(nbVotes)} vote${nbVotes > 1 ? "s" : ""}` : ""), true);
+    + (nbVotes ? `, ${nb.format(nbVotes)} vote${nbVotes > 1 ? "s" : ""}` : ""),
+    false, true);
   if (!nbVotes) {
     parcours.append(el("p", "avertissement",
       "Aucun scrutin public sur ce texte. C'est le cas le plus fréquent : la " +
@@ -2592,22 +2695,24 @@ async function ouvrirFiche(uid) {
   const ul = el("ul", "parcours");
   for (const x of items) ul.append(x.e ? ligneParcours(x.e) : ligneVoteParcours(x.v));
   parcours.append(ul);
-  f.append(parcours);
+  rubriques.push(["Parcours", parcours]);
 
   const nbAmdt = (TEXTES.find((t) => t.uid === uid) || {}).amendements || 0;
   if (nbAmdt) {
-    f.append(await blocAmendements(uid, nbAmdt));
+    rubriques.push(["Amendements", await blocAmendements(uid, nbAmdt, true)]);
   } else if (ETAT.amendementsIndisponibles) {
     // Ne pas laisser croire qu'un texte n'a pas d'amendements alors que
     // c'est la source qui a manqué. L'archive pèse 297 Mo et n'arrive pas
     // toujours ; le reste des données, lui, est à jour.
-    const b = bloc("Amendements");
+    const b = bloc("Amendements", false, true);
     b.append(el("p", "avertissement",
       "Les amendements n'ont pas pu être récupérés ce matin : leur archive de "
       + "297 Mo n'est pas arrivée entière. Le reste de la fiche est à jour. "
       + "La récupération est retentée chaque matin."));
-    f.append(b);
+    rubriques.push(["Amendements", b]);
   }
+
+  f.append(...ongletsDeFiche(rubriques));
 }
 
 /* ------------------------------------------------------------------ *
