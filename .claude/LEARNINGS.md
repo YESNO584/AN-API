@@ -19,6 +19,28 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-09-14 — Vérifier la maquette sans réseau : le bouchon coûte dix minutes, pas plus
+
+- **La maquette se vérifie pour de bon dans un navigateur sans tête, sans
+  aucune donnée réelle.** Chromium et `playwright` sont déjà installés
+  (`/opt/pw-browsers`, `/opt/node22/lib/node_modules/playwright`), et
+  `feed.html` lit ses données à côté d'elle : il suffit de poser six fichiers
+  JSON bouchonnés dans un dossier, d'y copier la page, de servir le dossier
+  (`python3 -m http.server`) et d'ouvrir `#/texte/<uid>`. *Pourquoi ça compte :*
+  juger une modification d'affichage sur le diff seul, c'est deviner.
+- **Un bouchon se trompe en silence, et la page affiche « Données
+  indisponibles ».** Deux valeurs doivent être écrites comme la source les
+  écrit, sans quoi `CHAMBRES[ch][0]` casse tout le dessin : `chambre` vaut
+  `assemblee` ou `senat` (pas `AN`), **dans la liste comme dans chaque étape du
+  parcours**. Le message d'erreur affiché ne nomme pas le champ — lire la
+  console du navigateur, pas la page.
+- **Compter les éléments d'une fiche se fait sous `#fiche`.** Le fil reste dans
+  le document, seulement masqué, et ses cartes portent les mêmes classes : un
+  `document.querySelectorAll('.vigueur')` trouvait deux boîtes sur une fiche
+  qui n'en a aucune.
+
+---
+
 ## 2026-09-03 — Mesuré sur le socle entier : ce que la passe complète a appris
 
 - **417 articles propres pour 2 767 changés**, sur 56 lois (socle du
