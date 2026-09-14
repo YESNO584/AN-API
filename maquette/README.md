@@ -171,7 +171,7 @@ partageable et ouvrable directement. Elle contient :
 
 **Articles** — ce que la loi change au droit, **en entier ici** : les trois
 compteurs, les articles groupés par code, les retouches de forme et ce que la
-loi ajoute. **Paroles** — ce que les groupes en ont dit en séance, chargé à la
+loi ajoute. **Débats** — ce que les groupes en ont dit en séance, chargé à la
 demande. **Parcours** — le parcours complet, étape par étape, datée, **les
 votes intercalés à leur date** — voir la section suivante. **Amendements** —
 chargés à la demande.
@@ -321,7 +321,7 @@ et l'exposé de l'auteur écourté à 400 caractères. Le compte réel est affic
 
 ### Ce que les groupes en ont dit
 
-Dans l'onglet « Paroles », **les prises de parole en séance, recopiées mot
+Dans l'onglet « Débats », **les prises de parole en séance, recopiées mot
 pour mot** du compte rendu de l'Assemblée : nom de l'orateur, son groupe du
 jour du débat, la date, la section. 3 384 prises de parole sur 172 textes de
 loi. L'onglet vient juste après les articles, et le vote sur l'ensemble reste
