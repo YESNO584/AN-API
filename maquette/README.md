@@ -155,9 +155,10 @@ Ils se combinent, chacun affiche son nombre de textes, ceux qui ne mèneraient
 Toucher un titre ouvre **une fiche**, à l'adresse `#/texte/<identifiant>`,
 partageable et ouvrable directement. Elle contient :
 
-- le **titre** du texte, **l'étape où il se trouve** ou son issue, et — pour
-  une loi promulguée — **quand elle s'applique**, juste sous le titre : c'est
-  un état du texte entier, au même titre que son étape ;
+- pour une loi promulguée, **quand elle s'applique** — « S'applique depuis
+  le … », « Ne s'applique pas encore en entier » — **au-dessus du titre** :
+  c'est la première chose qu'on vient vérifier devant une loi ;
+- le **titre** du texte, puis **l'étape où il se trouve** ou son issue ;
 - la **description** du texte ;
 - les **liens officiels** : dossier à l'Assemblée, dossier au Sénat, et le
   **texte de loi au Journal officiel** quand elle est promulguée ;

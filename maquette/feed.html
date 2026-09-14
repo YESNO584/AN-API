@@ -2633,6 +2633,20 @@ async function ouvrirFiche(uid) {
   f.textContent = "";
   f.append(retour);
 
+  // Ce que la loi change au droit se lit en deux endroits, parce que ce sont
+  // deux questions. **Quand elle s'applique est une question sur le texte
+  // entier** : c'est la première chose qu'on vient vérifier devant une loi
+  // promulguée, elle passe donc avant son titre. Le détail de ses articles,
+  // lui, est une rubrique parmi d'autres — il est dans son onglet, plus bas.
+  const loi = d.statut === "promulgue" && !ETAT.droitConsolideIndisponible
+    ? { ...d, uid, change: (TEXTES.find((x) => x.uid === uid) || {}).change,
+        etape: PROMULGUEE }
+    : null;
+  if (loi) {
+    const vigueur = laVigueur(loi);
+    if (vigueur) f.append(vigueur);
+  }
+
   f.append(el("h2", "fiche-titre", d.titre));
 
   const l = el("div", "lignes");
@@ -2653,20 +2667,6 @@ async function ouvrirFiche(uid) {
       d.loi_numero ? "loi n° " + d.loi_numero : null));
   }
   f.append(l);
-
-  // Ce que la loi change au droit se lit en deux endroits, parce que ce sont
-  // deux questions. **Quand elle s'applique est une question sur le texte
-  // entier** : elle vient sous son titre, avec l'étape et l'issue. Le détail
-  // de ses articles, lui, est une rubrique parmi d'autres — il est dans son
-  // onglet, plus bas.
-  const loi = d.statut === "promulgue" && !ETAT.droitConsolideIndisponible
-    ? { ...d, uid, change: (TEXTES.find((x) => x.uid === uid) || {}).change,
-        etape: PROMULGUEE }
-    : null;
-  if (loi) {
-    const vigueur = laVigueur(loi);
-    if (vigueur) f.append(vigueur);
-  }
 
   // La description du texte, avant les sources. **C'est la seule exception à
   // la règle « rien n'est écrit par une IA »**, décidée pour cette rubrique et
