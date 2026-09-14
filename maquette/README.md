@@ -163,19 +163,26 @@ partageable et ouvrable directement. Elle contient :
 - les **liens officiels** : dossier à l'Assemblée, dossier au Sénat, et le
   **texte de loi au Journal officiel** quand elle est promulguée ;
 - son **auteur** — photo, nom, groupe en couleur — et ses **cosignataires** ;
-- le **vote sur l'ensemble du texte**, celui qui décide, seul et juste avant
-  les onglets ;
-- puis **quatre onglets** : les articles, ce que les groupes en ont dit, le
-  parcours, les amendements.
+- puis **les onglets** : le vote, les articles, ce que les groupes en ont dit,
+  le parcours, les amendements.
 
-### Les quatre onglets du bas de fiche
+### Les onglets du bas de fiche
 
-**Articles** — ce que la loi change au droit, **en entier ici** : les trois
-compteurs, les articles groupés par code, les retouches de forme et ce que la
-loi ajoute. **Débats** — ce que les groupes en ont dit en séance, chargé à la
-demande. **Parcours** — le parcours complet, étape par étape, datée, **les
-votes intercalés à leur date** — voir la section suivante. **Amendements** —
-chargés à la demande.
+**Vote** — le vote sur l'ensemble du texte, celui qui décide, **avec le détail
+par groupe déjà affiché** : l'objet du scrutin, puis une barre par groupe.
+C'est le premier onglet. **Articles** — ce que la loi change au droit, **en
+entier ici** : les trois compteurs, les articles groupés par code, les
+retouches de forme et ce que la loi ajoute. **Débats** — ce que les groupes en
+ont dit en séance, chargé à la demande. **Parcours** — le parcours complet,
+étape par étape, datée, **les votes intercalés à leur date** — voir la section
+suivante. **Amendements** — chargés à la demande.
+
+**Le vote sur l'ensemble ouvre la fiche quand il existe**, et il n'existe que
+pour 71 textes sur 1 990 : les autres commencent par leurs articles ou leur
+parcours, sans onglet vide. Il fallait deux gestes pour savoir qui avait voté
+quoi — déplier, puis demander le détail ; c'est maintenant la première chose
+qu'on voit. Les votes sur des amendements ou des articles, eux, restent dans
+le parcours : un vote de détail ne se lit que dans son moment.
 
 Des onglets plutôt que des dépliants empilés : ces rubriques ne se lisent pas
 ensemble, et les 150 amendements d'un texte obligeaient à défiler à l'aveugle
@@ -325,12 +332,12 @@ et l'exposé de l'auteur écourté à 400 caractères. Le compte réel est affic
 Dans l'onglet « Débats », **les prises de parole en séance, recopiées mot
 pour mot** du compte rendu de l'Assemblée : nom de l'orateur, son groupe du
 jour du débat, la date, la section. 3 384 prises de parole sur 172 textes de
-loi. L'onglet vient juste après les articles, et le vote sur l'ensemble reste
-au-dessus de la barre d'onglets, visible quel que soit l'onglet ouvert.
+loi. L'onglet vient juste après les articles ; le vote sur l'ensemble a le
+sien, le premier de la barre.
 
 **Rien n'est résumé et rien n'est relié au vote.** La page ne dit pas « ce
 groupe a voté ainsi parce que » : elle montre ce qui a été dit, et le vote est
-juste au-dessus. C'est un choix, pas une limite technique — le 25 février 2026,
+dans l'onglet d'à côté. C'est un choix, pas une limite technique — le 25 février 2026,
 l'UDR a voté *pour* les soins palliatifs pendant que son orateur disait
 « l'ensemble du groupe UDR votera contre », parce qu'il parlait de l'autre
 texte de la même séance.

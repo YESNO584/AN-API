@@ -626,17 +626,19 @@
                    border-bottom: 1px solid var(--trait); }
   .onglets-fiche button {
     flex: 1 1 auto; font: inherit; font-size: .8rem; font-weight: 600;
-    padding: .55rem .3rem; background: none; cursor: pointer;
+    padding: .55rem .15rem; background: none; cursor: pointer;
     border: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
     color: var(--faible);
   }
-  /* Quatre onglets ne tiennent pas sur une ligne d'un petit téléphone :
-     mesuré, « Amendements » dépassait l'écran de 20 px en 320 px de large. Ils
-     passent alors à deux par ligne — les couper ou les faire défiler
-     cacherait ce qui existe, ce qui est exactement ce que les onglets
-     doivent montrer. */
+  /* Les onglets ne tiennent pas toujours sur une ligne : mesuré, cinq libellés
+     demandent 346 px de large quand un écran de 390 px en offre 358, et
+     « Amendements » seul dépassait un écran de 320 px. Ils passent alors à la
+     ligne — les couper ou les faire défiler cacherait ce qui existe, ce qui
+     est exactement ce que les onglets doivent montrer. La largeur d'un libellé
+     dépend de la police du téléphone : le repli n'est donc pas un cas rare à
+     éviter, c'est le comportement normal dès que la place manque. */
   @media (max-width: 22.5rem) {
-    .onglets-fiche button { flex-basis: 40%; }
+    .onglets-fiche button { flex-basis: 30%; }
   }
   .onglets-fiche button[aria-selected="true"] {
     color: var(--texte); border-bottom-color: var(--accent);
@@ -2223,6 +2225,16 @@ const extraction_portee = (p) => (PORTEES[p] || ["Vote"])[0];
 function detailVoteConnu(v) {
   expliquer(...(PORTEES[v.portee] || ["Vote", ""]),
             `${v.sort} · ${v.pour} pour, ${v.contre} contre, ${v.abstentions} abstentions`);
+  $("info-texte").after(groupesDuVote(v));
+}
+
+/* Qui a voté quoi, groupe par groupe : l'objet du scrutin, la légende, puis
+ * une barre par groupe, **rangés comme dans l'hémicycle** — un ordre mesuré
+ * sur les numéros de siège, pas décidé. Écrit une fois et posé à deux
+ * endroits : l'onglet « Vote » de la fiche, où il s'affiche d'emblée, et le
+ * panneau d'explication ouvert depuis une ligne du parcours.
+ * ------------------------------------------------------------------ */
+function groupesDuVote(v) {
   const zone = el("div", "groupes");
   zone.append(el("p", "objet", v.objet));
   const legende = el("div", "legende");
@@ -2252,7 +2264,31 @@ function detailVoteConnu(v) {
     ligne.append(el("span", "detail", total ? `${g.pour}/${g.contre}/${g.abstentions}` : "n'a pas voté"));
     zone.append(ligne);
   }
-  $("info-texte").after(zone);
+  return zone;
+}
+
+/* ---------- l'onglet « Vote » ---------- *
+ * Le vote sur l'ensemble du texte : celui qui décide. Il était posé au-dessus
+ * des onglets, replié, et il fallait deux gestes pour savoir qui avait voté
+ * quoi. Il ouvre maintenant la fiche, **le détail par groupe déjà déplié** —
+ * c'est la question qu'on vient poser à un texte voté.
+ *
+ * Les votes sur des amendements ou des articles restent dans le parcours, à
+ * leur date : un vote de détail ne se lit que dans son moment.
+ * ------------------------------------------------------------------ */
+function blocVote(v) {
+  const b = bloc(`${(PORTEES[v.portee] || ["Vote"])[0]} — `
+                 + dateLongue.format(enDate(v.date)), false, true);
+  const l = el("div", "lignes");
+  l.append(etiquette(v.sort === "adopté" ? "promulguee" : "arrete",
+                     v.sort === "adopté" ? "Adopté" : "Rejeté",
+                     EXPLICATIONS.conclusion,
+                     `${v.pour} pour · ${v.contre} contre · ${v.abstentions} abstentions`));
+  l.append(etiquette("", `${v.pour} / ${v.contre}`, EXPLICATIONS.vote,
+                     `${v.pour} pour, ${v.contre} contre`));
+  b.append(l);
+  b.append(groupesDuVote(v));
+  return b;
 }
 
 function carteAmendement(a) {
@@ -2699,21 +2735,19 @@ async function ouvrirFiche(uid) {
     f.append(b);
   }
 
-  // Le vote qui décide : celui sur l'ensemble du texte. Le plus récent, car un
-  // texte peut être voté dans les deux chambres. Les votes sur des amendements
-  // ou des articles restent dans le parcours, à leur place chronologique.
-  const finaux = (d.votes || []).filter((v) => v.portee === "ensemble");
-  if (finaux.length) {
-    const v = finaux.reduce((a, b) => (a.date >= b.date ? a : b));
-    const seule = el("ul", "parcours");
-    seule.append(ligneVoteParcours(v));
-    f.append(seule);
-  }
-
   // Les rubriques de fond, en onglets. Chacune garde son titre exact, avec
   // ses comptes : l'onglet dit laquelle on regarde, le titre dit ce qu'elle
   // contient.
   const rubriques = [];
+
+  // Le vote qui décide : celui sur l'ensemble du texte, et il ouvre la fiche.
+  // Le plus récent, car un texte peut être voté dans les deux chambres. Peu de
+  // textes en ont un — 71 sur 1 990 — et ceux-là commencent donc par leurs
+  // articles ou leur parcours, sans onglet vide.
+  const finaux = (d.votes || []).filter((v) => v.portee === "ensemble");
+  if (finaux.length) {
+    rubriques.push(["Vote", blocVote(finaux.reduce((a, b) => (a.date >= b.date ? a : b)))]);
+  }
 
   // Ce que la loi change au droit, en entier : la liste des articles s'affiche
   // ici même, et se demande à l'ouverture de l'onglet.
