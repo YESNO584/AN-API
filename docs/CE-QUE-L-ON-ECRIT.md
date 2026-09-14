@@ -104,7 +104,7 @@ rassemblés en fin de document.
 | Texte affiché | |
 |---|---|
 | « Maquette — données réelles, lues en direct sur le socle du projet » | **N** |
-| « Où en sont les lois », « Filtres », « Chercher dans les titres… » | **N** |
+| « Qui vote quoi », « Filtres », « Chercher dans les titres… » | **N** |
 | « **2 151** textes, dont 107 devenus des lois » | **C** (les chiffres) + **N** (les mots) |
 | Le pied de page entier (source, licence, « Rien n'est écarté ») | **N** |
 | « Dernière mise à jour : … » | **C** (date de la publication) |

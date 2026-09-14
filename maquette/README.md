@@ -110,7 +110,7 @@ Un texte arrêté porte le mot de sa source — **rejeté**, **non adopté**,
 de bon** : un texte rejeté peut être redéposé, et les sources ne se
 prononcent pas là-dessus. L'explication au toucher le dit noir sur blanc.
 
-Une application qui s'appelle « Où en sont les lois » doit montrer celles qui
+Une application qui s'appelle « Qui vote quoi » doit montrer celles qui
 sont allées au bout : la carte d'une loi promulguée porte son **numéro
 officiel**, sa date et un lien vers le **Journal officiel**.
 
@@ -192,17 +192,35 @@ d'onglet** : un texte qui n'est pas encore une loi n'a pas d'onglet
 Chaque onglet garde le titre exact de sa rubrique, avec ses comptes —
 « Parcours — 12 étapes, 3 votes ».
 
-**La liste des articles est demandée à l'ouverture de l'onglet**, pas à celle
-de la fiche, et elle **ne porte aucun texte d'article** : c'est la raison pour
-laquelle le socle la publie à part du texte de chaque article. L'onglet
-« Articles » étant le premier, sa demande part avec la fiche ; les paroles et
-les amendements, eux, attendent leur bouton.
+**La liste des articles est demandée à l'ouverture de son onglet**, pas à
+celle de la fiche, et elle **ne porte aucun texte d'article** : c'est la raison
+pour laquelle le socle la publie à part du texte de chaque article. Seul
+l'onglet ouvert d'emblée demande ses données avec la fiche ; les paroles et les
+amendements, eux, attendent leur bouton.
 
-Changer d'onglet depuis le bas d'une longue liste remonte à la barre
-d'onglets, sans déroulé — le même choix que pour les colonnes du fil. Sur un
-téléphone étroit — mesuré en 320 px de large, où « Amendements » dépassait
-l'écran — les onglets passent à **deux par ligne** plutôt que d'être coupés
-ou de défiler : un onglet qu'on ne voit pas ne dit plus ce qui existe.
+#### On passe d'un onglet à l'autre en glissant
+
+**Les contenus sont posés côte à côte, comme les colonnes du fil** : on glisse
+vers la gauche ou la droite, le contenu suit le doigt, et la page s'accroche
+sur l'onglet d'arrivée. La barre suit le geste — l'onglet allumé change en
+cours de route — et **le tour est sans fin** : après le dernier vient le
+premier, par le même procédé que le fil (une copie du panneau d'en face posée
+à chaque bout, et un saut invisible dès que le glissement s'immobilise
+dessus). Toucher un onglet mène directement à son contenu.
+
+**La barre tient sur une seule ligne et se fait glisser** quand les libellés
+débordent — mesuré : cinq d'entre eux demandent 346 px quand un écran de
+390 px en offre 358. L'onglet allumé est toujours ramené à l'écran, si bien
+qu'on n'a jamais à le chercher.
+
+**La bande prend la hauteur de l'onglet affiché**, et la recalcule dès que son
+contenu bouge — une liste qui arrive, un dépliant qu'on ouvre. Sans cela elle
+prendrait la hauteur du plus grand : « Vote » tient sur un écran et
+« Amendements » sur cinquante, si bien que les autres onglets traîneraient un
+vide derrière eux.
+
+Toucher un onglet depuis le bas d'une longue liste remonte à la barre
+d'onglets, sans déroulé — le même choix que pour les colonnes du fil.
 
 ### Le parcours, et pourquoi deux lignes du même jour ne sont pas un doublon
 
