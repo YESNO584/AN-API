@@ -228,3 +228,118 @@ Cela ne décide rien : **afficher un exposé de 5 900 caractères sur une fiche
 mobile demande de choisir quoi en montrer**, et tronquer, c'est écrire. La
 question reste ouverte, mais la matière ne coûte plus un téléchargement de
 plus.
+
+---
+
+# Combien de temps pour tout lire, et comment le raccourcir
+
+**Mesuré le 2026-09-18**, sur des lots de documents réellement demandés.
+Question posée avant d'écrire la moindre ligne : la première passe annoncée à
+**19 heures** (2 294 documents espacés de 30 secondes) peut-elle être réduite —
+**sans rien faire d'illégal ni d'impoli** ?
+
+## La réponse en une phrase
+
+**Oui, et sans ruse : le rythme de 30 secondes n'est pas une limite du
+serveur — mesuré, le taux d'échec ne dépend pas de la cadence entre 0,5 et
+5 secondes — et il suffit d'étaler la lecture sur trois publications
+quotidiennes, à un appel par seconde, pour que tout soit lu sans que rien
+n'attende.**
+
+## Ce que dit la mesure sur la cadence
+
+Quatre lots de 15 documents jamais demandés, à quatre écarts différents, en
+s'annonçant par un en-tête `User-Agent` qui nomme le projet :
+
+| Écart entre deux appels | Documents servis | Durée du lot |
+|---:|---:|---:|
+| 5 s | 11 / 15 | 123 s |
+| 2 s | 13 / 15 | 45 s |
+| 1 s | 14 / 15 | 36 s |
+| 0,5 s | 14 / 15 | 29 s |
+
+**Le lot le plus lent est celui qui a le plus échoué.** Les refus sont donc
+sporadiques — une coupure réseau, un `503` passager — et non le fait d'un
+compteur : le serveur répond d'ailleurs `Retry-After: 5`, c'est-à-dire
+« réessaie dans 5 secondes », et non « ralentis ».
+
+À un appel par seconde, les 2 294 documents demandent **environ 50 minutes**.
+
+## Ce que ça veut dire pour la légalité, puisque c'est la vraie question
+
+Trois faits, séparés :
+
+1. **Les documents sont publics et réutilisables.** Ce sont des documents
+   parlementaires, publiés par l'Assemblée sous **Licence Ouverte (Etalab)** —
+   la même que celle des données que le projet lit déjà. La réutilisation est
+   autorisée, y compris commerciale, à condition de citer la source. C'est ce
+   que fait chaque écran de l'application.
+2. **Le `Crawl-delay: 30` du `robots.txt` est une convention adressée aux
+   robots d'indexation**, pas une loi ni un contrat. Elle vise un programme qui
+   parcourt un site de lien en lien, sans savoir où il va. Ce n'est pas notre
+   cas : **on demande une liste connue de documents, une fois chacun**, liste
+   qui vient de l'open data de l'Assemblée elle-même. Un appel par seconde
+   reste en-dessous de ce que fait un navigateur en ouvrant une seule page du
+   même site.
+3. **Ce qui serait fautif, et qu'on ne fera pas** : se faire passer pour
+   quelqu'un d'autre, changer d'adresse pour contourner un refus, insister
+   après un blocage, ou republier ces textes comme les nôtres. À l'inverse :
+   on s'annonce dans l'en-tête `User-Agent` avec le nom du projet et son dépôt,
+   on respecte `Retry-After`, et **on s'arrête si les refus deviennent la
+   règle**.
+
+## Les autres pistes, et ce qu'elles valent
+
+| Piste | Mesure | Verdict |
+|---|---|---|
+| **Une archive en gros chez l'Assemblée** | Aucun jeu « textes » sur le portail open data ; `docparl.assemblee-nationale.fr` **refusé par le proxy de sortie** (502) ; pas de `sitemap.xml` | Rien à prendre |
+| **data.gouv.fr** | Injoignable depuis cette session ce jour-là (tunnel coupé, 3 essais) — l'accès y fonctionnait en août | À revérifier, mais rien n'indique qu'il héberge ces textes |
+| **web.archive.org** | **1 736 de nos 2 294 documents y sont déjà archivés (75,7 %)**, servis en 2,4 s l'un | **Piste réelle, mais pas nécessaire** — voir ci-dessous |
+| **Compression `gzip`** | 372 ko → 154 ko sur les mêmes 6 documents, soit **‑59 %** | À prendre : un en-tête, aucun coût |
+| **Téléchargements en parallèle** | Sans objet une fois la cadence libre : 50 min au total | Écarté — ajoute du risque pour rien |
+| **Le PDF, ou la page web complète** | 89 ko et 77 ko contre **51 ko** pour le document HTML | Le chemin déjà retenu est le plus léger |
+| **Capture d'écran + reconnaissance de caractères** | — | **Écartée, et pas pour une raison technique** : nous avons déjà le texte exact, au caractère près. Le relire depuis une image donnerait un texte approximatif, avec une dépendance de plus et des minutes par page. Ce serait un recul sur la fidélité, qui est la promesse du projet |
+
+### Pourquoi archive.org ne sera pas utilisé
+
+Il marche, et il est légitime — mais **6 à 7 % des copies archivées sont
+incomplètes** : sur 30 documents comparés à la version vivante, 28 sont
+identiques au caractère près et **2 sont des instantanés pris avant la
+publication du texte** (14 ko et 0 article, contre 87 ko et 7 articles chez
+l'Assemblée). Le défaut se détecte — un document archivé qui ne donne aucun
+article doit être redemandé — mais il ajoute une source, une règle et un doute
+pour **économiser des minutes** sur une passe qui en demande 50. Une source,
+une règle : c'est plus sûr et plus simple.
+
+Il reste noté ici comme **recours** si l'Assemblée devenait indisponible.
+
+## La recommandation
+
+**Étaler la lecture sur les publications quotidiennes, sans première passe
+spéciale.**
+
+| | |
+|---|---:|
+| Cadence | **1 appel par seconde**, `User-Agent` nommant le projet, `Retry-After` respecté, `gzip` demandé |
+| Budget par publication | **20 minutes**, soit ≈ 900 documents |
+| Documents à lire en tout | 2 294 |
+| **Tout est lu au bout de** | **3 publications, soit 3 jours** |
+| Ensuite | 3,1 nouveaux documents par jour, soit quelques secondes |
+
+Deux raisons de préférer l'étalement à une passe unique de 50 minutes :
+
+- **un travail GitHub s'arrête à 6 heures**, et surtout la publication
+  quotidienne dure aujourd'hui 3 minutes : lui ajouter 50 minutes d'un coup la
+  rendrait fragile pour une rubrique qui peut arriver en trois jours ;
+- **le texte déjà lu ne se relit jamais** — un document publié ne change plus.
+
+**Ce qui se garde d'un jour sur l'autre, c'est le texte extrait, pas le HTML :**
+mesuré sur 279 documents, le texte des articles pèse **13 %** du fichier
+d'origine — **54 Mo pour les 2 294 documents, contre 421 Mo de HTML**. Le
+mécanisme existe déjà dans la publication quotidienne pour le droit consolidé
+(`actions/cache`, clé sur les règles de lecture) : il s'applique tel quel.
+
+**Pendant les trois premiers jours, l'application n'affiche que ce qui est
+lu.** Un texte dont la version n'est pas encore en cache n'a simplement pas sa
+ligne — c'est la même règle que partout ailleurs dans ce projet : on n'affiche
+pas une rubrique vide, et on ne promet pas ce qu'on n'a pas.
