@@ -202,6 +202,18 @@ def comparer(avant: dict[str, str], apres: dict[str, str]) -> list[dict]:
     return lignes
 
 
+def premiere_version(articles: dict[str, str]) -> list[dict]:
+    """La version déposée : rien à comparer, seulement un texte à lire.
+
+    Même forme que `comparer`, pour que l'écran n'ait qu'une façon de lire une
+    version — celle-ci n'a simplement aucun morceau à colorer.
+    """
+    return [{"numero": numero(titre), "titre": titre, "quoi": "initial",
+             "etat": etat(titre, brut), "texte": sans_mention(brut),
+             "morceaux": [], "commun": None}
+            for titre, brut in articles.items()]
+
+
 def amendements_du_document(amendements) -> dict[tuple[str, str], list[dict]]:
     """Les amendements adoptés, rangés par (numéro d'article, position).
 
@@ -250,4 +262,6 @@ def resume(lignes: list[dict]) -> dict[str, int]:
     compte = collections.Counter(l["quoi"] for l in lignes)
     return {"modifies": compte["modifie"], "nouveaux": compte["nouveau"],
             "retires": compte["retire"], "identiques": compte["identique"],
-            "total": len(lignes)}
+            # La version déposée n'a rien à quoi se comparer : ses articles
+            # sont comptés à part, et non comme des ajouts de la commission.
+            "initiaux": compte["initial"], "total": len(lignes)}

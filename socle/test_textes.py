@@ -175,6 +175,14 @@ class Comparaison(unittest.TestCase):
         self.assertEqual((r["modifies"], r["nouveaux"], r["retires"], r["identiques"]),
                          (1, 1, 1, 1))
 
+    def test_la_version_deposee_n_a_rien_a_comparer(self):
+        """Ses articles ne sont pas des ajouts de la commission : ils sont le
+        texte de départ."""
+        lignes = textes.premiere_version({"Article 1er": "Le texte."})
+        self.assertEqual(lignes[0]["quoi"], "initial")
+        self.assertEqual(textes.resume(lignes)["initiaux"], 1)
+        self.assertEqual(textes.resume(lignes)["nouveaux"], 0)
+
     def test_la_mention_non_modifie_ne_fait_pas_un_changement(self):
         """Constaté : « (Non modifié) » s'affichait comme un ajout."""
         lignes = textes.comparer({"Article 1er": "Le texte."},

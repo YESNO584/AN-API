@@ -107,6 +107,7 @@ rassemblés en fin de document.
 | « Qui vote quoi », « Filtres », « Chercher dans les titres… » | **N** |
 | « **2 151** textes, dont 107 devenus des lois » | **C** (les chiffres) + **N** (les mots) |
 | Le pied de page entier (source, licence, « Rien n'est écarté ») | **N** |
+| « Texte déposé », « Texte de la commission », « Texte adopté par l'Assemblée » | **N** — la source nomme le document « Proposition de loi » à chaque étape, ce qui ne distinguerait pas les versions |
 | « Dernière mise à jour : … » | **C** (date de la publication) |
 
 ### La carte d'un texte, dans le fil

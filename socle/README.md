@@ -515,6 +515,7 @@ signale la panne.
 | `travaux.json` | 337 Ko | — | Les 708 dossiers qui n'aboutissent à aucune loi, et leurs catégories : **l'onglet « Travaux »** |
 | `calendrier.json` | 1 Ko | — | Les mois qui portent des événements, et combien : l'index du calendrier |
 | `calendrier/<AAAA-MM>.json` | 404 Ko | — | Un mois par fichier : séances, commissions, décisions, votes, promulgations |
+| `versions/<uid>/<document>.json` | — | — | **Le texte d'une version d'un texte de loi**, article par article, avec ce qui a changé depuis la version précédente et les **amendements adoptés** sur chaque article. Un fichier par version, chargé seulement si on l'ouvre |
 | `changements/<uid>.json` | — | — | Ce qu'une loi change au droit **et ce qu'elle y ajoute** : les articles changés groupés par code, et ses propres articles à part (`articlesAjoutes`). **Aucun texte** — la liste sert à choisir |
 | `changements/<uid>/<LEGIARTI>.json` | — | — | Un article : son texte entier, découpé en morceaux égaux, retirés, ajoutés |
 

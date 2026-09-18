@@ -34,6 +34,8 @@ import sys
 
 import extraction
 import legi
+import recuperer_textes
+import textes as textes_mod
 
 RACINE = pathlib.Path(__file__).resolve().parent
 BASE = RACINE / "parlement.db"
@@ -332,6 +334,115 @@ def ouvrir_legi() -> sqlite3.Connection | None:
     cx = sqlite3.connect(f"file:{BASE_LEGI}?mode=ro", uri=True, timeout=30)
     cx.row_factory = sqlite3.Row
     return cx
+
+
+# Les trois formes qu'une version prend, et le nom qu'on leur donne à l'écran.
+# **Ces trois libellés sont de nous** : la source nomme le document
+# « Proposition de loi » à chaque étape, ce qui ne distinguerait pas les
+# versions entre elles. Voir `../docs/CE-QUE-L-ON-ECRIT.md`.
+NOM_DE_VERSION = (("BTC", "Texte de la commission"),
+                  ("BTA", "Texte adopté par l'Assemblée"),
+                  ("B", "Texte déposé"))
+
+
+def nom_de_version(ref: str) -> str:
+    sans_numero = ref.rstrip("0123456789")
+    for forme, nom in NOM_DE_VERSION:
+        if sans_numero.endswith(forme):
+            return nom
+    return "Texte"
+
+
+def ouvrir_textes() -> sqlite3.Connection | None:
+    """La base du texte des versions, si la lecture a déjà tourné.
+
+    Facultative, comme le droit consolidé : sans elle, les fiches se publient
+    sans leurs versions, et l'application le dit plutôt que de laisser croire
+    qu'un texte n'en a qu'une.
+    """
+    chemin = RACINE / "textes.db"
+    if not chemin.exists():
+        print("Pas de textes.db : les versions des textes ne seront pas publiées.",
+              file=sys.stderr)
+        return None
+    cx = sqlite3.connect(f"file:{chemin}?mode=ro", uri=True)
+    cx.row_factory = sqlite3.Row
+    return cx
+
+
+def amendements_adoptes(cx: sqlite3.Connection, ref: str) -> dict:
+    """Les amendements adoptés sur une version, rangés par article visé.
+
+    Le rapprochement se fait par le numéro d'article et par la position que
+    donne la source — « sur » l'article, ou « après » lui. **Jamais par le
+    texte** : dire quel mot vient de quel amendement demanderait d'interpréter
+    l'instruction de l'amendement, donc de fabriquer du texte de loi.
+    """
+    lignes = cx.execute(
+        "SELECT a.uid, a.numero, a.article, a.ou, a.division,"
+        " ac.civilite, ac.prenom, ac.nom, g.sigle, g.couleur"
+        " FROM amendement a"
+        " LEFT JOIN acteur ac ON ac.ref = a.auteur_ref"
+        " LEFT JOIN groupe g ON g.ref = a.groupe_ref"
+        " WHERE a.texte_ref = ? AND a.sort = 'Adopté'"
+        " ORDER BY a.ordre", (ref,)).fetchall()
+    return textes_mod.amendements_du_document(
+        [{"uid": l["uid"], "numero": l["numero"],
+          "nom": " ".join(x for x in (l["prenom"], l["nom"]) if x) or None,
+          "civilite": l["civilite"], "sigle": l["sigle"], "couleur": l["couleur"],
+          "division": {"article": l["article"], "ou": l["ou"], "type": l["division"]}}
+         for l in lignes])
+
+
+def versions_du_texte(cx: sqlite3.Connection, textes_cx: sqlite3.Connection | None,
+                      parcours: list[dict]) -> list[dict]:
+    """Les versions successives d'un texte, dans l'ordre du parcours.
+
+    Chacune porte l'étape qui l'a produite — c'est la source qui les relie,
+    par `texteAssocie` et `texteAdopte` — et le compte de ce qui a changé
+    depuis la précédente. Une version dont le texte n'a pas encore été lu
+    n'est pas publiée : l'écran n'affiche que ce qui existe.
+    """
+    if textes_cx is None:
+        return []
+    suite = []
+    for etape in parcours:
+        details = etape.get("details") or {}
+        for cle in ("texteAssocie", "texteAdopte"):
+            ref = (details.get(cle) or {}).get("ref")
+            if not ref or not recuperer_textes.est_une_version(ref):
+                continue
+            if any(v["ref"] == ref for v in suite):
+                continue
+            articles = recuperer_textes.articles_du_document(textes_cx, ref)
+            if not articles:
+                continue
+            suite.append({"ref": ref, "nom": nom_de_version(ref), "date": etape["date"],
+                          "etape": etape["code"], "articles": articles})
+    return suite
+
+
+def comparaison_des_versions(cx: sqlite3.Connection, suite: list[dict]) -> list[dict]:
+    """Une version comparée à la précédente, avec ses amendements adoptés."""
+    sortie = []
+    for rang, version in enumerate(suite):
+        avant = suite[rang - 1] if rang else None
+        lignes = (textes_mod.comparer(avant["articles"], version["articles"])
+                  if avant else textes_mod.premiere_version(version["articles"]))
+        # Les amendements sont déposés sur la version **précédente** : ce sont
+        # eux qui l'ont transformée en celle-ci.
+        index = amendements_adoptes(cx, avant["ref"]) if avant else {}
+        for ligne in lignes:
+            ligne["amendements"] = textes_mod.amendements_de_l_article(index, ligne)
+        sortie.append({
+            "ref": version["ref"], "nom": version["nom"], "date": version["date"],
+            "etape": version["etape"],
+            "precedent": ({"ref": avant["ref"], "nom": avant["nom"], "date": avant["date"]}
+                          if avant else None),
+            "resume": textes_mod.resume(lignes),
+            "articles": lignes,
+        })
+    return sortie
 
 
 def articles_de_pure_forme(legi_cx: sqlite3.Connection | None) -> set[str]:
@@ -737,7 +848,8 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     # Le détail, un fichier par texte. Seulement pour ceux que les listes
     # citent : publier les 708 dossiers qui ne font pas de loi n'aurait
     # aucun lecteur.
-    details, amendements, paroles = 0, 0, 0
+    details, amendements, paroles, versions_ecrites = 0, 0, 0, 0
+    textes_cx = ouvrir_textes()
     for l in cx.execute(
             "SELECT * FROM dossier WHERE est_loi = 1 AND statut != ?",
             (extraction.SANS_ACTE,)):
@@ -747,12 +859,24 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             " future, precision, details"
             " FROM etape WHERE dossier_uid = ? ORDER BY date, rang", (l["uid"],))]
         cosign = json.loads(l["cosignataires"] or "[]")
+        # Les versions successives du texte, et ce qui a changé de l'une à
+        # l'autre. Le détail va dans un fichier par version — un texte adopté
+        # pèse jusqu'à 1,4 Mo — et la fiche ne porte que de quoi afficher la
+        # ligne dans le parcours.
+        suite = versions_du_texte(cx, textes_cx, parcours)
+        comparaisons = comparaison_des_versions(cx, suite) if suite else []
+        for comparaison in comparaisons:
+            versions_ecrites += ecrire(
+                sortie / "versions" / l["uid"] / f'{comparaison["ref"]}.json',
+                {"genereLe": genere_le, **comparaison})
         details += ecrire(sortie / "textes" / f'{l["uid"]}.json', {
             **dict(l),
             "cosignataires": signataires(cx, cosign[:40]),
             "cosignatairesTotal": len(cosign),
             "auteur": (signataires(cx, [l["auteur_ref"]]) or [None])[0],
             "parcours": parcours,
+            "versions": [{k: c[k] for k in ("ref", "nom", "date", "etape", "resume")}
+                         for c in comparaisons],
             "votes": votes_du_texte(cx, l["uid"]),
             # La description ne va que dans le fichier de détail : la liste est
             # chargée en entier au démarrage, et 2 151 descriptions la
@@ -775,6 +899,8 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             paroles += ecrire(sortie / "paroles" / f'{l["uid"]}.json',
                               {"genereLe": genere_le, **dits})
     tailles["textes/*.json"] = details
+    if versions_ecrites:
+        tailles["versions/<texte>/*.json"] = versions_ecrites
     if amendements:
         tailles["amendements/*.json"] = amendements
     if paroles:
