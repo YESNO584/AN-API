@@ -1,5 +1,13 @@
 # Les textes de l'Assemblée en PDF — lire le texte pour en tirer un avant/après
 
+> **Cette piste est abandonnée depuis le 2026-09-18, et cette fiche reste pour
+> la mémoire de la mesure.** L'Assemblée publie le même texte en **HTML
+> structuré** — articles délimités par leur classe, tableaux conservés, aucune
+> dépendance à installer. Tout ce que cette fiche-ci décrit comme difficile
+> (les tableaux aplatis, les mots coupés en fin de ligne, les en-têtes de page,
+> les 50 Mo de `pdfplumber`) n'existe plus.
+> Voir [`textes-assemblee-html.md`](textes-assemblee-html.md).
+
 **Mesuré le 2026-08-31**, sur 75 fichiers PDF réellement téléchargés depuis
 `assemblee-nationale.fr` et comparés aux mêmes textes publiés en XML par le
 Sénat.

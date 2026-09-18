@@ -15,7 +15,7 @@ n'existe que quand il y a eu scrutin public**, ce qui est rare.
 
 Ce qui manque n'est donc pas l'information sur *ce qui est voté* : c'est le
 **contenu** des textes nommés. Voir [`sources/monalisa.md`](sources/monalisa.md)
-et [`sources/textes-pdf-assemblee.md`](sources/textes-pdf-assemblee.md).
+et [`sources/textes-assemblee-html.md`](sources/textes-assemblee-html.md).
 
 ## « Avant/après » veut dire deux choses, et les deux marchent
 

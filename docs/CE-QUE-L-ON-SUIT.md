@@ -153,6 +153,6 @@ résultat global.
 ## Ce que la base ne contient pas
 
 - **Le contenu des textes.** On sait qu'un texte a été adopté ; on n'a pas
-  ses articles. Voir `sources/monalisa.md` et `sources/textes-pdf-assemblee.md`.
+  ses articles. Voir `sources/monalisa.md` et `sources/textes-assemblee-html.md`.
 - **Les débats.** Ni compte rendu, ni vidéo.
 - **La législature 17 seulement**, c'est-à-dire depuis juillet 2024.

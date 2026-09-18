@@ -210,11 +210,11 @@ Ce qu'on sait déjà à son sujet, pour ne pas le redécouvrir :
 - **Ce qui ne marche pas, c'est de sauter les étapes** : comparer le dépôt à la
   loi promulguée n'a presque aucun sens, parce que les articles sont
   renumérotés en chemin, et deux versions ne s'apparient que par leur numéro.
-- Voir `sources/monalisa.md`, `sources/textes-pdf-assemblee.md` et
+- Voir `sources/monalisa.md`, `sources/textes-assemblee-html.md` et
   `QUE-VOTE-T-ON.md`.
 
 **Et l'argumentaire contradictoire** — exposé des motifs, amendements, débats —
 est une troisième brique, à ajouter après. L'exposé des motifs est déjà
 localisé : il est dans le PDF de dépôt, présent pour 100 % des textes déposés
-d'abord à l'Assemblée (`sources/textes-pdf-assemblee.md`). Les 109 854
+d’abord à l’Assemblée (`sources/textes-assemblee-html.md`). Les 109 854
 amendements, avec leur texte et leur sort, sont **déjà en base**.

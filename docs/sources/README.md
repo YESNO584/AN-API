@@ -52,7 +52,8 @@ résumés n'est pas le facteur limitant du projet.**
 | Assemblée nationale | **À retenir — source principale** | Mise à jour quotidienne (dernière : le jour même du test) | [`assemblee-nationale.md`](assemblee-nationale.md) |
 | Sénat | **À retenir — source de complément** | Mise à jour quotidienne | [`senat.md`](senat.md) |
 | Monalisa (texte des lois, Sénat) | **Piste ouverte** — texte structuré, mais côté Sénat seulement (203 de nos 2 859 dossiers) | Mise à jour quotidienne | [`monalisa.md`](monalisa.md) |
-| Textes de l'Assemblée en PDF | **Piste ouverte** — lisible à 86 %, porterait la comparaison à 319 textes, et **porte l'exposé des motifs (100 % des dépôts d'origine)** | Publiés au fil des séances | [`textes-pdf-assemblee.md`](textes-pdf-assemblee.md) |
+| Textes de l'Assemblée, en HTML structuré | **À retenir** — le texte de chaque version, articles délimités et tableaux conservés ; **249 textes comparables**, aucune dépendance nouvelle (mesuré le 2026-09-18) | Publiés au fil des séances | [`textes-assemblee-html.md`](textes-assemblee-html.md) |
+| Textes de l'Assemblée en PDF | **Remplacée** par la fiche ci-dessus — même besoin, lecture plus fragile (86 % des articles mot pour mot, tableaux aplatis, 50 Mo de dépendance) | Publiés au fil des séances | [`textes-pdf-assemblee.md`](textes-pdf-assemblee.md) |
 | Journal officiel (DILA) | **Piste ouverte** — texte des lois promulguées et censures constitutionnelles | Deux archives par jour | [`journal-officiel.md`](journal-officiel.md) |
 | Droit consolidé (LEGI, DILA) | **Piste ouverte** — l'article de code avant et après la loi qui le modifie, 2 446 articles mesurés | Une archive par jour | [`droit-consolide.md`](droit-consolide.md) |
 | La Fabrique de la Loi | **À écarter** — figée depuis 2022 | Dernière donnée : janvier 2022 | [`fabrique-de-la-loi.md`](fabrique-de-la-loi.md) |
