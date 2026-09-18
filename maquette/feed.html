@@ -413,6 +413,46 @@
   .sans-change { margin-top: .5rem; font-size: .78rem; color: var(--faible);
                  line-height: 1.4; }
 
+  /* ---------- les versions successives d'un texte ---------- */
+  /* La ligne posée sous l'étape qui a produit une version. Décalée comme les
+     champs d'une étape, et bordée : elle appartient à l'étape, elle ne la
+     remplace pas. */
+  .version { display: flex; gap: .5rem; align-items: center; cursor: pointer;
+    width: calc(100% - 5.8rem); margin: .1rem 0 .7rem 5.8rem; text-align: left;
+    font: inherit; border: none; border-left: 3px solid var(--accent);
+    background: var(--doux); border-radius: 0 9px 9px 0; padding: .5rem .6rem; }
+  .version .q { flex: 1 1 auto; min-width: 0; }
+  .version b { display: block; font-size: .84rem; font-weight: 620; color: var(--texte); }
+  .version .chiffres { font-size: .76rem; color: var(--gris); }
+  .version .chevron { flex: 0 0 auto; color: var(--faible); font-size: .8rem; }
+
+  .art-titre { display: flex; align-items: baseline; gap: .5rem;
+               margin: 1.5rem 0 .5rem; flex-wrap: wrap; }
+  .art-titre h3 { font-size: .95rem; font-weight: 660; margin: 0; }
+  .art-titre .quoi { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em;
+                     border-radius: 999px; padding: .12rem .45rem;
+                     background: var(--doux); color: var(--gris); }
+  .art-titre .quoi.nouveau { background: var(--ajoute-fond); color: var(--ajoute); }
+  .art-titre .quoi.retire { background: var(--retire-fond); color: var(--retire); }
+
+  /* Les amendements adoptés sur l'article, au-dessus de son texte. Sur un
+     téléphone il n'y a pas de place pour une colonne à côté : l'écran fait
+     30 rem au plus, et une colonne de 16 rem réduirait le texte à une bande
+     illisible. */
+  .amdts { border: 1px solid var(--trait); border-radius: 11px; padding: .55rem .6rem;
+           margin-bottom: .6rem; background: var(--carte); }
+  .amdts .chapeau { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em;
+                    color: var(--accent); font-weight: 620; margin-bottom: .35rem; }
+  .amdts a { display: flex; align-items: center; gap: .4rem; text-decoration: none;
+             color: inherit; padding: .22rem 0; font-size: .8rem; }
+  .amdts i { width: .3rem; height: .95rem; border-radius: 2px; flex: 0 0 auto;
+             background: var(--trait-fort); }
+  .amdts .num { font-weight: 620; flex: 0 0 auto; }
+  .amdts .qui { color: var(--gris); min-width: 0; overflow: hidden;
+                text-overflow: ellipsis; white-space: nowrap; }
+  .amdts .fleche { margin-left: auto; color: var(--faible); font-size: .75rem; }
+  .amdts .rien { font-size: .78rem; color: var(--faible); line-height: 1.4; }
+
   .resume-change { display: flex; gap: .45rem; margin: 0 0 1rem; }
   .resume-change .tuile {
     flex: 1; background: var(--carte); border: 1px solid var(--trait);
@@ -578,6 +618,9 @@
   .parcours { list-style: none; margin: 0; padding: 0; }
   .parcours > li { border-bottom: 1px solid var(--trait); }
   .parcours > li:last-child { border-bottom: none; }
+  /* La ligne d'une version appartient à l'étape du dessus : pas de trait
+     entre les deux, sinon elle passerait pour une étape de plus. */
+  .parcours > li.sans-trait { border-bottom: none; }
   .parcours .rang { display: flex; gap: .6rem; font-size: .82rem; padding: .45rem 0;
                     align-items: baseline; cursor: pointer; list-style: none; }
   .parcours .rang::-webkit-details-marker { display: none; }
@@ -2923,7 +2966,16 @@ async function ouvrirFiche(uid) {
       "soit enregistré. La décision de chaque étape, elle, est connue."));
   }
   const ul = el("ul", "parcours");
-  for (const x of items) ul.append(x.e ? ligneParcours(x.e) : ligneVoteParcours(x.v));
+  for (const x of items) {
+    ul.append(x.e ? ligneParcours(x.e) : ligneVoteParcours(x.v));
+    // La version que cette étape a produite, s'il y en a une. Elle se pose
+    // sous l'étape parce que c'est l'étape qui l'explique : un texte de
+    // commission n'existe qu'à cause de la réunion qui l'a adopté.
+    for (const v of (d.versions || [])) {
+      if (!x.e || v.etape !== x.e.code || v.date !== x.e.date) continue;
+      ul.append(ligneVersion(uid, v));
+    }
+  }
   parcours.append(ul);
   rubriques.push(["Parcours", parcours]);
 
@@ -3156,6 +3208,57 @@ async function ouvrirArticle(uid, identifiant) {
   dessinerArticle(f, retour, uid, a);
 }
 
+/* Les deux façons de montrer une comparaison — la légende et le texte
+ * coloré — servent à deux écrans : un article de loi modifié par une loi
+ * promulguée, et une version d'un texte modifiée par la commission ou la
+ * séance. C'est le même calcul (`difflib`, mot à mot, la ponctuation au
+ * caractère) et le même dessin ; seule change la phrase qui nomme l'auteur du
+ * changement.
+ * ------------------------------------------------------------------ */
+function legendeDiff(morceaux, par) {
+  const legende = el("div", "legende-diff");
+  const entree = (balise, classe, mot, suite) => {
+    const s = el("span");
+    s.append(el(balise, classe, mot), document.createTextNode(" " + suite));
+    return s;
+  };
+  // Chaque entrée n'apparaît que si le texte en contient : une légende qui
+  // annonce une couleur absente fait chercher pour rien. Un article
+  // simplement retouché n'a ni retrait ni ajout de fond.
+  const ya = (role, forme) => (morceaux || [])
+    .some((m) => m.role === role && Boolean(m.forme) === forme);
+  if (ya("retire", false)) legende.append(entree("s", null, "retiré", par));
+  if (ya("ajoute", false)) legende.append(entree("u", null, "ajouté", par));
+  if (ya("ajoute", true)) legende.append(entree("u", "forme", "ponctuation", "ajoutée"));
+  if (ya("retire", true)) legende.append(entree("s", "forme", "ponctuation", "retirée"));
+  return legende;
+}
+
+function texteCompare(morceaux, mode, texte) {
+  const corps = el("div", "texte-loi");
+  // Un texte sans comparaison — la version déposée, un article nouveau — n'a
+  // pas de morceaux : il s'affiche tel quel.
+  if (!(morceaux || []).length) {
+    corps.textContent = texte || "";
+    return corps;
+  }
+  let debut = true;
+  for (const m of morceaux) {
+    if (mode === "avant" && m.role === "ajoute") continue;
+    if (mode === "apres" && m.role === "retire") continue;
+    const balise = mode === "diff" && m.role === "retire" ? "del"
+                 : mode === "diff" && m.role === "ajoute" ? "ins" : "span";
+    // Une retouche de forme est découpée au caractère : « I- », l'espace
+    // ajoutée, « Sont ». Ces morceaux se collent au précédent — sinon on
+    // insérerait des espaces au milieu des mots.
+    if (!m.colle && !debut) corps.append(document.createTextNode(" "));
+    const classe = mode === "diff" && m.forme ? "forme" : null;
+    corps.append(el(balise, classe, m.texte));
+    debut = false;
+  }
+  return corps;
+}
+
 function dessinerArticle(f, retour, uid, a) {
   f.textContent = "";
   f.append(retour);
@@ -3221,41 +3324,8 @@ function dessinerArticle(f, retour, uid, a) {
   }
 
   const mode = neuf ? "apres" : MODE_TEXTE;
-  if (mode === "diff") {
-    const legende = el("div", "legende-diff");
-    const entree = (balise, classe, mot, suite) => {
-      const s = el("span");
-      s.append(el(balise, classe, mot), document.createTextNode(" " + suite));
-      return s;
-    };
-    // Chaque entrée n'apparaît que si le texte en contient : une légende qui
-    // annonce une couleur absente fait chercher pour rien. Un article
-    // simplement retouché n'a ni retrait ni ajout de fond.
-    const ya = (role, forme) => (a.morceaux || [])
-      .some((m) => m.role === role && Boolean(m.forme) === forme);
-    if (ya("retire", false)) legende.append(entree("s", null, "retiré", "par la loi"));
-    if (ya("ajoute", false)) legende.append(entree("u", null, "ajouté", "par la loi"));
-    if (ya("ajoute", true)) legende.append(entree("u", "forme", "ponctuation", "ajoutée"));
-    if (ya("retire", true)) legende.append(entree("s", "forme", "ponctuation", "retirée"));
-    f.append(legende);
-  }
-
-  const corps = el("div", "texte-loi");
-  let debut = true;
-  for (const m of a.morceaux || []) {
-    if (mode === "avant" && m.role === "ajoute") continue;
-    if (mode === "apres" && m.role === "retire") continue;
-    const balise = mode === "diff" && m.role === "retire" ? "del"
-                 : mode === "diff" && m.role === "ajoute" ? "ins" : "span";
-    // Une retouche de forme est découpée au caractère : « I- », l'espace
-    // ajoutée, « Sont ». Ces morceaux se collent au précédent — sinon on
-    // insérerait des espaces au milieu des mots.
-    if (!m.colle && !debut) corps.append(document.createTextNode(" "));
-    const classe = mode === "diff" && m.forme ? "forme" : null;
-    corps.append(el(balise, classe, m.texte));
-    debut = false;
-  }
-  f.append(corps);
+  if (mode === "diff") f.append(legendeDiff(a.morceaux, "par la loi"));
+  f.append(texteCompare(a.morceaux, mode));
 
   // Les conditions d'entrée en vigueur, quand le texte officiel en porte. Ce
   // n'est pas de l'article, c'est ce que le législateur a écrit à côté.
@@ -3267,6 +3337,140 @@ function dessinerArticle(f, retour, uid, a) {
   source.append(el("b", null, "Lire l'article sur Légifrance ›"),
                 el("span", null, "Le texte officiel, sur le site du service public."));
   f.append(source);
+}
+
+/* ------------------------------------------------------------------ *
+ * Les versions successives d'un texte
+ *
+ * Un texte de loi n'est pas figé : il est déposé, puis la commission le
+ * réécrit, puis la séance le réécrit encore. L'Assemblée publie chacune de
+ * ces versions ; l'écran les montre **superposées**, comme les rédactions
+ * d'un article de loi — ce qui a été retiré en rouge barré, ce qui a été
+ * ajouté en vert.
+ *
+ * À côté de chaque article changé, **les amendements adoptés sur cet
+ * article** : leur numéro, leur auteur, son groupe. Le rapprochement se fait
+ * par le numéro d'article, jamais par le texte — dire quel mot vient de quel
+ * amendement demanderait d'interpréter l'instruction de l'amendement, donc de
+ * fabriquer du texte de loi. Mesuré le 2026-09-18 : 420 amendements adoptés
+ * sur 470 tombent sur un article qui a réellement changé, 2 sur un article
+ * resté identique — le rapprochement est presque toujours juste, et souvent
+ * incomplet. **Un article sans amendement le dit.**
+ * ------------------------------------------------------------------ */
+
+// Ce que le compte d'une version annonce, sous son nom, dans le parcours.
+function chiffresDeVersion(r) {
+  if (!r) return "";
+  if (r.initiaux) return `${nb.format(r.initiaux)} article${r.initiaux > 1 ? "s" : ""}`;
+  const bouts = [];
+  // « 3 articles modifiés » plutôt que « 3 modifiés » : le premier morceau
+  // porte le mot, les suivants s'y rattachent.
+  if (r.modifies) bouts.push(`${nb.format(r.modifies)} article${r.modifies > 1 ? "s" : ""} `
+                             + `modifié${r.modifies > 1 ? "s" : ""}`);
+  if (r.nouveaux) bouts.push(`${nb.format(r.nouveaux)} `
+                             + (bouts.length ? "" : `article${r.nouveaux > 1 ? "s" : ""} `)
+                             + `nouveau${r.nouveaux > 1 ? "x" : ""}`);
+  if (r.retires) bouts.push(`${nb.format(r.retires)} `
+                            + (bouts.length ? "" : `article${r.retires > 1 ? "s" : ""} `)
+                            + `retiré${r.retires > 1 ? "s" : ""}`);
+  // Une version qui ne change rien est un fait, pas un vide : la commission
+  // peut adopter le texte sans y toucher.
+  return bouts.length ? bouts.join(", ")
+                      : `aucun changement sur ${nb.format(r.total)} article${r.total > 1 ? "s" : ""}`;
+}
+
+function ligneVersion(uid, v) {
+  const li = el("li", "sans-trait");
+  const bouton = el("button", "version");
+  const q = el("div", "q");
+  q.append(el("b", null, v.nom), el("span", "chiffres", chiffresDeVersion(v.resume)));
+  bouton.append(q, el("span", "chevron", "›"));
+  bouton.addEventListener("click", () => {
+    location.hash = `#/version/${uid}/${v.ref}`;
+  });
+  li.append(bouton);
+  return li;
+}
+
+function carteAmendementsDeLArticle(liste) {
+  const boite = el("div", "amdts");
+  if (!liste.length) {
+    boite.append(el("p", "rien",
+      "Aucun amendement adopté sur cet article : la source ne relie ce "
+      + "changement à aucun amendement."));
+    return boite;
+  }
+  boite.append(el("div", "chapeau",
+    `${nb.format(liste.length)} amendement${liste.length > 1 ? "s" : ""} `
+    + `adopté${liste.length > 1 ? "s" : ""}`));
+  for (const a of liste) {
+    const lien = el("a");
+    lien.href = "https://www.assemblee-nationale.fr/dyn/17/amendements/"
+                + a.uid.replace(/^AM/, "");
+    lien.target = "_blank"; lien.rel = "noopener";
+    const teinte = el("i");
+    if (a.couleur) teinte.style.background = a.couleur;
+    lien.append(teinte, el("span", "num", "n° " + a.numero));
+    const qui = [a.nom, a.sigle].filter(Boolean).join(" · ");
+    if (qui) lien.append(el("span", "qui", qui));
+    lien.append(el("span", "fleche", "↗"));
+    boite.append(lien);
+  }
+  return boite;
+}
+
+async function ouvrirVersion(uid, ref) {
+  const f = ouvrirEcran();
+  const retour = boutonRetour("#/texte/" + uid, "Retour au parcours");
+  f.append(retour);
+  f.append(el("p", "avertissement", "Chargement du texte…"));
+
+  let d;
+  try {
+    d = await lire(`versions/${uid}/${ref}.json`, true);
+  } catch (e) {
+    f.textContent = "";
+    f.append(retour, el("div", "vide", "Texte indisponible : " + e.message));
+    return;
+  }
+  f.textContent = "";
+  f.append(retour);
+  f.append(el("h2", "fiche-titre", d.nom));
+  f.append(el("p", "fiche-sous", d.precedent
+    ? `${dateLongue.format(enDate(d.date))} — comparé au ${d.precedent.nom.toLowerCase()} `
+      + `du ${dateLongue.format(enDate(d.precedent.date))}.`
+    : `${dateLongue.format(enDate(d.date))} — le texte tel qu'il a été déposé. `
+      + `Rien ne le précède : il n'y a rien à comparer.`));
+
+  const tous = (d.articles || []).flatMap((a) => a.morceaux || []);
+  // Qui a changé le texte : la commission pour un texte de commission, la
+  // séance pour un texte adopté. C'est la forme du document qui le dit.
+  const par = /BTC\d+$/.test(d.ref) ? "par la commission"
+            : /BTA\d+$/.test(d.ref) ? "en séance"
+            : "depuis la version précédente";
+  if (tous.length) f.append(legendeDiff(tous, par));
+
+  for (const a of d.articles || []) {
+    const tete = el("div", "art-titre");
+    tete.append(el("h3", null, a.titre));
+    const mots = { modifie: "Modifié", nouveau: "Nouveau", retire: "Retiré",
+                   identique: "Inchangé", initial: null };
+    if (mots[a.quoi]) tete.append(el("span", "quoi " + a.quoi, mots[a.quoi]));
+    // L'état que la source elle-même imprime dans le texte — « (Supprimé) »,
+    // « (Non modifié) ». Ce n'est pas notre calcul, c'est sa mention.
+    if (a.etat && a.etat !== a.quoi) {
+      tete.append(el("span", "quoi", "La source dit : " + a.etat));
+    }
+    f.append(tete);
+    if (a.quoi !== "initial") f.append(carteAmendementsDeLArticle(a.amendements || []));
+    f.append(texteCompare(a.morceaux, "diff", a.texte));
+  }
+
+  f.append(el("p", "avertissement",
+    "Les amendements sont rapprochés par le numéro d'article : la page dit "
+    + "lesquels ont été adoptés sur cet article, jamais quel mot vient de quel "
+    + "amendement — il faudrait pour cela interpréter l'instruction de "
+    + "l'amendement, et le texte affiché ne serait plus celui de la source."));
 }
 
 /* ------------------------------------------------------------------ *
@@ -3488,6 +3692,8 @@ function router() {
   if (article) return ouvrirArticle(article[1], article[2]);
   const change = location.hash.match(/^#\/change\/([\w-]+)$/);
   if (change) return ouvrirChangements(change[1]);
+  const version = location.hash.match(/^#\/version\/([\w-]+)\/([\w-]+)$/);
+  if (version) return ouvrirVersion(version[1], version[2]);
   const texte = location.hash.match(/^#\/texte\/([\w-]+)$/);
   if (texte) return ouvrirFiche(texte[1]);
   fermerFiche();

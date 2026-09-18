@@ -107,6 +107,12 @@ class Numero(unittest.TestCase):
         self.assertEqual(textes.numero("Article 1er bis (nouveau)"), "1er bis")
         self.assertEqual(textes.numero("Article 5 (Supprimé)"), "5")
 
+    def test_le_titre_affiche_recolle_l_exposant(self):
+        """« Article 1 er » vient d'un « er » en exposant dans le document
+        Word : le recoller restitue ce que la source imprime."""
+        self.assertEqual(textes.titre_propre("Article 1 er bis (nouveau)"),
+                         "Article 1er bis (nouveau)")
+
     def test_l_article_voisin_d_un_article_ne(self):
         self.assertEqual(textes.racine("1er bis"), "1er")
         self.assertEqual(textes.racine("3 bis a"), "3")

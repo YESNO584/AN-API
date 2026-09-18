@@ -238,6 +238,50 @@ resserré, il en fait 102 et 117. Les phrases, elles, ne changent pas. La
 hauteur est **mesurée** à chaque ouverture, et réservée sous la fiche : rien
 ne passe derrière le bloc.
 
+### Les versions du texte, et ce que chaque étape en a fait
+
+Un texte de loi n'est pas figé : il est déposé, la commission le réécrit, la
+séance le réécrit encore. **Sous chaque étape qui produit une version, le
+parcours porte une ligne** — « Texte de la commission · 3 articles modifiés » —
+qui ouvre le texte de cette version.
+
+Cet écran montre **le texte entier, article par article, superposé à la version
+précédente** : ce qui a été retiré en rouge barré, ce qui a été ajouté en vert.
+C'est le même calcul et le même dessin que pour les articles de loi — une
+comparaison mot à mot avec la bibliothèque standard de Python, la ponctuation
+descendue au caractère. La version déposée, elle, n'a rien à quoi se comparer :
+elle s'affiche telle quelle, et le dit.
+
+**À côté de chaque article, les amendements adoptés sur cet article** : leur
+numéro, leur auteur, son groupe en couleur, et le lien vers l'amendement chez
+l'Assemblée. Sur un téléphone il n'y a pas de place pour une colonne à côté du
+texte — l'écran fait 30 rem au plus — donc ils se posent **au-dessus** de
+l'article, et suivent son défilement.
+
+**Ce que la page ne dit pas, et ne dira pas : quel mot vient de quel
+amendement.** Il faudrait interpréter l'instruction de l'amendement (« à
+l'alinéa 7, substituer aux mots… ») pour le deviner, c'est-à-dire fabriquer du
+texte de loi. Le rapprochement se fait par le **numéro d'article**, et rien
+d'autre. Mesuré le 2026-09-18 : **420 amendements adoptés sur 470 tombent sur
+un article qui a réellement changé, 2 sur un article resté identique**. Il est
+donc presque toujours juste — et souvent incomplet : 31 % des changements n'ont
+aucun amendement adopté sur leur article, et **l'écran le dit** plutôt que de
+laisser une place vide.
+
+**Trois libellés sont de nous** : « Texte déposé », « Texte de la commission »,
+« Texte adopté par l'Assemblée ». La source nomme le document « Proposition de
+loi » à chaque étape, ce qui ne distinguerait pas les versions. Le reste — le
+texte, les numéros d'article, les mentions « (nouveau) » et « (Supprimé) », les
+amendements — est recopié.
+
+**Ce que ça couvre**, et pourquoi une fiche peut n'avoir aucune ligne :
+1 749 textes sur 2 219 ont au moins une version publiée par l'Assemblée, et
+**249 en ont au moins deux**, donc une comparaison. Les autres sont nés au
+Sénat, qui publie ses textes ailleurs. Et pendant les trois premiers jours qui
+suivent une mise en service, la lecture n'est pas terminée : un texte dont la
+version n'a pas encore été lue n'a simplement pas sa ligne. Détail des mesures
+dans [`../docs/sources/textes-assemblee-html.md`](../docs/sources/textes-assemblee-html.md).
+
 ### Le parcours, et pourquoi deux lignes du même jour ne sont pas un doublon
 
 Chaque étape porte **une pastille de chambre** — Assemblée, Sénat, ou « hors

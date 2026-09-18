@@ -132,6 +132,16 @@ def numero(titre: str | None) -> str:
     return re.sub(r"\s+", " ", t).strip().lower()
 
 
+def titre_propre(titre: str) -> str:
+    """« Article 1 er » → « Article 1er ».
+
+    Le « er » est en exposant dans le document ; il ressort détaché quand on
+    aplatit le HTML. Le recoller n'est pas une réécriture : c'est restituer ce
+    que la source imprime.
+    """
+    return re.sub(r"\b1\s+(er|ᵉʳ)\b", "1er", titre or "", flags=re.I)
+
+
 def racine(num: str) -> str:
     """« 1er bis a » → « 1er » : l'article auprès duquel un article est né.
 
@@ -184,7 +194,7 @@ def comparer(avant: dict[str, str], apres: dict[str, str]) -> list[dict]:
             quoi = "modifie"
         lignes.append({
             "numero": num,
-            "titre": titre,
+            "titre": titre_propre(titre),
             "quoi": quoi,
             "etat": etat(titre, brut),
             "texte": texte,
@@ -196,7 +206,7 @@ def comparer(avant: dict[str, str], apres: dict[str, str]) -> list[dict]:
         num = numero(titre)
         if num in vus:
             continue
-        lignes.append({"numero": num, "titre": titre, "quoi": "retire",
+        lignes.append({"numero": num, "titre": titre_propre(titre), "quoi": "retire",
                        "etat": None, "texte": sans_mention(brut),
                        "morceaux": [], "commun": None})
     return lignes
@@ -208,7 +218,7 @@ def premiere_version(articles: dict[str, str]) -> list[dict]:
     Même forme que `comparer`, pour que l'écran n'ait qu'une façon de lire une
     version — celle-ci n'a simplement aucun morceau à colorer.
     """
-    return [{"numero": numero(titre), "titre": titre, "quoi": "initial",
+    return [{"numero": numero(titre), "titre": titre_propre(titre), "quoi": "initial",
              "etat": etat(titre, brut), "texte": sans_mention(brut),
              "morceaux": [], "commun": None}
             for titre, brut in articles.items()]
