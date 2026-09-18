@@ -22,5 +22,12 @@ socle/parlement.db-*
 socle/legi.db
 socle/legi.db-*
 socle/archives_legi/
+
+# Le texte des versions successives d'un texte de loi : la base se garde
+# d'un jour sur l'autre (2 295 documents lus un par un), mais elle se
+# reconstruit avec recuperer_textes.py. Comme tout ce qui vient du
+# Parlement, elle n'est jamais versionnée.
+socle/textes.db
+socle/textes.db-*
 socle/*.log
 socle/public/

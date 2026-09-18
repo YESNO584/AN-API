@@ -51,6 +51,7 @@ jobs:
         run: |
           python test_extraction.py
           python test_legi.py
+          python test_textes.py
 
   publier:
     name: Récupérer et publier
@@ -113,6 +114,29 @@ jobs:
         continue-on-error: true
         timeout-minutes: 90
         run: python recuperer_legi.py
+
+      # Le texte des versions successives d'un texte de loi. Même principe que
+      # le droit consolidé : la base se garde d'un jour sur l'autre, et chaque
+      # exécution n'ajoute que ce qui manque. Tout lire demande 50 minutes
+      # (2 295 documents, un appel par seconde) ; on en prend 20 par jour,
+      # donc tout est là au bout de trois publications. Un texte publié ne
+      # change plus : ce qui est lu ne se relit jamais.
+      - name: Retrouver les textes lus les jours précédents
+        uses: actions/cache@v4
+        env:
+          REGLES: ${{ hashFiles('socle/textes.py', 'socle/recuperer_textes.py') }}
+        with:
+          path: socle/textes.db
+          key: textes-${{ env.REGLES }}-${{ github.run_id }}
+          restore-keys: textes-${{ env.REGLES }}-
+
+      # Facultatif au même titre : sans lui, la fiche d'un texte s'affiche
+      # sans ses versions, et le dit.
+      - name: Lire le texte des nouvelles versions
+        working-directory: socle
+        continue-on-error: true
+        timeout-minutes: 30
+        run: python recuperer_textes.py --minutes 20
 
       - name: Écrire les fichiers à publier
         working-directory: socle

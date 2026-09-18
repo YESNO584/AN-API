@@ -689,6 +689,38 @@ class LectureDesAmendements(unittest.TestCase):
             "corps": {"contenuAuteur": {"dispositif": texte, "exposeSommaire": "<p>Parce que.</p>"}},
         }}
 
+    def test_la_position_de_la_division_est_gardee(self):
+        """« Après l'article 1er » ne modifie pas l'article 1er : il crée
+        l'article 1er bis. Sans ce champ, un article apparu en commission
+        n'aurait aucun amendement pour l'expliquer — 2 823 amendements adoptés
+        de la législature sont dans ce cas (mesuré le 2026-09-18)."""
+        brut = self.dispositif("<p>Après l’article 1er, insérer l’article suivant.</p>")
+        brut["amendement"]["pointeurFragmentTexte"]["division"].update(
+            {"avant_A_Apres": "Après", "type": "ARTICLE"})
+        a = extraction.analyser_amendement(brut)
+        self.assertEqual((a["ou"], a["divisionType"]), ("Après", "ARTICLE"))
+
+    def test_sans_position_l_amendement_porte_sur_l_article_lui_meme(self):
+        a = extraction.analyser_amendement(self.dispositif("<p>Supprimer cet article.</p>"))
+        self.assertEqual(a["ou"], "A")
+
+    def test_le_document_amende_vient_du_chemin(self):
+        """`json/<dossier>/<texte>/<amendement>.json` : le fichier ne dit pas
+        quelle version du texte il amende, le chemin si. C'est lui qui dit à
+        quelle étape l'amendement s'applique."""
+        archive = self.archive_d_amendements()
+        lus = list(extraction.lire_amendements(archive))
+        self.assertEqual([a["texte"] for a in lus], ["PIONANR5L17B1794"])
+        self.assertEqual([a["dossier"] for a in lus], ["DLR5L17N52744"])
+
+    def archive_d_amendements(self):
+        import zipfile
+        chemin = pathlib.Path(tempfile.mkdtemp()) / "amendements.zip"
+        with zipfile.ZipFile(chemin, "w") as zf:
+            zf.writestr("json/DLR5L17N52744/PIONANR5L17B1794/AMANR5L17.json",
+                        json.dumps(self.dispositif("<p>Supprimer cet article.</p>")))
+        return chemin
+
     def test_un_champ_vide_du_xml_ne_devient_pas_un_dictionnaire(self):
         """Le format rend un champ absent par {'@xsi:nil': 'true'}. Sans filtre,
         ce dictionnaire finit dans une colonne de la base."""

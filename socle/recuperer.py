@@ -175,6 +175,7 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
             continue
         lignes_amdt.append((
             a["uid"], a["dossier"], a["numero"], a["ordre"], a["article"],
+            a["texte"], a["ou"], a["divisionType"],
             a["auteurRef"], a["groupeRef"], a["typeAuteur"], a["dateDepot"],
             a["etat"], a["sort"], a["dispositif"], a["expose"],
             json.dumps(a["morceaux"], ensure_ascii=False),
@@ -228,7 +229,7 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
         connexion.executemany(
             "INSERT INTO vote_groupe VALUES (?,?,?,?,?,?,?,?,?,?)", lignes_groupe)
         connexion.executemany(
-            "INSERT INTO amendement VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", lignes_amdt)
+            "INSERT INTO amendement VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", lignes_amdt)
         connexion.executemany(
             "INSERT INTO parole VALUES (?,?,?,?,?,?,?,?,?,?)", lignes_parole)
     return len(dossiers), len(etapes), len(lignes_vote), len(lignes_amdt), len(lignes_parole)

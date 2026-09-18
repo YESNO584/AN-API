@@ -1158,6 +1158,16 @@ def analyser_amendement(brut: dict) -> dict:
         "numero": mot(identification.get("numeroLong")),
         "ordre": nombre(identification.get("numeroOrdreDepot")),
         "article": mot(division.get("titre")) or mot(division.get("articleDesignationCourte")),
+        # **Où** l'amendement agit, et sur quel document. Ces deux champs
+        # décident du rapprochement avec les versions du texte (voir
+        # `textes.py`) : un amendement « Après l'article 1er » ne modifie pas
+        # l'article 1er, il crée l'article 1er bis — 2 823 amendements adoptés
+        # de la législature sont dans ce cas. Et le document visé dit à quelle
+        # étape l'amendement s'applique : le texte déposé pour la commission,
+        # le texte de la commission pour la séance.
+        "ou": mot(division.get("avant_A_Apres")) or "A",
+        "divisionType": mot(division.get("type")),
+        "texte": None,                         # rempli par l'appelant, d'après le chemin
         "auteurRef": mot(signataires.get("acteurRef")),
         "groupeRef": mot(signataires.get("groupePolitiqueRef")),
         "typeAuteur": mot(signataires.get("typeAuteur")),
@@ -1186,6 +1196,9 @@ def lire_amendements(archive: pathlib.Path) -> Iterator[dict]:
             with zf.open(nom) as fichier:
                 a = analyser_amendement(json.load(fichier))
             a["dossier"] = morceaux[1]
+            # `json/<dossier>/<texte>/<amendement>.json` : le document amendé
+            # n'est pas dans le fichier non plus, il est dans le chemin.
+            a["texte"] = morceaux[2]
             yield a
 
 

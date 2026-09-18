@@ -151,6 +151,13 @@ CREATE TABLE IF NOT EXISTS amendement (
     numero      TEXT,
     ordre       INTEGER,
     article     TEXT,
+    -- Le document que l'amendement vise, et où il agit dessus. Sans ces deux
+    -- champs, impossible de dire quel amendement a produit quel changement
+    -- entre deux versions d'un texte : « Après l'article 1er » crée l'article
+    -- 1er bis, il ne modifie pas l'article 1er.
+    texte_ref   TEXT,               -- PIONANR5L17B1794 : la version amendée
+    ou          TEXT,               -- A | Avant | Après
+    division    TEXT,               -- ARTICLE | ANNEXE | TITRE | CHAPITRE
     auteur_ref  TEXT,
     groupe_ref  TEXT,
     type_auteur TEXT,
