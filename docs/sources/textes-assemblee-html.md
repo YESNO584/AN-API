@@ -343,3 +343,109 @@ mécanisme existe déjà dans la publication quotidienne pour le droit consolid�
 lu.** Un texte dont la version n'est pas encore en cache n'a simplement pas sa
 ligne — c'est la même règle que partout ailleurs dans ce projet : on n'affiche
 pas une rubrique vide, et on ne promet pas ce qu'on n'a pas.
+
+---
+
+# Mettre l'amendement en face du changement
+
+**Mesuré le 2026-09-18**, sur les 124 725 amendements de l'archive que le socle
+télécharge déjà chaque matin, croisés avec 59 paires de versions réellement
+lues.
+
+Deux questions posées ensemble : **faut-il ne garder que la première et la
+dernière version ?** et **peut-on dire, à côté de chaque changement, quel
+amendement l'a produit et qui l'a déposé ?**
+
+## Ne garder que la première et la dernière version : non
+
+| | Documents à lire | À 1 appel/s |
+|---|---:|---:|
+| Toutes les versions | 2 295 | 50 min |
+| Première et dernière seules | 1 998 | 43 min |
+
+**7 minutes gagnées.** Ce n'est pas assez pour renoncer à ce qu'on perdrait :
+le détail de ce que chaque étape a changé — et surtout le lien avec les
+amendements, qui est **attaché à une étape précise**. Un amendement se dépose
+sur le texte déposé (pour la commission) ou sur le texte de la commission (pour
+la séance). Comparer le dépôt directement au texte final obligerait à mélanger
+les deux, donc à dire « cet article a changé, et voici tous les amendements des
+deux étapes » — moins juste pour rien.
+
+**Recommandation : garder toutes les versions.** 149 textes sur les 249
+comparables en ont d'ailleurs plus de deux.
+
+## L'amendement à côté du changement : oui, et ça ne coûte aucun appel
+
+La source est déjà là : `Amendements.json.zip`, **téléchargée chaque matin par
+le socle** pour la rubrique des amendements. Rien de nouveau à récupérer.
+
+| | |
+|---|---:|
+| Amendements de la législature | 124 725 |
+| **dont adoptés** | **16 186** |
+| adoptés qui **désignent l'article visé** | **16 186 — la totalité** |
+| versions de texte concernées | 435 |
+
+Et la source dit **où** l'amendement agit, ce qui change tout :
+
+| Ce que vise l'amendement adopté | Nombre |
+|---|---:|
+| l'article lui-même (`A`) | 10 908 |
+| **un article additionnel, après un article** (`Après`) | 2 823 |
+| un article additionnel, avant un article (`Avant`) | 40 |
+| une annexe, un titre, un chapitre | 2 415 |
+
+C'est ce champ qui explique les articles « bis (nouveau) » : ils naissent d'un
+amendement déposé « après l'article X », et non d'un amendement sur X.
+
+### Le rapprochement, mesuré
+
+Sur 59 paires de versions successives :
+
+| | |
+|---|---:|
+| Paires dont la source publie au moins un amendement adopté | 36 |
+| **Paires sans aucun amendement adopté publié** | **23** |
+| Sur les 36 : changements observés | 158 |
+| **… expliqués par au moins un amendement adopté sur cet article** | **109 (69 %)** |
+
+Et dans l'autre sens — celui qui dit s'il y a des faux rapprochements :
+
+| | |
+|---|---:|
+| Amendements adoptés sur les versions examinées | 470 |
+| **posés sur un article qui a effectivement changé** | **420 (89 %)** |
+| posés sur un article resté identique au mot près | **2** |
+
+**Deux sur 470.** Le rapprochement par numéro d'article ne raconte donc presque
+jamais d'histoire fausse ; il est surtout **incomplet**, ce qui est une tout
+autre chose à écrire à l'écran.
+
+**202 des 249 textes comparables** ont au moins une version portant des
+amendements adoptés.
+
+### Ce qu'il faudra écrire, et ce qu'on ne dira jamais
+
+- **On ne dira pas « ce mot vient de cet amendement ».** Il faudrait
+  interpréter l'instruction (« à l'alinéa 7, substituer aux mots… ») pour
+  deviner quel mot elle a produit : c'est exactement ce que le projet refuse de
+  faire depuis le début, et ce qui ferait afficher un texte fabriqué.
+- **On dira « sur cet article, ces amendements ont été adoptés »**, avec le
+  numéro, l'auteur, son groupe et le lien. C'est vrai, vérifiable, et c'est la
+  source qui le dit.
+- **Et on dira ce qui manque** : 31 % des changements n'ont aucun amendement
+  adopté sur leur article, et 23 paires sur 59 n'en ont aucun du tout. Une
+  colonne vide en face d'un changement ne veut pas dire « personne ne l'a
+  demandé », elle veut dire « la source ne le relie à aucun amendement ».
+
+### Un piège, et une place à prévoir
+
+**« Article PREMIER » n'est pas « Article 1er ».** Les amendements écrivent le
+premier article en toutes lettres, les documents l'écrivent « 1er ». Sans cette
+normalisation, **137 rapprochements sur 144 échouent** — le taux d'explication
+tombait de 47 % à 28 %. Une ligne de code, mesurée.
+
+**Le nombre d'amendements par changement va de 1 à 37**, médiane 2, moyenne
+4,5 ; **28 changements sur 109 en portent plus de cinq**. Une colonne latérale
+doit donc se replier au-delà de quelques-uns, sinon un seul article du budget
+remplit l'écran.
