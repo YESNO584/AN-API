@@ -837,16 +837,11 @@
 
   /* Le résumé des débats reprend le cadre de la description — même statut,
      même signalement — et y ajoute les camps de vote. */
-  /* Une partie de l'onglet « Texte » : un titre, une phrase, un bouton, puis
-     le texte quand on le demande. */
-  .partie-texte { border: 1px solid var(--trait); border-radius: var(--rayon);
-                  padding: .7rem .8rem; margin-bottom: .6rem;
-                  background: var(--carte); }
-  .partie-texte .tete b { display: block; font-size: .92rem; font-weight: 640; }
-  .partie-texte .tete span { display: block; font-size: .76rem; color: var(--gris);
-                             line-height: 1.35; margin-top: .15rem; }
-  .partie-texte .charger { margin-top: .55rem; }
-  .partie-texte .art-titre { margin-top: .9rem; }
+  /* L'onglet « Texte » : les trois boutons côte à côte reprennent la bascule
+     d'un article de loi (`.bascule-texte`), et la ligne en dessous dit quelle
+     version on lit et de quand. */
+  .sous-texte { font-size: .78rem; color: var(--gris); line-height: 1.4;
+                margin: 0 0 .7rem; }
 
   .resume-debats { margin: 0 0 .9rem; }
   .resume-debats .sur-quel-vote { font-size: .76rem; color: var(--gris);
@@ -2690,25 +2685,16 @@ function articlesDeLaVersion(d, mode) {
   return zone;
 }
 
-function partieDeTexte(uid, version, titre, sous, mode) {
-  const partie = el("div", "partie-texte");
-  const tete = el("div", "tete");
-  tete.append(el("b", null, titre));
-  tete.append(el("span", null, sous));
-  partie.append(tete);
-  const bouton = el("button", "charger", "Afficher");
-  partie.append(bouton);
-  bouton.addEventListener("click", async () => {
-    bouton.textContent = "Chargement…";
-    const d = await lire(`versions/${uid}/${version.ref}.json`);
-    if (!d) {
-      bouton.textContent = "Texte indisponible";
-      return;
-    }
-    bouton.remove();
-    partie.append(articlesDeLaVersion(d, mode));
-  });
-  return partie;
+// Le texte demandé, gardé une fois lu : passer d'un bouton à l'autre ne doit
+// pas retélécharger 2,8 Mo. La clé est la référence du document, pas le mode —
+// les trois vues se dessinent à partir du même fichier.
+const VERSIONS_LUES = new Map();
+
+async function versionLue(uid, ref) {
+  if (!VERSIONS_LUES.has(ref)) {
+    VERSIONS_LUES.set(ref, await lire(`versions/${uid}/${ref}.json`));
+  }
+  return VERSIONS_LUES.get(ref);
 }
 
 function blocTexte(uid, versions, plat) {
@@ -2719,29 +2705,77 @@ function blocTexte(uid, versions, plat) {
       + "Le socle lit les documents de l'Assemblée nationale ; un texte déposé "
       + "au Sénat a ses versions sur le site du Sénat, qui ne les sert pas de "
       + "la même façon. Le parcours donne le numéro de chaque document."));
-    return b;
+    return [b, null];
   }
   const initiale = versions[0];
   const derniere = versions[versions.length - 1];
   const quand = (v) => dateLongue.format(enDate(v.date));
 
-  b.append(partieDeTexte(uid, initiale, initiale.nom,
-    quand(initiale) + " — le texte tel qu'il a été déposé", "apres"));
-
-  // Une seule version : il n'y a ni « dernière » ni comparaison à montrer.
+  // Chaque vue dit quelle version elle montre et de quand : sans cela, trois
+  // boutons courts laisseraient croire qu'on lit toujours le même document.
+  const vues = [
+    { cle: "depose", bouton: "Déposé", ref: initiale.ref, mode: "apres",
+      sous: initiale.nom + ", " + quand(initiale)
+            + " — le texte tel qu'il a été déposé" },
+  ];
+  // Une seule version : il n'y a ni « dernière » ni comparaison à montrer, et
+  // donc pas de choix à proposer.
   if (versions.length > 1) {
-    b.append(partieDeTexte(uid, derniere,
-      "Ce que « " + derniere.nom + " » a changé",
-      quand(derniere) + " — les différences avec la version précédente", "diff"));
-    b.append(partieDeTexte(uid, derniere, derniere.nom + ", à jour",
-      quand(derniere) + " — le texte tel qu'il se lit aujourd'hui, sans les "
-      + "différences", "apres"));
+    vues.push(
+      // « Ce qui change » est déjà le mot de la bascule d'un article de loi :
+      // un seul nom par chose, d'un écran à l'autre.
+      { cle: "change", bouton: "Ce qui change", ref: derniere.ref, mode: "diff",
+        sous: derniere.nom + ", " + quand(derniere)
+              + " — les différences avec la version précédente" },
+      { cle: "ajour", bouton: "À jour", ref: derniere.ref, mode: "apres",
+        sous: derniere.nom + ", " + quand(derniere)
+              + " — le texte tel qu'il se lit aujourd'hui, sans les différences" });
+  }
+
+  const sous = el("p", "sous-texte");
+  const zone = el("div");
+  let boutons = [];
+
+  const montrer = async (vue) => {
+    for (const b2 of boutons) {
+      b2.setAttribute("aria-pressed", String(b2.dataset.cle === vue.cle));
+    }
+    sous.textContent = vue.sous;
+    zone.textContent = "";
+    zone.append(el("p", "avertissement", "Chargement…"));
+    const d = await versionLue(uid, vue.ref);
+    // Un autre bouton a pu être touché pendant le chargement : ne pas écraser
+    // ce qu'on regarde maintenant par ce qu'on regardait avant.
+    if (sous.textContent !== vue.sous) return;
+    zone.textContent = "";
+    zone.append(d ? articlesDeLaVersion(d, vue.mode)
+                  : el("p", "avertissement", "Texte indisponible."));
+  };
+
+  if (vues.length > 1) {
+    // Les mêmes trois boutons côte à côte que pour un article de loi : un seul
+    // geste à apprendre pour choisir ce qu'on regarde, partout dans la fiche.
+    const bascule = el("div", "bascule-texte");
+    for (const vue of vues) {
+      const bt = el("button", null, vue.bouton);
+      bt.type = "button";
+      bt.dataset.cle = vue.cle;
+      bt.setAttribute("aria-pressed", String(vue === vues[0]));
+      bt.addEventListener("click", () => montrer(vue));
+      bascule.append(bt);
+      boutons.push(bt);
+    }
+    b.append(bascule);
   } else {
     b.append(el("p", "avertissement",
       "Une seule version de ce texte est publiée : il n'y a donc rien à "
       + "comparer, et le texte déposé est aussi le texte à jour."));
   }
-  return b;
+  b.append(sous, zone);
+  // La première vue est demandée à l'ouverture de l'onglet, pas à celle de la
+  // fiche : une version pèse jusqu'à 2,8 Mo, et l'onglet n'est pas toujours
+  // celui qu'on ouvre.
+  return [b, () => montrer(vues[0])];
 }
 
 /* ---------- le résumé des débats ---------- *
@@ -3350,7 +3384,7 @@ async function ouvrirFiche(uid) {
   // il passe **après les débats, juste avant le parcours** : ce qui compte
   // alors est ce que la loi change au droit, pas le brouillon qu'elle était.
   const versions = d.versions || [];
-  const ongletTexte = ["Texte", blocTexte(uid, versions, true)];
+  const ongletTexte = ["Texte", ...blocTexte(uid, versions, true)];
   if (d.statut !== "promulgue") rubriques.push(ongletTexte);
 
   // Ce qui a été dit en séance. Juste après les articles, et juste après le

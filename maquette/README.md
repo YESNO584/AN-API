@@ -256,20 +256,27 @@ part. Il existait bien — le socle publie chaque version article par article �
 mais on ne l'atteignait qu'au fond du parcours, une version à la fois, et
 l'onglet « Articles » ne parle pas du texte : il parle du droit qu'il change.
 
-L'onglet montre **trois choses, et pas une de plus** :
+L'onglet montre **trois choses, et pas une de plus**, entre lesquelles on
+choisit par **trois boutons côte à côte** :
 
-1. le **texte déposé**, celui qu'on a voulu faire voter ;
-2. **ce que la dernière version a changé**, avec les différences en vert et en
-   rouge — la même comparaison que dans le parcours ;
-3. cette **dernière version à jour**, sans les différences, telle qu'elle se
+1. **Déposé** — le texte qu'on a voulu faire voter ;
+2. **Ce qui change** — ce que la dernière version a changé, avec les
+   différences en vert et en rouge, la même comparaison que dans le parcours ;
+3. **À jour** — cette dernière version sans les différences, telle qu'elle se
    lit aujourd'hui.
 
-Chaque partie a son bouton « Afficher » : une version pèse jusqu'à **2,8 Mo**
-(mesuré le 2026-09-19 sur le projet de loi de finances pour 2026), et personne
-n'ouvre les trois d'un coup. Une seule version publiée — un texte
-tout juste déposé — n'a ni deuxième ni troisième partie, et le dit. Aucune
-version publiée — un texte déposé au Sénat, qui sert ses documents ailleurs —
-et l'onglet le dit aussi, plutôt que d'afficher un cadre vide.
+C'est la même bascule que pour un article de loi, avec les mêmes mots : un
+seul geste à apprendre pour choisir ce qu'on regarde. Sous les boutons, une
+ligne rappelle **quelle version on lit et de quand** — sans elle, trois mots
+courts laisseraient croire qu'on lit toujours le même document.
+
+**Le texte n'est demandé qu'à l'ouverture de l'onglet**, et une version lue est
+gardée : passer d'un bouton à l'autre ne retélécharge rien. Une version pèse
+jusqu'à **2,8 Mo** (mesuré le 2026-09-19 sur le projet de loi de finances pour
+2026), et les deux dernières vues lisent le même fichier. Une seule version
+publiée — un texte tout juste déposé — n'a pas de boutons du tout, et le dit.
+Aucune version publiée — un texte déposé au Sénat, qui sert ses documents
+ailleurs — et l'onglet le dit aussi, plutôt que d'afficher un cadre vide.
 
 **Sa place dépend de l'issue du texte.** Pour un texte en cours, il vient juste
 après le vote : c'est ce qu'on est en train de discuter, donc ce qu'on veut
