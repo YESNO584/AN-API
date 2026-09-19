@@ -793,6 +793,20 @@
                  border-radius: var(--rayon); padding: .75rem .85rem;
                  margin: .9rem 0; }
   .description p { margin: 0; font-size: .93rem; line-height: 1.5; }
+  /* Le nom d'usage, en tête : le nom que le texte porte dans la bouche des
+     orateurs, et qui n'est écrit nulle part dans la source. */
+  .description .nom-usage { display: flex; align-items: baseline; gap: .3rem;
+    background: none; border: 0; padding: 0; margin: 0 0 .4rem; cursor: pointer;
+    font: inherit; font-size: .8rem; color: var(--gris); text-align: left; }
+  .description .nom-usage b { font-weight: 640; color: var(--texte);
+    white-space: nowrap; }
+  .description .nom-usage u { text-decoration: none;
+    text-decoration: underline dotted; text-underline-offset: .18em; }
+  .description .nom-usage:active b { color: var(--accent); }
+  /* Le contexte : ce qui se passait avant le texte, un paragraphe au plus.
+     Plus discret que l'accroche, qui reste la phrase qui décide. */
+  .description p.contexte { font-size: .86rem; color: var(--gris);
+    margin-bottom: .45rem; }
   /* L'accroche porte la phrase, les puces portent les mesures. Le gras
      distingue les deux sans ajouter de titre, qui ferait une ligne de plus
      sur un écran déjà court. */
@@ -2920,9 +2934,11 @@ const ORIGINES = {
     mot: "Description générée par une intelligence artificielle",
     court: "Générée par une IA",
     titre: "Cette description est générée par une IA",
-    quoi: "Elle ne vient pas de l'Assemblée nationale : elle a été écrite par " +
-      "une intelligence artificielle à partir du titre du texte et de ce que la " +
-      "loi change au droit. Elle peut donc se tromper ou vieillir. Tout le reste " +
+    quoi: "Elle ne vient pas de l'Assemblée nationale : le contexte, la phrase " +
+      "d'accroche et les mesures ont été écrits par une intelligence " +
+      "artificielle à partir du titre du texte, de ce que la " +
+      "loi change au droit et de ce qui a été dit en séance — jamais d'autre " +
+      "chose. Elle peut donc se tromper ou vieillir. Tout le reste " +
       "de la fiche — le titre, le parcours, les votes, les prises de parole, le " +
       "texte des articles — est recopié de la source, mot pour mot.",
   },
@@ -2957,6 +2973,28 @@ function iconeOrigine(origine) {
 function blocDescription(description) {
   const origine = ORIGINES[description.origine] || ORIGINES.ia;
   const boite = el("div", "description");
+  // Le nom d'usage d'abord : c'est sous ce nom-là qu'on cherche le texte.
+  if (description.nomUsage && description.nomUsage.nom) {
+    const n = description.nomUsage;
+    const ligne = el("button", "nom-usage");
+    ligne.append(el("b", null, "« " + n.nom + " »"));
+    ligne.append(el("u", null, "le nom qu'on lui donne en séance"));
+    ligne.title = "Ce nom n'est écrit nulle part dans la source — touchez pour"
+                + " savoir d'où il vient.";
+    ligne.addEventListener("click", () => expliquer(
+      "« " + n.nom + " »",
+      "Ce nom n'est écrit nulle part dans les documents de l'Assemblée "
+      + "nationale : c'est celui que les orateurs emploient en séance. Il est "
+      + "affiché parce qu'on cherche un texte sous le nom qu'on lui connaît, "
+      + "pas sous son intitulé officiel. Le compte affiché est relevé dans "
+      + "les prises de parole publiées ici, mot entier — il n'est pas écrit "
+      + "par la rédaction.",
+      n.citations ? "prononcé " + n.citations + " fois en séance" : null));
+    boite.append(ligne);
+  }
+  // Le contexte : ce qui se passait avant. Un paragraphe, et facultatif — un
+  // texte dont le titre suffit n'en a pas besoin.
+  if (description.contexte) boite.append(el("p", "contexte", description.contexte));
   boite.append(el("p", "accroche", description.accroche));
   // Une mesure par puce. Une accroche sans puce reste valable : une loi qui
   // autorise l'approbation d'un traité n'a qu'une chose à dire.

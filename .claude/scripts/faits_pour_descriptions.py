@@ -19,6 +19,17 @@ description soit écrite à partir de ce que la loi dit et non de son intitulé.
 Il ne rédige rien : il récolte.
 
     ./faits_pour_descriptions.py --sortie /tmp/faits [--lois 2026-813,2025-127]
+    ./faits_pour_descriptions.py --sortie /tmp/faits --avec-paroles
+
+**Trois choses sont à écrire, et la matière des trois est ici.** L'accroche et
+les mesures viennent du texte des articles. Le **contexte** — ce qui se passait
+avant — vient de deux endroits, et de nulle part ailleurs : les morceaux
+« retiré » des articles, qui sont **la rédaction d'avant, mot pour mot**, et ce
+que les orateurs ont dit en séance (`--avec-paroles`). Le **nom d'usage** ne se
+trouve que dans les paroles : « la loi Ripost » n'est écrite nulle part dans la
+source. Rien ne doit être écrit de mémoire : assembler_descriptions.py refuse
+un nom d'usage qu'il ne retrouve pas dans les publiés, mais il ne peut pas
+contrôler une phrase — c'est à la rédaction de s'y tenir.
 
 Comment il échantillonne une grande loi — la loi de finances pour 2025 touche
 1 053 articles, qu'on ne lit pas :
@@ -50,11 +61,54 @@ ARTICLES_MAX = 10
 # d'une phrase ne se voit pas : elle se lit comme une phrase complète et
 # absurde.
 EXTRAIT_MAX = 2000
+# De quoi reconnaître de quoi parlait la séance, sans recopier un discours.
+# Les paroles entières restent affichées dans l'application, mot pour mot.
+PAROLE_MAX = 900
+PAROLES_MAX = 12
 
 
 def lire(url: str):
     with urllib.request.urlopen(url, timeout=60) as reponse:
         return json.load(reponse)
+
+
+def lire_ou_rien(url: str):
+    try:
+        return lire(url)
+    except (urllib.error.URLError, json.JSONDecodeError):
+        return None
+
+
+def parcours(uid: str) -> dict:
+    """Le peu du dossier qui aide à situer un texte : sa formule et ses dates.
+
+    Le titre dit ce que le texte vise ; la formule de la source le redit
+    souvent autrement, et les dates disent en combien de temps il est passé.
+    """
+    d = lire_ou_rien(f"{SOCLE}/textes/{uid}.json") or {}
+    return {
+        "formule": d.get("formule"),
+        "chambreInitiale": d.get("chambre_initiale"),
+        "procedureAcceleree": d.get("procedureAcceleree"),
+        "etapes": [{"date": e.get("date"), "libelle": e.get("libelle"),
+                    "lecture": e.get("lecture"), "chambre": e.get("chambre"),
+                    "conclusion": e.get("conclusion")}
+                   for e in (d.get("parcours") or [])],
+    }
+
+
+def paroles_du_texte(uid: str) -> list[dict]:
+    """Un échantillon des prises de parole, pour le contexte et le nom d'usage.
+
+    Les plus longues d'abord : une intervention de dix lignes pose le problème,
+    une de deux lignes répond à une question de procédure.
+    """
+    d = lire_ou_rien(f"{SOCLE}/paroles/{uid}.json") or {}
+    dites = sorted((d.get("paroles") or []),
+                   key=lambda p: -len(p.get("texte") or ""))[:PAROLES_MAX]
+    return [{"nom": p.get("nom"), "sigle": p.get("sigle"),
+             "section": p.get("section"),
+             "texte": (p.get("texte") or "")[:PAROLE_MAX]} for p in dites]
 
 
 def a_retenir(liste: dict) -> list[dict]:
@@ -103,7 +157,13 @@ def extrait(article: dict) -> dict:
     }
 
 
-def faits_d_une_loi(uid: str, entete: dict) -> dict:
+A_ECRIRE = ("un contexte d'un paragraphe au plus — ce qui se passait avant,"
+            " tiré des morceaux « retire » et des paroles, jamais de mémoire ;"
+            " une accroche d'une phrase ; au plus 8 mesures ; et le nom d'usage"
+            " du texte s'il en a un, tel qu'il est prononcé en séance")
+
+
+def faits_d_une_loi(uid: str, entete: dict, avec_paroles: bool = False) -> dict:
     liste = lire(f"{SOCLE}/changements/{uid}.json")
     retenus = a_retenir(liste)
     articles = []
@@ -116,12 +176,15 @@ def faits_d_une_loi(uid: str, entete: dict) -> dict:
         len(g["articles"]) for g in (liste.get("groupes") or []))
     return {
         **entete,
+        "aEcrire": A_ECRIRE,
         "loi": liste.get("loi"),
+        "dossier": parcours(uid),
         "articlesEnTout": total,
         "articlesLus": len(articles),
         "codesTouches": [{"ou": g["ou"], "articles": len(g["articles"])}
                          for g in (liste.get("groupes") or [])],
         "articles": articles,
+        **({"paroles": paroles_du_texte(uid)} if avec_paroles else {}),
     }
 
 
@@ -133,6 +196,10 @@ def main() -> int:
     ap.add_argument("--lois", help="numéros de loi, séparés par des virgules ;"
                                    " par défaut, toutes les lois promulguées")
     ap.add_argument("--socle", default=SOCLE)
+    ap.add_argument("--avec-paroles", action="store_true",
+                    help="joindre un échantillon des prises de parole en séance :"
+                         " la seule matière d'un nom d'usage, et la meilleure"
+                         " d'un contexte. Les fichiers y gagnent 10 Ko environ")
     args = ap.parse_args()
 
     SOCLE = args.socle.rstrip("/")
@@ -147,11 +214,15 @@ def main() -> int:
         entete = {"uid": t["uid"], "titre": t["titre"], "type": t["type"],
                   "loiDate": t.get("loiDate")}
         try:
-            faits = faits_d_une_loi(t["uid"], entete)
+            faits = faits_d_une_loi(t["uid"], entete, args.avec_paroles)
         except (urllib.error.URLError, KeyError, json.JSONDecodeError) as erreur:
             print(f"{t['uid']} sans changements lisibles : {erreur}", file=sys.stderr)
-            faits = {**entete, "loi": t.get("loiNumero"), "articlesEnTout": 0,
-                     "articlesLus": 0, "codesTouches": [], "articles": []}
+            # Une loi dont le droit consolidé n'a rien à dire garde le reste :
+            # son parcours et ses débats suffisent à écrire un contexte.
+            faits = {**entete, "aEcrire": A_ECRIRE, "loi": t.get("loiNumero"),
+                     "dossier": parcours(t["uid"]), "articlesEnTout": 0,
+                     "articlesLus": 0, "codesTouches": [], "articles": [],
+                     **({"paroles": paroles_du_texte(t["uid"])} if args.avec_paroles else {})}
         (args.sortie / f"{t['uid']}.json").write_text(
             json.dumps(faits, ensure_ascii=False, indent=1), encoding="utf-8")
         ecrits += 1

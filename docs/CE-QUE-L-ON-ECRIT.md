@@ -39,12 +39,14 @@ texte parle. La description répond à cette question en deux phrases.
 | | |
 |---|---|
 | Où elle s'affiche | En haut de la fiche d'un texte, sous les étiquettes, avant les liens vers les sources. Nulle part ailleurs |
-| Quelle forme elle a | Une accroche d'une phrase, puis **une puce par mesure concrète** — trois à six selon la loi. Un pavé se saute, une liste se parcourt. Une accroche seule reste valable : une loi qui autorise l'approbation d'un traité n'a qu'une chose à dire |
+| Quelle forme elle a | **Trois parties, dans cet ordre.** Un **contexte** d'un paragraphe au plus — ce qui se passait avant le texte, et pourquoi il arrive — puis une accroche d'une phrase, puis **une puce par mesure concrète** — trois à six selon la loi. Un pavé se saute, une liste se parcourt. Une accroche seule reste valable : une loi qui autorise l'approbation d'un traité n'a qu'une chose à dire, et le contexte est facultatif |
+| Le **nom d'usage**, quand le texte en a un | Au-dessus du contexte : « Ripost », « le nom qu'on lui donne en séance ». Un texte connu sous un nom ne se cherche pas sous son intitulé officiel — et ce nom **n'est écrit nulle part dans la source**. Il est donc **contrôlé** : `assembler_descriptions.py` le cherche lui-même, mot entier, dans les prises de parole publiées, et **refuse un nom qu'il n'y trouve pas trois fois**. Le compte affiché est relevé, jamais écrit. C'est la même mécanique que les positions de vote du résumé des débats |
 | Ce qu'elle met en avant | **Ce qui change, pas l'état d'arrivée.** « La protection ne visait que les salariées engagées dans une procédure médicale de procréation ; elle vise désormais tous les salariés en projet parental » plutôt que la règle nouvelle seule. Quand la source ne porte pas d'avant — l'article est créé — la puce dit ce que la loi instaure, sans inventer un état antérieur |
 | Comment elle est écrite | Pour quelqu'un sans formation juridique. **Aucun numéro d'article ni nom de code dans les puces** : ils ne disent rien au lecteur et l'écran juste en dessous les affiche déjà tous. La citation ne sert que là où le mot exact fait la règle — un délai, un seuil, une définition |
 | Comment elle est signalée | Une icône et une mention sous la liste — « Générée par une IA ». Au survol sur un ordinateur, la mention complète ; au toucher sur un téléphone, une explication qui dit d'où elle vient, qu'elle peut se tromper, quand elle a été écrite et par quel modèle |
 | D'où elle vient | `socle/descriptions.json`, un fichier **versionné**, écrit hors ligne. C'est la seule donnée du projet qui ne vienne pas d'une source publique |
 | Sur quoi elle s'appuie | **Le texte réel des articles**, lu dans les fichiers publiés : ce que la loi ajoute au droit, mot pour mot, et ce qu'elle en retire. Pas le titre, qui ne dit rien — « Projet de loi portant diverses dispositions d'adaptation au droit de l'Union européenne » en est la démonstration |
+| Sur quoi **le contexte** s'appuie | **Les mêmes fichiers publiés, et rien d'autre** : les morceaux « retiré » des articles, qui sont la rédaction d'avant mot pour mot, le parcours du texte, et ce que les orateurs ont dit en séance. **Jamais une connaissance extérieure** — ni actualité, ni chiffre, ni événement qui ne soit pas dans les données du projet. Cette règle-là n'est pas contrôlable par un programme : elle tient à la rédaction, et c'est pourquoi elle est écrite ici |
 | Ce qui se passe s'il n'y en a pas | La rubrique ne s'affiche pas. Pas de cadre vide, pas de phrase d'attente |
 
 **Ce qu'elle ne fait pas**
@@ -71,16 +73,19 @@ alors plutôt que d'annoncer un vide.
 **Comment les régénérer**, en deux commandes :
 
 ```
-.claude/scripts/faits_pour_descriptions.py --sortie <dossier>
+.claude/scripts/faits_pour_descriptions.py --sortie <dossier> --avec-paroles
 .claude/scripts/assembler_descriptions.py --lots <dossier>/*.json --origine ia
 ```
 
 Le premier récolte le texte réel des articles, loi par loi ; il dit toujours
 combien d'articles il a lus sur combien, et échantillonne les grandes lois
 moitié-moitié — les articles que la loi a écrits elle-même, et les articles de
-code les plus réécrits. Le second contrôle la forme de ce qui a été rédigé
-entre les deux et refuse une entrée qui ne tient pas, plutôt que de publier
-une description à moitié écrite.
+code les plus réécrits. `--avec-paroles` y joint un échantillon des prises de
+parole : c'est la seule matière d'un nom d'usage, et la meilleure d'un
+contexte. Le second contrôle la forme de ce qui a été rédigé entre les deux et
+refuse une entrée qui ne tient pas, plutôt que de publier une description à
+moitié écrite. **Les lots s'ajoutent à ce qui existe déjà** : ajouter un
+contexte à dix textes ne touche pas aux autres.
 
 ### 2. Le résumé des débats d'un texte
 
@@ -256,7 +261,8 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 | Le titre | **S** | |
 | Les étiquettes « Les deux chambres », « Projet de loi », « Promulguée » | **N** (les mots) + **C** (le classement) | |
 | L'étiquette « Procédure accélérée » et sa date | **S** | la source publie l'acte `AN1-PROCACC` ou `SN1-PROCACC` dans le parcours ; nous ne faisons que le remonter en haut de la fiche. 158 textes de loi sur 2 218 la portent |
-| **La description, sous les étiquettes** | **IA** | `socle/descriptions.json` — voir l'exception ci-dessus |
+| **Le nom d'usage (« Ripost »), en tête de la description** | **S** pour le nom, **IA** pour l'avoir repéré | le nom est **retrouvé dans les prises de parole publiées** par `assembler_descriptions.py`, mot entier ; un nom introuvable est refusé. Le compte de citations est **C** |
+| **Le contexte, l'accroche et les mesures** | **IA** | `socle/descriptions.json` — voir l'exception ci-dessus |
 | « Générée par une IA », et l'explication au toucher | **N** | |
 | « Dossier à l'Assemblée », « Dossier au Sénat », « Texte au Journal officiel » | **N** (les mots) + **S** (les adresses) | |
 | Auteur et cosignataires : civilité, prénom, nom, nom du groupe | **S** | |

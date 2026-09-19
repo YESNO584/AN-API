@@ -226,7 +226,11 @@ partageable et ouvrable directement. Elle contient :
   l'a engagée : une seule lecture par chambre au lieu de deux avant la
   commission mixte paritaire. C'est écrit en haut du dossier sur le site de
   l'Assemblée, et c'était chez nous au fond du parcours ;
-- la **description** du texte ;
+- la **description** du texte : son **nom d'usage** quand il en a un
+  (« Ripost », le nom que les orateurs emploient en séance et qui n'est écrit
+  nulle part dans la source), un **contexte** d'un paragraphe au plus — ce qui
+  se passait avant — puis l'accroche et les mesures. C'est la première des deux
+  rubriques écrites par une IA ; voir `../docs/CE-QUE-L-ON-ECRIT.md` ;
 - les **liens officiels** : dossier à l'Assemblée, dossier au Sénat, et le
   **texte de loi au Journal officiel** quand elle est promulguée ;
 - son **auteur** — photo, nom, groupe en couleur — et ses **cosignataires** ;
