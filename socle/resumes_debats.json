@@ -1595,6 +1595,415 @@
    "origine": "ia",
    "le": "2026-09-19",
    "modele": "claude-opus-5"
+  },
+  "DLR5L17N53980": {
+   "vote": {
+    "date": "2026-07-21",
+    "sort": "adopté",
+    "objet": "l'ensemble du projet de loi visant à offrir des réponses immédiates aux phénomènes troublant l'ordre public, la sécurité et la tranquilité de nos concitoyens (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "Le texte traite des faits sociaux par la matraque et la surveillance de masse.",
+      "Le « choc d'autorité » annoncé est une manifestation d'incapacité à les traiter autrement."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "contre",
+     "arguments": [
+      "Le nom même du texte, Ripost, est un terme de confrontation : l'État n'accompagne ni ne prévient, il riposte.",
+      "À chaque fait divers une nouvelle infraction, à chaque difficulté sociale une mesure de police — et à chaque fois un peu moins de juges."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "contre",
+     "arguments": [
+      "Le groupe s'oppose à une tendance : traiter des problèmes réels — protoxyde d'azote, tirs de mortier, conflictualité — par un « choc d'autorité ».",
+      "La grande loi promise sur les troubles à l'ordre public n'est pas celle qui est présentée."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Une rave-party n'est pas une fête comme les autres : nuisances sonores pendant des jours, urgences engorgées, terres agricoles saccagées.",
+      "Le cadre législatif contre le protoxyde d'azote n'est pas assez protecteur."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "contre",
+     "arguments": [
+      "Le texte s'éloigne des principes du droit et n'offre que des solutions de facilité.",
+      "Le nom sonne bien, mais la déception est grande au regard des enjeux et de l'efficacité annoncée."
+     ]
+    },
+    {
+     "sigle": "NI",
+     "position": "pour",
+     "arguments": [
+      "Le texte répond à une attente simple, entendue partout : pouvoir vivre tranquillement.",
+      "La sécurité du quotidien est le sentiment concret que la règle existe encore et que l'autorité peut intervenir."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "L'ambition est de donner des outils supplémentaires face à des délinquances qui évoluent : rodéos motorisés, narcotrafic, criminalité organisée."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "3 199 usages détournés d'artifice ont été recensés depuis janvier 2025, et 34 policiers blessés par ces tirs.",
+      "La gendarmerie a mené 1 200 interventions sur des rave-parties en 2025, et le protoxyde d'azote figure dans 1 362 dossiers judiciaires."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Le nombre de rodéos motorisés a augmenté de 142 % entre 2019 et 2024.",
+      "Le groupe salue préfets, forces de sécurité, magistrats, greffiers et agents pénitentiaires."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "Rodéos motorisés, mortiers d'artifice contre les forces de l'ordre, protoxyde d'azote, free parties qui dévastent des terrains : le constat devrait être partagé."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "Il faudrait effectivement lutter fermement contre la délinquance du quotidien.",
+      "Le groupe doute d'un gouvernement qui choisit un acronyme radical sans nommer les choses."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "La sécurité est la première des libertés.",
+      "Tous les gouvernements qui se sont succédé ces dernières années ont échoué à l'assurer."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N54085": {
+   "vote": {
+    "date": "2026-07-20",
+    "sort": "adopté",
+    "objet": "l'ensemble du projet de loi d'urgence pour la protection et la souveraineté agricoles (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "Le texte répond aux demandes du président de la FNSEA, et non aux urgences de la majorité des agriculteurs."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "contre",
+     "arguments": [
+      "Le monde agricole est traversé par des divisions et des fractures de plus en plus profondes.",
+      "Une décennie de politiques libérales imposées au secteur a précédé ce texte."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "contre",
+     "arguments": [
+      "Le diagnostic est partagé : la crise agricole est structurelle, pas conjoncturelle.",
+      "Le texte ne s'adresse qu'à une minorité — 6 % d'irrigants, 3 % d'éleveurs concernés — et laisse la majorité sur le bord du chemin."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "abstention",
+     "arguments": [
+      "Après deux crises agricoles majeures, la situation économique et sociale des agriculteurs reste explosive.",
+      "Le texte comporte des progrès utiles sur la simplification, le contrôle et la restauration collective."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "contre",
+     "arguments": [
+      "Troisième texte agricole en trois ans, celui-ci est le fruit de l'échec des précédents.",
+      "Il n'apporte que des réponses superficielles à des questions de fond."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "Les agriculteurs disent leur épuisement face à l'accumulation des crises et leur inquiétude pour leurs exploitations.",
+      "L'urgence est de préserver la souveraineté agricole tout en garantissant des conditions de vie dignes."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Garantir la capacité de la France à se nourrir elle-même relève de la souveraineté nationale.",
+      "Le secteur subit de fortes pressions : crises sanitaires, aléas climatiques, recomposition mondiale."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Le groupe annonce qu'il soutiendra le texte pour en faire un texte utile.",
+      "L'article 1er s'inscrit dans le sillage de la loi d'orientation pour la souveraineté alimentaire."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "L'agriculture traverse une crise économique, de compétitivité, de transmission et de cohérence publique.",
+      "On impose toujours plus de normes aux agriculteurs tout en acceptant des produits importés qui ne respectent pas les mêmes standards.",
+      "La balance agricole se dégrade un peu plus chaque année."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "Les titres des textes agricoles ne trompent plus personne : celui-ci est le énième, et les résultats des précédents sont difficiles à citer.",
+      "Les débats sur la loi Duplomb ont montré que la machine bureaucratique sabordait les bonnes initiatives."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "L'accord entre l'Union européenne et le Mercosur place les producteurs dans une vulnérabilité inédite.",
+      "Les revenus agricoles ne permettent plus aux jeunes exploitants d'acquérir un foncier devenu inaccessible.",
+      "Un groupe agroalimentaire émirien a perçu 70 millions d'euros d'aides de la PAC entre 2019 et 2024."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N52985": {
+   "vote": {
+    "date": "2026-05-05",
+    "sort": "adopté",
+    "objet": "l'ensemble du projet de loi relatif à la lutte contre les fraudes sociales et fiscales (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "La fraude sociale est estimée à 13 milliards d'euros, la fraude fiscale à 100 milliards — près de dix fois plus.",
+      "80 % des dispositions du projet initial ciblaient pourtant la fraude sociale."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "contre",
+     "arguments": [
+      "Le texte arrive du Sénat totalement déséquilibré, surchargé de dispositions sur la fraude sociale.",
+      "Certaines sont redondantes, possiblement attentatoires aux droits fondamentaux, et ne rapporteront pas grand-chose.",
+      "Le soupçon pèse sur ceux qui peuvent le moins frauder, et épargne ceux qui peuvent le plus."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "contre",
+     "arguments": [
+      "Personne ne conteste la nécessité de lutter contre la fraude, qui mine la confiance dans l'impôt et la solidarité.",
+      "La question est de savoir de quelle fraude on parle : celle des montages complexes, sociétés écrans et filiales offshore, ou une autre."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Quand certains se soustraient à leurs obligations, ce sont les autres qui en supportent le poids.",
+      "Renforcer les contrôles et les sanctions est légitime, à condition d'équilibrer fraude sociale et fraude fiscale."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "contre",
+     "arguments": [
+      "L'intitulé est inadapté : le texte contrôle les ménages les plus précaires et laisse les plus riches tranquilles.",
+      "Lutter contre la fraude reste une exigence républicaine : elle affaiblit le consentement à l'impôt."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "La fraude aux finances publiques est estimée à 14 milliards pour le social et entre 60 et 100 milliards pour le fiscal.",
+      "Les détournements de prestations et de cotisations représentent à eux seuls près de la moitié du déficit attendu de la sécurité sociale."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Le volet fiscal complète la loi du 30 juin 2025 contre toutes les fraudes aux aides publiques.",
+      "Il s'agit d'appréhender la fraude dans toutes ses dimensions, sans stigmatiser mais sans naïveté."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "La fraude sociale représentait 14 milliards d'euros de préjudice en 2024, plus 3,5 milliards d'erreurs déclaratives.",
+      "Seuls 2,9 milliards ont été détectés et moins de 1,2 milliard recouvré : 7 centimes récupérés par euro fraudé."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "La fraude prive les services publics de moyens essentiels et alimente un profond sentiment d'injustice.",
+      "Au moins 13 milliards pour la fraude sociale, plusieurs dizaines de milliards pour la fiscale, dont une petite fraction seulement est recouvrée."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "20 milliards d'euros de fraude à la TVA, 7 milliards liés au travail au noir, près de 1 milliard sur la carte Vitale.",
+      "Le total dépasse 120 milliards par an, soit dix réacteurs nucléaires ou vingt hôpitaux."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "Sur 14 milliards d'euros de fraude sociale, les organismes en détectent moins de 3 milliards, à peine un cinquième.",
+      "Avec la fraude fiscale, plus de 100 milliards s'évaporeraient chaque année, près du double du budget de la défense."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N53530": {
+   "vote": {
+    "date": "2026-06-17",
+    "sort": "adopté",
+    "objet": "l'ensemble de la proposition de loi visant à relancer les investissements dans le secteur de l'hydroélectricité pour contribuer à la transition énergétique (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "La Commission européenne cherche depuis plus de dix ans à mettre fin au service public des barrages hydroélectriques.",
+      "L'Assemblée s'était prononcée à l'unanimité contre la directive : c'est cette bataille qu'il faudrait mener."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "pour",
+     "arguments": [
+      "Le texte solde le contentieux sur la mise en concurrence des concessions, ouvert depuis la libéralisation des marchés de l'électricité en 1996.",
+      "L'enjeu est la souveraineté énergétique et l'équilibre du mix électrique."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "abstention",
+     "arguments": [
+      "L'hydroélectricité représente en moyenne 14 % de la production électrique du pays.",
+      "Le secteur est bloqué depuis dix ans faute de choix politiques assumés, et non à cause de l'Europe.",
+      "La voie de la quasi-régie garantissait la propriété publique des barrages et un tarif réglementé fondé sur les coûts."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Le texte met fin à une incertitude juridique qui freinait l'investissement dans un parc produisant près de 15 % de l'électricité française.",
+      "Cette clarification permet de moderniser les installations et d'améliorer leur productivité."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "pour",
+     "arguments": [
+      "Le texte poursuit deux objectifs : conserver la propriété publique et française des installations, et préserver les exploitants historiques, EDF au premier rang.",
+      "L'opposition à la mise en concurrence fait aujourd'hui l'unanimité, ce qui n'a pas toujours été le cas."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "L'hydroélectricité représente entre 12 et 14 % de la production annuelle d'électricité, deuxième source derrière le nucléaire.",
+      "Elle a la qualité rare d'être pilotable : mobilisable rapidement pour répondre aux pics de consommation."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "La France a produit de l'ordre de 540 térawattheures en 2024, avec un mix électrique décarboné à 95 %.",
+      "L'hydroélectricité est la première des énergies renouvelables de ce mix."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Première source d'électricité renouvelable et deuxième source de production, elle est décarbonée, pilotable et ancrée dans les territoires.",
+      "Immédiatement disponible, elle absorbe les variations de la demande et sécurise l'approvisionnement lors des tensions."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "La production d'énergie est la première brique de la souveraineté : sans énergie, pas de déplacements, pas de production, pas de croissance.",
+      "L'hydroélectricité permet de stocker des capacités de production, ce qui en fait un outil de pilotage du réseau."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "Le texte met fin à un immobilisme dont le coût devient chaque année plus visible.",
+      "Les barrages sont un patrimoine national, financé et entretenu par la nation au fil des ans."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "abstention",
+     "arguments": [
+      "Depuis plus d'un siècle, la nation a investi dans des barrages qui sont des piliers de souveraineté et d'aménagement du territoire.",
+      "Ils ont apporté à des territoires entiers l'autosuffisance électrique, la maîtrise de l'eau et un développement économique durable."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   }
  }
 }
