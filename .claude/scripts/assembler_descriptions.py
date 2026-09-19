@@ -33,6 +33,16 @@ parole publiées, et **refuse un nom qu'il n'y trouve pas** au moins trois fois
 rédaction propose, la source tranche : c'est la même règle que pour les
 positions de vote des résumés de débats.
 
+**Ce contrôle a une limite, et elle est grande : il prouve que le mot a été
+prononcé, pas qu'il nomme CE texte.** Un débat cite les lois d'avant. Mesuré le
+2026-09-19 sur les 172 textes qui ont des débats publiés : 26 candidats du type
+« loi X » prononcés au moins trois fois, dont **3 seulement** nomment le texte
+en discussion — « Ripost », « Duplomb » et « Ddadue ». Les 23 autres sont des
+lois citées : « la loi PLM a été imaginée par Gaston Defferre », « la loi
+Letchimy, que nous connaissons depuis 2018 en outre-mer », « la loi Aper de
+2023 ». Seule la phrase qui entoure le mot tranche, et c'est à la rédaction de
+la lire.
+
 **Les lots s'ajoutent à ce qui existe déjà**, ils ne le remplacent pas. Une
 entrée réécrite écrase la sienne, les autres restent. Sans cela, ajouter un
 contexte à dix textes effacerait les quatre-vingt-dix-sept autres.

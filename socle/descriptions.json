@@ -1,11 +1,12 @@
 {
- "_lisezmoi": "La description d'un texte, telle qu'elle s'affiche en haut de sa fiche : une accroche d'une phrase, puis une puce par mesure concrète. C'est la SEULE donnée du projet qui ne vienne pas d'une source publique, et la seule exception à la règle « rien n'est écrit par une IA » — d'où le champ `origine`, affiché à l'écran. Voir docs/CE-QUE-L-ON-ECRIT.md. Une entrée peut être écrite par une personne : mettre alors `origine` à « humain ». `modele` nomme le modèle qui a écrit, quand on le connaît ; il reste vide sinon, et la fiche se tait alors plutôt que d'annoncer un vide. Un texte absent de ce fichier n'affiche aucune description, plutôt qu'un cadre vide. Régénérer : .claude/scripts/faits_pour_descriptions.py puis .claude/scripts/assembler_descriptions.py.",
+ "_lisezmoi": "La description d'un texte, telle qu'elle s'affiche en haut de sa fiche : un contexte d'un paragraphe au plus, une accroche d'une phrase, puis une puce par mesure concrète — et le nom d'usage du texte quand il en a un. `nomUsage.citations` dit combien de fois ce nom est prononcé dans les débats publiés ; il est compté par assembler_descriptions.py, jamais écrit par la rédaction, et un nom introuvable est refusé. C'est la PREMIÈRE des deux rubriques écrites par une IA — l'autre étant le résumé des débats — et l'une des deux seules données du projet qui ne viennent pas d'une source publique. D'où le champ `origine`, affiché à l'écran. L'exception est décidée dans docs/CE-QUE-L-ON-ECRIT.md. Une entrée peut être écrite par une personne : mettre alors `origine` à « humain ». `modele` nomme le modèle qui a écrit, quand on le connaît ; il reste vide sinon, et la fiche se tait alors plutôt que d'annoncer un vide. Un texte absent de ce fichier n'affiche aucune description, plutôt qu'un cadre vide. Régénérer : .claude/scripts/faits_pour_descriptions.py puis .claude/scripts/assembler_descriptions.py.",
  "_origines": {
   "ia": "écrite par une intelligence artificielle",
   "humain": "écrite par une personne"
  },
  "descriptions": {
   "DLR5L17N50168": {
+   "contexte": "La redevance télé a été supprimée en 2022 et remplacée par une part de TVA, un arrangement que la loi organique sur les lois de finances n'autorisait pas durablement. Sans ce texte, l'audiovisuel public n'avait plus de recette affectée sur laquelle compter.",
    "accroche": "Autorise le versement direct d'un montant déterminé d'impôt aux organismes publics de radio et de télévision, seule mesure inscrite dans cette loi organique.",
    "points": [
     "Un montant déterminé d'une imposition, quelle qu'elle soit, peut être affecté directement aux organismes du secteur public de la radio et de la télévision",
@@ -13,9 +14,11 @@
     "Une seule phrase est ajoutée, applicable à compter du 15 décembre 2024"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50579": {
+   "contexte": "Dans les communes de moins de 1 000 habitants, on votait pour des personnes et non pour des listes : on pouvait se présenter seul, rayer des noms, et les règles de parité ne s'y appliquaient pas. Sept communes sur dix sont dans ce cas, et 345 d'entre elles n'avaient pas de conseil municipal complet en 2020.",
    "accroche": "Un critère fondé sur le mode de scrutin de la commune laisse la place à un seuil de population, et une formalité imposée aux candidats européens disparaît.",
    "points": [
     "Là où la règle visait les communes selon leur mode de scrutin, elle vise maintenant celles de « 1 000 habitants et plus »",
@@ -24,9 +27,11 @@
     "Tout cela ne s'applique qu'à partir du premier renouvellement général des conseils municipaux suivant la promulgation"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50715": {
+   "contexte": "Les aides à la rénovation énergétique, les certificats d'économie d'énergie et le compte personnel de formation étaient devenus des cibles : démarchage téléphonique, travaux jamais faits, aides encaissées. Les corps d'inspection de l'État, eux, se voyaient opposer le secret professionnel quand ils enquêtaient.",
    "accroche": "Le label exigé pour faire financer des travaux de rénovation énergétique peut être suspendu six mois, et les paiements du compte formation gelés en cas de soupçon de fraude.",
    "points": [
     "L'administration peut suspendre six mois, renouvelables une fois, le label sans lequel une entreprise ne peut faire financer des travaux d'économies d'énergie",
@@ -37,9 +42,11 @@
     "Les inspections générales des finances et de l'administration accèdent aux documents couverts par un secret protégé par la loi lorsqu'ils sont nécessaires à leurs missions"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50838": {
+   "contexte": "Une loi de finances de fin de gestion ferme les comptes de l'année en cours : en décembre, elle corrige les recettes et les dépenses votées un an plus tôt. Pour 2024, l'écart est considérable — 25 milliards d'euros de recettes fiscales en moins que prévu.",
    "accroche": "Ajuste en fin d'année les crédits de l'État pour 2024 : ouvertures et annulations sur le budget général, les budgets annexes et les comptes spéciaux, prévisions de recettes révisées.",
    "points": [
     "Sur le budget général, 10 620 540 612 € d'engagements et 11 504 356 813 € de paiements sont ouverts en plus pour 2024",
@@ -50,9 +57,11 @@
     "Les prévisions de déficit, de dette et de dépense publique pour 2024 sont réactualisées"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51039": {
+   "contexte": "À Mayotte, et nulle part ailleurs en France, un enfant né de parents étrangers n'accède à la nationalité française que si l'un de ses parents réside régulièrement sur l'île depuis plus de trois mois. Le texte est discuté quatre mois après le cyclone Chido, dans un département où près de la moitié de la population est étrangère.",
    "accroche": "À Mayotte, la durée de séjour régulier exigée des parents passe de trois mois à un an, et les deux parents doivent maintenant la remplir, non plus un seul.",
    "points": [
     "La durée de présence régulière exigée passe de trois mois à un an",
@@ -61,9 +70,11 @@
     "Quand la filiation n'est établie qu'à l'égard d'un seul parent, la condition ne concerne que ce parent"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51173": {
+   "contexte": "En Polynésie française, les communes ne peuvent intervenir dans les huit matières que leur reconnaît le statut d'autonomie qu'une fois que la Polynésie a pris une « loi du pays » pour les encadrer. Faute de ces textes, leur action restait bloquée : quarante-sept communes sur quarante-huit demandaient d'en sortir.",
    "accroche": "Les communes de Polynésie française n'attendent plus un texte de la collectivité pour agir dans huit domaines : leur conseil municipal en décide lui-même par délibération.",
    "points": [
     "Le conseil municipal, ou l'intercommunalité compétente, détermine par délibération les actions qu'il entend mener dans les huit matières énumérées et la façon de les conduire",
@@ -73,9 +84,11 @@
     "Les moyens mis à la disposition des communes étaient précisés par une « loi du pays » ; ils le sont maintenant par une convention"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51346": {
+   "contexte": "Les médecins, infirmiers, pharmaciens, psychologues et vétérinaires qui exercent dans les services d'incendie et de secours n'avaient pas de cadre légal : rien ne disait ce qu'ils avaient le droit de faire, ni auprès de qui. Ils interviennent pourtant aux côtés de 255 000 sapeurs-pompiers, souvent là où les médecins manquent.",
    "accroche": "Inscrit dans la loi les missions des médecins, pharmaciens, infirmiers, psychologues et vétérinaires de sapeurs-pompiers, que le code ne définissait pas jusque-là.",
    "points": [
     "Les médecins de sapeurs-pompiers assurent les secours d'urgence, les soins et la médecine d'aptitude des pompiers, l'expertise, l'enseignement et la recherche",
@@ -86,9 +99,11 @@
     "Ces règles valent aussi pour les personnels de santé civils de la brigade de sapeurs-pompiers de Paris et du bataillon de marins-pompiers de Marseille"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51434": {
+   "contexte": "La fraude aux virements, chèques et prélèvements coûte environ 1,2 milliard d'euros par an, un montant stable depuis 2021 mais qui se déplace : en 2023, le chèque est l'instrument le plus fraudé, avec 364 millions d'euros. Les banques n'avaient aucun fichier commun pour repérer les comptes qui servent à encaisser ces fraudes.",
    "accroche": "Un fichier national des comptes soupçonnés de fraude, tenu par la Banque de France, est créé, et les banques doivent lui signaler les chèques falsifiés qu'elles rejettent.",
    "points": [
     "Les établissements de paiement déclarent dans un fichier national, géré par la Banque de France, les comptes qu'ils estiment susceptibles d'être frauduleux et ce qui caractérise la fraude",
@@ -99,21 +114,27 @@
     "Le fichier n'entre en vigueur que six mois après la promulgation, soit le 6 mai 2026"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51599": {
+   "contexte": "Les deux conventions ont été signées à Panama le 11 juillet 2023. En France, un traité signé ne s'applique pas tant que le Parlement n'a pas autorisé son approbation : c'est le seul objet de cette loi, qui n'a donné lieu à aucune prise de parole publiée en séance.",
    "accroche": "Autorise l'approbation de deux accords signés avec le Panama le 11 juillet 2023 : l'un sur l'entraide judiciaire en matière pénale, l'autre sur l'extradition.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51789": {
+   "contexte": "La France entretient à Djibouti une base militaire majeure — 1 500 militaires, 4 000 ressortissants — au carrefour des routes maritimes de la mer Rouge. Le traité signé à Paris le 24 juillet 2024 prend la suite du précédent, au moment où la France réduit ses implantations ailleurs sur le continent africain.",
    "accroche": "Autorise la ratification du traité de coopération en matière de défense signé avec Djibouti à Paris le 24 juillet 2024, dont le texte est annexé à la loi.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51984": {
+   "contexte": "Mayotte n'avait pas la procédure qui permet à une collectivité d'outre-mer de demander l'autorisation d'adapter chez elle une loi nationale. Le texte crée une collectivité unique — le Département-Région — et lui recopie le régime déjà écrit pour la Guyane. Aucune prise de parole n'a été publiée sur ce texte.",
    "accroche": "L'assemblée de Mayotte peut demander à adapter sur place une loi ou un règlement, selon une procédure écrite pour la première fois : délibération motivée, publication, contrôle du Conseil d'État.",
    "points": [
     "L'assemblée demande cette autorisation par délibération motivée, en exposant les contraintes particulières qui la justifient et le but des mesures envisagées",
@@ -124,9 +145,11 @@
     "L'entrée en vigueur est fixée par décret et, au plus tard, au 1er janvier 2026 ; trois articles attendent le prochain renouvellement des conseils départementaux"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52040": {
+   "contexte": "Reculer l'âge de la retraite allonge la période où l'on n'est plus en emploi sans être encore à la retraite : entre 55 et 61 ans, 21 % des travailleurs ne sont ni l'un ni l'autre, surtout des ouvriers et des employés. Les partenaires sociaux ont négocié un accord sur le sujet ; ce texte le transpose dans la loi.",
    "accroche": "Un contrat à durée indéterminée réservé aux demandeurs d'emploi d'au moins soixante ans est ouvert pour cinq ans à titre d'essai, avec négociation obligatoire sur les fins de carrière.",
    "points": [
     "Toute entreprise peut embaucher par ce contrat une personne d'au moins soixante ans inscrite comme demandeur d'emploi, cinquante-sept ans si un accord de branche le prévoit",
@@ -137,9 +160,11 @@
     "Ces règles sur l'instance nationale entrent en vigueur le 1er janvier 2026, certaines seulement le 1er janvier 2027 ou le 1er janvier 2028"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52230": {
+   "contexte": "Depuis la loi du 15 juin 2000, les parlementaires peuvent visiter à tout moment les prisons, les centres de rétention ou les locaux de garde à vue — mais pas les geôles et les dépôts des tribunaux, restés hors de la liste. Les bâtonniers, eux, n'avaient ce droit nulle part.",
    "accroche": "Députés et sénateurs peuvent visiter tout lieu où une personne est privée de liberté, et non plus une liste fermée d'établissements ; les chefs de barreau rejoignent les visiteurs.",
    "points": [
     "La liste des lieux visitables — garde à vue, retenue douanière, rétention administrative, zone d'attente, prison, centre éducatif fermé — cède la place à tout lieu de privation de liberté",
@@ -149,9 +174,11 @@
     "Les conditions d'application de ces accompagnements sont renvoyées à un décret en Conseil d'État"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52635": {
+   "contexte": "Les collections publiques françaises sont inaliénables, et la France était l'un des derniers pays d'Europe sans loi-cadre permettant de rendre un bien culturel à l'État qui en a été privé. Des objets venus d'Afrique, d'Asie, d'Amérique latine et d'Océanie sont conservés au musée du quai Branly ou au musée Guimet.",
    "accroche": "Une œuvre d'une collection publique, que la loi interdit normalement de céder, peut être rendue à l'État qui en a été privé illicitement et devient sa propriété.",
    "points": [
     "Seul peut être rendu un objet provenant du territoire actuel de l'État demandeur et pris entre le 20 novembre 1815 et le 23 avril 1972",
@@ -162,9 +189,11 @@
     "Chaque année, le Gouvernement remet au Parlement un rapport sur les demandes reçues, celles qui n'ont pas abouti et les restitutions intervenues"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53135": {
+   "contexte": "Une loi de finances de fin de gestion corrige, en décembre, le budget voté un an plus tôt. Pour 2025, les recettes fiscales rentrent mieux que prévu — 3,7 milliards d'euros de plus — et le déficit public se tient sous 5,4 % du produit intérieur brut, après une hausse des prélèvements obligatoires de 0,8 point.",
    "accroche": "Ajuste en fin d'année les crédits de l'État pour 2025 : ouvertures et annulations sur le budget général, les budgets annexes et les comptes spéciaux, prévisions de recettes révisées.",
    "points": [
     "Sur le budget général, 3 040 479 860 € d'engagements et 3 192 704 413 € de paiements sont ouverts en plus pour 2025",
@@ -175,9 +204,11 @@
     "Les prévisions de déficit, de dette et de dépense publique pour 2025 sont réactualisées"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53315": {
+   "contexte": "En 2024, les retards de paiement ont privé les entreprises de 15 milliards d'euros de trésorerie, dont 4 milliards pour les seules microentreprises, et 64 % des entreprises déclaraient en subir. Un simple retard augmente de 25 % le risque de défaillance.",
    "accroche": "Une facture entre commerçants non contestée dans le mois permet d'obtenir, sans passer devant un juge, un titre pour en réclamer le paiement forcé.",
    "points": [
     "Pour une facture entre commerçants, certaine et exigible, le créancier peut demander à un commissaire de justice d'engager une procédure simplifiée",
@@ -188,9 +219,11 @@
     "Les frais sont à la charge du débiteur, et les factures entre commerçants sortent de la procédure simplifiée qui existait déjà"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53690": {
+   "contexte": "Depuis 1990, un candidat soumis au plafonnement des dépenses doit faire présenter son compte de campagne par un expert-comptable. Ces honoraires étaient remboursés avec le reste des dépenses ; une jurisprudence administrative récente a rendu ce remboursement incertain, laissant le candidat payer de sa poche une dépense pourtant obligatoire.",
    "accroche": "Les honoraires de l'expert-comptable liés au compte de campagne d'un candidat entrent dans les dépenses que l'État rembourse forfaitairement.",
    "points": [
     "Ces frais sont inscrits dans le compte de campagne et deviennent éligibles au remboursement forfaitaire versé par l'État",
@@ -198,9 +231,11 @@
     "Elle apprécie cet excès au regard des prestations réellement accomplies, des justificatifs produits et des difficultés que présentait le compte"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53980": {
+   "contexte": "Depuis janvier 2025, la police a recensé 3 199 usages détournés d'artifices — 34 policiers blessés —, la gendarmerie 1 200 interventions liées à des rave-parties, et le protoxyde d'azote est apparu dans 1 362 dossiers judiciaires. Le texte répond par 250 articles ; le Conseil constitutionnel en a censuré une partie le 14 août 2026.",
    "accroche": "Données de circulation exploitées par le renseignement, caméras pour les agents de sécurité privée et les trains, contrôles d'identité près des frontières : plusieurs dispositifs sont ouverts à l'essai.",
    "points": [
     "Pendant trois ans, la police et la gendarmerie peuvent exploiter les données déjà collectées sur les véhicules pour détecter des déplacements révélant un vol ou un trafic organisé",
@@ -210,10 +245,16 @@
     "Pour traquer les trafics organisés, toute personne peut être contrôlée à toute heure, quel que soit son comportement, dans les quarante kilomètres bordant les frontières et le littoral",
     "Une partie du texte a été déclarée contraire à la Constitution, et le Gouvernement peut légiférer seul, par ordonnance, sur l'alcool et les stupéfiants dans les transports"
    ],
+   "nomUsage": {
+    "nom": "Ripost",
+    "citations": 41
+   },
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50169": {
+   "contexte": "Aucun parquet national n'était chargé de la criminalité organisée, et les policiers, gendarmes et surveillants qui enquêtent sur ces réseaux donnaient leur identité dans la procédure. Le texte compte 346 articles ; le Conseil constitutionnel en a censuré une partie le 12 juin 2025.",
    "accroche": "Des indicateurs peuvent être autorisés à infiltrer des réseaux criminels, policiers et surveillants de prison à témoigner sous un numéro, et des drones à survoler les prisons.",
    "points": [
     "Un informateur majeur peut infiltrer un réseau pour trois mois au plus, renouvelables trois fois, sans être puni pour les délits inscrits dans sa convention",
@@ -224,9 +265,11 @@
     "Deux dispositions ont été déclarées contraires à la Constitution, et la compétence des juridictions parisiennes pour les affaires les plus complexes ne s'applique qu'au 5 janvier 2026"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50588": {
+   "contexte": "La sécurité sociale aborde 2025 avec 263,7 milliards d'euros de dette et un déficit prévu de 18,1 milliards pour 2024. Ce budget est le premier de la législature : la commission des affaires sociales en a rejeté à l'unanimité les recettes puis les dépenses, et il n'a été promulgué qu'en février 2025, après 84 étapes.",
    "accroche": "Un déficit de 22,1 milliards d'euros est prévu pour 2025, le calcul des retraites agricoles change et la contribution des laboratoires sur les génériques est abaissée.",
    "points": [
     "L'annexe chiffrée prévoit un solde des comptes de la sécurité sociale de - 22,1 milliards d'euros en 2025",
@@ -237,9 +280,11 @@
     "Le Gouvernement est autorisé à modifier par ordonnance certaines réductions de cotisations, et plusieurs mesures n'entrent en vigueur qu'au 1er janvier 2026"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50724": {
+   "contexte": "Les universités avaient une mission chargée de l'égalité entre les femmes et les hommes, mais aucun dispositif pour signaler un fait d'antisémitisme, et chaque établissement jugeait lui-même ses propres étudiants en discipline.",
    "accroche": "Chaque université met en place une mission « égalité et diversité », un référent contre l'antisémitisme et un dispositif de signalement garantissant l'anonymat des victimes et des témoins.",
    "points": [
     "Au sein de cette mission, un référent qualifié s'occupe exclusivement de prévenir, détecter et traiter les faits d'antisémitisme et de racisme",
@@ -250,9 +295,11 @@
     "Le Gouvernement transmet chaque année au Parlement le nombre de signalements, la nature des faits et les suites qui leur ont été données"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50882": {
+   "contexte": "Le tambour parleur Djidji Ayôkwê a été confisqué par l'administration coloniale en 1916 et se trouve en France depuis 1929. Les collections publiques étant inaliénables, chaque restitution demande sa propre loi : une l'avait déjà fait en 2021 pour vingt-six œuvres rendues au Bénin et une au Sénégal.",
    "accroche": "Le tambour parleur dit Djidji Ayokwè quitte les collections nationales françaises et doit être transféré à la République de Côte d'Ivoire dans l'année qui suit l'entrée en vigueur.",
    "points": [
     "Le principe qui interdit de céder les objets des collections publiques françaises est écarté pour ce seul objet",
@@ -261,9 +308,11 @@
     "Une annexe désigne l'objet par son numéro d'inventaire au musée : un tambour « parleur » de la communauté Atchan"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51052": {
+   "contexte": "Les personnes détenues votent depuis 1994, et le vote par correspondance, ouvert en 2019, a fait passer la participation carcérale de 2 % à la présidentielle de 2017 à 22 % aux européennes de 2024. Neuf votants détenus sur dix le choisissent — mais il n'était pas prévu pour les élections municipales.",
    "accroche": "Les personnes détenues votent par correspondance sous pli fermé, remis au bureau de vote le jour du scrutin, à partir du prochain renouvellement des conseils municipaux.",
    "points": [
     "Les plis sont remis au président du bureau de vote le jour du scrutin et jusqu'à la fermeture du bureau",
@@ -273,9 +322,11 @@
     "Rien ne change avant le premier renouvellement général des conseils municipaux qui suit la publication"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51175": {
+   "contexte": "Entre 2023 et 2025, plus d'un département sur deux a été inondé : le Pas-de-Calais, la Gironde, puis en février plus de soixante-dix départements placés le même jour en vigilance crue. Les maires cherchaient qui pouvait agir, et les petites communes n'ont pas les ingénieurs pour monter un programme de prévention.",
    "accroche": "Les collectivités peuvent faire labelliser par l'État leur programme de travaux contre les inondations, prêter des agents aux communes sinistrées et alléger certaines consultations du public.",
    "points": [
     "Une commune ou un groupement peut soumettre à l'État un programme d'actions contre les inondations en vue de sa labellisation, avec des délais d'instruction maximaux fixés par arrêté",
@@ -286,9 +337,11 @@
     "Dans un délai de deux ans, le Gouvernement doit remettre au Parlement un rapport sur la simplification de ces programmes"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51349": {
+   "contexte": "Le code pénal définissait une agression sexuelle par ce que l'agresseur avait fait — violence, contrainte, menace ou surprise — et non par l'absence de consentement de la victime. Les enquêtes portaient donc sur la conduite de celle-ci : avoir crié, s'être débattue, n'avoir pas varié dans ses déclarations.",
    "accroche": "Une agression sexuelle se définit maintenant par l'absence de consentement, et non plus par la violence, la contrainte, la menace ou la surprise employées.",
    "points": [
     "L'infraction visait toute atteinte sexuelle commise avec violence, contrainte, menace ou surprise ; elle vise tout acte sexuel non consenti, commis sur autrui ou sur l'auteur",
@@ -298,9 +351,11 @@
     "Les actes bucco-anaux s'ajoutent aux actes qui constituent un viol"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51457": {
+   "contexte": "Les collectivités emploient 1,9 million d'agents. Leur couverture complémentaire — celle qui prend le relais quand un arrêt de travail se prolonge — dépend de conventions conclues collectivité par collectivité, et l'assureur pouvait écarter les suites d'une maladie déjà déclarée.",
    "accroche": "Adhérer au contrat collectif couvrant l'arrêt de travail, l'invalidité, l'inaptitude et le décès devient obligatoire pour les agents des collectivités, l'employeur en payant la moitié.",
    "points": [
     "La participation de l'employeur passe de 20 % d'un montant de référence fixé par décret à la moitié de la cotisation ouvrant droit aux garanties minimales",
@@ -311,9 +366,11 @@
     "Les collectivités sans convention en cours n'appliquent ces règles qu'au 1er janvier 2029, les autres au terme de leur convention"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51670": {
+   "contexte": "Le débat sur l'aide à mourir dure depuis 2022 : un premier examen a été interrompu par la dissolution de l'Assemblée en 2024, et le texte est revenu six fois devant les députés — 124 étapes en tout. Une autre loi, sur l'accès aux soins palliatifs, a été promulguée le 26 mai 2026.",
    "accroche": "Une personne peut demander une aide à mourir à un médecin, qui décide après un examen collégial ; l'administration de la substance létale suit une procédure encadrée.",
    "points": [
     "La demande est présentée à un médecin qui n'est ni un parent, ni un conjoint, ni un ayant droit, et jamais lors d'une téléconsultation",
@@ -324,9 +381,11 @@
     "Le Gouvernement pourra étendre ces règles par ordonnance, en un an, à la Nouvelle-Calédonie, à la Polynésie française et à Wallis-et-Futuna"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51791": {
+   "contexte": "Le contrat de professionnalisation, créé en 2003, mène à une certification professionnelle. Une loi de 2018 a ouvert, à titre d'essai, la possibilité de l'utiliser pour acquérir seulement des compétences définies par l'employeur, sans certification au bout. Cet essai devait prendre fin.",
    "accroche": "Ce que peut viser un contrat de professionnalisation s'élargit à un ou plusieurs blocs de compétences d'une certification professionnelle, dans des conditions qu'un décret doit fixer.",
    "points": [
     "Aux objectifs que peut poursuivre ce contrat s'ajoutent un ou plusieurs blocs de compétences d'une certification professionnelle",
@@ -335,9 +394,11 @@
     "Le coût éventuel pour l'État est gagé par une taxe additionnelle sur les tabacs"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51985": {
+   "contexte": "Le cyclone Chido a frappé Mayotte le 14 décembre 2024 — la catastrophe naturelle la plus importante de l'histoire récente du pays, dit le rapport annexé à la loi — suivi le 12 janvier 2025 par la tempête Dikeledi. Beaucoup de règles en vigueur dans l'Hexagone, à commencer par celles de la sécurité sociale, ne s'appliquaient pas encore à Mayotte.",
    "accroche": "Après le cyclone de décembre 2024 et la tempête de janvier 2025, des investissements sont programmés à Mayotte jusqu'en 2031 et les pouvoirs de police y sont élargis.",
    "points": [
     "Le préfet peut ordonner l'évacuation puis la démolition d'un habitat informel dangereux, avec un délai d'au moins quinze jours et une proposition de relogement annexée",
@@ -348,21 +409,27 @@
     "Le Gouvernement est autorisé à étendre par ordonnance, en un an, la sécurité sociale de l'hexagone, sauf l'aide médicale de l'État"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52099": {
+   "contexte": "La résolution a été adoptée par le Conseil des gouverneurs du Fonds africain de développement à Charm el-Cheikh le 23 mai 2023. En France, un accord international ne s'applique pas tant que le Parlement n'a pas autorisé son approbation : c'est le seul objet de cette loi, qui n'a donné lieu à aucune prise de parole publiée.",
    "accroche": "L'approbation d'amendements à l'accord ayant créé le Fonds africain de développement, adoptés à Charm el-Cheikh le 23 mai 2023, est autorisée par le Parlement.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52354": {
+   "contexte": "L'accord a été signé à Paris le 12 juillet 2024, sous la forme d'un échange de notes verbales. En France, un accord international ne s'applique pas tant que le Parlement n'a pas autorisé son approbation : c'est le seul objet de cette loi, qui n'a donné lieu à aucune prise de parole publiée.",
    "accroche": "L'approbation d'un accord franco-moldave sur l'échange des permis de conduire, conclu par notes verbales signées à Paris le 12 juillet 2024, est autorisée par le Parlement.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52655": {
+   "contexte": "Les élections provinciales de Nouvelle-Calédonie devaient avoir lieu en 2024. Une première loi les a reportées au 30 novembre 2025 ; entre-temps, le projet de dégel du corps électoral a déclenché des violences qui ont fait quinze morts. Un accord a été signé le 12 juillet 2025, et ce texte repousse le scrutin au 28 juin 2026 au plus tard.",
    "accroche": "Le renouvellement du congrès et des assemblées de province de Nouvelle-Calédonie, attendu au plus tard fin novembre 2025, est repoussé au 28 juin 2026 au plus tard.",
    "points": [
     "Les élections devaient se tenir au plus tard le 30 novembre 2025 ; elles auront lieu au plus tard le 28 juin 2026",
@@ -372,9 +439,11 @@
     "Le report s'applique dès le lendemain de la publication au Journal officiel"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53187": {
+   "contexte": "Le téléphone était déjà interdit dans les écoles élémentaires et les collèges, mais pas dans les lycées, et aucune règle n'imposait d'âge minimum pour s'inscrire sur un réseau social. Le Conseil constitutionnel a censuré l'article 1er du texte le 14 août 2026.",
    "accroche": "L'interdiction du téléphone portable à l'école s'étend aux lycées, et chaque projet d'établissement doit traiter des écrans et du caractère addictif des réseaux sociaux.",
    "points": [
     "L'interdiction couvrait les écoles élémentaires et les collèges ; elle couvre aussi les lycées, dans toute l'enceinte de l'établissement",
@@ -384,9 +453,11 @@
     "Une partie de la loi a été déclarée contraire à la Constitution, et les règles scolaires s'appliquent à la rentrée 2026-2027"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53357": {
+   "contexte": "Une loi de 2023 a fait des communes les autorités organisatrices de l'accueil du jeune enfant, mais l'État ne compensait la dépense qu'aux communes de plus de 3 500 habitants. Faute de place, 139 000 mères de jeunes enfants sont en inactivité ou à temps partiel, et 61 % des parents disent craindre de n'en trouver aucune.",
    "accroche": "La compensation financière de l'accueil du jeune enfant ira aussi aux intercommunalités et aux syndicats mixtes qui exercent l'ensemble de ces compétences, à partir de 2027.",
    "points": [
     "La compensation visait l'exercice obligatoire de ces compétences ; le mot « obligatoire » disparaît des deux textes modifiés",
@@ -395,21 +466,27 @@
     "Le changement entre en vigueur le 1er janvier 2027, le coût pour l'État étant gagé par une taxe additionnelle sur les tabacs"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53730": {
+   "contexte": "La ligne ferroviaire qui relie Coni à Vintimille passe par le territoire français : son entretien et son exploitation demandent donc un accord entre les deux États. La convention a été signée à Milan le 12 avril 2024, et cette loi ne fait qu'en autoriser l'approbation.",
    "accroche": "L'approbation d'une convention franco-italienne sur l'entretien courant et l'exploitation de la partie française de la ligne ferroviaire Coni-Breil-Vintimille, signée à Milan le 12 avril 2024, est autorisée.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53981": {
+   "contexte": "Les ruptures conventionnelles se sont multipliées depuis 2008 : 500 000 par an, près d'une entrée sur cinq à l'assurance chômage, et 42 % d'entre elles dans des entreprises de moins de dix salariés. Les partenaires sociaux ont signé un avenant le 25 février 2026 ; ce texte le transpose dans la loi.",
    "accroche": "Transpose dans le droit du travail l'avenant du 25 février 2026 à l'accord conclu en 2023 par les partenaires sociaux sur l'assurance chômage.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50198": {
+   "contexte": "Le budget de l'État pour 2025 compte 1 202 articles et n'a été promulgué que le 14 février 2025, après 121 étapes — six semaines après le début de l'année qu'il finance. Aucune prise de parole n'a été publiée sur ce texte.",
    "accroche": "Les entreprises réalisant au moins un milliard d'euros de chiffre d'affaires paient une contribution exceptionnelle sur leurs bénéfices, et le rachat de leurs propres actions devient taxé.",
    "points": [
     "Une contribution exceptionnelle frappe les bénéfices des entreprises dont le chiffre d'affaires atteint un milliard d'euros, au titre du premier exercice clos à compter du 31 décembre 2025",
@@ -419,9 +496,11 @@
     "À partir du 1er janvier 2027, la taxe sur la valeur ajoutée se déclare chaque trimestre sous 1 000 000 € de chiffre d'affaires l'année précédente, chaque mois au-delà"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50636": {
+   "contexte": "L'épandage aérien de pesticides est interdit en France depuis le Grenelle de l'environnement. Les règles d'alors visaient les hélicoptères et les avions : les drones n'étaient pas encore utilisés en agriculture, et rien ne les distinguait des uns et des autres.",
    "accroche": "Traiter des cultures en pulvérisant depuis un appareil volant sans pilote à bord peut désormais être autorisé sur les terrains en forte pente, les bananeraies et certaines vignes.",
    "points": [
     "Ces épandages peuvent être autorisés sur les parcelles agricoles dont la pente atteint 20 %, sur les bananeraies et sur les vignes mères de porte-greffes conduites au sol",
@@ -431,15 +510,19 @@
     "Une seconde voie, dérogatoire, ouvre les mêmes épandages à d'autres parcelles et d'autres cultures, sous des conditions propres à ce régime"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50794": {
+   "contexte": "L'accord d'adhésion de la France à l'Observatoire du réseau d'antennes d'un kilomètre carré a été signé à Londres le 11 avril 2022. Un accord international ne s'applique pas tant que le Parlement n'a pas autorisé son approbation : c'est le seul objet de cette loi, promulguée près de quatre ans après la signature, sans aucune prise de parole publiée.",
    "accroche": "Approuver l'accord d'adhésion de la France à l'Observatoire du réseau d'antennes d'un kilomètre carré, signé à Londres le 11 avril 2022, est autorisé.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50915": {
+   "contexte": "Les élections aux chambres d'agriculture se tenaient en janvier 2025, et plusieurs mandats devaient être ajustés avant : ceux des délégués de la mutualité sociale agricole élus en 2020, ceux de la chambre de Mayotte. Le texte a été promulgué quelques jours après le scrutin.",
    "accroche": "Les listes candidates aux élections de la sécurité sociale agricole devront alterner un candidat de chaque sexe, et une dette de cotisations ne barre plus toute candidature.",
    "points": [
     "Être à jour de toutes ses cotisations n'est plus exigé pour être éligible ; seules bloquent les sommes dépassant un montant de référence, réclamées depuis six mois au moins",
@@ -449,9 +532,11 @@
     "L'alternance femme-homme sur les listes ne s'applique qu'à partir du 1er janvier 2030"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51078": {
+   "contexte": "Le trafic de stupéfiants a fait 110 morts et 341 blessés en France en 2024. La loi qui accompagne celle-ci crée un parquet national anti-criminalité organisée ; seule une loi organique peut fixer le statut du magistrat qui le dirige, comme il en avait fallu une pour le procureur financier.",
    "accroche": "Un procureur chargé de la criminalité organisée entre, à côté du procureur financier, dans le texte qui fixe le statut des magistrats et leurs postes.",
    "points": [
     "Le statut des magistrats ne visait à Paris que le procureur financier ; il désigne aussi, désormais, un procureur de la République chargé de la lutte contre la criminalité organisée",
@@ -459,9 +544,11 @@
     "Ces dispositions n'entrent en vigueur que le 5 janvier 2026, et non à la publication de la loi"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51222": {
+   "contexte": "Deux mois après le cyclone Chido, aggravé par la tempête Dikeledi, Mayotte rouvrait à peine ses écoles — trente des soixante-quinze classes du lycée Bamana restaient inutilisables — et des droits sociaux allaient expirer faute de pouvoir être renouvelés.",
    "accroche": "Après le cyclone Chido, reconstruire à Mayotte échappe aux règles ordinaires d'urbanisme, le paiement des cotisations sociales est suspendu et les prestations sociales sont maintenues sans démarche.",
    "points": [
     "Par dérogation aux règles d'urbanisme, refaire à l'identique un bâtiment détruit ne demande qu'une déclaration en mairie, dont copie part au préfet",
@@ -472,9 +559,11 @@
     "Le Gouvernement est autorisé à légiférer par ordonnance dans les trois mois pour transformer l'établissement public foncier local en organisme chargé de coordonner la reconstruction"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51351": {
+   "contexte": "Entre 1870 et 1975, 11 660 personnes ont été condamnées en France pour avoir pratiqué un avortement ou y avoir eu recours. La loi du 17 janvier 1975 a dépénalisé l'IVG, sans que l'État reconnaisse jamais le préjudice causé par ces condamnations.",
    "accroche": "La Nation reconnaît que la répression de l'avortement, avant 1975, a porté atteinte à la santé et aux droits des femmes, causé des décès et des souffrances.",
    "points": [
     "Sont reconnues les atteintes à la santé des femmes, à leur autonomie sexuelle et reproductive, à l'égalité entre femmes et hommes et au respect de la vie privée",
@@ -484,9 +573,11 @@
     "Un décret doit fixer son fonctionnement, ses attributions et les conditions dans lesquelles les personnes concernées peuvent être entendues"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51485": {
+   "contexte": "Il reste deux centrales à charbon en France, à Saint-Avold et à Cordemais, qui pèsent à elles deux près de 30 % des émissions de CO2 du secteur électrique. EDF avait annoncé en septembre la fermeture sèche de Cordemais, et une centrale convertie à un autre combustible n'entrait dans aucune case du code de l'énergie.",
    "accroche": "Une centrale à charbon convertie à un combustible moins émetteur compte comme une installation neuve, et remporter l'appel d'offres lui vaut l'autorisation d'exploiter.",
    "points": [
     "Sont visées les centrales au charbon, à la tourbe ou au schiste bitumineux qui émettent plus de 550 grammes de CO2 par kilowattheure et passent sous ce seuil",
@@ -496,9 +587,11 @@
     "L'entrée en vigueur des deux premières règles, renvoyée à un décret, est intervenue le 14 mars 2026"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51672": {
+   "contexte": "La loi du 2 février 2016 avait créé la sédation profonde et continue, sans programmer les moyens derrière. Ce texte fixe une stratégie nationale de l'accompagnement et des soins palliatifs et ses crédits jusqu'en 2034. Il a cheminé en parallèle du texte sur l'aide à mourir, promulgué trois mois plus tard.",
    "accroche": "Un plan d'accompagnement écrit est proposé à toute personne à qui l'on annonce une maladie grave, et une stratégie nationale pluriannuelle des soins palliatifs est instituée.",
    "points": [
     "Après l'annonce d'une maladie grave, l'aggravation d'une maladie chronique ou une perte d'autonomie qui débute, le médecin propose d'établir un plan personnalisé d'accompagnement",
@@ -509,9 +602,11 @@
     "Le Gouvernement doit remettre dans les six mois des rapports sur le financement des soins palliatifs et sur le congé de solidarité familiale, et peut légiférer par ordonnance pour l'outre-mer"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51845": {
+   "contexte": "Entre 1962 et 1984, 2 015 enfants réunionnais ont été transplantés dans l'Hexagone pour repeupler des départements frappés par l'exode rural. Une commission d'information et de recherche historique avait établi les faits et dressé la liste nominative des personnes concernées, sans qu'aucune réparation suive.",
    "accroche": "Les enfants réunionnais déplacés vers la France hexagonale entre 1962 et 1984, ou leurs descendants, peuvent obtenir une allocation forfaitaire versée par un fonds de l'État.",
    "points": [
     "Peuvent demander réparation les personnes inscrites sur la liste nominative établie par la commission d'histoire, ou leurs descendants si elles sont décédées",
@@ -521,9 +616,11 @@
     "La réparation n'entre en vigueur qu'à une date fixée par décret, au plus tard le 1er janvier 2029, et les demandes pourront être déposées pendant au moins trois ans"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51986": {
+   "contexte": "À Wallis-et-Futuna, l'État avait délégué l'enseignement du premier degré à la mission catholique, un arrangement vieux de cinquante ans, dont la dernière convention couvrait 2020-2025. Les enseignants, qui n'étaient donc pas fonctionnaires d'État, ont fait grève deux mois et demi au printemps 2023 pour être traités comme leurs homologues de l'Hexagone.",
    "accroche": "Les enseignants du primaire relevant de la mission catholique à Wallis-et-Futuna pourront être intégrés dans la fonction publique de l'État, par une ordonnance du Gouvernement.",
    "points": [
     "Le Gouvernement est autorisé à légiférer par ordonnance dans les trois mois suivant la promulgation pour fixer les conditions de cette intégration",
@@ -533,9 +630,11 @@
     "Un projet de loi ratifiant l'ordonnance doit être déposé au Parlement dans les six mois suivant sa publication"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52100": {
+   "contexte": "Les Jeux olympiques d'hiver de 2030 se tiendront dans les Alpes françaises du 1er au 17 février, suivis des Paralympiques du 1er au 10 mars. Comme pour Paris 2024, les accueillir demande une loi à part : voies réservées, affichage, soins des délégations, sécurité — 100 articles en tout.",
    "accroche": "Pour les Jeux d'hiver de 2030, le ministre de l'intérieur pourra interdire à une personne de paraître sur les sites, et la publicité y échappera aux règles ordinaires.",
    "points": [
     "Une interdiction de paraître peut viser une personne dont le comportement représente une menace d'une particulière gravité, pour la durée de l'événement et deux mois au plus",
@@ -546,9 +645,11 @@
     "Ces facilités sont bornées : l'affichage jusqu'au quinzième jour suivant la clôture des jeux Paralympiques, l'exercice des soignants étrangers au plus tard jusqu'au 30 juin 2030"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52428": {
+   "contexte": "Le budget de l'État pour 2026 compte 1 085 articles et a demandé 204 étapes avant d'être promulgué le 19 février 2026 — le deuxième budget de suite adopté après le début de l'année qu'il finance.",
    "accroche": "Créer une activité dans un quartier prioritaire exonère d'impôt sur les bénéfices pendant cinquante-neuf mois, et une taxe sur les carburants disparaît la veille de son application.",
    "points": [
     "Une activité commerciale, artisanale ou de santé créée ou reprise dans un quartier prioritaire entre le 1er janvier 2026 et le 31 décembre 2030 échappe à l'impôt sur ses bénéfices",
@@ -559,9 +660,11 @@
     "Acheter entre 2029 et 2032 un logement du Fort des Têtes, à Briançon, ouvre une réduction d'impôt plafonnée à 400 000 euros, à condition de le garder quinze ans"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52746": {
+   "contexte": "L'État possède l'un des plus grands parcs immobiliers d'Europe, mais sa gestion est dispersée : bâtiments énergivores, entretien insuffisant, coûts qui montent. Un rapport parlementaire d'évaluation avait dressé ce constat ; le texte vise à réduire d'un quart les surfaces occupées.",
    "accroche": "L'agence qui gère l'immobilier de l'État, jusqu'ici société anonyme, devient un établissement public auquel des bâtiments publics sont transférés gratuitement en pleine propriété.",
    "points": [
     "La société anonyme Agence de gestion de l'immobilier de l'État se transforme en établissement public industriel et commercial, dirigé d'abord par un préfigurateur nommé par décret",
@@ -572,9 +675,11 @@
     "Plusieurs de ces règles ne s'appliqueront qu'à la date de transformation effective de la société en établissement public"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53192": {
+   "contexte": "Avant le Brexit, un diplôme de médecine délivré au Royaume-Uni était reconnu en France comme un diplôme européen. Depuis le 1er janvier 2021, il ne l'est plus : ceux qui avaient commencé leurs études dans le cadre européen doivent passer par des démarches longues et incertaines pour exercer en France.",
    "accroche": "Un médecin titulaire d'un diplôme britannique peut exercer en France s'il a commencé ses études avant le 31 décembre 2020, date de sortie du Royaume-Uni de l'Union européenne.",
    "points": [
     "Le Royaume-Uni rejoint la liste des pays dont les titres de formation ouvrent l'exercice de la médecine en France",
@@ -583,9 +688,11 @@
     "La voie d'autorisation individuelle déjà ouverte à d'autres diplômés européens s'étend aux diplômés britanniques, sous la même condition de date"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53386": {
+   "contexte": "Faute de budget adopté avant le 31 décembre, l'État perd le droit de lever l'impôt et d'emprunter. La loi organique prévoit alors une « loi spéciale » qui l'y autorise en attendant. C'est la deuxième année de suite qu'il faut y recourir : le budget pour 2026 avait été rejeté et la commission mixte paritaire avait échoué.",
    "accroche": "Jusqu'à l'entrée en vigueur du budget pour 2026, la perception des impôts reste autorisée et le ministre des finances peut emprunter au nom de l'État.",
    "points": [
     "La perception des ressources de l'État et des impôts affectés à d'autres organismes que lui reste autorisée, conformément aux lois et règlements en vigueur",
@@ -594,15 +701,19 @@
     "Ces trois autorisations cessent dès l'entrée en vigueur de la loi de finances pour 2026"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53844": {
+   "contexte": "L'accord a été signé à Bruxelles le 25 juin 2024 entre l'Union européenne, ses États membres et la République kirghize. Un accord auquel les États membres sont parties doit être approuvé par chacun d'eux : en France, le Parlement en autorise l'approbation, et c'est le seul objet de cette loi.",
    "accroche": "Approuver l'accord de partenariat et de coopération renforcé entre l'Union européenne, ses États membres et la République kirghize, signé à Bruxelles le 25 juin 2024, est autorisé.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N54006": {
+   "contexte": "La loi Montagne de 1985 reste le texte de référence. Depuis, les glaciers ont perdu 70 % de leur volume, dont 10 à 20 % depuis 1980, les classes ferment et les services de santé s'éloignent — sans qu'aucune règle n'impose de délai d'accès à une maternité ou à un service d'urgence en zone de montagne.",
    "accroche": "En zone de montagne, garantir l'accès à une pharmacie, aux urgences et à une maternité en un temps raisonnable devient un objectif du plan santé de chaque région.",
    "points": [
     "L'expérimentation limitée à trois ans qui poursuivait déjà cet objectif disparaît, remplacée par une obligation permanente élargie à la pharmacie et à l'urgence psychiatrique",
@@ -613,9 +724,11 @@
     "Abris de bergers, cabanes pastorales et bâtiments de stockage agricole deviennent constructibles ; une ruine relevée ne peut servir qu'au pastoralisme ou à la randonnée, sans activité commerciale"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50444": {
+   "contexte": "Aucun délai ne s'imposait à la maison départementale des personnes handicapées pour décider de l'allocation d'éducation de l'enfant handicapé, ni pour délivrer la carte de stationnement. Les familles attendaient la réponse en même temps qu'elles organisaient les soins.",
    "accroche": "Ouvre le remboursement de séances d'ergothérapie, de psychomotricité et de diététique pour certains enfants malades, autorise les hôpitaux à héberger leurs parents et accélère, à l'essai, une allocation.",
    "points": [
     "Les séances chez un ergothérapeute, un psychomotricien ou un diététicien sont remboursées pour les enfants atteints de certaines affections, sur prescription et sans dépassement d'honoraires",
@@ -626,9 +739,11 @@
     "En garde alternée, les parents désignent qui touche l'allocation journalière et les deux peuvent y avoir droit sous conditions, à partir du 12 décembre 2027"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50689": {
+   "contexte": "La protection contre la discrimination et le licenciement ne visait que les salariées engagées dans une procédure médicale de procréation. Les autres personnes en projet parental — conjoints, candidats à l'adoption — en restaient dehors, et rien ne permettait de s'absenter pour les entretiens obligatoires de l'agrément.",
    "accroche": "Étend aux hommes et aux candidats à l'adoption des protections au travail jusque-là réservées aux femmes engagées dans une procédure médicale de procréation.",
    "points": [
     "La protection ne visait que les salariées engagées dans une procédure médicale de procréation ; elle vise désormais tous les salariés en projet parental, adoption comprise",
@@ -636,9 +751,11 @@
     "Les droits liés à la parentalité des agents publics mentionnent expressément ces autorisations d'absence, qui n'y figuraient pas"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50796": {
+   "contexte": "Chaque année ou presque, un texte « Ddadue » met le droit français en conformité avec les directives européennes adoptées entre-temps : finance, énergie, transport, santé, circulation des personnes. Celui-ci recourt largement aux ordonnances, ce que plusieurs groupes lui ont reproché.",
    "accroche": "Transpose plusieurs textes européens : action collective en justice élargie, rénovation obligatoire des bâtiments publics, accès élargi aux propriétaires réels des sociétés et mise en gage des cryptoactifs.",
    "points": [
     "Une action collective peut être engagée pour faire cesser un manquement ou réparer un préjudice de toute nature, par des associations agréées justifiant de douze mois d'activité effective",
@@ -648,16 +765,24 @@
     "Deux séries d'obligations imposant aux fabricants et importateurs de dispositifs médicaux de signaler à l'agence du médicament l'arrêt de la vente d'un produit sont supprimées",
     "Le Gouvernement est autorisé à écrire seul, par ordonnance et dans les neuf mois, les règles sur le crédit à la consommation et les services financiers vendus à distance"
    ],
+   "nomUsage": {
+    "nom": "Ddadue",
+    "citations": 23
+   },
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50946": {
+   "contexte": "Le traité a été signé à Barcelone le 19 janvier 2023. L'Espagne est la sixième armée de l'Union européenne, avec 136 000 militaires, et le premier pays à avoir accueilli dans l'un de ses ports un sous-marin nucléaire d'attaque français. Un traité signé ne s'applique qu'une fois sa ratification autorisée par le Parlement.",
    "accroche": "Autorise la ratification du traité de coopération en matière de défense signé avec l'Espagne à Barcelone le 19 janvier 2023, dont le texte est annexé à la loi.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51079": {
+   "contexte": "Le gouvernement a été censuré en décembre 2024, avant que le budget pour 2025 ne soit adopté. C'est la deuxième fois seulement sous la Ve République que le Parlement doit voter une « loi spéciale » pour autoriser l'État à lever l'impôt et à emprunter en attendant un budget.",
    "accroche": "Autorise l'État à continuer de percevoir l'impôt et à emprunter tant que le budget pour 2025 n'est pas entré en vigueur.",
    "points": [
     "La perception des impôts de l'État et de ceux affectés à d'autres organismes reste autorisée, conformément aux lois et règlements en vigueur",
@@ -667,21 +792,27 @@
     "Chacune de ces autorisations cesse dès l'entrée en vigueur du budget pour 2025"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51237": {
+   "contexte": "La résolution n° 259, adoptée le 18 mai 2023, étend le champ d'action géographique de la Banque européenne pour la reconstruction et le développement à l'Afrique subsaharienne et à l'Irak. Modifier l'accord qui a créé la Banque demande celui de chaque État membre, et en France celui du Parlement : c'est le seul objet de cette loi.",
    "accroche": "Autorise l'approbation d'une résolution du 18 mai 2023 étendant progressivement le champ d'action de la Banque européenne pour la reconstruction et le développement à l'Afrique subsaharienne et à l'Irak.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51352": {
+   "contexte": "Trois conventions-cadres organisent depuis 1958, 1960 et 1965 les contrôles frontaliers communs avec l'Allemagne, la Suisse et l'Espagne — un bureau où les deux administrations se tiennent côte à côte. Elles n'avaient jamais été ratifiées par le Parlement : la loi le fait, avec effet à leur date de signature.",
    "accroche": "Autorise la ratification de six conventions-cadres conclues avec l'Allemagne, la Belgique, l'Espagne, l'Italie, le Luxembourg et la Suisse sur les bureaux de contrôle frontaliers communs et les gares d'échange.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51504": {
+   "contexte": "Les règles de 2020 encadrant les promotions sur les produits alimentaires arrivaient à expiration. Dans le même temps, 18 % des ménages d'agriculteurs vivent sous le seuil de pauvreté et un éleveur bovin sur quatre ne vit pas dignement de son travail.",
    "accroche": "Plafonne les promotions sur les produits non alimentaires de grande consommation et remplace une amende forfaitaire par une sanction proportionnelle au chiffre d'affaires de l'entreprise.",
    "points": [
     "Les réductions accordées au consommateur sur un produit de grande consommation non alimentaire, cumulées, ne peuvent dépasser 40 % du prix de vente",
@@ -692,15 +823,19 @@
     "Le Gouvernement doit remettre au Parlement un rapport sur les marges réelles des distributeurs par catégorie de produits et leur évolution sur dix ans"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51729": {
+   "contexte": "L'accord-cadre signé à New York le 16 janvier 2025, complété par un échange de lettres le 14 mars, fixe une fois pour toutes les privilèges et immunités applicables aux réunions des Nations unies tenues en France. Le Parlement en autorise l'approbation : c'est le seul objet de cette loi.",
    "accroche": "Autorise l'approbation de l'accord-cadre signé avec les Nations unies le 16 janvier 2025 sur les privilèges et immunités applicables aux réunions de l'ONU tenues en France.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51852": {
+   "contexte": "Avec 295 000 autorisations d'urbanisme délivrées en 2024, la construction est à l'arrêt, et monter un dossier suppose de traverser un droit devenu très dense. Le Conseil constitutionnel a censuré une partie du texte le 20 novembre 2025.",
    "accroche": "Permet de fusionner en un seul document deux plans d'urbanisme locaux, autorise des logements temporaires près des chantiers nucléaires et confie au préfet l'aménagement du secteur de La Défense.",
    "points": [
     "Une intercommunalité dont le territoire coïncide avec celui d'un schéma de cohérence territoriale peut n'adopter qu'un seul document d'urbanisme, qui vaut schéma et plan local",
@@ -711,27 +846,35 @@
     "Le Conseil constitutionnel a censuré plusieurs dispositions, dont un article entier ; d'autres n'entrent en vigueur que six mois après la promulgation"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52000": {
+   "contexte": "La convention a été signée à Paris le 15 mars 2021, complétée par un avenant signé à Paramaribo le 2 juin 2023. En France, un accord international ne s'applique pas tant que le Parlement n'en a pas autorisé l'approbation : c'est le seul objet de cette loi, qui n'a donné lieu à aucune prise de parole publiée.",
    "accroche": "Autorise l'approbation de la convention d'entraide judiciaire en matière pénale signée avec le Suriname le 15 mars 2021, complétée par un avenant signé le 2 juin 2023.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52103": {
+   "contexte": "La convention d'entraide judiciaire entre la France et le Brésil date du 28 mai 1996. L'avenant a été signé à Brasilia le 28 mars 2024 ; un accord international ne s'applique pas tant que le Parlement n'en a pas autorisé l'approbation, et c'est le seul objet de cette loi.",
    "accroche": "Autorise l'approbation de l'avenant signé le 28 mars 2024 à la convention d'entraide judiciaire en matière pénale conclue avec le Brésil le 28 mai 1996.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52429": {
+   "contexte": "Au Myanmar, que la France appelle encore la Birmanie, la justice est contrôlée par la junte au pouvoir. Les Nations unies ont mis en place un mécanisme d'enquête indépendant pour rassembler les preuves des crimes commis contre les populations civiles ; la convention signée à Genève le 12 juin 2024 permet à la France de coopérer avec lui.",
    "accroche": "Autorise l'approbation de la convention de coopération judiciaire signée le 12 juin 2024 avec les Nations unies, représentées par leur mécanisme d'enquête indépendant pour le Myanmar.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52781": {
+   "contexte": "Un enfant placé n'avait d'avocat que si le juge estimait que son intérêt l'exigeait, et seulement s'il était jugé capable de discernement. Il se retrouvait donc seul, parfois à dix ans, dans un bureau où des adultes qu'il ne connaissait pas décidaient de son avenir.",
    "accroche": "Dès janvier 2027, tout enfant suivi par le juge des enfants au titre de sa protection sera assisté d'un avocat entièrement payé par l'État.",
    "points": [
     "L'avocat n'était demandé que si l'intérêt de l'enfant l'exigeait et si l'enfant était jugé capable de comprendre ; il est désormais désigné pour tout mineur, sans cette condition",
@@ -740,15 +883,19 @@
     "Cette règle n'entre en vigueur que le 6 janvier 2027"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53235": {
+   "contexte": "La Communauté des Caraïbes, née en 1973, compte quinze États membres et ouvre ses portes aux collectivités françaises d'Amérique comme membres associés : la Martinique a signé son accord d'adhésion le 20 février 2025. Encore faut-il que la France reconnaisse à l'organisation des privilèges et immunités sur son territoire.",
    "accroche": "Autorise l'approbation de l'accord signé le 20 février 2025 par lequel la France adhère au protocole du 14 janvier 1985 sur les privilèges et immunités de la Communauté des Caraïbes.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53426": {
+   "contexte": "Les maladies du cœur et des vaisseaux tuent 140 000 personnes par an en France — plus d'un décès sur cinq — et l'accident vasculaire cérébral est la première cause de handicap acquis chez l'adulte. La France dépense 186 euros par habitant en prévention, contre près de 460 en Allemagne.",
    "accroche": "Impose à l'État une stratégie nationale contre les maladies du cœur et des vaisseaux, un dépistage des enfants après six ans et un dépistage proposé au travail.",
    "points": [
     "L'État arrête une stratégie pluriannuelle définissant les priorités de prévention, de dépistage et d'organisation des soins, afin de réduire les écarts sociaux et territoriaux",
@@ -759,15 +906,19 @@
     "Le Gouvernement doit remettre sous trois ans un rapport chiffrant le coût de ces actions et les économies attendues"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53848": {
+   "contexte": "Le tracé de la frontière qui sépare, sur une même île, Saint-Martin (France) de Sint Maarten (Royaume des Pays-Bas) n'avait jamais été fixé par un accord. Il l'a été à Belle Plaine, Belvédère, le 26 mai 2023 ; le Parlement en autorise l'approbation, sans qu'aucune prise de parole ait été publiée.",
    "accroche": "Autorise l'approbation de l'accord signé le 26 mai 2023 avec les Pays-Bas, qui délimite la frontière entre Saint-Martin, côté français, et Sint Maarten, côté néerlandais.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N54083": {
+   "contexte": "La loi de programmation militaire pour 2024-2030 a été adoptée en 2023 et est entrée en vigueur en 2024. Deux ans plus tard, elle est rouverte : sa révision, entamée en 2025, augmente de plus de 10 % les crédits votés.",
    "accroche": "Valide 36 milliards d'euros supplémentaires pour les armées sur 2026-2030, encadre les publications des agents du renseignement et permet d'imposer des stocks stratégiques aux entreprises essentielles.",
    "points": [
     "L'effort de réarmement se répartit en quatorze domaines, dont la dissuasion, les munitions, les drones, la défense antiaérienne, l'espace et le combat naval",
@@ -778,9 +929,11 @@
     "Le Gouvernement doit rendre au Parlement, au plus tard le 1er janvier 2029, un rapport sur l'emploi de ces mesures contre les ingérences étrangères et le crime organisé"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50450": {
+   "contexte": "Les élections provinciales de Nouvelle-Calédonie devaient se tenir au printemps 2024. Une première loi les avait reportées au 15 décembre, le temps d'une révision constitutionnelle sur le dégel du corps électoral ; celle-ci a déclenché une crise, et 10 000 emplois privés — un salarié sur six — ont été perdus depuis mars 2024.",
    "accroche": "Le scrutin qui devait désigner les élus du congrès et des assemblées de province de Nouvelle-Calédonie avant le 15 décembre 2024 est reporté au 30 novembre 2025 au plus tard.",
    "points": [
     "Les mandats en cours des élus du congrès et des assemblées de province ne prennent fin que le jour de la première réunion des assemblées nouvellement élues",
@@ -789,9 +942,11 @@
     "Le report s'applique dès le lendemain de la publication au Journal officiel"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50690": {
+   "contexte": "Depuis l'ordonnance du 2 février 1945, un mineur n'est pas jugé comme un adulte : c'est le principe que le code de la justice pénale des mineurs a repris. Le Conseil constitutionnel a censuré l'article 4 du texte le 19 juin 2025.",
    "accroche": "Un adolescent d'au moins treize ans peut être assigné à résidence sous bracelet électronique, et un parent condamné peut être appelé à rembourser l'assureur de la victime.",
    "points": [
     "L'assignation à résidence sous surveillance électronique devient possible dès treize ans, pour des faits terroristes punis d'au moins cinq ans ou commis en bande organisée punis d'au moins dix ans",
@@ -802,9 +957,11 @@
     "Trois articles ont été déclarés contraires à la Constitution, et deux mesures n'entrent en vigueur qu'à une date fixée par décret, au plus tard six mois après la promulgation"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50819": {
+   "contexte": "Au printemps 2024, la colère agricole a mis en avant une réglementation jugée plus exigeante en France qu'ailleurs en Europe. L'Assemblée avait voté le 11 mai 2023 une résolution contre ces « surtranspositions », sans suite. Le texte vient du Sénat et porte le nom de son auteur.",
    "accroche": "Les entreprises qui utilisent des pesticides n'ont plus à justifier d'un conseil sur cet usage tous les trois ans ; un conseil stratégique global, plus large, est créé.",
    "points": [
     "Supprimée, l'obligation de se faire délivrer un conseil écrit sur l'usage des pesticides au moins tous les trois ans, exigée pour renouveler le certificat de l'exploitant",
@@ -814,16 +971,24 @@
     "Les inspecteurs de l'environnement et les gardes du littoral peuvent filmer leurs interventions avec une caméra portée ; les images sont effacées au bout de trente jours",
     "Un article a été déclaré contraire à la Constitution, et le Gouvernement doit remettre chaque année, avant le 1er octobre, un rapport sur l'assurance des prairies"
    ],
+   "nomUsage": {
+    "nom": "Duplomb",
+    "citations": 11
+   },
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50957": {
+   "contexte": "L'accord créant le Centre de développement des capacités cyber dans les Balkans occidentaux a été fait à Tirana le 16 octobre 2023. Participer à une organisation internationale demande l'autorisation du Parlement : c'est le seul objet de cette loi, qui n'a donné lieu à aucune prise de parole publiée.",
    "accroche": "Autorise la France à approuver l'accord créant le Centre de développement des capacités cyber dans les Balkans occidentaux, conclu à Tirana le 16 octobre 2023.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51115": {
+   "contexte": "Outre-mer, les loyers dépassent régulièrement ceux de l'Hexagone alors que le revenu médian y est plus bas : certains ménages y consacrent de 50 à 80 % de leur budget. Le déficit est estimé à plus de 110 000 logements, et l'encadrement des loyers ouvert par la loi de 2018 n'y avait pas été mis en place.",
    "accroche": "L'encadrement des loyers peut être expérimenté cinq ans dans les collectivités d'outre-mer, sans qu'aucun supplément de loyer puisse être demandé pour un logement qui n'est pas décent.",
    "points": [
     "L'expérimentation dure cinq ans à compter de la promulgation, et la demande doit être transmise dans les deux ans",
@@ -833,9 +998,11 @@
     "Le Gouvernement remet au Parlement un rapport d'évaluation au plus tard six mois avant la fin de l'expérimentation"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51328": {
+   "contexte": "Une vigne laissée à l'abandon peut porter la flavescence dorée et contaminer celles d'à côté. Les propriétaires sont tenus d'arracher les pieds atteints, mais l'obligation était sanctionnée comme un délit : une procédure lourde, rarement engagée, et donc sans effet dissuasif.",
    "accroche": "Ne pas respecter les mesures ordonnées par l'administration devient une contravention de cinquième classe, et les agents de contrôle peuvent d'abord exiger une mise en conformité.",
    "points": [
     "Nouvelle amende de cinquième classe pour qui ne respecte pas les mesures prises par l'autorité administrative",
@@ -843,21 +1010,27 @@
     "Ne pas obéir à cette injonction dans le délai imparti s'ajoute à la liste des faits punis"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51362": {
+   "contexte": "Le protocole de Londres de 1996 interdit d'exporter des déchets pour les immerger en mer. Un amendement adopté le 30 octobre 2009 ouvre une exception pour le dioxyde de carbone capté puis stocké dans des formations géologiques sous-marines d'autres pays. Seize ans plus tard, la France en autorise la ratification.",
    "accroche": "Autorise la France à ratifier l'amendement adopté le 30 octobre 2009 au protocole international sur la prévention de la pollution des mers par immersion de déchets.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51519": {
+   "contexte": "L'accord organise le passage par Chypre des personnes évacuées du Moyen-Orient en cas de crise. Il a été signé à Paris le 9 septembre 2022 ; le Parlement en autorise l'approbation, seul objet de cette loi, qui n'a donné lieu à aucune prise de parole publiée.",
    "accroche": "Autorise la France à approuver l'accord signé avec Chypre le 9 septembre 2022 sur les évacuations depuis le Moyen-Orient passant par le territoire chypriote en situation de crise.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51732": {
+   "contexte": "Le sport professionnel français, le football en particulier, traverse une crise de gouvernance et de financement. Les fédérations avaient délégué à leurs ligues professionnelles la vente des droits de diffusion sans pouvoir revenir dessus, et les agents sportifs exerçaient sous une simple licence.",
    "accroche": "Diffuser un match sans autorisation devient un délit puni de trois ans de prison et 300 000 euros d'amende ; les supporters obtiennent un comité consulté sur le prix des billets.",
    "points": [
     "Fabriquer, vendre ou installer un appareil ou un logiciel permettant d'accéder à ces diffusions illégales est puni des mêmes peines",
@@ -868,9 +1041,11 @@
     "Du 1er janvier 2027 au 30 juin 2028, la publicité et le parrainage virtuels incrustés dans les retransmissions sont autorisés à l'essai, avec rapport au Parlement avant 2029"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51968": {
+   "contexte": "Un agent public logé grâce à son employeur gardait son logement six mois après avoir quitté son poste, si bien qu'il ne revenait pas à son successeur. Et les terrains publics disponibles ne pouvaient pas toujours accueillir du logement, faute que le plan local d'urbanisme le permette.",
    "accroche": "Un agent public logé par son employeur devait partir six mois après la fin de ses fonctions ; l'employeur a maintenant un an pour demander la résiliation du bail.",
    "points": [
     "Le dispositif ne visait que les fonctionnaires civils et militaires de l'État ; il couvre aussi les salariés d'entreprises assurant un service public de transport, en zone tendue",
@@ -881,9 +1056,11 @@
     "Un terrain public peut désormais être mis à disposition par un bail de très longue durée au lieu d'être vendu avec une décote"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52002": {
+   "contexte": "En Corse, les ports et les aéroports appartiennent à la collectivité mais sont gérés par la chambre de commerce et d'industrie. Les contrats de concession expiraient le 31 décembre 2025 : sans changement de la loi, leur gestion partait à l'appel d'offres international.",
    "accroche": "La chambre de commerce et d'industrie de Corse est remplacée le 1er janvier 2026 par un établissement public de la collectivité de Corse, qui reprend biens et personnel.",
    "points": [
     "Biens, droits et obligations de la chambre sont transférés au nouvel établissement à titre gratuit, sans impôt, droit ni taxe",
@@ -894,9 +1071,11 @@
     "Dans toutes les lois applicables en Corse, la référence aux chambres de commerce et d'industrie devient une référence au nouvel établissement"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52104": {
+   "contexte": "En Nouvelle-Calédonie, seuls les électeurs inscrits sur une liste spéciale votent aux élections provinciales ; selon les partisans du texte, 20 % des Français du territoire en sont écartés. Une tentative de dégel avait déclenché en mai 2024 des violences qui ont fait quinze morts, et la négociation de Bougival a échoué depuis.",
    "accroche": "Les personnes nées en Nouvelle-Calédonie et inscrites sur la liste électorale générale peuvent voter aux élections du congrès et des assemblées de province.",
    "points": [
     "S'ajoute aux conditions existantes le fait d'être né en Nouvelle-Calédonie et d'être inscrit sur la liste électorale générale à la date de l'élection",
@@ -904,15 +1083,19 @@
     "Le texte s'applique dès le lendemain de sa publication au Journal officiel"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52549": {
+   "contexte": "Une convention fiscale évite qu'un même revenu soit imposé dans deux pays. Celle avec la Finlande a été signée à Helsinki le 4 avril 2023, et un avenant à celle avec la Suède à Stockholm le 22 mai 2023. Le Parlement en autorise l'approbation : c'est le seul objet de cette loi.",
    "accroche": "Autorise la France à approuver la convention conclue avec la Finlande contre la double imposition des revenus, ainsi qu'un avenant à la convention équivalente signée avec la Suède.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52922": {
+   "contexte": "La sécurité sociale fête ses 80 ans avec un déficit prévu de 23 milliards d'euros pour 2025. Ce budget-ci est examiné sans groupe majoritaire à l'Assemblée et avec l'engagement du gouvernement de ne pas recourir à l'article 49, alinéa 3, de la Constitution.",
    "accroche": "L'aide qui prenait en charge les cotisations des jeunes médecins s'installant en zone manquant de soignants est supprimée, et la cotisation maladie de certains employeurs baisse.",
    "points": [
     "Supprimée, l'aide couvrant les cotisations sociales des médecins installés dans une zone à l'offre de soins insuffisante dans les trois ans suivant leur diplôme, pendant vingt-quatre mois",
@@ -923,15 +1106,19 @@
     "La nouvelle façon de financer les établissements accueillant des enfants handicapés n'entre en vigueur qu'au 1er janvier 2027, avec une transition d'au plus huit ans"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53259": {
+   "contexte": "L'accord fixe le statut des installations de l'Agence spatiale européenne situées en France. Il a été signé à Paris le 22 mars 2023 ; le Parlement en autorise l'approbation, seul objet de cette loi, qui n'a donné lieu à aucune prise de parole publiée.",
    "accroche": "Autorise la France à approuver l'accord signé le 22 mars 2023 avec l'Agence spatiale européenne au sujet des installations de celle-ci sur le territoire français.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53530": {
+   "contexte": "La Commission européenne exige depuis plus de dix ans que les concessions des barrages hydroélectriques soient mises en concurrence. L'Assemblée avait voté à l'unanimité une résolution demandant la révision de la directive en cause, sans l'obtenir ; le texte organise la sortie du régime de concession.",
    "accroche": "Les concessions hydroélectriques sont résiliées et remplacées par un droit d'exploitation de soixante-dix ans attribué aux exploitants en place, moyennant indemnité et contrepartie financière.",
    "points": [
     "Chaque concessionnaire reçoit pour soixante-dix ans la jouissance des barrages qu'il exploitait, avec le droit d'y construire à ses frais des extensions",
@@ -942,9 +1129,11 @@
     "Un comité local d'information sur les usages de l'eau devient obligatoire au-delà de 500 mégawatts, et ces règles s'appliquent au plus tard le 1er septembre 2026"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53940": {
+   "contexte": "Le texte retouche la justice criminelle sur 72 articles : procédure pénale, justice des mineurs, aide juridictionnelle, place des victimes. Le Conseil constitutionnel en a censuré plusieurs dispositions le 23 juillet 2026, jour de la promulgation. Aucune prise de parole n'a été publiée.",
    "accroche": "La détention provisoire peut être maintenue cinq jours ouvrables quand l'audience n'a pu se tenir, et l'appel devant les assises peut ne porter que sur les peines complémentaires.",
    "points": [
     "Faute d'audience tenue à temps, le premier président de la cour d'appel peut maintenir en détention cinq jours ouvrables, pour un crime ou un délit puni d'au moins cinq ans",
@@ -955,9 +1144,11 @@
     "Plusieurs dispositions ont été déclarées contraires à la Constitution, et d'autres n'entrent en vigueur qu'au 1er janvier 2027 ou six mois après la promulgation"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N54085": {
+   "contexte": "Cent mille exploitations ont disparu en dix ans et la France est passée du deuxième au sixième rang des exportateurs agricoles mondiaux. C'est le quatrième texte agricole en quatre ans, après la loi dite Duplomb de 2025.",
    "accroche": "L'origine des viandes utilisées comme ingrédient dans les plats préemballés devient obligatoire, et attaquer abusivement un projet agricole ou industriel peut coûter des dommages et intérêts.",
    "points": [
     "L'origine doit être indiquée pour le bœuf, le porc, le mouton, la chèvre et la volaille servant d'ingrédient dans une denrée préemballée",
@@ -968,9 +1159,11 @@
     "Le Gouvernement est autorisé à légiférer par ordonnance dans les neuf mois sur la lutte contre les dangers sanitaires et dans les six mois sur les règles applicables aux élevages"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50548": {
+   "contexte": "En 1892, trente-deux Kali'nas et Arawaks de Guyane ont été exhibés au Jardin d'acclimatation de Paris, où près de 400 000 personnes sont venues les voir. Les restes de ceux qui y sont morts sont conservés au Muséum national d'histoire naturelle ; les collections publiques étant inaliénables, les rendre demande une loi.",
    "accroche": "Des squelettes et des moulages d'Amérindiens conservés par le Muséum national d'histoire naturelle cessent d'appartenir aux collections nationales, normalement incessibles, dès leur arrivée dans une commune de Guyane.",
    "points": [
     "Les collections publiques ne peuvent en principe pas être cédées ; il est fait exception à ce principe pour les restes énumérés en annexe",
@@ -978,9 +1171,11 @@
     "Chaque personne est identifiée en annexe par son nom, son âge, la date et le lieu de son décès et le numéro sous lequel le muséum l'avait inventoriée"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50692": {
+   "contexte": "Depuis 1982, Paris, Lyon et Marseille élisent leur conseil municipal autrement que les autres communes : on y vote par arrondissement ou par secteur, et les conseillers de la ville sont issus de ces scrutins séparés. On peut donc y arriver en tête des voix sans l'être en sièges.",
    "accroche": "À Paris, Lyon et Marseille, conseillers de la ville et conseillers d'arrondissement seront élus sur des listes séparées, un même candidat pouvant se présenter sur les deux.",
    "points": [
     "Les sièges d'arrondissement se répartissaient entre les listes une fois attribués les sièges de la ville, dans l'ordre de présentation ; cette règle est supprimée",
@@ -990,9 +1185,11 @@
     "Ces règles ne s'appliqueront qu'au prochain renouvellement général des conseils municipaux ; un rapport sur le transfert de compétences aux mairies d'arrondissement est attendu sous six mois"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N50820": {
+   "contexte": "Depuis la loi du 16 août 2022, un titre-restaurant peut payer des produits alimentaires non directement consommables — farine, pâtes, riz, œufs, viande, poisson. Cette dérogation, déjà prolongée une fois, expirait à la fin de 2024.",
    "accroche": "Payer tout produit alimentaire avec des titres-restaurant restait permis jusqu'à une échéance fixée en 2024 ; cette échéance est repoussée à 2026.",
    "points": [
     "Un seul mot change dans la loi de 2022 qui porte cette autorisation : « 2024 » devient « 2026 »",
@@ -1000,9 +1197,11 @@
     "Le changement inscrit dans la loi de 2022 prend effet le 23 janvier 2025"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51002": {
+   "contexte": "Le code de la santé publique définissait l'infirmier par les soins qu'il donne sur prescription médicale, son « rôle propre » n'étant qu'une exception. La France compte 640 000 infirmiers, première profession de santé, dont les salaires restent sous la moyenne de l'OCDE.",
    "accroche": "Le métier d'infirmier est redéfini : consultation, diagnostic infirmier et prescription remplacent une définition qui le résumait aux soins donnés sur conseil médical ou dans son rôle propre.",
    "points": [
     "L'infirmier pouvait prescrire certains vaccins ; il prescrit désormais les produits de santé et examens nécessaires à son exercice, sur une liste ministérielle revue au moins tous les trois ans",
@@ -1012,9 +1211,11 @@
     "Pendant trois ans et dans cinq départements, l'État peut laisser des infirmiers prendre en charge directement des patients pour des actes hors de leur rôle propre, avec rapport au Parlement"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51161": {
+   "contexte": "Les prépas « talents », créées à titre d'essai par une ordonnance de 2021, aident des étudiants moins favorisés à préparer les concours de la haute fonction publique. L'essai devait s'arrêter fin 2024, et des centaines d'élèves ne savaient plus s'ils pourraient passer leur concours.",
    "accroche": "L'expérimentation d'accès à certaines écoles de service public, dont l'échéance tombait en décembre 2024, est prolongée jusqu'en août 2028 et concerne aussi les militaires.",
    "points": [
     "L'échéance principale passe de « décembre 2024 » à « août 2028 », et une seconde échéance du 30 juin 2024 est reportée au 31 mars 2028",
@@ -1023,9 +1224,11 @@
     "Ces règles valent pour les concours « ouverts à compter du 1er août 2024 », soit avant la promulgation du texte"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51329": {
+   "contexte": "Plus de 600 000 successions s'ouvrent chaque année, et beaucoup finissent en indivision : chaque héritier possède une part, et il faut l'accord de tous pour vendre. Un seul silence suffit à bloquer un bien pendant dix, vingt ou trente ans.",
    "accroche": "Vendre un bien hérité à plusieurs devient possible sans l'accord de tous : le juge peut autoriser un seul héritier à signer seul l'acte de vente.",
    "points": [
     "Un héritier peut être autorisé par le juge à conclure seul la vente d'un bien détenu en commun avec les autres héritiers",
@@ -1036,9 +1239,11 @@
     "Les maires obtiennent de l'administration fiscale, à leur demande, les informations utiles pour reprendre un bien dont le propriétaire est inconnu ou dont on ignore s'il vit encore"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51429": {
+   "contexte": "La durée maximale de rétention administrative, portée de 45 à 90 jours par la loi « asile et immigration », ne permettait pas de retenir plus longtemps un étranger condamné pour des faits graves en attendant son éloignement. Le Conseil constitutionnel a censuré une partie du texte le 7 août 2025.",
    "accroche": "Un étranger retenu en vue de son éloignement peut voir sa rétention prolongée une fois de plus, jusqu'à quatre-vingt-dix jours, et ses empreintes prises sans son accord.",
    "points": [
     "« La prolongation de la rétention peut être renouvelée une fois » ; la durée maximale « n'excède alors pas quatre-vingt-dix jours »",
@@ -1049,9 +1254,11 @@
     "L'entrée en vigueur a été renvoyée à un décret, « au plus tard trois mois » après la promulgation ; le Gouvernement est habilité à adapter le texte outre-mer par ordonnance"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51581": {
+   "contexte": "Plus de 600 ports appartiennent aux collectivités territoriales, et le secteur portuaire pèse environ 15 milliards d'euros et 180 000 emplois directs. Le modèle de la société portuaire, lui, n'était ouvert qu'aux ports transférés par la loi de 2004.",
    "accroche": "Les chambres de commerce et d'industrie peuvent entrer au capital des sociétés créées par les collectivités pour exploiter leurs ports, et une dispense de règles anticorruption disparaît.",
    "points": [
     "Les chambres de commerce du secteur où se trouve le port « peuvent participer au capital de la société portuaire »",
@@ -1059,15 +1266,19 @@
     "La mention limitant le dispositif aux ports visés par la loi de 2004 sur les libertés et responsabilités locales est retirée du texte"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51783": {
+   "contexte": "La convention fiscale entre la France et la Suisse date du 9 septembre 1966. L'avenant a été signé à Paris le 27 juin 2023 ; le Parlement en autorise l'approbation, seul objet de cette loi, qui n'a donné lieu à aucune prise de parole publiée.",
    "accroche": "Approuver l'avenant signé à Paris le 27 juin 2023 à la convention fiscale franco-suisse de 1966, sur les doubles impositions du revenu et de la fortune, est autorisé.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N51973": {
+   "contexte": "Le budget pour 2025 avait abaissé le seuil en dessous duquel un micro-entrepreneur ne facture pas de TVA. La mesure, adoptée sans vote par l'article 49, alinéa 3, avait été suspendue avant d'être appliquée ; ce texte l'abroge.",
    "accroche": "Une mesure fiscale votée en février 2025, qui devait s'appliquer au 1er janvier 2026, est supprimée avant d'avoir jamais pris effet.",
    "points": [
     "La phrase qui repoussait cette mesure au 1er janvier 2026 disparaît, et la mesure elle-même est abrogée",
@@ -1075,9 +1286,11 @@
     "La perte de recettes pour l'État est compensée par une taxe additionnelle sur les tabacs"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52037": {
+   "contexte": "Le capitaine Alfred Dreyfus a été dégradé publiquement le 5 janvier 1895 et condamné au bagne à perpétuité pour un crime qu'il n'avait pas commis. Son innocence établie, l'armée ne l'a réintégré qu'au grade de chef d'escadron, sans rattraper la carrière qu'on lui avait prise.",
    "accroche": "Alfred Dreyfus est élevé au grade de général de brigade à titre posthume, par une décision prise au nom de « la Nation française ».",
    "points": [
     "La promotion est prononcée « à titre posthume », en un article unique qui tient en une phrase",
@@ -1085,21 +1298,27 @@
     "La promotion prend effet le 19 novembre 2025, deux jours après la promulgation du texte"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52226": {
+   "contexte": "L'accord de coopération de défense a été signé à Paris le 14 octobre 2022. En France, un accord international ne s'applique pas tant que le Parlement n'en a pas autorisé l'approbation : c'est le seul objet de cette loi, qui n'a donné lieu à aucune prise de parole publiée.",
    "accroche": "Approuver l'accord de coopération dans le domaine de la défense signé avec la Macédoine du Nord à Paris le 14 octobre 2022 est autorisé.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52561": {
+   "contexte": "L'accord de coopération de défense a été signé à Paris le 3 avril 2024. En France, un accord international ne s'applique pas tant que le Parlement n'en a pas autorisé l'approbation : c'est le seul objet de cette loi, qui n'a donné lieu à aucune prise de parole publiée.",
    "accroche": "Approuver l'accord de coopération dans le domaine de la défense signé avec le Monténégro à Paris le 3 avril 2024 est autorisé.",
    "points": [],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N52985": {
+   "contexte": "La fraude sociale est estimée à environ 13 milliards d'euros par an, dont moins de 3 sont détectés ; la fraude fiscale, à 80 ou 100 milliards. Le texte initial consacrait l'essentiel de ses articles à la première, avant que la commission ne rééquilibre son volet fiscal.",
    "accroche": "Les agents qui traquent le travail dissimulé peuvent taire leur nom et n'être identifiés que par un numéro quand le révéler mettrait leur vie en danger.",
    "points": [
     "Un contrôleur des cotisations ou un inspecteur du travail peut être désigné par un numéro d'immatriculation lorsque son identité menacerait sa vie ou celle de ses proches",
@@ -1110,9 +1329,11 @@
     "Le montant des fraudes est évalué chaque année, publié « avant le 30 juin » avec le détail des méthodes, et transmis au Parlement, à moyens constants"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53284": {
+   "contexte": "Une personne condamnée pour terrorisme sortait de prison sans autre suivi que celui du droit commun, même lorsqu'elle restait jugée dangereuse. Le texte crée une rétention de sûreté à la fin de la peine et retouche les règles du placement en rétention administrative.",
    "accroche": "Une personne condamnée à quinze ans au moins pour terrorisme peut, à la fin de sa peine, être maintenue enfermée dans un centre de sûreté si elle reste très dangereuse.",
    "points": [
     "Cette « rétention de sûreté terroriste » n'existait pas : elle place la personne dans un centre où lui sont proposées en permanence une prise en charge médicale, sociale et psychologique",
@@ -1123,9 +1344,11 @@
     "Une nouvelle rétention pour un même éloignement n'attend plus sept jours ; la durée cumulée ne peut dépasser « trois cent soixante jours » ni « cinq placements »"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53600": {
+   "contexte": "La Martinique connaît un coût de l'électricité parmi les plus élevés de France et des coupures d'eau répétées. Son assemblée avait demandé formellement, en décembre 2023 puis en juillet 2024, à pouvoir fixer elle-même les règles dans ces deux domaines — ce que la Constitution permet, mais seulement si le Parlement l'y autorise.",
    "accroche": "L'assemblée de Martinique peut fixer elle-même les règles applicables sur son territoire en matière d'énergie et créer une autorité unique pour l'eau potable et l'assainissement.",
    "points": [
     "L'habilitation en matière d'énergie couvre la maîtrise de la demande, la réglementation thermique des bâtiments, le développement des énergies renouvelables et la mobilité durable",
@@ -1134,9 +1357,11 @@
     "Les deux habilitations courent jusqu'au prochain renouvellement général de l'assemblée et peuvent être prorogées"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   },
   "DLR5L17N53942": {
+   "contexte": "Depuis 2021, des avocats honoraires peuvent juger à titre d'essai aux côtés des magistrats professionnels, pour renforcer les juridictions criminelles. Leur mandat arrivait à son terme sans qu'un second soit possible. Aucune prise de parole n'a été publiée sur ce texte.",
    "accroche": "Des avocats honoraires peuvent être nommés assesseurs dans les cours criminelles départementales, pour un mandat de cinq ans renouvelable une fois, et jusqu'à soixante-quinze ans.",
    "points": [
     "Ils ne doivent pas avoir exercé comme avocat depuis au moins trois ans là où ils siègent, et suivent une formation préalable organisée par l'École nationale de la magistrature",
@@ -1147,7 +1372,8 @@
     "La formation aux violences sexuelles et sexistes exigée de tout assesseur entre en vigueur le premier jour du sixième mois suivant la promulgation"
    ],
    "origine": "ia",
-   "le": "2026-09-10"
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   }
  }
 }

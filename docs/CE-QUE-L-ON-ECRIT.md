@@ -41,6 +41,7 @@ texte parle. La description répond à cette question en deux phrases.
 | Où elle s'affiche | En haut de la fiche d'un texte, sous les étiquettes, avant les liens vers les sources. Nulle part ailleurs |
 | Quelle forme elle a | **Trois parties, dans cet ordre.** Un **contexte** d'un paragraphe au plus — ce qui se passait avant le texte, et pourquoi il arrive — puis une accroche d'une phrase, puis **une puce par mesure concrète** — trois à six selon la loi. Un pavé se saute, une liste se parcourt. Une accroche seule reste valable : une loi qui autorise l'approbation d'un traité n'a qu'une chose à dire, et le contexte est facultatif |
 | Le **nom d'usage**, quand le texte en a un | Au-dessus du contexte : « Ripost », « le nom qu'on lui donne en séance ». Un texte connu sous un nom ne se cherche pas sous son intitulé officiel — et ce nom **n'est écrit nulle part dans la source**. Il est donc **contrôlé** : `assembler_descriptions.py` le cherche lui-même, mot entier, dans les prises de parole publiées, et **refuse un nom qu'il n'y trouve pas trois fois**. Le compte affiché est relevé, jamais écrit. C'est la même mécanique que les positions de vote du résumé des débats |
+| La limite de ce contrôle, mesurée | Il prouve que le mot a été **prononcé**, pas qu'il nomme **ce** texte : un débat cite les lois d'avant. Le 2026-09-19, sur les 172 textes qui ont des débats publiés, 26 candidats « loi X » revenaient au moins trois fois, et **3 seulement** nommaient le texte en discussion — Ripost, Duplomb, Ddadue. Les 23 autres étaient des lois citées : « la loi PLM a été imaginée par Gaston Defferre », « la loi Aper de 2023 ». C'est la rédaction qui lit la phrase et tranche ; le programme ne fait qu'écarter les noms que personne n'a dits |
 | Ce qu'elle met en avant | **Ce qui change, pas l'état d'arrivée.** « La protection ne visait que les salariées engagées dans une procédure médicale de procréation ; elle vise désormais tous les salariés en projet parental » plutôt que la règle nouvelle seule. Quand la source ne porte pas d'avant — l'article est créé — la puce dit ce que la loi instaure, sans inventer un état antérieur |
 | Comment elle est écrite | Pour quelqu'un sans formation juridique. **Aucun numéro d'article ni nom de code dans les puces** : ils ne disent rien au lecteur et l'écran juste en dessous les affiche déjà tous. La citation ne sert que là où le mot exact fait la règle — un délai, un seuil, une définition |
 | Comment elle est signalée | Une icône et une mention sous la liste — « Générée par une IA ». Au survol sur un ordinateur, la mention complète ; au toucher sur un téléphone, une explication qui dit d'où elle vient, qu'elle peut se tromper, quand elle a été écrite et par quel modèle |
@@ -458,7 +459,10 @@ chiffres du document sont des exemples de mise en page.
 | Textes suivis | 2 151 | `docs/CE-QUE-L-ON-SUIT.md`, mesuré le 2026-09-01 |
 | Lois promulguées | 107 | `docs/CE-QUE-L-ON-SUIT.md`, mesuré le 2026-09-01 |
 | Descriptions écrites | 107 | `socle/descriptions.json` — 107 par une IA, 0 par une personne |
-| Rubriques de l'application concernées par l'exception | 1 | la description sur la fiche d'un texte |
+| Descriptions portant un contexte | 107 | `socle/descriptions.json`, écrit le 2026-09-19 |
+| Noms d'usage retenus | 3 | Ripost, Duplomb, Ddadue — sur 26 candidats relevés dans les débats publiés |
+| Résumés de débats écrits | 19 | `socle/resumes_debats.json` — sur 172 textes qui ont des débats publiés |
+| Rubriques de l'application concernées par l'exception | 2 | la description d'un texte, et le résumé de ses débats |
 
 Et les quatre constats sur la chaîne de publication — celle qui récupère,
 range et publie les données —, refaits le 2026-09-10 :

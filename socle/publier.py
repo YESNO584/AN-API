@@ -665,14 +665,19 @@ def procedure_acceleree(cx: sqlite3.Connection, uid: str) -> dict | None:
 def lire_descriptions() -> dict[str, dict]:
     """La description d'un texte, telle qu'elle s'affiche en haut de sa fiche.
 
-    **C'est la seule donnée du projet qui ne vienne pas d'une source publique**,
-    et la seule exception à la règle « rien n'est écrit par une IA ». D'où le
+    **C'est l'une des deux seules données du projet qui ne viennent pas d'une
+    source publique** — l'autre étant le résumé des débats — et la première des
+    deux exceptions à la règle « rien n'est écrit par une IA ». D'où le
     champ `origine`, publié avec le texte et affiché à l'écran : le lecteur doit
     savoir qui a écrit ce qu'il lit. Voir `docs/CE-QUE-L-ON-ECRIT.md`.
 
-    Une entrée porte une accroche d'une phrase et une liste de points — une
-    mesure concrète par point. Une accroche sans point reste valable : une loi
-    qui autorise l'approbation d'un traité n'a qu'une chose à dire.
+    Une entrée porte un contexte d'un paragraphe au plus, une accroche d'une
+    phrase et une liste de points — une mesure concrète par point. Elle porte
+    aussi le **nom d'usage** du texte quand il en a un, avec le nombre de fois
+    qu'il est prononcé dans les débats publiés : ce compte est relevé par
+    `assembler_descriptions.py`, jamais écrit par la rédaction. Contexte et
+    nom d'usage sont facultatifs, et une accroche sans point reste valable :
+    une loi qui autorise l'approbation d'un traité n'a qu'une chose à dire.
 
     Le fichier est versionné, contrairement aux bases : rien ne le reconstruit.
     Un texte qui n'y figure pas n'a pas de description, et la fiche n'affiche
@@ -695,11 +700,19 @@ def lire_descriptions() -> dict[str, dict]:
         # Une origine inconnue ne s'affiche pas comme « écrite par une
         # personne » : sans mention sûre, on ne publie pas la description.
         if accroche and d.get("origine") in ("ia", "humain"):
-            retenues[uid] = {"accroche": accroche, "points": points,
-                             "origine": d["origine"], "le": d.get("le"),
-                             # Le modèle qui a écrit, quand il est renseigné.
-                             # Vide pour une description rédigée à la main.
-                             "modele": d.get("modele") or None}
+            retenues[uid] = {
+                # Le contexte — ce qui se passait avant le texte — et le nom
+                # d'usage sont facultatifs : un texte peut n'avoir ni l'un ni
+                # l'autre, et la fiche n'affiche alors que l'accroche.
+                **({"contexte": d["contexte"].strip()}
+                   if (d.get("contexte") or "").strip() else {}),
+                **({"nomUsage": d["nomUsage"]}
+                   if (d.get("nomUsage") or {}).get("nom") else {}),
+                "accroche": accroche, "points": points,
+                "origine": d["origine"], "le": d.get("le"),
+                # Le modèle qui a écrit, quand il est renseigné.
+                # Vide pour une description rédigée à la main.
+                "modele": d.get("modele") or None}
     return retenues
 
 
