@@ -975,6 +975,62 @@ class AuteursEtPhotos(unittest.TestCase):
     def tearDown(self):
         self.repertoire.cleanup()
 
+    # La circonscription vit dans le mandat de député, pas dans l'état civil.
+    ELU = {"uid": {"#text": "PA2000"},
+           "etatCivil": {"ident": {"civ": "Mme", "prenom": "Marie", "nom": "Martin"}},
+           "mandats": {"mandat": [
+               {"typeOrgane": "GP", "dateFin": None,
+                "organes": {"organeRef": "PO999"}},
+               {"typeOrgane": "ASSEMBLEE", "dateFin": None,
+                "election": {"lieu": {"departement": "Pas-de-Calais",
+                                      "numDepartement": "62", "numCirco": "5"}}}]}}
+
+    def test_la_circonscription_se_lit_dans_le_mandat_de_depute(self):
+        a = extraction.lire_acteurs(self._archive([self.ELU]))["PA2000"]
+        self.assertEqual(a["departement"], "Pas-de-Calais")
+        self.assertEqual(a["circo"], "5")
+
+    def test_un_mandat_de_depute_fini_ne_nomme_plus_la_circonscription(self):
+        """Un député battu puis revenu porte deux mandats de député.
+
+        Le mandat fini nommerait l'ancienne circonscription. Seul celui qui est
+        encore ouvert compte — la même règle que pour le groupe politique.
+        """
+        double = dict(self.ELU)
+        double["mandats"] = {"mandat": [
+            {"typeOrgane": "ASSEMBLEE", "dateFin": "2024-06-09",
+             "election": {"lieu": {"departement": "Nord", "numCirco": "1"}}},
+            {"typeOrgane": "ASSEMBLEE", "dateFin": None,
+             "election": {"lieu": {"departement": "Pas-de-Calais", "numCirco": "5"}}}]}
+        a = extraction.lire_acteurs(self._archive([double]))["PA2000"]
+        self.assertEqual(a["departement"], "Pas-de-Calais")
+        self.assertEqual(a["circo"], "5")
+
+    def test_un_groupe_fini_ne_compte_pas_davantage(self):
+        """Un député qui change de groupe garde son ancien mandat de groupe."""
+        change = dict(self.ELU)
+        change["mandats"] = {"mandat": [
+            {"typeOrgane": "GP", "dateFin": "2025-01-10",
+             "organes": {"organeRef": "PO111"}},
+            {"typeOrgane": "GP", "dateFin": None,
+             "organes": {"organeRef": "PO222"}}]}
+        a = extraction.lire_acteurs(self._archive([change]))["PA2000"]
+        self.assertEqual(a["groupeRef"], "PO222")
+
+    def test_un_senateur_n_a_pas_de_circonscription_a_l_assemblee(self):
+        a = extraction.lire_acteurs(self._archive([self.ELU]),
+                                    groupe_et_photo=False)["PA2000"]
+        self.assertIsNone(a["departement"])
+        self.assertIsNone(a["circo"])
+
+    def test_un_depute_sans_lieu_d_election_ne_fait_pas_tomber_la_lecture(self):
+        """Mesuré : le champ existe pour les 577, mais rien ne le garantit."""
+        muet = dict(self.ELU)
+        muet["mandats"] = {"mandat": [{"typeOrgane": "ASSEMBLEE", "dateFin": None}]}
+        a = extraction.lire_acteurs(self._archive([muet]))["PA2000"]
+        self.assertIsNone(a["departement"])
+        self.assertIsNone(a["circo"])
+
     def test_l_adresse_d_une_photo_se_deduit_de_l_identifiant(self):
         self.assertEqual(
             extraction.PHOTO_DEPUTE.format("794830"),

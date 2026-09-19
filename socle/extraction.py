@@ -975,7 +975,7 @@ def ordonner_groupes(sieges: dict[str, dict[int, int]],
 # ---------------------------------------------------------------------------
 
 def lire_acteurs(archive: pathlib.Path, groupe_et_photo: bool = True) -> dict[str, dict]:
-    """Les acteurs d'une archive : identifiant → nom, civilité, photo, groupe.
+    """Les acteurs d'une archive : nom, civilité, photo, groupe, circonscription.
 
     `groupe_et_photo` distingue les deux archives. Celle des **députés en
     exercice** porte le groupe politique et donne droit à une photo. Celle des
@@ -991,22 +991,38 @@ def lire_acteurs(archive: pathlib.Path, groupe_et_photo: bool = True) -> dict[st
 
         # Le groupe politique se lit dans les mandats : celui de type « GP »
         # encore ouvert. Un député peut en avoir changé au cours du mandat.
-        groupe = None
+        #
+        # La circonscription se lit dans le mandat de type « ASSEMBLEE », lui
+        # aussi encore ouvert : c'est le mandat de député, et lui seul porte le
+        # lieu d'élection. **Un mandat fini ne compte pas** — un député battu
+        # puis revenu par une élection partielle porte les deux, et le
+        # précédent nommerait l'ancienne circonscription.
+        groupe = departement = circo = None
         mandats = (a.get("mandats") or {}).get("mandat")
         if isinstance(mandats, dict):
             mandats = [mandats]
         for m in mandats or []:
-            organes = (m.get("organes") or {}).get("organeRef")
-            if isinstance(organes, str):
-                organes = [organes]
-            if m.get("typeOrgane") == "GP" and not (m.get("dateFin")):
+            if m.get("dateFin"):
+                continue
+            if m.get("typeOrgane") == "GP":
+                organes = (m.get("organes") or {}).get("organeRef")
+                if isinstance(organes, str):
+                    organes = [organes]
                 groupe = (organes or [None])[0]
+            elif m.get("typeOrgane") == "ASSEMBLEE":
+                lieu = ((m.get("election") or {}).get("lieu")) or {}
+                departement = lieu.get("departement")
+                circo = lieu.get("numCirco")
         acteurs[uid] = {
             "ref": uid,
             "civilite": ident.get("civ"),
             "prenom": ident.get("prenom"),
             "nom": ident.get("nom"),
             "groupeRef": groupe if groupe_et_photo else None,
+            # La circonscription ne vaut, comme le groupe, que pour l'archive
+            # des députés en exercice : un sénateur ou un ministre n'en a pas.
+            "departement": departement if groupe_et_photo else None,
+            "circo": circo if groupe_et_photo else None,
             "photo": (PHOTO_DEPUTE.format(uid[2:])
                       if groupe_et_photo and uid and uid.startswith("PA") else None),
         }

@@ -208,8 +208,9 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
         connexion.execute("DELETE FROM amendement")
         connexion.execute("DELETE FROM acteur")
         connexion.executemany(
-            "INSERT INTO acteur VALUES (?,?,?,?,?,?)",
-            [(x["ref"], x["civilite"], x["prenom"], x["nom"], x["groupeRef"], x["photo"])
+            "INSERT INTO acteur VALUES (?,?,?,?,?,?,?,?)",
+            [(x["ref"], x["civilite"], x["prenom"], x["nom"], x["groupeRef"],
+              x["departement"], x["circo"], x["photo"])
              for x in acteurs.values()])
         connexion.execute("DELETE FROM groupe")
         connexion.executemany(

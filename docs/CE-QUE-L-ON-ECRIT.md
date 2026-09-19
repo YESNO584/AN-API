@@ -290,6 +290,19 @@ chaque député s'assied. Les proportions, elles, sont justes.
 | **La place d'un siège dans le dessin** | **N** — une convention : 12 rangées d'arcs remplies de la gauche à la droite. Rien dans la source ne la donne |
 | « Ce dessin est une convention » (au toucher du ⓘ) | **N** — l'écran dit lui-même ce qui est mesuré et ce qui est dessiné |
 
+### Les députés d'un groupe
+
+Toucher un groupe, sous le dessin, ouvre la liste de ses députés.
+
+| | |
+|---|---|
+| Civilité, prénom, nom | **S** |
+| Le département et le numéro de circonscription | **S** |
+| « 1re circonscription », « 3e circonscription » | **C** — la source donne « 1 », « 3 » ; seule la forme est à nous |
+| L'ordre de la liste (par nom, puis par prénom) | **C** — la source ne classe pas. Les accents sont ignorés pour classer seulement : « Bénard » vient avant « Brugerolles », et le nom affiché garde les siens |
+| « 17 députés, classés par nom », « Retour à l'hémicycle » | **N** |
+| « La liste des députés de ce groupe n'est pas encore publiée… » | **N** |
+
 ### Messages d'attente et de panne
 
 « Chargement… », « Données indisponibles », « Fiche indisponible : … »,

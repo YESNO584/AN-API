@@ -403,6 +403,8 @@
   /* Un groupe choisi : les autres s'effacent, aucun ne disparaît. */
   .hemicycle svg.un-seul g { opacity: .2; }
   .hemicycle svg.un-seul g.vu { opacity: 1; }
+  /* Les sièges se touchent pour isoler un groupe : le curseur le dit. */
+  .hemicycle svg { cursor: pointer; }
   .hemi-liste { display: flex; flex-direction: column; gap: .35rem; }
   .hemi-groupe {
     display: flex; align-items: center; gap: .55rem; width: 100%;
@@ -410,7 +412,6 @@
     background: var(--carte); border: 1px solid var(--trait);
     border-radius: 10px; padding: .5rem .6rem;
   }
-  .hemi-groupe[aria-pressed="true"] { border-color: var(--accent); }
   .hemi-groupe i { width: .5rem; height: 1.7rem; border-radius: 3px; flex: 0 0 auto;
                    background: var(--doux); }
   .hemi-groupe .sigle { flex: 0 0 auto; width: 4.3rem; font-size: .8rem; font-weight: 650; }
@@ -419,6 +420,18 @@
   .hemi-groupe .n { flex: 0 0 auto; font-size: .9rem; font-weight: 650;
                     font-variant-numeric: tabular-nums; }
   .hemi-groupe .n span { font-size: .7rem; font-weight: 500; color: var(--faible); }
+  .hemi-groupe .chevron { flex: 0 0 auto; color: var(--faible); font-size: 1.1rem;
+                          line-height: 1; }
+
+  .deputes { display: flex; flex-direction: column; gap: .3rem; }
+  .depute { display: flex; align-items: center; gap: .55rem;
+            background: var(--carte); border: 1px solid var(--trait);
+            border-radius: 10px; padding: .45rem .6rem; }
+  .depute i { width: .3rem; height: 1.7rem; border-radius: 2px; flex: 0 0 auto;
+              background: var(--doux); }
+  .depute .corps { min-width: 0; }
+  .depute b { display: block; font-size: .85rem; font-weight: 620; line-height: 1.3; }
+  .depute .ou { display: block; font-size: .74rem; color: var(--gris); }
 
   /* ---------- ce qu'une loi change au droit ---------- */
   /* L'entrée en vigueur, sur la carte du fil : une loi promulguée peut ne pas
@@ -1127,6 +1140,12 @@ const EXPLICATIONS = {
     "l'open data ne dit pas où chaque député s'assied, et les couleurs sont " +
     "un choix d'affichage. Le dessin montre donc des proportions justes, pas " +
     "un plan de salle."],
+  deputes: ["Les députés du groupe",
+    "Civilité, prénom, nom, département et numéro de circonscription sont " +
+    "recopiés de l'open data de l'Assemblée, mot pour mot. Deux choses sont " +
+    "de nous, et elles ne portent que sur la forme : le classement par nom " +
+    "— la source ne classe pas — et l'écriture « 1re circonscription », que " +
+    "la source donne comme un simple numéro."],
   vigueur: ["L'entrée en vigueur",
     "Une loi promulguée ne s'applique pas forcément tout de suite, ni en une " +
     "seule fois : certains de ses articles peuvent n'entrer en vigueur que " +
@@ -3820,12 +3839,23 @@ function ouvrirHemicycle() {
   zone.append(svg);
   f.append(zone);
 
-  // Toucher un groupe l'isole dans le dessin ; le retoucher rend tout le monde.
+  // Toucher les sièges d'un groupe dans le dessin l'isole ; les retoucher
+  // rendent tout le monde. C'est le geste d'exploration, à côté de la liste,
+  // qui elle mène aux députés.
   let vu = null;
+  svg.addEventListener("click", (ev) => {
+    const part = ev.target.closest("g");
+    const sigle = part && part.dataset.sigle;
+    if (!sigle) return;
+    vu = vu === sigle ? null : sigle;
+    svg.classList.toggle("un-seul", vu !== null);
+    svg.querySelectorAll("g").forEach(
+      (n) => n.classList.toggle("vu", n.dataset.sigle === vu));
+  });
+
   const liste = el("div", "hemi-liste");
   for (const g of groupes) {
     const ligne = el("button", "hemi-groupe");
-    ligne.setAttribute("aria-pressed", "false");
     const teinte = el("i");
     if (g.couleur) teinte.style.background = g.couleur;
     ligne.append(teinte);
@@ -3834,15 +3864,70 @@ function ouvrirHemicycle() {
     const compte = el("span", "n", nb.format(g.effectif));
     compte.append(el("span", null, " dép."));
     ligne.append(compte);
+    ligne.append(el("span", "chevron", "›"));
     ligne.addEventListener("click", () => {
-      vu = vu === g.sigle ? null : g.sigle;
-      svg.classList.toggle("un-seul", vu !== null);
-      svg.querySelectorAll("g").forEach(
-        (n) => n.classList.toggle("vu", n.dataset.sigle === vu));
-      liste.querySelectorAll(".hemi-groupe").forEach(
-        (n, i) => n.setAttribute("aria-pressed",
-          String(groupes[i].sigle === vu)));
+      location.hash = "#/hemicycle/" + encodeURIComponent(g.sigle);
     });
+    liste.append(ligne);
+  }
+  f.append(liste);
+}
+
+/* ---------- les députés d'un groupe ---------- */
+/* La circonscription telle que la source la donne : un département en clair et
+   un numéro. Le numéro s'écrit comme on l'écrit en français — « 1re », puis
+   « 2e ». C'est la seule retouche, et elle ne porte que sur la forme. */
+function circonscription(d) {
+  if (!d.departement && !d.circo) return "";
+  if (!d.circo) return d.departement;
+  const rang = d.circo === "1" ? "1re" : d.circo + "e";
+  return `${d.departement}, ${rang} circonscription`;
+}
+
+async function ouvrirGroupe(sigle) {
+  const f = ouvrirEcran();
+  const retour = boutonRetour("#/hemicycle", "Retour à l'hémicycle");
+  f.append(retour);
+
+  const connu = GROUPES.get(sigle);
+  if (!connu) {
+    f.append(el("div", "vide", "Groupe inconnu."));
+    return;
+  }
+  f.append(el("p", "avertissement", "Chargement…"));
+
+  const d = await lire(`groupes/${connu.ref}.json`);
+  f.textContent = "";
+  f.append(retour);
+  if (!d || !(d.deputes || []).length) {
+    f.append(el("h2", "fiche-titre", connu.nom || sigle));
+    f.append(el("div", "vide",
+      "La liste des députés de ce groupe n'est pas encore publiée. "
+      + "Elle arrive avec la publication du matin."));
+    return;
+  }
+
+  const titre = el("h2", "fiche-titre", d.nom || sigle);
+  f.append(titre);
+  const sous = el("p", "fiche-sous",
+    `${nb.format(d.effectif)} députés, classés par nom. `);
+  const aide = el("button", "aide", "ⓘ");
+  aide.setAttribute("aria-label", "D'où viennent ces noms");
+  aide.addEventListener("click", () => expliquer(...EXPLICATIONS.deputes, d.sigle));
+  sous.append(aide);
+  f.append(sous);
+
+  const liste = el("div", "deputes");
+  for (const x of d.deputes) {
+    const ligne = el("div", "depute");
+    const teinte = el("i");
+    if (d.couleur) teinte.style.background = d.couleur;
+    ligne.append(teinte);
+    const corps = el("div", "corps");
+    corps.append(el("b", null, [x.civilite, x.prenom, x.nom].filter(Boolean).join(" ")));
+    const ou = circonscription(x);
+    if (ou) corps.append(el("span", "ou", ou));
+    ligne.append(corps);
     liste.append(ligne);
   }
   f.append(liste);
@@ -3862,6 +3947,8 @@ function fermerFiche() {
 function router() {
   if (location.hash === "#/calendrier") return ouvrirAgenda();
   if (location.hash === "#/hemicycle") return ouvrirHemicycle();
+  const groupe = location.hash.match(/^#\/hemicycle\/(.+)$/);
+  if (groupe) return ouvrirGroupe(decodeURIComponent(groupe[1]));
   const article = location.hash.match(/^#\/change\/([\w-]+)\/(\w+)$/);
   if (article) return ouvrirArticle(article[1], article[2]);
   const change = location.hash.match(/^#\/change\/([\w-]+)$/);

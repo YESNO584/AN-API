@@ -51,8 +51,10 @@ rien à corriger, mais il ne faut pas promettre un agenda prévisionnel.
 Le second bouton de l'en-tête, en forme d'arcs, ouvre la **composition de
 l'Assemblée** : les 577 sièges dessinés en arcs, coloriés par groupe, de la
 gauche à la droite, puis la liste des 12 groupes avec leur sigle, leur nom
-complet et leur effectif. **Toucher un groupe l'isole dans le dessin** ; les
-autres s'effacent sans disparaître, et le retoucher les rend.
+complet et leur effectif. **Toucher un groupe ouvre la liste de ses députés** —
+nom et circonscription, classés par nom. **Toucher les sièges d'un groupe dans
+le dessin l'isole** : les autres s'effacent sans disparaître, et les retoucher
+les rend.
 
 **Ce qui est mesuré, et ce qui est dessiné.** L'effectif d'un groupe est un
 compte de députés ; l'ordre des groupes est calculé sur les numéros de siège
@@ -63,8 +65,11 @@ sont une convention — les proportions sont justes, le plan de salle ne l'est
 pas. L'écran le dit lui-même au toucher du ⓘ, et `docs/CE-QUE-L-ON-ECRIT.md`
 le classe ligne par ligne.
 
-L'écran ne charge rien de plus : il lit `groupes.json`, déjà chargé au
-démarrage pour colorier les votes.
+Le dessin ne charge rien de plus : il lit `groupes.json`, déjà chargé au
+démarrage pour colorier les votes. La liste des députés d'un groupe, elle, est
+un fichier à part (`groupes/<ref>.json`), lu seulement quand on ouvre le
+groupe — 12 fichiers, 113 Ko en tout, dont aucun n'est chargé tant qu'on ne
+demande rien.
 
 ## Ce qu'elle montre
 

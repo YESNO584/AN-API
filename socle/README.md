@@ -446,6 +446,16 @@ composition. Deux groupes sont écartés parce qu'ils n'ont aucun député : la
 base les garde parce qu'un scrutin cite leur identifiant sans qu'aucun groupe
 y corresponde.
 
+**La circonscription se lit dans le mandat, pas dans l'état civil.** Chaque
+député porte un mandat de type `ASSEMBLEE` dont le lieu d'élection donne le
+département en clair et le numéro de circonscription. Deux règles, et il faut
+les deux : ne lire que le mandat **encore ouvert** — un député battu puis revenu
+par une partielle en porte deux, et le premier nommerait l'ancienne
+circonscription —, et ne rien attendre de l'archive large, qui contient aussi
+des sénateurs et des ministres, lesquels n'ont pas de circonscription à
+l'Assemblée. Mesuré le 2026-09-19 : les **577 députés sur 577** ont un
+département et un numéro.
+
 **La base garde tout**, y compris les dossiers qui ne fabriquent pas de loi et
 les textes promulgués. Les colonnes `est_loi` et `statut` le disent ; c'est à
 l'affichage de trier. Un socle qui jette des données oblige à tout recharger
@@ -516,6 +526,7 @@ signale la panne.
 | `textes.json` | 829 Ko | **121 Ko** | **Le fichier principal** : les 1 990 textes en cours |
 | `promulgues.json` | 106 Ko | — | Les 107 lois déjà promulguées |
 | `arretes.json` | 57 Ko | — | Les 88 textes **arrêtés en chemin** : rejetés, non adoptés, retirés, caducs |
+| `groupes/<ref>.json` | 113 Ko | — | **Les députés d'un groupe** — civilité, prénom, nom, circonscription — chargés seulement quand on ouvre le groupe (12 fichiers, 577 députés) |
 | `textes/<uid>.json` | 18 Mo | — | Un fichier par texte : parcours, votes, auteur, cosignataires (médiane 4 Ko) |
 | `amendements/<uid>.json` | 30 Mo | — | Les amendements d'un texte, chargés seulement si on les ouvre (médiane 90 Ko, 289 fichiers) |
 | `paroles/<uid>.json` | 13 Mo | — | **Ce que les groupes ont dit du texte en séance**, mot pour mot, chargé seulement si on l'ouvre (médiane 54 Ko, 172 fichiers) |

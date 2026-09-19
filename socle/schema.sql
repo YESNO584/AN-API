@@ -129,12 +129,17 @@ CREATE INDEX IF NOT EXISTS vote_groupe_par_vote ON vote_groupe (vote_uid);
 -- Les députés en exercice, pour signer les textes et les amendements.
 -- La photo n'est pas dans l'open data : son adresse se déduit de l'identifiant.
 CREATE TABLE IF NOT EXISTS acteur (
-    ref        TEXT PRIMARY KEY,
-    civilite   TEXT,
-    prenom     TEXT,
-    nom        TEXT,
-    groupe_ref TEXT,
-    photo      TEXT
+    ref         TEXT PRIMARY KEY,
+    civilite    TEXT,
+    prenom      TEXT,
+    nom         TEXT,
+    groupe_ref  TEXT,
+    -- La circonscription, telle que la source la nomme : le département en
+    -- clair et le numéro. Renseignée pour les 577 députés en exercice,
+    -- vide pour un sénateur ou un ministre, qui n'en ont pas à l'Assemblée.
+    departement TEXT,
+    circo       TEXT,
+    photo       TEXT
 );
 
 -- Les amendements.

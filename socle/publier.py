@@ -31,6 +31,7 @@ import re
 import shutil
 import sqlite3
 import sys
+import unicodedata
 
 import extraction
 import legi
@@ -693,6 +694,12 @@ def ecrire(chemin: pathlib.Path, contenu, brut: bytes | None = None) -> int:
     return len(brut)
 
 
+def sans_accent(mot: str | None) -> str:
+    """Pour classer des noms, pas pour les afficher : l'affiché reste intact."""
+    decompose = unicodedata.normalize("NFD", mot or "")
+    return "".join(c for c in decompose if not unicodedata.combining(c)).casefold()
+
+
 def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     # On repart d'un dossier vide : un texte promulgué hier ne doit pas rester
     # dans la liste des textes en cours d'avant-hier.
@@ -776,7 +783,8 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
                      "arretes.json", "travaux.json", "textes/<uid>.json",
                      "amendements/<uid>.json", "paroles/<uid>.json",
                      "changements/<uid>.json",
-                     "changements/<uid>/<LEGIARTI>.json"],
+                     "changements/<uid>/<LEGIARTI>.json",
+                     "groupes/<ref>.json"],
     })
 
     # Les groupes, rangés de la gauche à la droite de l'hémicycle. L'ordre est
@@ -799,6 +807,32 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "deputes": sum(g["effectif"] for g in groupes_publies),
         "groupes": groupes_publies,
     })
+
+    # Les députés d'un groupe, un fichier par groupe, chargé seulement quand on
+    # ouvre le groupe — comme les amendements. Tout est recopié de la source :
+    # la civilité, le prénom, le nom, le département et le numéro de
+    # circonscription. Le classement, lui, est à nous : par nom, puis par
+    # prénom, ce que la source ne fait pas.
+    deputes = 0
+    for g in groupes_publies:
+        membres = [dict(l) for l in cx.execute(
+            "SELECT ref, civilite, prenom, nom, departement, circo, photo"
+            " FROM acteur WHERE groupe_ref = ?", (g["ref"],))]
+        # Le classement se fait ici et non en SQL : SQLite range « Bénard »
+        # après « Brugerolles », parce qu'il compare des octets et que « é »
+        # vient après « r ». Dans une liste de noms, cela se voit.
+        membres.sort(key=lambda m: (sans_accent(m["nom"]), sans_accent(m["prenom"])))
+        deputes += ecrire(sortie / "groupes" / f'{g["ref"]}.json', {
+            "genereLe": genere_le,
+            "ref": g["ref"],
+            "sigle": g["sigle"],
+            "nom": g["nom"],
+            "couleur": g["couleur"],
+            "effectif": len(membres),
+            "ordre": "par nom, puis par prénom",
+            "deputes": membres,
+        })
+    tailles["groupes/<ref>.json"] = deputes
 
     tailles["etapes.json"] = ecrire(sortie / "etapes.json", {
         "genereLe": genere_le,
