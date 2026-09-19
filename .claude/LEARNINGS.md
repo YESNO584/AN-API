@@ -800,3 +800,36 @@ Deux autres acquis de ce passage :
   accroche tirée du titre vaut mieux qu'une fiche muette ; c'est la puce, qui
   prétend décrire une mesure, qui exige le texte.
 
+
+## 2026-09-19 — L'hémicycle
+
+### Dessiner ce que la source ne dit pas, sans mentir
+
+L'écran de composition de l'Assemblée est **le seul dessin de l'application
+qui ne recopie rien**. Trois choses en sortent, et elles ne sont pas de même
+nature : l'effectif d'un groupe est un **compte** (577 en tout), l'ordre des
+groupes est **calculé** sur les numéros de siège publiés, mais la place d'un
+siège dans le dessin est une **convention** — l'open data ne dit pas où
+chaque député s'assied. La règle tenue : afficher le dessin, et lui faire dire
+lui-même laquelle de ces trois natures on regarde (ⓘ), plutôt que renoncer au
+dessin ou laisser croire à un plan de salle.
+
+Deux détails de fabrication, à ne pas redécouvrir :
+
+- **Répartir N sièges sur des rangées d'arcs demande de rattraper l'arrondi.**
+  Le prorata du rayon ne tombe jamais sur le compte exact : le reste se pose
+  sur les rangées extérieures, les plus longues. Sans ce rattrapage, le dessin
+  affiche 574 ou 580 sièges là où le compte en annonce 577 — deux chiffres
+  contradictoires sur le même écran.
+- **Trier les sièges par angle, toutes rangées confondues, suffit à donner des
+  blocs de groupe propres.** Vérifié à l'écran : chaque groupe forme un coin
+  d'un seul morceau, sans qu'aucune place ne soit attribuée à la main.
+
+### Deux groupes à zéro député vivent dans la base, et c'est normal
+
+`groupe` en garde deux (`PO0`, `PO847173`) qu'aucun député ne rejoint : un
+scrutin cite leur identifiant sans qu'un groupe y corresponde. La publication
+les écarte par `HAVING effectif > 0` — sinon la liste des groupes affiche
+14 lignes dont deux vides. Le total est alors exactement 577, ce qui sert de
+contrôle : un effectif publié qui ne fait pas 577 signale un problème de
+rattachement, pas un choix d'affichage.
