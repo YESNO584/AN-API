@@ -1085,6 +1085,516 @@
    "origine": "ia",
    "le": "2026-09-19",
    "modele": "claude-opus-5"
+  },
+  "DLR5L17N50692": {
+   "vote": {
+    "date": "2025-04-09",
+    "sort": "adopté",
+    "objet": "l'ensemble de la proposition de loi visant à réformer le mode d'élection des membres du Conseil de Paris et des conseils municipaux de Lyon et Marseille (première lecture)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "pour",
+     "arguments": [
+      "Depuis 1982, Paris, Lyon et Marseille votent selon un mode de scrutin différent de toutes les autres communes de France.",
+      "Le maire y est élu indirectement, par des conseillers d'abord désignés dans les arrondissements ou les secteurs.",
+      "Ce mode de scrutin peut donner la mairie à une liste qui n'a pas obtenu le plus de suffrages."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "contre",
+     "arguments": [
+      "Le groupe s'oppose d'abord à la méthode employée pour réformer la loi PLM.",
+      "Le rapporteur a tout tenté pour atténuer la médiocrité d'un texte frappé du sceau du soupçon."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "contre",
+     "arguments": [
+      "Changer les fondations électorales pendant que les habitants s'organisent pour voter met en jeu la loyauté démocratique.",
+      "La réforme est portée par une urgence fabriquée : sans transparence, sans temps, sans concertation.",
+      "Derrière elle, la tentation d'ajuster les règles aux équilibres du moment."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Le groupe regrette les conditions du débat : inscription précipitée, absence d'étude d'impact, élus locaux et habitants non consultés, refus de saisir le Conseil d'État.",
+      "Une réforme structurante pour la démocratie locale ne devrait pas être menée sans concertation."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "contre",
+     "arguments": [
+      "Le groupe regrette la méthode : ni véritable concertation avec les communes concernées, ni avis du Conseil d'État.",
+      "La défiance envers le politique et la demande de démocratie plus directe légitiment pourtant un débat sur les modes de scrutin."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "La loi de 1982 a créé deux niveaux d'élus désignés par un seul bulletin, ce qui rend l'élection du maire peu transparente.",
+      "Dans le reste de la France, les conseillers municipaux sont élus directement."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Les habitants des trois villes représentent près de 10 % du corps électoral et ne peuvent pas élire directement leur maire.",
+      "Selon l'arrondissement ou le secteur où l'on habite, une voix ne pèse pas le même poids.",
+      "Un maire peut être élu et diriger une ville qui n'a pas voté en majorité pour lui."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "abstention",
+     "arguments": [
+      "La loi PLM se justifie encore largement par le nombre d'habitants de ces villes.",
+      "Elle rapproche les élus des électeurs en créant un échelon intermédiaire, plus à même de traiter les enjeux hyperlocaux."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "La réforme concerne près de 4 millions de Français.",
+      "L'application de la loi PLM a parfois conduit à des résultats contraires à l'expression du suffrage universel, comme à Marseille en 1983.",
+      "Un scrutin à l'échelle de la commune, doublé d'un scrutin d'arrondissement, clarifierait la désignation du conseil municipal."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "Depuis plus de quarante ans, ces trois villes sont soumises à un mode de scrutin exorbitant du droit commun.",
+      "Le groupe rappelle que la loi PLM fut conçue dans un but partisan, pour affaiblir le maire de Paris de l'époque."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N54083": {
+   "vote": {
+    "date": "2026-07-01",
+    "sort": "adopté",
+    "objet": "l'ensemble du projet de loi actualisant la programmation militaire pour les années 2024 à 2030 et portant diverses dispositions intéressant la défense (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "Réviser en 2026 une loi entrée en vigueur en 2024 montre qu'elle n'était ni crédible ni sincère.",
+      "Des dépenses ont été engagées en 2023 sans que le gouvernement puisse les honorer.",
+      "Le contexte international dégradé sert de couverture flatteuse à cette impréparation."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "contre",
+     "arguments": [
+      "Ce n'est pas une actualisation mais une adaptation du droit à l'éventualité d'un conflit de haute intensité en Europe.",
+      "36 milliards d'euros de plus portent la mission Défense à environ 436 milliards, quand 6 milliards de coupes frappent l'État et la sécurité sociale.",
+      "Le budget de la défense aura doublé entre 2017 et 2028, alors que les autres ministères stagnent ou baissent."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "contre",
+     "arguments": [
+      "La guerre revient sur le continent et les démocraties sont ciblées : y répondre ne justifie pas de contourner l'institution qui représente la nation.",
+      "Le calendrier n'a laissé que quelques jours pour amender un texte plusieurs fois repoussé.",
+      "Cette révision démontre l'obsolescence programmée de la loi de 2023, faute d'arbitrage stratégique sur le modèle d'armée."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Les conflits de haute intensité ne sont plus une hypothèse théorique mais une réalité aux portes de l'Europe.",
+      "Porter l'enveloppe de 400 à 436 milliards d'ici 2030 est un signal fort aux armées, aux alliés et aux adversaires.",
+      "Une trajectoire budgétaire ne vaut que si elle est tenue, et le Haut Conseil des finances publiques alerte."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "pour",
+     "arguments": [
+      "Le groupe avait conditionné son soutien, en 2023, à une actualisation avant 2027.",
+      "Il avait perçu le sous-financement de la loi au regard des besoins des armées.",
+      "Les 36 milliards qui manquaient sont enfin crédités, retours d'expérience de la guerre en Ukraine compris."
+     ]
+    },
+    {
+     "sigle": "NI",
+     "position": "pour",
+     "arguments": [
+      "Le texte fait passer d'une posture subie à une politique assumée d'investissement de défense.",
+      "Une démocratie peut être prise pour cible sans guerre déclarée : menaces hybrides, pressions économiques et énergétiques."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "La guerre est aux portes de l'Europe : pour être respecté, il faut être fort.",
+      "Se désarmer et se placer sous l'ombre américaine deviendrait tôt ou tard une faiblesse."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Le XXe siècle a montré les deux faces de l'humanité, et il serait funeste d'oublier le revers : la soif de dominer et l'agressivité."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Le soutien au texte se fait pour chaque soldat, de l'armée de terre, de l'air et de la marine.",
+      "L'exercice européen interarmées Orion 2026 illustre ce que les armées savent faire."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "Trois ans après le vote initial, 36 milliards s'ajoutent : une somme considérable au vu des difficultés budgétaires du pays.",
+      "Les moyens investis le sont au service de femmes et d'hommes prêts au sacrifice ultime."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "La guerre russe en Ukraine, le régime iranien et la montée en puissance chinoise rappellent un monde aussi dangereux qu'avant la chute du rideau de fer.",
+      "La France est diplomatiquement déclassée, faute d'avoir cru qu'elle pouvait peser sans puissance militaire."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "La liberté a un prix : face à des puissances aux ambitions expansionnistes, la France doit redevenir une grande puissance.",
+      "Hommage est rendu aux deux militaires morts pour la France au sud du Liban."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N50724": {
+   "vote": {
+    "date": "2025-07-02",
+    "sort": "adopté",
+    "objet": "l'ensemble de la proposition de loi relative à la lutte contre l'antisémitisme dans l'enseignement supérieur (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "L'antisémitisme se réaffirme, des personnes juives étant assimilées à la politique de l'État d'Israël.",
+      "La jeunesse se mobilise déjà largement contre ces injustices, sans avoir attendu ce texte."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "contre",
+     "arguments": [
+      "67 actes antisémites ont été recensés dans l'enseignement supérieur depuis le 7 octobre 2023, soit le double de l'année universitaire précédente.",
+      "Le titre du texte suscite un a priori positif, qui s'évapore à la lecture du texte et de son exposé des motifs."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "contre",
+     "arguments": [
+      "Plus de 67 actes antisémites ont été recensés dans les universités depuis le 7 octobre 2023 : c'est 67 de trop.",
+      "Quand l'antisémitisme se banalise, c'est la République qui vacille : il ne menace pas seulement les Juifs de France."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Il est alarmant de devoir légiférer pour cela au moment où l'on célèbre les quatre-vingts ans de la libération des camps.",
+      "L'arsenal juridique réprimant l'antisémitisme existe déjà, et pourtant il faut y revenir."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "pour",
+     "arguments": [
+      "Plus de 1 500 actes antisémites ont été recensés en France en 2024.",
+      "France Universités en a compté 67 dans l'enseignement supérieur, le double de l'année précédente.",
+      "Neuf étudiants juifs sur dix déclarent avoir déjà été confrontés à un acte antisémite."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "Les recommandations de la mission d'information sénatoriale trouvent une traduction effective dans le texte.",
+      "Depuis le 7 octobre 2023, les agressions physiques et verbales contre les personnes de confession juive ont augmenté."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Croire que l'antisémitisme appartient à un autre siècle est une naïveté confortable.",
+      "La lutte contre l'antisémitisme ne doit pas devenir un mantra électoral."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "En 1941, une loi de Vichy instaurait un numerus clausus limitant à 3 % la part d'étudiants juifs admis dans l'enseignement supérieur.",
+      "Robert Badinter s'alarmait de retrouver, au soir de sa vie, les mots inscrits sur les murs de son lycée avant la guerre."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "Le vote envoie un message ferme : l'antisémitisme n'a sa place ni dans les rues, ni dans les amphithéâtres, ni dans l'hémicycle.",
+      "Le groupe reproche à la gauche d'avoir cherché à invisibiliser l'antisémitisme pendant l'examen du texte."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "Le groupe attribue la diffusion de l'antisémitisme à l'islamisme radical et à son instrumentalisation politique par la gauche."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": null,
+     "arguments": [
+      "« Heureux comme Dieu en France » disaient les Juifs d'Europe : cette promesse française s'efface.",
+      "La reconnaissance du culte israélite, instituée sous Napoléon, avait mis fin à des siècles d'exclusion."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N53981": {
+   "vote": {
+    "date": "2026-06-02",
+    "sort": "adopté",
+    "objet": "l'ensemble du projet de loi portant transposition de l'avenant n° 3 du 25 février 2026 au protocole d'accord du 10 novembre 2023 relatif à l'assurance chômage (deuxième lecture)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "Le texte fait perdre trois mois d'indemnisation aux salariés de moins de 55 ans après une rupture conventionnelle, et de trois à six mois au-delà.",
+      "Ces reculs frapperont d'abord les personnes déjà les plus discriminées dans la recherche d'emploi."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "contre",
+     "arguments": [
+      "Le groupe croit aux vertus de la démocratie sociale, mais estime que cette négociation a été extorquée par le gouvernement.",
+      "Ni les syndicats ni le patronat n'appelaient cette réforme."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "contre",
+     "arguments": [
+      "Les 500 000 ruptures conventionnelles annuelles représentent près de 20 % des entrées à l'assurance chômage.",
+      "Au moins un quart d'entre elles sont en réalité des licenciements déguisés.",
+      "42 % se concentrent dans les entreprises de moins de dix salariés, qui n'emploient que 20 % des travailleurs."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "L'avenant transposé est le fruit d'une négociation entre partenaires sociaux, signée par la majorité d'entre eux.",
+      "Le texte redonne sa place au dialogue social, après des années de pilotage par décrets qui ont fragilisé la logique paritaire."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "abstention",
+     "arguments": [
+      "Réduire la durée d'indemnisation après une rupture conventionnelle ne correspond pas à la protection que le groupe défend.",
+      "Les économies dans l'assurance chômage devraient être cherchées par une contribution plus importante des plus hauts revenus."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "Le groupe choisit d'adopter le texte sans modification, pour donner toute sa portée à l'accord.",
+      "Signé par une large majorité d'organisations syndicales et patronales, l'accord traduit un équilibre imparfait mais réel."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Le texte ajoute le type de rupture du contrat comme critère de durée des droits, à l'article L. 5422-2 du code du travail.",
+      "La rupture conventionnelle avait été introduite en 2008, avec les partenaires sociaux, pour favoriser les séparations amiables."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "L'accord du 25 février a été signé par le Medef, la CPME, l'U2P, ainsi que la CFDT, FO et la CFTC.",
+      "Le rôle du législateur est de mettre en œuvre le fruit de cette négociation, ni plus ni moins."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "Le texte ne procède pas d'une décision unilatérale de l'État : il traduit fidèlement un accord des partenaires sociaux.",
+      "La question posée est celle du sens donné au modèle social et de sa pérennité."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "L'accord cible les conséquences des ruptures conventionnelles sur les dépenses d'indemnisation, pour remédier à la dégradation financière de l'Unedic.",
+      "Le texte a été adopté sans modification par le Sénat, puis par la commission des affaires sociales."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "Le groupe dresse un bilan calamiteux de la politique de l'emploi et de la formation professionnelle menée depuis 2017."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N52100": {
+   "vote": {
+    "date": "2026-02-03",
+    "sort": "adopté",
+    "objet": "l'ensemble du projet de loi relatif à l'organisation des jeux Olympiques et Paralympiques de 2030 (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "Le texte permet de déroger aux règles d'urbanisme au motif d'accueillir les Jeux.",
+      "Des équipements présentés comme provisoires pourront durer six ans, sans étude d'impact environnemental.",
+      "L'artificialisation des sols induite par ces opérations ne serait pas comptée."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "abstention",
+     "arguments": [
+      "L'absence de consultation des populations locales et du Parlement est déplorée, comme l'ont dit associations et collectifs citoyens.",
+      "Les motifs d'inquiétude financière sont nombreux."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "contre",
+     "arguments": [
+      "Le projet est opaque depuis la candidature, et les Français en ont été écartés plutôt qu'embarqués.",
+      "Collectifs citoyens, associations environnementales et élus locaux alertent sans être entendus."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Les Jeux d'hiver 2030 sont une chance pour le pays et pour les territoires de montagne.",
+      "Organisés dans deux régions, ils traduisent la volonté d'en faire un projet collectif.",
+      "Cent six ans après Chamonix, la France honore une tradition d'accueil des grands événements sportifs."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "pour",
+     "arguments": [
+      "Le texte ne consiste pas à approuver ou rejeter les Jeux, mais à fixer les conditions de leur bon déroulement.",
+      "Il prévoit la formation des bénévoles, le renforcement de la lutte antidopage et un modèle de développement sobre.",
+      "La transparence a été placée au cœur du travail parlementaire, pour éviter les polémiques."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "Les Jeux contribuent au rayonnement international d'un pays et témoignent de sa capacité à se dépasser.",
+      "Le texte est la clé de voûte de l'organisation juridique des Jeux."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Les Jeux olympiques se tiendront du 1er au 17 février 2030, les Paralympiques du 1er au 10 mars.",
+      "La candidature, portée par deux régions avec les comités olympique et paralympique, a été retenue par le Comité international olympique."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Le texte est indispensable pour honorer les engagements internationaux de la France.",
+      "Les Jeux de 2030 ne se dérouleront pas dans une ville unique, mais sur un territoire inédit par son ampleur et sa géographie."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "Après Chamonix en 1924, Grenoble en 1968 et Albertville en 1992, cette édition montrera la capacité des territoires alpins."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "La candidature s'est construite dès 2022 dans des délais très contraints, ce qui explique les incertitudes qui subsistent.",
+      "L'État reste garant de la sécurité, de l'ordre public et du cadre juridique."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "Pour les Alpes, les Jeux représenteront un avant et un après, avec des choix parfois irréversibles.",
+      "Chaque décision y est plus complexe, plus coûteuse et plus lente qu'ailleurs."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
   }
  }
 }
