@@ -816,6 +816,30 @@
   .description .origine u { text-decoration: none;
                             border-bottom: 1px dotted currentColor; }
 
+  /* Le résumé des débats reprend le cadre de la description — même statut,
+     même signalement — et y ajoute les camps de vote. */
+  .resume-debats { margin: 0 0 .9rem; }
+  .resume-debats .sur-quel-vote { font-size: .76rem; color: var(--gris);
+                                  line-height: 1.4; }
+  .resume-debats .sur-quel-vote b { color: var(--texte); }
+  .resume-debats .camp { margin-top: .7rem; }
+  .resume-debats .camp h5 { margin: 0 0 .35rem; font-size: .72rem;
+                            font-weight: 700; letter-spacing: .04em;
+                            text-transform: uppercase; color: var(--gris); }
+  .resume-debats .camp.pour h5 { color: var(--ok); }
+  .resume-debats .camp.contre h5 { color: var(--accent); }
+  .resume-debats .groupe-dit { margin-top: .45rem; }
+  .resume-debats .qui { display: flex; align-items: baseline; gap: .35rem;
+                        flex-wrap: wrap; }
+  .resume-debats .qui i { width: .4rem; height: .8rem; border-radius: 2px;
+                          background: var(--doux); flex: 0 0 auto;
+                          align-self: center; }
+  .resume-debats .qui b { font-size: .84rem; font-weight: 660; }
+  .resume-debats .qui span { font-size: .72rem; color: var(--faible);
+                             min-width: 0; }
+  .resume-debats ul { margin: .2rem 0 0; padding-left: 1.05rem; }
+  .resume-debats li { font-size: .85rem; line-height: 1.45; margin-top: .25rem; }
+
   .liens { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
   .liens a { font-size: .8rem; padding: .4rem .7rem; border-radius: 8px;
              background: var(--doux); color: var(--gris); text-decoration: none; }
@@ -2589,9 +2613,130 @@ function carteParole(p) {
   return c;
 }
 
-async function blocParoles(uid, total, plat) {
+/* ---------- le résumé des débats ---------- *
+ * **La seconde rubrique écrite par une IA**, après la description d'un texte.
+ * Elle range les groupes par ce qu'ils ont voté et donne au plus quatre
+ * arguments par groupe. Deux choses la tiennent :
+ *
+ *   — le classement pour / contre vient du **scrutin**, pas de la rédaction :
+ *     une phrase d'orateur ne décide jamais d'un vote affiché. Mesuré le
+ *     2026-09-02, l'UDR a voté *pour* les soins palliatifs pendant que son
+ *     orateur disait « votera contre » — il parlait de l'autre texte du jour ;
+ *   — les prises de parole complètes restent affichées en dessous, mot pour
+ *     mot. Le résumé s'ajoute, il ne remplace rien.
+ * ------------------------------------------------------------------ */
+
+/* Les camps, dans cet ordre. « Partagé » n'est pas un demi-vote : c'est un
+   groupe dont les voix se sont réparties sans majorité claire — le socle le
+   calcule sur le décompte, jamais sur la position annoncée par la source, qui
+   la contredit dans 3 % des cas. */
+const CAMPS = {
+  pour: "Ont voté pour",
+  contre: "Ont voté contre",
+  abstention: "Se sont abstenus",
+  "partagé": "Se sont partagés",
+  aucun_vote: "N'ont pas voté",
+};
+
+const ORIGINE_RESUME = {
+  ia: {
+    mot: "Résumé généré par une intelligence artificielle",
+    court: "Généré par une IA",
+    titre: "Ce résumé est généré par une IA",
+    quoi: "Les arguments de ce résumé ont été écrits par une intelligence " +
+      "artificielle à partir des prises de parole publiées plus bas. Elle " +
+      "peut donc se tromper, ou choisir mal. Les prises de parole, elles, " +
+      "sont recopiées du compte rendu de l'Assemblée, mot pour mot : elles " +
+      "sont sous ce résumé, entières.\n\nCe qui n'est pas écrit par l'IA : " +
+      "le classement « ont voté pour » et « ont voté contre » est relevé dans " +
+      "le scrutin publié par l'Assemblée. Aucune phrase d'orateur ne décide " +
+      "d'un vote affiché — un orateur peut annoncer un vote et son groupe en " +
+      "émettre un autre, et cela s'est vu.",
+  },
+  humain: {
+    mot: "Résumé écrit par une personne",
+    court: "Écrit par une personne",
+    titre: "Ce résumé est écrit par une personne",
+    quoi: "Les arguments de ce résumé ont été rédigés pour cette application " +
+      "à partir des prises de parole publiées plus bas, qui sont recopiées du " +
+      "compte rendu de l'Assemblée, mot pour mot.\n\nLe classement « ont voté " +
+      "pour » et « ont voté contre », lui, est relevé dans le scrutin publié " +
+      "par l'Assemblée.",
+  },
+};
+
+function blocResumeDebats(resume) {
+  const boite = el("div", "description resume-debats");
+  const origine = ORIGINE_RESUME[resume.origine] || ORIGINE_RESUME.ia;
+
+  if (resume.vote) {
+    const quand = resume.vote.date
+      ? dateLongue.format(enDate(resume.vote.date)) : null;
+    const ligne = el("p", "sur-quel-vote");
+    ligne.append(document.createTextNode("Groupes rangés d'après le scrutin"
+      + (quand ? " du " + quand : "") + " sur l'ensemble du texte"));
+    if (resume.vote.sort) ligne.append(el("b", null, " — " + resume.vote.sort));
+    boite.append(ligne);
+  } else {
+    boite.append(el("p", "sur-quel-vote",
+      "Aucun scrutin public sur l'ensemble de ce texte : les groupes sont "
+      + "rangés comme dans l'hémicycle, de la gauche à la droite."));
+  }
+
+  // Les camps dans cet ordre, puis les groupes que le scrutin ne nomme pas.
+  const camps = [["pour", []], ["contre", []], ["abstention", []],
+                 ["partagé", []], ["aucun_vote", []], [null, []]];
+  for (const g of resume.groupes) {
+    (camps.find(([nom]) => nom === (g.position || null)) || camps[5])[1].push(g);
+  }
+  for (const [nom, groupes] of camps) {
+    if (!groupes.length) continue;
+    const zone = el("div", "camp " + (nom ? nom.replace("é", "e") : "sans-vote"));
+    // Sans position et sans scrutin, il n'y a rien à annoncer qu'une parole.
+    // Sans position mais avec un scrutin, le groupe n'y figure pas : le dire
+    // ainsi, plutôt que de le ranger parmi ceux qui n'ont pas voté.
+    zone.append(el("h5", null, nom ? CAMPS[nom]
+      : (resume.vote ? "Groupes absents de ce scrutin" : "Ce qui a été dit")));
+    for (const g of groupes) {
+      const carte = el("div", "groupe-dit");
+      const tete = el("div", "qui");
+      const teinte = el("i");
+      const connu = GROUPES.get(g.sigle);
+      if (connu?.couleur) teinte.style.background = connu.couleur;
+      tete.append(teinte, el("b", null, g.sigle));
+      if (connu?.nom) tete.append(el("span", null, connu.nom));
+      carte.append(tete);
+      const liste = el("ul");
+      for (const a of g.arguments) liste.append(el("li", null, a));
+      carte.append(liste);
+      zone.append(carte);
+    }
+    boite.append(zone);
+  }
+
+  const mention = el("button", "origine");
+  mention.append(iconeOrigine(resume.origine));
+  mention.append(el("u", null, origine.court));
+  mention.title = origine.mot + " — touchez pour en savoir plus.";
+  mention.setAttribute("aria-label", origine.mot);
+  mention.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    const quand = resume.le
+      ? "écrit le " + dateLongue.format(enDate(resume.le)) : null;
+    const par = resume.modele ? "modèle " + resume.modele : null;
+    expliquer(origine.titre, origine.quoi,
+              [quand, par].filter(Boolean).join(" · ") || null);
+  });
+  boite.append(mention);
+  return boite;
+}
+
+async function blocParoles(uid, total, plat, resume) {
   const b = bloc(`Ce que les groupes en ont dit — ${nb.format(total)} `
                  + `prise${total > 1 ? "s" : ""} de parole`, false, plat);
+  // Le résumé d'abord, les paroles entières ensuite : l'un ne remplace pas
+  // l'autre, et l'ordre dit lequel fait foi.
+  if (resume) b.append(blocResumeDebats(resume));
   b.append(el("p", "avertissement",
     "Les prises de parole en séance, recopiées du compte rendu de l'Assemblée, " +
     "mot pour mot. Elles viennent de la discussion générale et des explications " +
@@ -3043,7 +3188,8 @@ async function ouvrirFiche(uid) {
   // le détail d'une étape.
   const nbParoles = (TEXTES.find((t) => t.uid === uid) || {}).paroles || 0;
   if (nbParoles) {
-    rubriques.push(["Débats", await blocParoles(uid, nbParoles, true)]);
+    rubriques.push(["Débats",
+                    await blocParoles(uid, nbParoles, true, d.resumeDebats)]);
   } else if (ETAT.debatsIndisponibles) {
     // Ne pas laisser croire que personne n'a parlé du texte alors que c'est
     // la source qui a manqué.

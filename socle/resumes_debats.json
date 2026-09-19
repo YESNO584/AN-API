@@ -1,0 +1,1090 @@
+{
+ "_lisezmoi": "Le résumé des débats d'un texte, tel qu'il s'affiche en tête de l'onglet « Débats » : les groupes rangés par ce qu'ils ont voté, et au plus quatre arguments par groupe, tirés de ses prises de parole. C'est la SECONDE rubrique écrite par une IA — l'autre étant la description d'un texte — et l'exception est décidée dans docs/CE-QUE-L-ON-ECRIT.md. D'où le champ `origine`, affiché à l'écran. **La position de vote n'est jamais écrite par la rédaction** : elle est relevée dans le scrutin publié par assembler_resumes.py. Les débats complets restent affichés en dessous, mot pour mot. Un texte absent de ce fichier n'affiche aucun résumé, plutôt qu'un cadre vide. Régénérer : .claude/scripts/faits_pour_resumes.py puis .claude/scripts/assembler_resumes.py.",
+ "_origines": {
+  "ia": "écrite par une intelligence artificielle",
+  "humain": "écrite par une personne"
+ },
+ "resumes": {
+  "DLR5L17N52776": {
+   "vote": null,
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": null,
+     "arguments": [
+      "Le groupe dénonce une « carotte » de l'extrême droite, qui vote contre l'augmentation du smic et contre la taxation des plus fortunés.",
+      "Si ce sujet arrive en séance, c'est grâce aux mobilisations, aux pétitions et aux blocages menés depuis des années par des citoyens."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": null,
+     "arguments": [
+      "Le sujet est combattu depuis vingt ans avec les associations de patients, les syndicats de soignants et des élus locaux — sans le RN.",
+      "Le groupe y voit de l'opportunisme et du populisme, et se demande si une directive ministérielle ne suffirait pas.",
+      "Le texte ne vise que l'hôpital public : dans les cliniques privées, souvent seules à traiter certaines pathologies, le parking resterait payant."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": null,
+     "arguments": [
+      "Le groupe ne votera aucun texte émanant du Rassemblement national, qu'il qualifie de force politique d'extrême droite.",
+      "Ces propositions de loi ne serviraient qu'à construire un récit politique et à « montrer patte blanche ».",
+      "Il n'y a pas de petite compromission avec l'extrême droite : donner ses voix est « un acte sans retour »."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": null,
+     "arguments": [
+      "L'idée paraît de bon sens, mais la gratuité a un coût : entretenir, sécuriser, éclairer et rénover un parking se paie.",
+      "Cette charge serait transférée à l'hôpital public, qui peine déjà à recruter et à investir.",
+      "Ce que les Français veulent d'abord, c'est un hôpital qui fonctionne, pas un parking gratuit.",
+      "Une gratuité uniforme ne distingue pas le visiteur quotidien de celui qui se gare par confort, et profite autant aux plus aisés."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": null,
+     "arguments": [
+      "Payer le parking pour se rendre à l'hôpital est une question de dignité, et la colère est réelle : 10 000 signatures au Mans, 25 000 à Brest.",
+      "Les concessions au privé durent vingt-cinq à trente ans ; à Brest, le directeur de l'hôpital dit n'avoir jamais vu la couleur des recettes.",
+      "Cette absence de transparence n'est pas acceptable : il est temps de légiférer."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": null,
+     "arguments": [
+      "Le groupe partage l'objectif de faciliter la vie des patients, des proches et des personnels, et ne conteste pas les difficultés d'accès.",
+      "Mais le texte n'apporte pas de réponse sérieuse : sans cohérence, sans financement, sans tenir compte de la réalité de l'hôpital.",
+      "Une gratuité universelle ouvrirait les parkings à tous, y compris aux automobilistes de passage, au risque de la saturation.",
+      "Ce sont certains publics — malades chroniques, familles en détresse, accompagnants de longue durée, professionnels — qu'il faut aider."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": null,
+     "arguments": [
+      "La mission prioritaire d'un hôpital est d'assurer des soins, non d'aménager et de gérer des parkings : 80 % ont délégué cette tâche.",
+      "Les établissements hospitaliers ne sont pas toujours propriétaires de leurs parkings.",
+      "La gratuité attire des voitures ventouses et encombre l'établissement, jusqu'à gêner les soignants, les usagers et les véhicules de secours."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": null,
+     "arguments": [
+      "Le groupe partage l'objectif : un accès équitable aux soins, sans que le stationnement alourdisse la facture des familles et du personnel.",
+      "Le constat est partagé : seuls 25 % des parkings d'hôpitaux publics sont gratuits, et les tarifs se sont envolés après des délégations au privé.",
+      "Mais la méthode est jugée incomplète, déséquilibrée et irréaliste, notamment son financement par une taxe sur les transactions financières."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": null,
+     "arguments": [
+      "Le sujet est très concret : au CHU d'Angers, la première heure est gratuite puis coûte 1,60 euro, soit 12,80 euros pour vingt-quatre heures.",
+      "Les familles qui viennent chaque jour, et les soignants qui paient pour aller travailler, déboursent des sommes importantes.",
+      "Un processus de privatisation des parkings des hôpitaux publics est à l'œuvre depuis plusieurs années, avec des tarifs parfois prohibitifs.",
+      "Avec les déserts médicaux, se faire soigner oblige à des trajets longs : le stationnement devient une question d'égal accès aux soins."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": null,
+     "arguments": [
+      "Il est incohérent qu'un système tourné vers la prise en charge des soins s'arrête à l'entrée du parking où stationnent les patients.",
+      "L'accès aux soins est un droit fondamental, inscrit au préambule de la Constitution de 1946.",
+      "Ces frais sont injustifiés et souvent élevés, et peuvent devenir un obstacle à l'accès aux soins et à l'accompagnement."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": null,
+     "arguments": [
+      "Une mesure de bon sens et de justice sociale : près de deux Français sur trois renoncent à au moins un acte de santé, notamment pour des raisons d'accès.",
+      "Les habitants des campagnes cumulent la désertification médicale, l'obligation d'utiliser leur voiture et un stationnement qui peut atteindre 23 euros la journée.",
+      "Le groupe portait déjà cette mesure sous la précédente législature, sans qu'elle soit inscrite à l'ordre du jour."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N50684": {
+   "vote": null,
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": null,
+     "arguments": [
+      "Le peuple vient reprendre les deux ans de vie que la réforme lui a pris, par la voix de ses représentants.",
+      "Le texte avance seulement l'âge de départ de 64 à 62 ans, pour quarante-deux ans de cotisation : il n'abroge ni le minimum contributif ni les autres dispositifs.",
+      "Le financement peut être débattu, mais l'article 45 de la Constitution limite ce qu'une proposition de loi peut contenir.",
+      "La réforme de 2023 n'a pas été faite parce que le travail serait bon, mais pour rassurer les marchés financiers."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": null,
+     "arguments": [
+      "En 2023, l'Assemblée n'a pas pu voter : au 49.3 ont répondu les mobilisations, et la confiance démocratique en sort affaiblie.",
+      "La réforme a été imposée pour garantir la confiance des marchés financiers.",
+      "L'effort pèse sur les travailleuses et les travailleurs plutôt que sur ceux qui échappent à la contribution collective."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": null,
+     "arguments": [
+      "Parler de la retraite, c'est parler de la vie et du type de société voulu, pas seulement du travail.",
+      "Repousser l'âge revient à n'ouvrir la retraite qu'à ceux dont le corps est déjà épuisé.",
+      "Le débat réunit les deux questions qui fracturent le pays : la question sociale et la question démocratique."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": null,
+     "arguments": [
+      "Jamais l'Assemblée n'a pu voter la réforme de 2023, ce qui laisse des traces durables sur la confiance envers les institutions.",
+      "Elle demande deux ans de plus à ceux qui ont commencé à travailler tôt, au détriment des plus modestes, des femmes et des carrières hachées.",
+      "Elle n'a jamais pris au sérieux l'emploi des seniors ni la pénibilité.",
+      "Elle n'atteint même pas son seul objectif : équilibrer durablement le système par répartition."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": null,
+     "arguments": [
+      "L'occasion est donnée de réparer un affront fait à la volonté du peuple, en permettant enfin un vote.",
+      "Le camp gouvernemental était minoritaire en 2023 et l'est toujours, mais refuse toute concession."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": null,
+     "arguments": [
+      "Derrière l'âge de départ, c'est l'existence même du système de retraite par répartition qui est posée.",
+      "Le texte supprime le report à 64 ans sans traiter les dizaines de milliards de déficit qu'il induirait."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": null,
+     "arguments": [
+      "Le texte prétend répondre aux attentes des Français, alors qu'il les desservirait.",
+      "Douze heures de niche parlementaire ne peuvent défaire ce que des centaines d'heures de débat ont construit.",
+      "L'obstruction est reprochée à ceux qui avaient déposé 13 000 des 20 000 amendements de 2023."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": null,
+     "arguments": [
+      "Abroger brutalement plusieurs réformes des retraites est irresponsable au regard de la situation budgétaire.",
+      "Abaisser l'âge et la durée de cotisation donnerait moins de cotisants et plus de bénéficiaires, alors que la population vieillit.",
+      "Le déficit du système atteindrait 14 milliards d'euros en 2030 et 21 milliards en 2035."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": null,
+     "arguments": [
+      "Une réforme était nécessaire en 2023, mais celle qui a été menée est injuste, incomplète et inefficace.",
+      "Elle a délaissé la pénibilité, les carrières longues, et les interruptions de carrière qui touchent surtout les femmes.",
+      "Elle n'a pas demandé les mêmes efforts aux salariés du public et du privé."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": null,
+     "arguments": [
+      "70 % des Français restent opposés à la réforme, et cela s'est traduit dans les urnes.",
+      "Les 979 amendements déposés sur ce texte par le bloc central relèvent d'une volonté d'obstruction.",
+      "Le groupe met en avant son rôle de premier groupe d'opposition dans ce rapport de force."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N51349": {
+   "vote": {
+    "date": "2025-10-23",
+    "sort": "adopté",
+    "objet": "l'ensemble de la proposition de loi modifiant la définition pénale du viol et des agressions sexuelles (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "pour",
+     "arguments": [
+      "En cinq minutes, trois femmes sont agressées sexuellement en France ; 10 % portent plainte, et 86 % de ces plaintes sont classées sans suite.",
+      "Les « enquêtes de crédibilité » reprochent à la victime sa tenue, ses pratiques ou son silence, et concluent à un consentement tacite.",
+      "Elles passent sous silence la sidération, l'emprise et la position dominante de l'agresseur.",
+      "L'ajout du non-consentement aurait pu être voté un an plus tôt : il avait alors été refusé."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "abstention",
+     "arguments": [
+      "230 000 femmes sont victimes chaque année, 6 % portent plainte, et moins de 1 % des violeurs sont condamnés.",
+      "D'autres pistes existent et ne s'excluent pas : juridictions spécialisées, formation des professionnels, réforme de la prescription."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "pour",
+     "arguments": [
+      "Entre un tiers et la moitié des femmes seront victimes de violences sexuelles au cours de leur vie ; 70 % des plaintes sont classées sans suite.",
+      "Le droit a une fonction expressive : comme dans les pays qui l'ont adopté, la notion de non-consentement changera la façon dont ces violences sont comprises.",
+      "Le Conseil d'État le rappelle : même qualifié d'interprétatif, ce texte aura des conséquences sur la justice."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Le système pénal ne défend pas efficacement les victimes d'agressions sexuelles : il est temps que l'Assemblée se saisisse du consentement.",
+      "Les victimes affrontent un chemin long et souvent solitaire, et leur agresseur échappe le plus souvent aux sanctions.",
+      "Les procès des viols de Mazan ont montré que le consentement est un sujet de société : un silence n'est pas une invitation."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "pour",
+     "arguments": [
+      "Deux conceptions s'opposent : celle d'une relation sexuelle qui tourne mal, et celle d'un crime de prédation et de domination.",
+      "Les auditions ont montré que cette modification n'a rien d'évident et pourrait se révéler une fausse bonne idée.",
+      "Pour d'autres voix du groupe, le texte met fin à une incongruité du code pénal et doit mieux réprimer, protéger et prévenir."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "Une majorité de professionnels du droit doutent que l'ajout du consentement suffise à modifier la pratique des juridictions.",
+      "La Cour de cassation fait déjà du consentement la pierre angulaire de son contrôle.",
+      "L'étape était attendue, mais le texte ne résoudra pas tout : porter plainte reste un parcours du combattant."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Il s'agit de la définition pénale d'un outil de domination, et au-delà de la culture du viol elle-même.",
+      "L'objectif est de conserver les éléments constitutifs — violence, contrainte, menace, surprise — en permettant d'évaluer comment l'auteur s'est assuré du consentement.",
+      "Des magistrats disent ne pas parvenir à démontrer l'intentionnalité du viol, même lorsqu'ils croient la victime."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Plus de 270 000 personnes se déclarent victimes de violences sexuelles chaque année, et seules 6 % portent plainte.",
+      "Le droit ne doit être modifié qu'avec humilité et vigilance : au sein du groupe, les avis restaient partagés.",
+      "L'avis du Conseil d'État a dissipé les doutes sur la pertinence et la constitutionnalité du texte.",
+      "Une loi-cadre resterait nécessaire pour rendre le droit lisible et apporter des réponses aux victimes."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "Le texte est le fruit d'un travail transpartisan rigoureux, mené avec la délégation aux droits des femmes.",
+      "Le procès des viols commis contre Gisèle Pelicot a mis en lumière la soumission chimique et la question du consentement."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "contre",
+     "arguments": [
+      "Écouter les victimes ne peut conduire à oublier les principes fondateurs de notre droit.",
+      "L'infraction reposait sur la preuve d'un acte commis avec violence, contrainte, menace ou surprise ; elle reposerait désormais sur l'absence de consentement.",
+      "C'est la structure même du droit pénal qui s'en trouve modifiée, et les réserves du groupe demeurent entières."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "contre",
+     "arguments": [
+      "Le texte risque de créer des injustices et des décisions arbitraires plutôt que de mieux protéger les victimes.",
+      "Le groupe y voit une inversion de la charge de la preuve : ce serait à l'accusé de prouver son innocence."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N53284": {
+   "vote": {
+    "date": "2026-06-16",
+    "sort": "adopté",
+    "objet": "l'ensemble de la proposition de loi visant à renforcer la sécurité, la rétention administrative et la prévention des risques d’attentat (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "Le Conseil constitutionnel avait censuré des mesures voisines lors de l'examen de la précédente loi « sécurité ».",
+      "Le texte est présenté comme technique, ce que le groupe conteste : il y voit une commande politique."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "contre",
+     "arguments": [
+      "Le débat s'inscrit dans une surenchère sécuritaire permanente et dans la tentation de légiférer sous le coup de l'émotion.",
+      "C'est un texte de circonstance, présenté comme une réponse à la mort de Philippine."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "contre",
+     "arguments": [
+      "Depuis plus de dix ans, le droit glisse vers un état d'exception permanent : ce qui devait être l'exception devient la norme.",
+      "On peut désormais enfermer après la peine, l'exécutif prend le pas sur le judiciaire, et le soupçon remplace la preuve."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Des noms — Collin, Philippine Le Noir de Carlan, Lino Sousa Loureiro — rappellent des échecs de la protection des Français.",
+      "Le droit est désarmé face à ceux qui préparent l'irréparable, et ces failles ne sont plus supportées."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "contre",
+     "arguments": [
+      "Le texte relève de l'incohérence et de la surenchère, après une première loi déjà censurée.",
+      "Des faits divers, aussi horribles soient-ils, n'autorisent pas le législateur à tordre la réalité."
+     ]
+    },
+    {
+     "sigle": "NI",
+     "position": "pour",
+     "arguments": [
+      "La République doit être ferme, mais la fermeté n'exonère pas de la rigueur : le texte appelle de sérieuses réserves.",
+      "Dans la grande majorité des cas, le sort des mesures d'éloignement se joue dans les premiers jours."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "L'évolution du terrorisme bouscule les cadres d'analyse et met à l'épreuve les instruments juridiques.",
+      "Les drames récents ont rappelé l'existence de profils dits « hybrides », mêlant radicalisation et troubles psychiatriques."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Le texte ne dit pas que la radicalisation est une maladie : il pose deux critères cumulatifs, radicalisation et trouble psychiatrique avéré.",
+      "Ce sont ces profils hybrides, difficiles à appréhender, que le texte veut atteindre et soigner."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "La France et les Français sont des cibles du terrorisme : Mulhouse en février 2025, Arras en octobre 2023, entre autres."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "La légitimité du pouvoir se mesure à sa capacité de protection : c'est le fondement du contrat social.",
+      "Un État qui ne protège plus ses citoyens cesse peu à peu d'être un État."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "Le texte agit en amont par la détection, en aval par la gestion des individus dangereux, et sur la rétention administrative.",
+      "Sur le papier, l'intention est louable."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "Le texte montre une volonté de bien faire, mais viendrait masquer l'échec de la politique migratoire."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N50686": {
+   "vote": {
+    "date": "2026-05-11",
+    "sort": "adopté",
+    "objet": "l'ensemble de la proposition de loi visant à renforcer le parcours inclusif des enfants à besoins éducatifs particuliers (nouvelle lecture)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "abstention",
+     "arguments": [
+      "L'école de la République reste une école de l'exclusion : un enfant handicapé sur quatre n'a pas accès à l'école.",
+      "Seuls 27 % des élèves handicapés ont plus de douze heures d'enseignement par semaine.",
+      "Le texte ne répond ni aux besoins des élèves ni aux attentes des familles : son objet est de rationaliser les moyens.",
+      "La généralisation des pôles d'appui à la scolarité a été introduite par amendement, sans attendre le bilan des expérimentations."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "partagé",
+     "arguments": [
+      "La loi de 2005 garantit le maintien dans un cadre ordinaire : les élèves scolarisés en milieu ordinaire sont passés de 134 000 à 430 000 entre 2004 et 2022.",
+      "Les 140 000 accompagnants sont devenus les principaux acteurs de l'école inclusive, et restent trop peu nombreux pour suivre chaque enfant notifié.",
+      "Les politiques d'inclusion n'ont jamais été à la hauteur des besoins : elles ont engendré de l'espoir, puis de la déception et de la colère."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "pour",
+     "arguments": [
+      "Vingt ans après la loi de 2005, le retard de la France et le manque d'ambition des politiques publiques restent importants.",
+      "Le texte ne mentionne à aucun moment la situation des AESH, pourtant essentiels à l'inclusion scolaire.",
+      "Le métier d'AESH est sous-payé, sans statut, avec des emplois du temps hachés : d'où l'incapacité à recruter.",
+      "Devoir décider en quelques heures, sur un tel sujet, est jugé inacceptable."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "La coordination entre les secteurs éducatif et médico-social reste insuffisante.",
+      "Elle entraîne une prise en charge parfois inadaptée et rend le parcours des familles plus difficile."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "pour",
+     "arguments": [
+      "520 000 enfants en situation de handicap sont scolarisés, soit 390 000 de plus qu'en 2005.",
+      "Les deux premiers articles, enrichis en commission, ont été adoptés à l'unanimité.",
+      "Un amendement déposé en séance a modifié l'objet de la proposition de loi, ce que le groupe juge inacceptable.",
+      "Les pôles d'appui à la scolarité n'ont que neuf mois de recul : les données d'évaluation manquent."
+     ]
+    },
+    {
+     "sigle": "NI",
+     "position": "pour",
+     "arguments": [
+      "Les véritables artisans de l'école inclusive sont les enseignants, les AESH et les personnels qui accompagnent ces élèves au quotidien."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "Les élèves handicapés scolarisés en milieu ordinaire sont passés de 155 000 en 2006 à 519 000 en 2024, avec près de 140 000 AESH.",
+      "Le texte n'est pas parfait, mais il prolonge un travail mené depuis plusieurs années et fait avancer les choses."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "L'école inclusive dit ce que nous sommes : le principe d'inclusion de tous les enfants est inscrit à l'article 1er du code de l'éducation depuis 2013.",
+      "Le texte généralise le livret de parcours inclusif, rend obligatoire un rapport annuel et crée des formations partagées entre professionnels."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Le nombre d'élèves handicapés scolarisés en milieu ordinaire est passé de 155 000 en 2006 à près de 520 000 aujourd'hui.",
+      "Le texte ne prévoit rien sur la rémunération ni le recrutement des AESH, sans que le groupe nie ce problème.",
+      "Il apporte un progrès concret : la généralisation du livret de parcours inclusif, qui assure le suivi de l'enfant."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "Vingt ans après la loi de 2005, une deuxième étape est nécessaire pour que la réalité du terrain rejoigne l'intention de la loi.",
+      "Le texte fait avancer le suivi et la formation, mais l'attractivité du métier d'AESH reste à traiter."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "Le texte ne suffira pas, mais la généralisation du livret de parcours inclusif apportera de la coordination.",
+      "Un rapport de la Cour des comptes de septembre 2024 constate des parcours discontinus et une application variable d'un territoire à l'autre.",
+      "L'inclusion en milieu ordinaire a été conduite à marche forcée, sans moyens et souvent sans recul."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "L'acte II de l'école inclusive annoncé en 2023 est resté sans suite, les gouvernements qui l'ont promis ayant été dissous.",
+      "Les familles décrivent un parcours du combattant : dossiers à rallonge, délais interminables, manque de places en instituts médico-éducatifs.",
+      "Le groupe vote le texte comme une petite avancée, mais réclame de nouvelles Ulis et des milliers de places en établissement spécialisé."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N51039": {
+   "vote": {
+    "date": "2025-04-08",
+    "sort": "adopté",
+    "objet": "l'ensemble de la proposition de loi visant à renforcer les conditions d'accès à la nationalité française à Mayotte (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "Exiger un an de séjour régulier pour les deux parents priverait la quasi-totalité des enfants nés à Mayotte de parents étrangers d'accéder à la nationalité.",
+      "Des enfants nés sur l'archipel et qui y ont grandi jusqu'à leur majorité seraient concernés, comme ceux élevés par un parent seul.",
+      "Ce sont les principes qui sont en cause : un principe qui souffre toujours une exception n'est plus un principe."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "contre",
+     "arguments": [
+      "Le texte crée une discrimination entre enfants nés sur le sol français, selon leur lieu de naissance et la situation administrative de leurs parents.",
+      "Il ne résoudra pas le phénomène migratoire à Mayotte, que tout le monde s'accorde à décrire comme incontrôlé.",
+      "Présenter Mayotte comme française depuis 1841 revient à réécrire l'histoire et à flatter une bonne conscience coloniale."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "contre",
+     "arguments": [
+      "Deux jours après le cyclone Chido, l'immigration a été désignée comme responsable de la détresse de l'île.",
+      "Mayotte souffre d'abord d'un sous-investissement chronique et de l'impréparation de l'État face aux catastrophes climatiques.",
+      "L'urgence est l'hébergement, la reconstruction des écoles et la réhabilitation, pas ce débat."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Le groupe demande l'abrogation du droit du sol à Mayotte seulement, sans remettre en cause le droit du sol dans l'Hexagone.",
+      "Il faut regarder la situation de l'île en face, au lieu d'en faire un prétexte à des peurs et à des postures.",
+      "Après la calamité naturelle est venue la calamité politique : une journée de débats où il a été question de tout sauf de Mayotte."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "contre",
+     "arguments": [
+      "Le texte arrive à contretemps des urgences, alors que l'île vient de connaître la plus grande catastrophe de son histoire.",
+      "Il acte l'impuissance à mener une réforme constitutionnelle, qui n'était ni souhaitable ni utile.",
+      "Le groupe y voit un texte d'opinion, présenté en dépit des évaluations des politiques publiques."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "En 2020, trois enfants sur quatre nés à Mayotte avaient au moins un parent étranger : écoles, hôpitaux et services publics en sont mis à genoux.",
+      "Le texte renforce les conditions d'accès à la nationalité française ; il ne supprime pas le droit du sol.",
+      "Le groupe regrette la tenue des débats, indigne de l'urgence dans laquelle se trouvent les Mahorais."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "La situation migratoire de Mayotte est exceptionnelle, sans équivalent dans aucun autre territoire de la République.",
+      "Le groupe partage l'objectif final du texte : lutter contre l'immigration illégale à Mayotte.",
+      "Le texte a été dénaturé par un amendement ; le groupe le vote parce que le ministre s'est engagé à une deuxième lecture."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Mayotte s'effondre sous le poids d'une immigration clandestine largement organisée, exploitée au détriment des Mahorais.",
+      "Le groupe dit légiférer les yeux ouverts, et déplore une obstruction qui a retardé le vote."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "50 % de la population de Mayotte est étrangère, un tiers est en situation irrégulière, et 40 % vit dans des bangas.",
+      "Le droit du sol est un élément d'attractivité de l'île, même s'il n'est pas le seul.",
+      "Les Mahorais réclament ce texte depuis des années : le groupe a voulu rester dans le concret."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "La population de Mayotte a doublé en vingt ans, et plus de 55 % de ses habitants n'y sont pas nés.",
+      "42 % des enfants qui naissent sur l'île ont deux parents étrangers.",
+      "Soixante-douze heures après le passage du cyclone, les bateaux de clandestins ont recommencé à débarquer.",
+      "Modifier le droit du sol ne suffira pas : il faut une réelle volonté politique pour arrêter les flux."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": null,
+     "arguments": [
+      "Le groupe approuvait le texte, qui améliorait légèrement la situation de Mayotte, et aurait voulu qu'il aille plus loin.",
+      "Un amendement visait à abolir purement et simplement le droit du sol à Mayotte.",
+      "Un amendement de repli du groupe a porté à trois ans la durée de résidence régulière exigée."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N53187": {
+   "vote": {
+    "date": "2026-07-21",
+    "sort": "adopté",
+    "objet": "l'ensemble de la proposition de loi visant à protéger les mineurs des risques auxquels les expose l'utilisation des réseaux sociaux (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "contre",
+     "arguments": [
+      "Face à un problème complexe, structurel, social et sanitaire, le texte choisit la facilité d'une interdiction symbolique.",
+      "Il faudrait investir massivement dans la santé mentale des jeunes, l'éducation au numérique et la régulation des plateformes.",
+      "Le groupe reconnaît les effets des écrans et des algorithmes conçus pour capter l'attention, mais juge qu'une interdiction ne règle rien."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "pour",
+     "arguments": [
+      "Cinq des sept articles ont été supprimés en commission, ce qui vide largement le texte de sa substance.",
+      "L'article 1er ne mentionne plus la responsabilité des plateformes ni leur obligation de vérifier l'âge de leurs utilisateurs.",
+      "Le contrôle de l'âge en ligne est un enjeu d'ordre public : il devrait relever d'un dispositif placé sous contrôle public."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "pour",
+     "arguments": [
+      "Par le profilage, la suggestion algorithmique et des interfaces trompeuses, les plateformes captent l'attention pour mieux l'exploiter.",
+      "Contrairement à la télévision, elles ne sont toujours pas régulées à la mesure de leur puissance.",
+      "C'est un échec collectif : une dérégulation organisée a laissé des entreprises privées imposer leur loi."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "pour",
+     "arguments": [
+      "L'audition des victimes par la commission d'enquête sur les effets psychologiques de TikTok engage à agir.",
+      "Une adolescente a décrit comment l'algorithme l'a conduite de la musique et de l'art vers une « sphère mortifère »."
+     ]
+    },
+    {
+     "sigle": "NI",
+     "position": "pour",
+     "arguments": [
+      "L'accès aux réseaux sociaux est de plus en plus précoce et les usages de plus en plus longs.",
+      "Les travaux parlementaires montrent des effets réels sur le sommeil, la concentration, l'estime de soi et la santé mentale.",
+      "Ces effets ne sont pas le fruit du hasard : notifications, défilement infini et recommandations sont conçus pour retenir l'attention des plus jeunes."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "Les enfants passent en moyenne quatre heures par jour devant un écran, exposés à des contenus violents, addictifs et anxiogènes.",
+      "Les effets sur la santé mentale sont établis, et la dépendance nuit aussi à la santé physique.",
+      "Ces usages appauvrissent les interactions sociales et éteignent progressivement l'imaginaire des enfants."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Les données scientifiques et les alertes sanitaires, éducatives et psychiques convergent : c'est une urgence de santé publique.",
+      "Le sujet ne doit pas être traité comme un débat abstrait, technique ou politique."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "La loi instaurant une majorité numérique à 15 ans, adoptée à l'unanimité en juin 2023, n'a jamais été appliquée.",
+      "Deux ans et demi ont passé sans décret, la Commission européenne ayant jugé la réforme non conforme au règlement sur les services numériques."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "Troubles du sommeil, anxiété, difficultés de concentration, cyberharcèlement et addiction sont désormais largement documentés.",
+      "Des mécanismes comme le défilement infini agissent sur des cerveaux en construction.",
+      "L'âge moyen d'acquisition du premier téléphone portable est aujourd'hui de 9 ans et 9 mois."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "Les travaux de la commission d'enquête sur TikTok et les décisions étrangères, dont l'interdiction australienne aux moins de 16 ans, ont créé une prise de conscience.",
+      "Ces effets disent moins l'existence de contenus isolément problématiques que l'inadéquation de certains environnements numériques à l'enfance."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "abstention",
+     "arguments": [
+      "Il s'agit d'une urgence de santé publique, éducative et culturelle : les effets sur les plus jeunes ne sont plus à prouver.",
+      "D'autres pays ont choisi d'agir avec fermeté, comme l'Australie : pourquoi pas la France ?",
+      "Malgré la loi sur la majorité numérique, rien n'a été mis en œuvre."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N54218": {
+   "vote": {
+    "date": "2026-06-23",
+    "sort": "adopté",
+    "objet": "l'ensemble du projet de loi constitutionnelle pour une Corse autonome au sein de la République (première lecture)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "pour",
+     "arguments": [
+      "Le statu quo n'est plus possible : il faut traduire en droit un compromis politique nécessaire à la cohésion nationale.",
+      "Les nationalistes-autonomistes ont gagné les élections en Corse à plusieurs reprises : c'est un fait démocratique."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "partagé",
+     "arguments": [
+      "Les députés communistes expriment de sérieuses réserves, sur la forme comme sur le fond du texte.",
+      "Il est très discutable que la population corse n'ait pas été consultée en amont de cette réforme constitutionnelle.",
+      "Le Parlement se prononce sans que le projet de loi organique, qui en fixera la portée, soit connu ni même rédigé."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "pour",
+     "arguments": [
+      "D'autres territoires ont déjà des régimes particuliers : l'Alsace, la Moselle, la Martinique, la Guadeloupe, la Polynésie française.",
+      "La veille, l'Assemblée a adopté à l'unanimité un texte permettant à la Martinique de fixer ses propres règles sur l'énergie et l'eau.",
+      "En Polynésie, cinq langues sont reconnues depuis 2024, aux côtés du français, langue officielle."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Sous couvert d'universalisme, on ne peut gommer l'histoire intime propre à chaque citoyen.",
+      "L'égalité devant la loi suppose de prendre en considération la diversité.",
+      "Selon les mots de Michel Rocard cités à la tribune, la longue indifférence de la France continentale doit cesser."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "pour",
+     "arguments": [
+      "La Corse n'est pas un territoire comme les autres : insularité, histoire, culture, langue, contraintes économiques et sociales.",
+      "Cette aspiration à disposer de plus de capacités d'action traverse les générations et les alternances politiques.",
+      "Une large majorité de la population corse considère qu'une nouvelle étape institutionnelle est nécessaire."
+     ]
+    },
+    {
+     "sigle": "NI",
+     "position": "contre",
+     "arguments": [
+      "Les dispositions proposées sont jugées favorables à la Corse et à la France, mais « sans chèque en blanc ».",
+      "Le texte engage le respect de la parole de l'État, exprimée dans le processus de Beauvau, et celle des élus corses."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "Depuis plus de quarante ans, la Corse attend que la République reconnaisse sa singularité sur le plan institutionnel.",
+      "Le processus dit de Beauvau, lancé en mars 2022, a permis près de deux ans de dialogue inédit avec toutes les sensibilités corses."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "L'histoire institutionnelle de l'île s'est trop souvent construite en réaction, dans l'urgence, après des drames.",
+      "Cinquante ans de statuts successifs — Defferre en 1982, Joxe en 1991, Jospin en 2002 — n'ont apporté que des réponses partielles."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Modifier la Constitution n'est jamais un acte ordinaire : cela touche au contrat fondamental qui unit les citoyens à la République.",
+      "La Corse occupe une place singulière : une mémoire, une culture, une langue, un rapport au territoire.",
+      "Il s'agit de reconnaître les singularités sans menacer l'unité."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "contre",
+     "arguments": [
+      "On ne modifie pas la Constitution pour consacrer la victoire électorale d'un camp.",
+      "Aucune consultation préalable des Corses n'a été demandée, alors que les discussions durent depuis 2022."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "contre",
+     "arguments": [
+      "Le groupe se dit favorable à une réponse institutionnelle particulière pour la Corse.",
+      "Depuis le statut Joxe de 1991, chaque réforme a laissé à la suivante le soin d'achever la précédente.",
+      "Il s'agit de permettre d'adapter des normes tenant compte de l'insularité, du relief et de la réalité économique de l'île."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "contre",
+     "arguments": [
+      "La période d'apaisement recherchée est nécessaire pour la France et vitale pour la Corse.",
+      "La réconciliation s'édifie sur le courage et la vérité, non sur l'amnésie ni sur le ressentiment."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N50444": {
+   "vote": {
+    "date": "2026-06-02",
+    "sort": "adopté",
+    "objet": "l'ensemble de la proposition de loi visant à améliorer la protection et l'accompagnement des parents d'enfants atteints d'un cancer, d'une maladie grave ou d'un handicap (deuxième lecture)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "pour",
+     "arguments": [
+      "Le texte reconnaît enfin ce que vivent les familles : leur mal-être social, psychologique et matériel.",
+      "Il n'est qu'un début : le soutien de l'État et de la sécurité sociale reste insuffisant.",
+      "Quand un enfant est touché, les fondations de la famille vacillent et le risque d'isolement social est élevé."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "pour",
+     "arguments": [
+      "La maladie ou le handicap d'un enfant bouleverse toute la cellule familiale, avec des difficultés d'emploi, de logement et des dépenses nouvelles.",
+      "Le texte facilite les démarches administratives, sécurise la situation professionnelle des parents et les accompagne dans le parcours de soins."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "pour",
+     "arguments": [
+      "Des soins d'accompagnement qui rendent la vie plus douce restent non pris en charge, et donc financés par les familles.",
+      "Toute la famille se met en mode survie, et la situation est plus complexe encore lorsqu'elle est monoparentale.",
+      "Les congés sans solde rendent tout plus compliqué."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "La présence des parents est indispensable pendant un traitement lourd, mais elle rend la conciliation avec la vie professionnelle presque impossible.",
+      "L'effort de solidarité nationale reste insuffisant envers les 8 à 11 millions de proches aidants.",
+      "Les dispositifs existants — allocation journalière de présence parentale, allocation d'éducation de l'enfant handicapé — n'y suffisent pas."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "pour",
+     "arguments": [
+      "Le groupe remercie les familles qui ont guidé le travail, et salue l'écoute du rapporteur.",
+      "L'essentiel est d'avoir fait progresser la cause de l'accompagnement de ces familles."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "Plusieurs milliers d'enfants et d'adolescents sont touchés chaque année par une maladie grave ou un handicap majeur.",
+      "Le groupe a travaillé avec la fédération Grandir sans cancer à un amendement augmentant les crédits de la recherche clinique sur les cancers pédiatriques."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Depuis 2017, le Parlement s'est mobilisé de façon transpartisane sur la recherche et sur l'accompagnement des familles.",
+      "Sont cités la réforme du congé de présence parentale et de l'AJPP, et l'expérimentation du baluchonnage, qui offre un répit aux aidants.",
+      "Des centres de recherche intégrée en cancérologie pédiatrique doivent développer des traitements pour des cancers sans solution thérapeutique."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Le texte a été soutenu unanimement en commission le 27 novembre.",
+      "Il ne relève pas d'une amélioration technique du système social : c'est un acte de dignité envers les familles.",
+      "Il apporte des réponses immédiates à des besoins concrets."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "pour",
+     "arguments": [
+      "Les parents doivent assumer une multitude de rôles : soignants, taxis, accompagnateurs, experts administratifs, instituteurs.",
+      "Beaucoup réduisent leur temps de travail ou interrompent leur activité ; d'autres continuent par nécessité de revenu plutôt que par choix.",
+      "Les autres enfants de la fratrie ont aussi besoin de stabilité et de disponibilité."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "pour",
+     "arguments": [
+      "Le texte concerne les enfants les plus fragiles, et montre que les divergences politiques s'effacent devant l'urgence d'agir.",
+      "Les familles affrontent, en plus de l'angoisse, des difficultés administratives, financières et logistiques."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "Le texte a été élaboré avec l'association Eva pour la vie et la fédération Grandir sans cancer.",
+      "Il aurait gagné à associer des députés de tous les bancs : le groupe dit avoir été tenu à l'écart de son élaboration."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  },
+  "DLR5L17N52635": {
+   "vote": {
+    "date": "2026-05-06",
+    "sort": "adopté",
+    "objet": "l'ensemble du projet de loi relatif à la restitution de biens culturels ayant fait l'objet d'une appropriation illicite (texte de la commission mixte paritaire)."
+   },
+   "groupes": [
+    {
+     "sigle": "LFI-NFP",
+     "position": "pour",
+     "arguments": [
+      "La France était l'un des derniers pays d'Europe sans législation-cadre sur la restitution des biens pillés pendant la colonisation.",
+      "Plusieurs centaines d'objets aujourd'hui au musée du quai Branly proviendraient de la seule mission Dakar-Djibouti."
+     ]
+    },
+    {
+     "sigle": "GDR",
+     "position": "pour",
+     "arguments": [
+      "« Un peuple sans mémoire est un peuple sans avenir » : pour la Guyane, ce n'est pas un sujet technique.",
+      "Après cent trente-trois ans d'attente, les annonces faites en séance constituent un signal accueilli positivement."
+     ]
+    },
+    {
+     "sigle": "EcoS",
+     "position": "pour",
+     "arguments": [
+      "Le texte acte enfin, après neuf ans d'attente, la possibilité de déroger à l'inaliénabilité des collections publiques.",
+      "Ce qui est demandé n'est pas de la repentance, mais une exigence de justice, de dignité et de vérité.",
+      "Il faut avoir une conception bien fragile de la République pour croire qu'elle s'affaiblirait en regardant son histoire en face."
+     ]
+    },
+    {
+     "sigle": "LIOT",
+     "position": "pour",
+     "arguments": [
+      "Selon l'écrivain cité à la tribune, l'Afrique n'est pas un musée pour l'Europe et son patrimoine ne peut rester en exil.",
+      "Le texte organise une procédure administrative de déclassement permettant de restituer des biens spoliés.",
+      "Il touche à la manière dont le pays assume son histoire : justice, mémoire, reconnaissance et réparation."
+     ]
+    },
+    {
+     "sigle": "SOC",
+     "position": "pour",
+     "arguments": [
+      "La restitution interroge l'universalisme de l'art et les missions des musées, qui doivent être des lieux de dialogue et de partage.",
+      "L'enjeu est à la fois culturel et diplomatique, et appelle une réponse globale plutôt que les anciennes pratiques muséales."
+     ]
+    },
+    {
+     "sigle": "Dem",
+     "position": "pour",
+     "arguments": [
+      "En 1978, l'Unesco appelait à restituer pour permettre à un peuple de retrouver une partie de sa mémoire et de son identité."
+     ]
+    },
+    {
+     "sigle": "EPR",
+     "position": "pour",
+     "arguments": [
+      "Le texte transforme en acte la parole présidentielle annonçant des restitutions définitives du patrimoine africain.",
+      "Les partenaires étrangers attendaient depuis longtemps cette évolution du droit français."
+     ]
+    },
+    {
+     "sigle": "HOR",
+     "position": "pour",
+     "arguments": [
+      "Aujourd'hui, rendre un seul bien culturel illicitement acquis exige le vote d'une loi entière : cela doit devenir l'exception.",
+      "La restitution du tambour parleur arraché à la Côte d'Ivoire a demandé un rapport, des négociations et des années d'attente."
+     ]
+    },
+    {
+     "sigle": "DR",
+     "position": "abstention",
+     "arguments": [
+      "Le groupe souscrit à l'objectif général : offrir enfin une procédure de restitution des biens spoliés.",
+      "Ces lois doivent apporter un cadrage clair à une nouvelle dynamique partenariale entre la France et ces pays."
+     ]
+    },
+    {
+     "sigle": "UDR",
+     "position": "abstention",
+     "arguments": [
+      "La procédure actuelle, qui exige une loi par restitution, est d'une lourdeur incontestable.",
+      "Une procédure réglementaire plus simple donnerait davantage de place à l'expertise scientifique.",
+      "Le groupe juge néanmoins la procédure proposée imparfaite."
+     ]
+    },
+    {
+     "sigle": "RN",
+     "position": "pour",
+     "arguments": [
+      "La restitution du tambour parleur Djidji Ayôkwê fut un geste d'amitié et de respect envers la Côte d'Ivoire.",
+      "Discuter au cas par cas permet d'adoucir des revendications légitimes et parfois d'éteindre des griefs.",
+      "Le groupe dit avoir décelé de nombreuses imperfections dans le texte."
+     ]
+    }
+   ],
+   "origine": "ia",
+   "le": "2026-09-19",
+   "modele": "claude-opus-5"
+  }
+ }
+}

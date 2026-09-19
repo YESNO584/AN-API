@@ -476,9 +476,24 @@ jour du débat, la date, la section. 3 384 prises de parole sur 172 textes de
 loi. L'onglet vient juste après les articles ; le vote sur l'ensemble a le
 sien, le premier de la barre.
 
-**Rien n'est résumé et rien n'est relié au vote.** La page ne dit pas « ce
-groupe a voté ainsi parce que » : elle montre ce qui a été dit, et le vote est
-dans l'onglet d'à côté. C'est un choix, pas une limite technique — le 25 février 2026,
+**Depuis le 2026-09-19, un résumé écrit par une IA ouvre l'onglet.** Il range
+les groupes par ce qu'ils ont voté — « ont voté pour », « ont voté contre »,
+« se sont abstenus », « se sont partagés » — et donne sous chacun **au plus
+quatre arguments**, tirés de ses seules prises de parole. Les paroles complètes
+restent en dessous, entières et inchangées : le résumé s'ajoute, il ne
+remplace rien. C'est la **seconde** rubrique écrite par une IA, après la
+description d'un texte, et la décision est écrite dans
+`../docs/CE-QUE-L-ON-ECRIT.md`. Elle se signale à l'écran, comme l'autre :
+icône, mention « Généré par une IA », explication au toucher.
+
+**Le camp n'est pas écrit par l'IA : il est relevé dans le scrutin.** C'est ce
+qui permet à cette rubrique de coexister avec la règle ci-dessous — l'IA écrit
+des arguments, la source dit les votes. Un texte sans scrutin sur l'ensemble
+garde le résumé, sans camps, et le dit.
+
+**Rien n'est résumé dans les paroles elles-mêmes, et rien n'y est relié au
+vote.** La page ne dit pas « ce groupe a voté ainsi parce que » : elle montre
+ce qui a été dit, et le vote est dans l'onglet d'à côté. C'est un choix, pas une limite technique — le 25 février 2026,
 l'UDR a voté *pour* les soins palliatifs pendant que son orateur disait
 « l'ensemble du groupe UDR votera contre », parce qu'il parlait de l'autre
 texte de la même séance.

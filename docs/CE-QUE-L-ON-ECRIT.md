@@ -7,9 +7,10 @@ qu'est-ce qui vient du Parlement, et qu'est-ce qui vient de nous ?
 
 ## En une phrase
 
-**Une seule rubrique de l'application est écrite par une intelligence
-artificielle — la description, en haut de la fiche d'un texte — et elle le dit
-à l'écran.** Tout le reste est recopié de la source, écrit à la main dans le
+**Deux rubriques de l'application sont écrites par une intelligence
+artificielle — la description, en haut de la fiche d'un texte, et le résumé
+des débats, en tête de l'onglet « Débats » — et toutes deux le disent à
+l'écran.** Tout le reste est recopié de la source, écrit à la main dans le
 code, ou calculé. Aucun texte de la source n'est reformulé nulle part.
 
 ## Les quatre catégories
@@ -24,7 +25,9 @@ code, ou calculé. Aucun texte de la source n'est reformulé nulle part.
 Un **C** n'est jamais une phrase inventée : c'est un chiffre, une date, ou le
 choix d'un mot dans une liste fermée écrite à l'avance.
 
-## L'exception : la description d'un texte
+## Les deux exceptions, et rien d'autre
+
+### 1. La description d'un texte
 
 C'est la seule entorse à la règle, et elle est délibérée. Une fiche s'ouvrait
 sur un titre officiel — « Projet de loi portant diverses dispositions
@@ -48,8 +51,9 @@ texte parle. La description répond à cette question en deux phrases.
 
 - Elle **ne remplace aucun texte de la source**. Le titre, le parcours, les
   votes, les prises de parole et le texte des articles restent au mot près.
-- Elle **ne s'étend pas ailleurs**. Étendre l'exception à une autre rubrique
-  demande une décision écrite ici, pas une initiative de session.
+- Elle **ne s'étend pas d'elle-même ailleurs**. Étendre l'exception à une
+  autre rubrique demande une décision écrite ici, pas une initiative de
+  session. Une seule l'a été depuis : le résumé des débats, ci-dessous.
 - Elle **n'est pas produite par la chaîne de publication**. Aucun appel à un
   service d'IA, aucune clé d'accès, aucune dépendance : le fichier est déjà
   écrit quand la publication le lit.
@@ -77,6 +81,61 @@ moitié-moitié — les articles que la loi a écrits elle-même, et les article
 code les plus réécrits. Le second contrôle la forme de ce qui a été rédigé
 entre les deux et refuse une entrée qui ne tient pas, plutôt que de publier
 une description à moitié écrite.
+
+### 2. Le résumé des débats d'un texte
+
+**Décidé le 2026-09-19**, à la demande explicite de l'auteur du projet. C'est
+la seconde entorse à la règle, et la dernière en date. Un texte discuté compte
+jusqu'à 69 prises de parole : on les publie entières, mot pour mot, mais
+personne ne lit soixante-neuf discours pour savoir ce que les groupes ont dit.
+
+**Ce qu'il est**
+
+| | |
+|---|---|
+| Où il s'affiche | En tête de l'onglet « Débats » d'un texte, **au-dessus des prises de parole complètes**, qui restent affichées en dessous, entières et inchangées. Nulle part ailleurs |
+| Quelle forme il a | Les groupes rangés par camps — « Ont voté pour », « Ont voté contre », « Se sont abstenus », « Se sont partagés » — puis, sous chaque groupe, **au plus quatre arguments**, une phrase chacun |
+| **Ce que l'IA n'écrit pas** | **Le camp.** La position de chaque groupe est relevée dans le scrutin publié par l'Assemblée, par `assembler_resumes.py`, et jamais reprise de la rédaction. Un résumé ne peut donc pas se tromper sur un vote, seulement sur un argument |
+| Sur quoi il s'appuie | **Les prises de parole publiées de ce groupe**, et elles seules : discussion générale et explications de vote, telles que le compte rendu les imprime |
+| Comment il est signalé | Une icône et la mention « Généré par une IA » sous le résumé ; au toucher, une explication qui dit d'où viennent les arguments, que l'IA peut se tromper, que le classement des camps vient du scrutin, et quand le résumé a été écrit |
+| D'où il vient | `socle/resumes_debats.json`, fichier **versionné**, écrit hors ligne, comme les descriptions |
+| Ce qui se passe s'il n'y en a pas | La rubrique ne s'affiche pas, et l'onglet reste exactement ce qu'il était |
+
+**Ce qu'il ne fait pas**
+
+- Il **ne relie jamais une parole à un vote**. Le camp vient du scrutin, les
+  arguments viennent des paroles, et les deux ne se commentent pas l'un
+  l'autre. La raison est mesurée : le 2026-09-02, l'UDR a voté *pour* les soins
+  palliatifs pendant que son orateur disait « votera contre » — il parlait de
+  l'autre texte de la même séance. Un résumé peut donc ranger un groupe dans
+  un camp dont ses phrases semblent s'écarter : c'est la source qui le dit.
+- Il **ne classe pas les arguments en « pour » et « contre »** selon leur
+  contenu. Cela demanderait d'interpréter les phrases, donc d'écrire à la
+  place des orateurs.
+- Il **ne remplace pas les paroles**. Elles sont sous lui, entières.
+- Il **n'invente pas un groupe**. Un groupe qui a voté sans parler n'apparaît
+  pas ; un groupe qui a parlé sans être au scrutin est affiché à part, sous
+  « Groupes absents de ce scrutin ».
+- Il **n'est pas produit par la chaîne de publication**. Aucun appel à un
+  service, aucune clé, aucune dépendance.
+
+**Comment les régénérer**, en deux commandes, comme les descriptions :
+
+```
+.claude/scripts/faits_pour_resumes.py --sortie <dossier> --combien 20
+.claude/scripts/assembler_resumes.py --lots <dossier>/*.json --origine ia
+```
+
+Le premier récolte les paroles d'un texte, groupe par groupe, et relève le
+scrutin ; il ne rédige rien. Le second contrôle la forme — quatre arguments au
+plus, une phrase chacun, un groupe qui a réellement parlé — **inscrit les
+positions de vote lues dans la source**, et refuse une entrée qui ne tient
+pas.
+
+**Portée mesurée le 2026-09-19** : 205 textes ont des prises de parole, 136 ont
+un scrutin sur l'ensemble, **129 ont les deux** — eux seuls portent les camps.
+Les 76 autres affichent les mêmes arguments, rangés comme dans l'hémicycle,
+avec une phrase qui dit qu'aucun scrutin public n'a eu lieu sur l'ensemble.
 
 ## Ce que la chaîne de publication ne fait toujours pas
 
@@ -225,6 +284,9 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 
 | | |
 |---|---|
+| **Le résumé, en tête de l'onglet** | **IA** pour les arguments, **S** pour les camps de vote — voir l'exception n° 2 ci-dessus |
+| « Groupes rangés d'après le scrutin du 23 octobre 2025 sur l'ensemble du texte — adopté » | **C** (la date et le sort viennent du scrutin) + **N** (les mots) |
+| « Ont voté pour », « Ont voté contre », « Se sont abstenus », « Se sont partagés » | **N** — le rangement, lui, est **S** |
 | L'avertissement en tête | **N** |
 | Nom de l'orateur, qualité, sigle du groupe, nom de la section, date | **S** |
 | **Le texte de la prise de parole** | **S**, **entier** — rien n'est coupé (médiane 4 260 caractères) ; le « Lire la suite » ne fait que replier à l'écran |

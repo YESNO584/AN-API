@@ -43,6 +43,7 @@ BASE = RACINE / "parlement.db"
 BASE_LEGI = RACINE / "legi.db"
 SORTIE = RACINE / "public"
 DESCRIPTIONS = RACINE / "descriptions.json"
+RESUMES_DEBATS = RACINE / "resumes_debats.json"
 MAQUETTE = RACINE.parent / "maquette" / "feed.html"
 
 # Ce qu'une loi fait à un article, dit en clair. La clé est le mot de LEGI ;
@@ -685,6 +686,42 @@ def lire_descriptions() -> dict[str, dict]:
     return retenues
 
 
+def lire_resumes_debats() -> dict[str, dict]:
+    """Le résumé des débats d'un texte, en tête de l'onglet « Débats ».
+
+    **Seconde rubrique du projet écrite par une IA**, après la description d'un
+    texte — l'exception est décidée dans `docs/CE-QUE-L-ON-ECRIT.md`. D'où le
+    champ `origine`, publié et affiché : le lecteur doit savoir qui a écrit ce
+    qu'il lit. Les prises de parole complètes restent publiées à côté, mot pour
+    mot, et rien ne les remplace.
+
+    **La position de vote de chaque groupe n'est pas écrite par la rédaction** :
+    `assembler_resumes.py` la relève dans le scrutin publié. Un résumé ne peut
+    donc pas se tromper sur un vote, seulement sur un argument.
+
+    Le fichier est versionné, comme les descriptions : rien ne le reconstruit.
+    Un texte qui n'y figure pas n'affiche aucun résumé, plutôt qu'un cadre vide.
+    """
+    if not RESUMES_DEBATS.exists():
+        return {}
+    try:
+        contenu = json.loads(RESUMES_DEBATS.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as erreur:
+        print(f"  résumés de débats ignorés : {erreur}", file=sys.stderr)
+        return {}
+    retenus = {}
+    for uid, r in (contenu.get("resumes") or {}).items():
+        groupes = [g for g in (r.get("groupes") or [])
+                   if g.get("sigle") and (g.get("arguments") or [])]
+        # Sans origine sûre, on ne publie pas : une rubrique écrite qui ne dit
+        # pas qui l'a écrite est exactement ce que le projet refuse.
+        if groupes and r.get("origine") in ("ia", "humain"):
+            retenus[uid] = {"vote": r.get("vote"), "groupes": groupes,
+                            "origine": r["origine"], "le": r.get("le"),
+                            "modele": r.get("modele") or None}
+    return retenus
+
+
 def ecrire(chemin: pathlib.Path, contenu, brut: bytes | None = None) -> int:
     """Écrit du JSON, ou des octets tels quels si `brut` est fourni."""
     chemin.parent.mkdir(parents=True, exist_ok=True)
@@ -711,6 +748,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     genere_le = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     votes = resume_votes(cx)
     descriptions = lire_descriptions()
+    resumes_debats = lire_resumes_debats()
     legi_cx = ouvrir_legi()
     # Les articles dont seule la ponctuation a bougé : repérés une fois, puis
     # écartés des comptes et rangés à part.
@@ -775,6 +813,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"] == 0,
         "paroles": cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"],
         "descriptions": len(descriptions),
+        "resumesDebats": len(resumes_debats),
         "textesAvecParoles": cx.execute(
             "SELECT COUNT(DISTINCT dossier_uid) n FROM parole").fetchone()["n"],
         "issues": {cle: {"nom": nom, "quoi": quoi, "textes": comptes.get(cle, 0)}
@@ -929,6 +968,8 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             # feraient grossir pour un texte lu à la fois.
             **({"description": descriptions[l["uid"]]}
                if l["uid"] in descriptions else {}),
+            **({"resumeDebats": resumes_debats[l["uid"]]}
+               if l["uid"] in resumes_debats else {}),
         })
 
         # Les amendements dans un fichier séparé : la fiche s'ouvre sans les

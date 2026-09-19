@@ -554,7 +554,7 @@ signale la panne.
 | `promulgues.json` | 106 Ko | — | Les 107 lois déjà promulguées |
 | `arretes.json` | 57 Ko | — | Les 88 textes **arrêtés en chemin** : rejetés, non adoptés, retirés, caducs |
 | `groupes/<ref>.json` | 113 Ko | — | **Les députés d'un groupe** — civilité, prénom, nom, circonscription, numéro de siège (12 fichiers, 577 députés). La page les lit tous à l'ouverture de l'hémicycle, pour compter les femmes et les hommes |
-| `textes/<uid>.json` | 18 Mo | — | Un fichier par texte : parcours, votes, auteur, cosignataires (médiane 4 Ko) |
+| `textes/<uid>.json` | 21 Mo | — | Un fichier par texte : parcours, votes, auteur, cosignataires (médiane 4 Ko). Il porte aussi les deux rubriques écrites hors ligne — la description du texte et le résumé de ses débats — quand elles existent, avec leur origine |
 | `amendements/<uid>.json` | 30 Mo | — | Les amendements d'un texte, chargés seulement si on les ouvre (médiane 90 Ko, 289 fichiers) |
 | `paroles/<uid>.json` | 13 Mo | — | **Ce que les groupes ont dit du texte en séance**, mot pour mot, chargé seulement si on l'ouvre (médiane 54 Ko, 172 fichiers) |
 | `travaux.json` | 337 Ko | — | Les 708 dossiers qui n'aboutissent à aucune loi, et leurs catégories : **l'onglet « Travaux »** |
