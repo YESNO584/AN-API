@@ -52,7 +52,7 @@ Le second bouton de l'en-tête, en forme d'arcs, ouvre la **composition de
 l'Assemblée** : les 577 sièges dessinés en arcs, coloriés par groupe, de la
 gauche à la droite, puis la liste des 12 groupes avec leur sigle, leur nom
 complet et leur effectif. **Toucher un groupe ouvre la liste de ses députés** —
-nom et circonscription, classés par nom. **Toucher les sièges d'un groupe dans
+photo, nom et circonscription, classés par nom. **Toucher les sièges d'un groupe dans
 le dessin l'isole** : les autres s'effacent sans disparaître, et les retoucher
 les rend.
 
@@ -70,6 +70,13 @@ démarrage pour colorier les votes. La liste des députés d'un groupe, elle, es
 un fichier à part (`groupes/<ref>.json`), lu seulement quand on ouvre le
 groupe — 12 fichiers, 113 Ko en tout, dont aucun n'est chargé tant qu'on ne
 demande rien.
+
+**Les photos ne viennent pas de notre socle.** Ce sont des fichiers du site de
+l'Assemblée, dont l'adresse se déduit de l'identifiant du député ; le
+navigateur va donc les chercher là-bas, comme il le fait déjà pour la photo de
+l'auteur sur la fiche d'un texte. Deux précautions, mesurées : elles sont
+chargées **paresseusement**, si bien qu'ouvrir le RN en demande 29 et non 122 ;
+et une photo qui manque laisse une pastille grise, jamais une image brisée.
 
 ## Ce qu'elle montre
 

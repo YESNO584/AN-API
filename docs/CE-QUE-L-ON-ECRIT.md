@@ -298,6 +298,7 @@ Toucher un groupe, sous le dessin, ouvre la liste de ses députés.
 |---|---|
 | Civilité, prénom, nom | **S** |
 | Le département et le numéro de circonscription | **S** |
+| **La photo** | **S** (le fichier est celui du site de l'Assemblée) + **C** (son adresse, calculée sur l'identifiant du député — l'open data ne la publie pas). Chargée depuis le site de l'Assemblée, pas depuis notre socle ; une photo absente laisse une pastille grise, jamais une image brisée |
 | « 1re circonscription », « 3e circonscription » | **C** — la source donne « 1 », « 3 » ; seule la forme est à nous |
 | L'ordre de la liste (par nom, puis par prénom) | **C** — la source ne classe pas. Les accents sont ignorés pour classer seulement : « Bénard » vient avant « Brugerolles », et le nom affiché garde les siens |
 | « 17 députés, classés par nom », « Retour à l'hémicycle » | **N** |

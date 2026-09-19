@@ -424,11 +424,17 @@
                           line-height: 1; }
 
   .deputes { display: flex; flex-direction: column; gap: .3rem; }
-  .depute { display: flex; align-items: center; gap: .55rem;
+  .depute { display: flex; align-items: center; gap: .6rem;
             background: var(--carte); border: 1px solid var(--trait);
-            border-radius: 10px; padding: .45rem .6rem; }
-  .depute i { width: .3rem; height: 1.7rem; border-radius: 2px; flex: 0 0 auto;
-              background: var(--doux); }
+            border-radius: 10px; padding: .4rem .6rem; }
+  /* La même vignette que sur la fiche d'un texte, en plus petit : une liste en
+     compte jusqu'à 122. La hauteur est fixée pour que les lignes ne sautent
+     pas quand une photo arrive. */
+  .depute img, .depute .sans-photo { width: 2.3rem; height: 2.8rem; flex: 0 0 auto;
+                                     border-radius: 7px; background: var(--doux); }
+  .depute img { object-fit: cover; }
+  .depute .sans-photo { display: grid; place-items: center;
+                        color: var(--faible); font-size: .9rem; }
   .depute .corps { min-width: 0; }
   .depute b { display: block; font-size: .85rem; font-weight: 620; line-height: 1.3; }
   .depute .ou { display: block; font-size: .74rem; color: var(--gris); }
@@ -3920,9 +3926,21 @@ async function ouvrirGroupe(sigle) {
   const liste = el("div", "deputes");
   for (const x of d.deputes) {
     const ligne = el("div", "depute");
-    const teinte = el("i");
-    if (d.couleur) teinte.style.background = d.couleur;
-    ligne.append(teinte);
+    // Les photos ne sont pas dans l'open data : ce sont des fichiers du site de
+    // l'Assemblée, chargés depuis lui. `loading = "lazy"` compte ici — sans
+    // cela, ouvrir le RN demanderait 122 images d'un coup.
+    if (x.photo) {
+      const img = el("img");
+      img.src = x.photo;
+      img.alt = "";
+      img.loading = "lazy";
+      // Toutes ne sont pas en ligne : on remplace sans casser la mise en page
+      // plutôt que d'afficher une image brisée.
+      img.addEventListener("error", () => img.replaceWith(el("div", "sans-photo", "—")));
+      ligne.append(img);
+    } else {
+      ligne.append(el("div", "sans-photo", "—"));
+    }
     const corps = el("div", "corps");
     corps.append(el("b", null, [x.civilite, x.prenom, x.nom].filter(Boolean).join(" ")));
     const ou = circonscription(x);
