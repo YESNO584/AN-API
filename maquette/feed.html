@@ -4059,9 +4059,15 @@ async function charger() {
     TRAVAUX = travaux?.travaux || [];
     CATEGORIES_TRAVAUX = travaux?.categories || [];
     ETAT = etat || {};
-    $("maj").textContent = (ETAT.genereLe || textes.genereLe || "").slice(0, 10)
-      ? dateLongue.format(enDate((ETAT.genereLe || textes.genereLe).slice(0, 10)))
-      : "inconnue";
+    // La date des **données**, pas celle de la mise en ligne. Les deux ne
+    // coïncident pas : une modification de la maquette republie le site avec
+    // les données de la veille, la publication ne retéléchargeant les archives
+    // que le matin. Afficher l'heure de publication ferait passer des données
+    // d'hier pour celles du jour.
+    const quand = (ETAT.dernierChargement || {}).fin
+                  || ETAT.genereLe || textes.genereLe || "";
+    $("maj").textContent = quand.slice(0, 10)
+      ? dateLongue.format(enDate(quand.slice(0, 10))) : "inconnue";
     dessiner();
     router();
   } catch (erreur) {

@@ -21,8 +21,13 @@ lire aucune donnée.
 
 ### Pourquoi deux bases
 
-`parlement.db` se reconstruit chaque matin en une minute : la machine est
-neuve à chaque publication, il n'y a rien à conserver.
+`parlement.db` se reconstruit **chaque matin** en une minute et demie, et
+seulement le matin : depuis le 2026-09-19, elle est gardée d'une publication à
+l'autre comme les deux autres. La raison est qu'une modification de la maquette
+déclenche une publication, et retélécharger 412 Mo d'archives pour republier
+une page HTML coûtait 1 min 40 pour rien. Une publication déclenchée par un
+changement de code republie donc **les données de la veille**, et le bas de
+page affiche la date de ces données, jamais celle de la mise en ligne.
 
 `legi.db` ne peut pas faire pareil. Sa première construction lit un fichier de
 1,1 Go — **15,7 minutes, chronométrées** — pour en tirer les rédactions
@@ -509,7 +514,19 @@ tous les matins   →  les tests          (si un test casse, on ne publie pas)
                   →  ./publier.py       (écrit public/)
                   →  un garde-fou       (moins de 500 textes = on ne publie pas)
                   →  mise en ligne
+
+un changement     →  les tests
+de code           →  la base de la veille, reprise du cache
+                  →  ./publier.py
+                  →  garde-fou, mise en ligne
 ```
+
+**`./recuperer.py` ne tourne donc que le matin**, à la main, ou faute de cache
+— sinon il n'y aurait rien à publier. Trois cas, et le troisième compte : la
+clé du cache porte l'empreinte de `schema.sql`, `extraction.py` et
+`recuperer.py`, si bien que **changer une règle de lecture refait la
+récupération complète d'elle-même**. Mesuré le 2026-09-19 : une publication de
+maquette prenait 3 min 45, dont 1 min 40 de téléchargement.
 
 Le garde-fou existe parce qu'une publication réussie de données vides serait
 pire qu'un échec : l'application afficherait un écran vide sans que rien ne
@@ -667,10 +684,11 @@ téléphone.
 - **Ni les données du Sénat directement.** Inutile pour l'instant :
   l'Assemblée publie déjà le parcours dans les deux chambres. Voir
   `../docs/sources/senat.md` pour ce que le Sénat apporterait en plus.
-- **Il ne garde pas d'historique entre deux exécutions en ligne.** La machine
-  de GitHub est neuve à chaque fois : la base est reconstruite, et le journal
-  ne contient que l'exécution en cours. Pour suivre les pannes dans la durée,
-  ce sont les exécutions de GitHub qu'il faut regarder, pas le journal.
+- **Il ne garde presque pas d'historique entre deux exécutions en ligne.** La
+  machine de GitHub est neuve à chaque fois ; seule la base survit, par le
+  cache, et son journal ne porte donc que les récupérations depuis sa
+  reconstruction. Pour suivre les pannes dans la durée, ce sont les exécutions
+  de GitHub qu'il faut regarder, pas le journal.
 
 ## Source et licence
 

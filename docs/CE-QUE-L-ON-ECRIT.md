@@ -108,7 +108,7 @@ rassemblés en fin de document.
 | « **2 151** textes, dont 107 devenus des lois » | **C** (les chiffres) + **N** (les mots) |
 | Le pied de page entier (source, licence, « Rien n'est écarté ») | **N** |
 | « Texte déposé », « Texte de la commission », « Texte adopté par l'Assemblée » | **N** — la source nomme le document « Proposition de loi » à chaque étape, ce qui ne distinguerait pas les versions |
-| « Dernière mise à jour : … » | **C** (date de la publication) |
+| « Dernière mise à jour : … » | **C** — la date à laquelle **les données** ont été récupérées, pas celle de la mise en ligne. Les deux diffèrent : une modification de la maquette republie le site avec les données de la veille |
 
 ### La carte d'un texte, dans le fil
 

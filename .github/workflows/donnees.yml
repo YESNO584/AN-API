@@ -66,15 +66,48 @@ jobs:
         with:
           python-version: "3.12"
 
-      # La base est reconstruite à chaque fois : la machine est neuve à chaque
-      # exécution, il n'y a rien à conserver entre deux passages. C'est une
-      # minute de travail, et cela garantit qu'aucune donnée périmée ne traîne.
+      # La base du Parlement se garde d'une publication à l'autre, comme les
+      # deux autres. Ce n'est pas une optimisation gratuite : une modification
+      # de la maquette déclenche une publication, et retélécharger 412 Mo
+      # d'archives pour republier une page HTML coûtait 1 min 40 à chaque fois.
+      #
+      # **L'empreinte des trois fichiers qui décident du contenu de la base
+      # fait partie de la clé** — le schéma, les règles de lecture, le
+      # programme de récupération. Changer une règle change la clé, aucun cache
+      # ne correspond, et la récupération complète se refait d'elle-même :
+      # sinon on publierait une base remplie selon les anciennes règles. Même
+      # raisonnement que pour le droit consolidé, où le cas s'est produit.
+      #
+      # La base pèse 354 Mo, 90 Mo compressée : à cette taille, la réécrire à
+      # chaque publication coûterait une partie du temps qu'on vient de gagner.
+      # D'où `restore` et `save` séparés — on ne la réenregistre qu'après une
+      # vraie récupération, pas après une republication de la maquette.
+      - name: Retrouver la base du Parlement de la veille
+        id: cache-parlement
+        uses: actions/cache/restore@v4
+        env:
+          REGLES: ${{ hashFiles('socle/schema.sql', 'socle/extraction.py',
+                                'socle/recuperer.py') }}
+        with:
+          path: socle/parlement.db
+          key: parlement-${{ env.REGLES }}-${{ github.run_id }}
+          restore-keys: parlement-${{ env.REGLES }}-
+
+      # Les données du jour ne se récupèrent que le matin, ou à la demande, ou
+      # faute de cache — sinon il n'y aurait rien à publier. Une modification
+      # de code republie donc les données de la veille, et **le bas de page
+      # affiche la date de ces données**, pas celle de la mise en ligne : la
+      # page ne doit jamais se donner pour plus fraîche qu'elle n'est.
+      #
       # L'archive des amendements pèse 297 Mo et n'arrive pas toujours d'un
       # coup : deux publications du 2026-08-31 ont échoué sur une coupure, à
       # 2,6 Mo puis à 51,7 Mo. Le programme reprend maintenant un transfert
       # coupé là où il s'est arrêté ; ce second filet rattrape le cas où il
       # renonce quand même, plutôt que de laisser le site d'hier en ligne.
       - name: Récupérer les dossiers législatifs
+        id: recuperation
+        if: ${{ github.event_name != 'push'
+                || steps.cache-parlement.outputs.cache-matched-key == '' }}
         working-directory: socle
         run: |
           for essai in 1 2 3; do
@@ -83,6 +116,29 @@ jobs:
             sleep $((essai * 30))
           done
           exit 1
+
+      - name: Garder la base du Parlement pour la prochaine fois
+        if: ${{ steps.recuperation.outcome == 'success' }}
+        uses: actions/cache/save@v4
+        env:
+          REGLES: ${{ hashFiles('socle/schema.sql', 'socle/extraction.py',
+                                'socle/recuperer.py') }}
+        with:
+          path: socle/parlement.db
+          key: parlement-${{ env.REGLES }}-${{ github.run_id }}
+
+      - name: Dire quelles données sont publiées
+        working-directory: socle
+        run: |
+          python - <<'PY'
+          import sqlite3
+          cx = sqlite3.connect("parlement.db")
+          cx.row_factory = sqlite3.Row
+          ligne = cx.execute("SELECT fin, statut FROM journal"
+                             " ORDER BY id DESC LIMIT 1").fetchone()
+          print(f"Données récupérées le {ligne['fin']} ({ligne['statut']})"
+                if ligne else "Aucun chargement enregistré")
+          PY
 
       # Le droit consolidé se garde d'un jour sur l'autre. La première passe lit
       # un socle de 1,1 Go — quinze minutes, mesurées — et n'a pas à être
