@@ -61,6 +61,26 @@ même chose. Pour refermer : la ligne du groupe, ou le retour du téléphone —
 l'état est dans l'adresse (`#/hemicycle/<sigle>`), ce qui rend aussi le lien
 partageable.
 
+**Deux façons de dessiner, au choix, par le bouton en haut du dessin.**
+
+- **Par groupe** (par défaut) : les députés d'un même groupe côte à côte, 12
+  rangées d'arcs remplies de la gauche à la droite. Des blocs nets, et la place
+  d'un groupe vient de son **siège médian**.
+- **Par siège** : chaque député à **son propre numéro de siège**, les 650
+  numéros rangés de la droite vers la gauche, les 74 sièges inoccupés laissés
+  en creux. Les groupes y apparaissent parfois mêlés — et c'est la réalité.
+
+**Le second mode existe parce que le premier trompe sur les petits groupes.**
+Mesuré le 2026-09-19 : LIOT occupe les sièges 382 à 483 et SOC les sièges 409
+à 569 — **il n'y a aucune frontière entre les deux**, et aucun ordre ne peut en
+inventer une. Les onze non-inscrits, eux, vont du siège 111 au siège 422, d'un
+bout à l'autre de la salle, puisqu'aucun groupe ne leur réserve de zone. Le
+mode par groupe les montre pourtant côte à côte, au milieu. L'explication au
+toucher le dit, avec ces chiffres.
+
+Ce mode coûte une chose, et l'écran l'annonce sous le dessin : **un député sur
+577 n'a pas de numéro de siège**, il n'y est donc pas dessiné.
+
 **Ce qui est mesuré, et ce qui est dessiné.** L'effectif d'un groupe est un
 compte de députés ; l'ordre des groupes est calculé sur les numéros de siège
 publiés par l'Assemblée (voir `socle/README.md`). La source donne même **le

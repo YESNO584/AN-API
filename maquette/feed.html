@@ -395,7 +395,24 @@
   .evt .resultat b { color: var(--texte); }
 
   /* ---------- l'hémicycle ---------- */
-  .hemicycle { margin: .2rem 0 1.1rem; }
+  .hemicycle { margin: .2rem 0 1.1rem; position: relative; }
+  /* La bascule entre les deux dessins, posée dans le coin du dessin : elle sert
+     à l'hémicycle, pas à l'écran entier. */
+  .bascule-hemi { position: absolute; top: 0; right: 0; display: flex;
+                  border: 1px solid var(--trait-fort); border-radius: 999px;
+                  overflow: hidden; background: var(--carte); }
+  .bascule-hemi button { font: inherit; font-size: .68rem; padding: .18rem .5rem;
+                         border: 0; background: none; color: var(--gris);
+                         cursor: pointer; }
+  .bascule-hemi button[aria-pressed="true"] { background: var(--doux);
+                                              color: var(--texte); font-weight: 620; }
+  .bascule-hemi button:disabled { opacity: .45; cursor: default; }
+  .sous-dessin { font-size: .72rem; color: var(--faible); margin: .3rem 0 0;
+                 line-height: 1.35; }
+  /* Un siège que personne n'occupe : en creux, pas absent — sinon le dessin
+     laisserait croire que la salle compte 576 places. */
+  .hemicycle svg .vides circle { fill: var(--doux); }
+  .hemicycle svg.un-seul .vides { opacity: .35; }
   .hemicycle svg { width: 100%; height: auto; display: block; }
   /* Un liseré de la couleur du fond détache deux sièges voisins de même
      couleur, sans dessiner de trait par-dessus la couleur du groupe. */
@@ -1149,7 +1166,18 @@ const EXPLICATIONS = {
     "sièges de la gauche à la droite dans l'ordre des groupes, sans " +
     "prétendre à un plan de salle : les proportions et l'ordre sont justes, " +
     "la position d'un siège dans le dessin est une convention. Les couleurs " +
-    "aussi.\n\nLe compte « 30 F / 41 H » d'un groupe est fait à l'affichage, " +
+    "aussi.\n\nLe bouton « groupe / siège », en haut du dessin, change ce qui " +
+    "est dessiné. « Par groupe » regroupe les députés d'un même groupe : des " +
+    "blocs nets, et la place du groupe vient de son siège médian. « Par " +
+    "siège » place chaque député à son propre numéro : les groupes y " +
+    "apparaissent parfois mêlés, et c'est la réalité. Ainsi LIOT occupe les " +
+    "sièges 382 à 483 et SOC les sièges 409 à 569 : il n'y a pas de frontière " +
+    "entre eux, et aucun ordre ne peut en inventer une.\n\nD'où une limite du " +
+    "mode « par groupe », qui vaut d'être connue : la place d'un petit groupe " +
+    "dispersé y est approximative. Les onze non-inscrits, par exemple, " +
+    "occupent les sièges 111 à 422 — d'un bout à l'autre de la salle, " +
+    "puisqu'aucun groupe ne leur réserve de zone. Le dessin par groupe les " +
+    "montre pourtant côte à côte.\n\nLe compte « 30 F / 41 H » d'un groupe est fait à l'affichage, " +
     "en lisant la civilité que la source imprime devant chaque nom — « Mme » " +
     "ou « M. ». L'open data ne publie rien d'autre là-dessus, et nous " +
     "n'ajoutons rien : ce qui est compté est ce qui est écrit."],
@@ -3883,6 +3911,103 @@ function ligneDepute(x) {
   return ligne;
 }
 
+/* Le second dessin : chaque député à **son** numéro de siège.
+ *
+ * Ce que la source donne, c'est un numéro par député, et l'ordre de ces
+ * numéros — ils vont de la droite (1) vers la gauche (650). Ce qu'elle ne donne
+ * pas, c'est l'endroit où chaque siège se trouve dans la salle : les numéros
+ * sont donc posés dans la même géométrie d'arcs que l'autre dessin, dans leur
+ * ordre. Plus fidèle, pas exact.
+ *
+ * Ce dessin montre ce que le dessin par groupe cache : deux groupes peuvent
+ * être imbriqués. Mesuré le 2026-09-19 — LIOT occupe les sièges 382 à 483 et
+ * SOC 409 à 569 : il n'y a pas de frontière entre eux. Et les onze non-inscrits
+ * vont du siège 111 au siège 422, d'un bout à l'autre de la salle.
+ */
+const SIEGES_DE_LA_SALLE = 650;
+
+function placesParSiege(groupes) {
+  const par = new Map();
+  for (const g of groupes) {
+    for (const x of MEMBRES.get(g.ref) || []) {
+      if (x.siege) par.set(Number(x.siege), g);
+    }
+  }
+  return par;
+}
+
+function dessinerParSiege(groupes) {
+  const par = placesParSiege(groupes);
+  const hautNumero = Math.max(SIEGES_DE_LA_SALLE, ...par.keys());
+  const places = siegesEnArcs(hautNumero);
+  const svg = document.createElementNS(SVG, "svg");
+  svg.setAttribute("viewBox", "0 0 100 56");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label",
+    `${par.size} députés placés à leur numéro de siège, de la gauche à la droite`);
+  // Un groupe de dessin par groupe politique : c'est lui qui porte la couleur,
+  // le sigle, et donc l'effacement et le toucher.
+  const paquets = new Map();
+  for (const g of groupes) {
+    const part = document.createElementNS(SVG, "g");
+    part.dataset.sigle = g.sigle;
+    part.setAttribute("fill", g.couleur || "#8d8d8d");
+    paquets.set(g.sigle, part);
+    svg.append(part);
+  }
+  const vides = document.createElementNS(SVG, "g");
+  vides.setAttribute("class", "vides");
+  svg.append(vides);
+
+  places.forEach((s, i) => {
+    // La place la plus à gauche porte le plus grand numéro : la salle est
+    // numérotée de la droite vers la gauche.
+    const numero = hautNumero - i;
+    const g = par.get(numero);
+    const point = document.createElementNS(SVG, "circle");
+    point.setAttribute("cx", (50 + 46 * s.rayon * Math.cos(s.angle)).toFixed(2));
+    point.setAttribute("cy", (53 - 46 * s.rayon * Math.sin(s.angle)).toFixed(2));
+    point.setAttribute("r", "1.05");
+    (g ? paquets.get(g.sigle) : vides).append(point);
+  });
+  return { svg, places: par.size, vides: places.length - par.size };
+}
+
+/* Poser le dessin, dans le mode choisi, et le relier au reste : les sièges d'un
+   groupe s'ouvrent au toucher, et le groupe ouvert garde sa couleur pendant que
+   les autres s'effacent. Appelé à l'ouverture de l'écran et à chaque bascule,
+   pour ne pas refaire toute la page — et ne pas renvoyer la vue en haut. */
+function poserLeDessin(zone, groupes, total, choisi, sigle, parSiege) {
+  zone.querySelectorAll("svg, .sous-dessin").forEach((n) => n.remove());
+  const fait = parSiege ? dessinerParSiege(groupes)
+                        : { svg: dessinerHemicycle(groupes, total) };
+  const svg = fait.svg;
+  zone.append(svg);
+  if (parSiege) {
+    // Ce mode perd un député : celui dont la source ne donne pas le siège.
+    const manquants = total - fait.places;
+    zone.append(el("p", "sous-dessin",
+      `${nb.format(fait.places)} députés à leur numéro de siège, `
+      + `${nb.format(fait.vides)} sièges vides`
+      + (manquants > 0
+         ? ` — ${nb.format(manquants)} député${manquants > 1 ? "s" : ""} `
+           + "sans numéro, donc absent du dessin." : ".")));
+  }
+  svg.classList.toggle("un-seul", !!choisi);
+  svg.querySelectorAll("g").forEach(
+    (n) => n.classList.toggle("vu", !!choisi && n.dataset.sigle === choisi.sigle));
+  svg.addEventListener("click", (ev) => {
+    const part = ev.target.closest("g");
+    const vise = part && part.dataset.sigle;
+    if (vise) location.hash = vise === sigle
+      ? "#/hemicycle" : "#/hemicycle/" + encodeURIComponent(vise);
+  });
+}
+
+// Le mode choisi vaut pour l'écran, pas pour la visite suivante : il survit à
+// l'ouverture d'un groupe, pas à un rechargement de la page.
+let PAR_SIEGE = false;
+
 /* Un seul écran, deux états : tous les groupes, ou un seul groupe ouvert avec
    ses députés en dessous. C'est l'adresse qui porte l'état — `#/hemicycle` ou
    `#/hemicycle/<sigle>` — de sorte que le retour du téléphone referme le
@@ -3921,21 +4046,30 @@ async function ouvrirHemicycle(sigle = null) {
   f.append(sous);
 
   const zone = el("div", "hemicycle");
-  const svg = dessinerHemicycle(groupes, total);
-  zone.append(svg);
   f.append(zone);
 
-  // Le groupe ouvert garde ses sièges en couleur ; les autres s'effacent sans
-  // disparaître. Toucher des sièges ouvre ce groupe, comme sa ligne.
-  svg.classList.toggle("un-seul", !!choisi);
-  svg.querySelectorAll("g").forEach(
-    (n) => n.classList.toggle("vu", !!choisi && n.dataset.sigle === choisi.sigle));
-  svg.addEventListener("click", (ev) => {
-    const part = ev.target.closest("g");
-    const vise = part && part.dataset.sigle;
-    if (vise) location.hash = vise === sigle
-      ? "#/hemicycle" : "#/hemicycle/" + encodeURIComponent(vise);
+  // La bascule entre les deux dessins, dans le coin haut droit. « Par siège »
+  // attend que les douze fichiers de groupes soient lus : un hémicycle à
+  // moitié vide serait pire qu'un dessin par blocs.
+  const bascule = el("div", "bascule-hemi");
+  bascule.setAttribute("role", "group");
+  bascule.setAttribute("aria-label", "Façon de dessiner l'hémicycle");
+  const boutons = [["groupe", false], ["siège", true]].map(([mot, siege]) => {
+    const b = el("button", null, mot);
+    b.setAttribute("aria-pressed", String(PAR_SIEGE === siege));
+    b.disabled = siege;               // levé dès que les députés sont lus
+    b.addEventListener("click", () => {
+      if (PAR_SIEGE === siege) return;
+      PAR_SIEGE = siege;
+      boutons.forEach((x, i) => x.setAttribute("aria-pressed",
+        String(PAR_SIEGE === (i === 1))));
+      poserLeDessin(zone, groupes, total, choisi, sigle, PAR_SIEGE);
+    });
+    bascule.append(b);
+    return b;
   });
+  zone.append(bascule);
+  poserLeDessin(zone, groupes, total, choisi, sigle, PAR_SIEGE);
 
   // La liste : tous les groupes, ou le seul qui est ouvert.
   const liste = el("div", "hemi-liste");
@@ -3974,6 +4108,8 @@ async function ouvrirHemicycle(sigle = null) {
   // donner un total incomplet pour le total.
   Promise.all(groupes.map(membresDuGroupe)).then((tous) => {
     if (tous.some((x) => !x)) return;
+    boutons[1].disabled = false;
+    if (PAR_SIEGE) poserLeDessin(zone, groupes, total, choisi, sigle, true);
     const somme = tous.flat();
     const { femmes, hommes } = femmesEtHommes(somme);
     if (femmes + hommes === somme.length) {

@@ -289,6 +289,9 @@ le dessin invente. Les proportions et l'ordre, eux, sont justes.
 | Sigle et nom complet de chaque groupe | **S** |
 | La couleur de chaque groupe | **N** — convention d'affichage, `COULEURS_GROUPES` |
 | **La place d'un siège dans le dessin** | **N** — une convention : 12 rangées d'arcs remplies de la gauche à la droite. La source donne le numéro du siège, pas l'endroit où il se trouve dans la salle |
+| Le dessin « par siège » | **C** — chaque député placé d'après **son** numéro, les 650 numéros dans leur ordre. L'ordre est une donnée, la géométrie des arcs reste une convention |
+| « 576 députés à leur numéro de siège, 74 sièges vides — 1 député sans numéro, donc absent du dessin. » | **C** (les trois chiffres) + **N** (les mots) |
+| « groupe / siège », le bouton du dessin | **N** |
 | « 220 F / 357 H », et le compte de chaque groupe | **C** — compté **à l'affichage** sur la civilité (« Mme » / « M. ») que la source imprime devant chaque nom. Rien d'autre n'est publié là-dessus, et rien n'est ajouté. Un député sans civilité n'est compté d'aucun côté |
 | « Ce dessin est une convention » (au toucher du ⓘ) | **N** — l'écran dit lui-même ce qui est mesuré et ce qui est dessiné |
 
