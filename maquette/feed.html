@@ -202,6 +202,11 @@
   .fleche:active:not(:disabled) { border-color: var(--accent); color: var(--accent); }
   .titre-etape.fini { color: var(--ok); }
   .etiq.promulguee { color: var(--ok); background: transparent; border-color: currentColor; }
+  /* La procédure accélérée décrit la procédure, pas l'issue du texte : trait
+     discontinu pour qu'elle ne se confonde pas avec « Promulguée » ou
+     « Rejeté », qui disent où le texte en est. */
+  .etiq.acceleree { background: transparent; border-style: dashed;
+                    border-color: var(--trait-fort); color: var(--gris); }
   .etiq.arrete { color: var(--accent); background: transparent; border-color: currentColor;
                  font-weight: 560; }
   .titre-etape.arret { color: var(--faible); }
@@ -818,6 +823,17 @@
 
   /* Le résumé des débats reprend le cadre de la description — même statut,
      même signalement — et y ajoute les camps de vote. */
+  /* Une partie de l'onglet « Texte » : un titre, une phrase, un bouton, puis
+     le texte quand on le demande. */
+  .partie-texte { border: 1px solid var(--trait); border-radius: var(--rayon);
+                  padding: .7rem .8rem; margin-bottom: .6rem;
+                  background: var(--carte); }
+  .partie-texte .tete b { display: block; font-size: .92rem; font-weight: 640; }
+  .partie-texte .tete span { display: block; font-size: .76rem; color: var(--gris);
+                             line-height: 1.35; margin-top: .15rem; }
+  .partie-texte .charger { margin-top: .55rem; }
+  .partie-texte .art-titre { margin-top: .9rem; }
+
   .resume-debats { margin: 0 0 .9rem; }
   .resume-debats .sur-quel-vote { font-size: .76rem; color: var(--gris);
                                   line-height: 1.4; }
@@ -1211,6 +1227,13 @@ const EXPLICATIONS = {
     "de nous, et elles ne portent que sur la forme : le classement par nom " +
     "— la source ne classe pas — et l'écriture « 1re circonscription », que " +
     "la source donne comme un simple numéro."],
+  procedureAcceleree: ["La procédure accélérée",
+    "Le gouvernement a engagé la procédure accélérée sur ce texte. Concrètement, " +
+    "le texte ne fait qu'une lecture dans chaque chambre avant qu'une commission " +
+    "mixte paritaire — sept députés, sept sénateurs — tente d'écrire une version " +
+    "commune. Sans elle, le texte ferait des allers-retours entre les deux " +
+    "chambres jusqu'à ce qu'elles s'accordent. La date est celle que la source " +
+    "donne à cet acte du parcours."],
   vigueur: ["L'entrée en vigueur",
     "Une loi promulguée ne s'applique pas forcément tout de suite, ni en une " +
     "seule fois : certains de ses articles peuvent n'entrer en vigueur que " +
@@ -2613,6 +2636,100 @@ function carteParole(p) {
   return c;
 }
 
+/* ---------- l'onglet « Texte » ---------- *
+ * Le contenu réel d'un projet ou d'une proposition de loi, que la fiche ne
+ * montrait nulle part : il n'existait qu'au fond du parcours, une version à la
+ * fois. Trois choses ici, et pas une de plus :
+ *
+ *   — le texte **déposé**, celui qu'on a voulu faire voter ;
+ *   — ce que la **dernière version** a changé, différences comprises ;
+ *   — cette dernière version **à jour**, sans les différences, telle qu'elle
+ *     se lit aujourd'hui.
+ *
+ * Chaque partie se charge à la demande : une version pèse jusqu'à 2,8 Mo
+ * (mesuré le 2026-09-19 sur le projet de loi de finances pour 2026), et
+ * personne n'ouvre les trois à la fois. Quand le socle n'a lu aucune
+ * version — les textes déposés au Sénat, qui publie ses documents ailleurs —
+ * l'onglet le dit au lieu d'afficher un cadre vide.
+ * ------------------------------------------------------------------ */
+
+function articlesDeLaVersion(d, mode) {
+  const zone = el("div");
+  const tous = (d.articles || []).flatMap((a) => a.morceaux || []);
+  if (mode === "diff" && tous.length) {
+    const par = /BTC\d+$/.test(d.ref) ? "par la commission"
+              : /BTA\d+$/.test(d.ref) ? "en séance"
+              : "depuis la version précédente";
+    zone.append(legendeDiff(tous, par));
+  }
+  for (const a of d.articles || []) {
+    const tete = el("div", "art-titre");
+    tete.append(el("h3", null, a.titre));
+    const mots = { modifie: "Modifié", nouveau: "Nouveau", retire: "Retiré",
+                   identique: "Inchangé", initial: null };
+    if (mode === "diff" && mots[a.quoi]) {
+      tete.append(el("span", "quoi " + a.quoi, mots[a.quoi]));
+    }
+    zone.append(tete);
+    zone.append(texteCompare(a.morceaux, mode, a.texte));
+  }
+  return zone;
+}
+
+function partieDeTexte(uid, version, titre, sous, mode) {
+  const partie = el("div", "partie-texte");
+  const tete = el("div", "tete");
+  tete.append(el("b", null, titre));
+  tete.append(el("span", null, sous));
+  partie.append(tete);
+  const bouton = el("button", "charger", "Afficher");
+  partie.append(bouton);
+  bouton.addEventListener("click", async () => {
+    bouton.textContent = "Chargement…";
+    const d = await lire(`versions/${uid}/${version.ref}.json`);
+    if (!d) {
+      bouton.textContent = "Texte indisponible";
+      return;
+    }
+    bouton.remove();
+    partie.append(articlesDeLaVersion(d, mode));
+  });
+  return partie;
+}
+
+function blocTexte(uid, versions, plat) {
+  const b = bloc("Le texte", false, plat);
+  if (!versions.length) {
+    b.append(el("p", "avertissement",
+      "Le texte de ce projet ou de cette proposition n'est pas publié ici. "
+      + "Le socle lit les documents de l'Assemblée nationale ; un texte déposé "
+      + "au Sénat a ses versions sur le site du Sénat, qui ne les sert pas de "
+      + "la même façon. Le parcours donne le numéro de chaque document."));
+    return b;
+  }
+  const initiale = versions[0];
+  const derniere = versions[versions.length - 1];
+  const quand = (v) => dateLongue.format(enDate(v.date));
+
+  b.append(partieDeTexte(uid, initiale, initiale.nom,
+    quand(initiale) + " — le texte tel qu'il a été déposé", "apres"));
+
+  // Une seule version : il n'y a ni « dernière » ni comparaison à montrer.
+  if (versions.length > 1) {
+    b.append(partieDeTexte(uid, derniere,
+      "Ce que « " + derniere.nom + " » a changé",
+      quand(derniere) + " — les différences avec la version précédente", "diff"));
+    b.append(partieDeTexte(uid, derniere, derniere.nom + ", à jour",
+      quand(derniere) + " — le texte tel qu'il se lit aujourd'hui, sans les "
+      + "différences", "apres"));
+  } else {
+    b.append(el("p", "avertissement",
+      "Une seule version de ce texte est publiée : il n'y a donc rien à "
+      + "comparer, et le texte déposé est aussi le texte à jour."));
+  }
+  return b;
+}
+
 /* ---------- le résumé des débats ---------- *
  * **La seconde rubrique écrite par une IA**, après la description d'un texte.
  * Elle range les groupes par ce qu'ils ont voté et donne au plus quatre
@@ -3132,6 +3249,14 @@ async function ouvrirFiche(uid) {
       [etapeDe(PROMULGUEE).nom, etapeDe(PROMULGUEE).quoi],
       d.loi_numero ? "loi n° " + d.loi_numero : null));
   }
+  // La procédure accélérée change le parcours entier, et le site de
+  // l'Assemblée en fait une bannière : elle mérite mieux qu'une ligne au
+  // milieu de trente-sept étapes.
+  if (d.procedureAcceleree) {
+    l.append(etiquette("acceleree", "Procédure accélérée",
+      EXPLICATIONS.procedureAcceleree,
+      "engagée le " + dateLongue.format(enDate(d.procedureAcceleree.date))));
+  }
   f.append(l);
 
   // La description du texte, avant les sources. **C'est la seule exception à
@@ -3183,6 +3308,13 @@ async function ouvrirFiche(uid) {
   // ici même, et se demande à l'ouverture de l'onglet.
   if (loi) rubriques.push(["Articles", ...blocChangements(uid, loi)]);
 
+  // Le texte lui-même, juste après le vote — sauf pour une loi promulguée, où
+  // il passe **après les débats, juste avant le parcours** : ce qui compte
+  // alors est ce que la loi change au droit, pas le brouillon qu'elle était.
+  const versions = d.versions || [];
+  const ongletTexte = ["Texte", blocTexte(uid, versions, true)];
+  if (d.statut !== "promulgue") rubriques.push(ongletTexte);
+
   // Ce qui a été dit en séance. Juste après les articles, et juste après le
   // vote qui le précède à l'écran : c'est l'argumentaire du texte entier, pas
   // le détail d'une étape.
@@ -3200,6 +3332,10 @@ async function ouvrirFiche(uid) {
       + "à jour. La récupération est retentée chaque matin."));
     rubriques.push(["Débats", b]);
   }
+
+  // Pour une loi promulguée, l'onglet « Texte » se pose ici, juste avant le
+  // parcours.
+  if (d.statut === "promulgue") rubriques.push(ongletTexte);
 
   const items = filDuParcours(d);
   const nbVotes = (d.votes || []).length;

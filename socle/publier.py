@@ -645,6 +645,23 @@ def article_compare(legi_cx: sqlite3.Connection, identifiant: str) -> dict:
     }
 
 
+def procedure_acceleree(cx: sqlite3.Connection, uid: str) -> dict | None:
+    """Le jour où le gouvernement a engagé la procédure accélérée, s'il l'a fait.
+
+    C'est un acte du parcours comme un autre — code `AN1-PROCACC` ou
+    `SN1-PROCACC` — mais il ne se lit pas comme les autres : il **change la
+    procédure entière**, en limitant le texte à une lecture par chambre avant
+    la commission mixte paritaire. Le site de l'Assemblée en fait une bannière
+    en tête de dossier ; nous le laissions au milieu de trente-sept étapes.
+    Mesuré le 2026-09-19 : 158 textes de loi sur 2 218 la portent, jamais deux
+    fois pour le même texte.
+    """
+    ligne = cx.execute(
+        "SELECT date, chambre FROM etape WHERE dossier_uid = ? AND code LIKE '%PROCACC%'"
+        " ORDER BY date LIMIT 1", (uid,)).fetchone()
+    return {"date": ligne["date"], "chambre": ligne["chambre"]} if ligne else None
+
+
 def lire_descriptions() -> dict[str, dict]:
     """La description d'un texte, telle qu'elle s'affiche en haut de sa fiche.
 
@@ -954,8 +971,13 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             versions_ecrites += ecrire(
                 sortie / "versions" / l["uid"] / f'{comparaison["ref"]}.json',
                 {"genereLe": genere_le, **comparaison})
+        # La colonne `description` de la base est la formule de la source : on
+        # la republie sous son nom, et on libère la clé `description` pour la
+        # rubrique écrite. Les laisser toutes deux sous le même nom revenait à
+        # publier tantôt une phrase de la source, tantôt un objet écrit ici.
+        ligne = {k: v for k, v in dict(l).items() if k != "description"}
         details += ecrire(sortie / "textes" / f'{l["uid"]}.json', {
-            **dict(l),
+            **ligne,
             "cosignataires": signataires(cx, cosign[:40]),
             "cosignatairesTotal": len(cosign),
             "auteur": (signataires(cx, [l["auteur_ref"]]) or [None])[0],
@@ -963,6 +985,17 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             "versions": [{k: c[k] for k in ("ref", "nom", "date", "etape", "resume")}
                          for c in comparaisons],
             "votes": votes_du_texte(cx, l["uid"]),
+            # **Deux choses différentes, deux clés différentes.** `formule` est
+            # la phrase que la source imprime sur le document de dépôt
+            # (« visant à la création d'un statut des accompagnants… ») : elle
+            # existe pour tous les textes et n'est écrite par personne ici.
+            # `description` est la rubrique écrite hors ligne, qui n'existe que
+            # pour quelques textes. Elles occupaient la même clé, et la seconde
+            # écrasait la première : une phrase de la source disparaissait sans
+            # que rien ne le signale.
+            **({"formule": l["description"]} if l["description"] else {}),
+            **({"procedureAcceleree": acceleree}
+               if (acceleree := procedure_acceleree(cx, l["uid"])) else {}),
             # La description ne va que dans le fichier de détail : la liste est
             # chargée en entier au démarrage, et 2 151 descriptions la
             # feraient grossir pour un texte lu à la fois.

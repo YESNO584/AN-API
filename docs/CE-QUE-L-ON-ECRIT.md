@@ -254,6 +254,8 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 | | | |
 |---|---|---|
 | Le titre | **S** | |
+| Les étiquettes « Les deux chambres », « Projet de loi », « Promulguée » | **N** (les mots) + **C** (le classement) | |
+| L'étiquette « Procédure accélérée » et sa date | **S** | la source publie l'acte `AN1-PROCACC` ou `SN1-PROCACC` dans le parcours ; nous ne faisons que le remonter en haut de la fiche. 158 textes de loi sur 2 218 la portent |
 | **La description, sous les étiquettes** | **IA** | `socle/descriptions.json` — voir l'exception ci-dessus |
 | « Générée par une IA », et l'explication au toucher | **N** | |
 | « Dossier à l'Assemblée », « Dossier au Sénat », « Texte au Journal officiel » | **N** (les mots) + **S** (les adresses) | |
@@ -279,6 +281,23 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 | Le vert et le rouge dessus | **C** — nous colorons ce que **la source met elle-même entre guillemets**, en suivant le verbe de l'instruction. Le code l'annonce comme « une aide de lecture, pas une vérité juridique ». **Le texte modifié n'est jamais reconstitué** |
 | L'exposé sommaire | **S**, coupé à 400 caractères |
 | « 150 amendements affichés sur 19 510 » | **C** |
+
+### L'onglet « Texte »
+
+| | |
+|---|---|
+| Les trois titres de partie (« Texte déposé », « Ce que … a changé », « …, à jour ») | **N** (les mots) + **S** (le nom de la version, tel que la source le nomme) |
+| Leur date | **S** |
+| **Le texte des articles** | **S**, **mot pour mot** — c'est le document publié par l'Assemblée, rien n'est reformulé |
+| Le vert et le rouge des différences | **C** — comparaison mot à mot entre deux versions de la source, la même que celle du parcours |
+| « Modifié », « Nouveau », « Retiré », « Inchangé » | **C** — notre lecture de la comparaison |
+| « Le texte de ce projet ou de cette proposition n'est pas publié ici… » | **N** |
+
+La **« formule »** du document — la phrase de la source qui dit ce que le texte
+vise (« visant à offrir des réponses immédiates… ») — est publiée telle quelle
+sous la clé `formule`. Elle l'était déjà, mais sous la clé `description`, où la
+description écrite par une IA venait l'écraser : deux textes de nature
+différente partageaient un seul nom. Elles ont désormais chacune le leur.
 
 ### Ce que les groupes en ont dit
 

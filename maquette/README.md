@@ -222,6 +222,10 @@ partageable et ouvrable directement. Elle contient :
   le … », « Ne s'applique pas encore en entier » — **au-dessus du titre** :
   c'est la première chose qu'on vient vérifier devant une loi ;
 - le **titre** du texte, puis **l'étape où il se trouve** ou son issue ;
+- l'étiquette **« Procédure accélérée »** avec sa date, quand le gouvernement
+  l'a engagée : une seule lecture par chambre au lieu de deux avant la
+  commission mixte paritaire. C'est écrit en haut du dossier sur le site de
+  l'Assemblée, et c'était chez nous au fond du parcours ;
 - la **description** du texte ;
 - les **liens officiels** : dossier à l'Assemblée, dossier au Sénat, et le
   **texte de loi au Journal officiel** quand elle est promulguée ;
@@ -233,12 +237,41 @@ partageable et ouvrable directement. Elle contient :
 
 **Vote** — le vote sur l'ensemble du texte, celui qui décide, **avec le détail
 par groupe déjà affiché** : l'objet du scrutin, puis une barre par groupe.
-C'est le premier onglet. **Articles** — ce que la loi change au droit, **en
+C'est le premier onglet. **Texte** — le contenu du texte lui-même, voir plus
+bas. **Articles** — ce que la loi change au droit, **en
 entier ici** : les trois compteurs, les articles groupés par code, les
 retouches de forme et ce que la loi ajoute. **Débats** — ce que les groupes en
 ont dit en séance, chargé à la demande. **Parcours** — le parcours complet,
 étape par étape, datée, **les votes intercalés à leur date** — voir la section
 suivante. **Amendements** — chargés à la demande.
+
+#### L'onglet « Texte » : ce que le texte dit
+
+Le contenu réel d'un projet ou d'une proposition de loi ne s'affichait nulle
+part. Il existait bien — le socle publie chaque version article par article —
+mais on ne l'atteignait qu'au fond du parcours, une version à la fois, et
+l'onglet « Articles » ne parle pas du texte : il parle du droit qu'il change.
+
+L'onglet montre **trois choses, et pas une de plus** :
+
+1. le **texte déposé**, celui qu'on a voulu faire voter ;
+2. **ce que la dernière version a changé**, avec les différences en vert et en
+   rouge — la même comparaison que dans le parcours ;
+3. cette **dernière version à jour**, sans les différences, telle qu'elle se
+   lit aujourd'hui.
+
+Chaque partie a son bouton « Afficher » : une version pèse jusqu'à **2,8 Mo**
+(mesuré le 2026-09-19 sur le projet de loi de finances pour 2026), et personne
+n'ouvre les trois d'un coup. Une seule version publiée — un texte
+tout juste déposé — n'a ni deuxième ni troisième partie, et le dit. Aucune
+version publiée — un texte déposé au Sénat, qui sert ses documents ailleurs —
+et l'onglet le dit aussi, plutôt que d'afficher un cadre vide.
+
+**Sa place dépend de l'issue du texte.** Pour un texte en cours, il vient juste
+après le vote : c'est ce qu'on est en train de discuter, donc ce qu'on veut
+lire. Pour une **loi promulguée**, il passe **juste avant le parcours** : ce
+qui compte alors est le droit qu'elle change, pas la rédaction qu'elle a eue
+en chemin.
 
 **Le vote sur l'ensemble ouvre la fiche quand il existe**, et il n'existe que
 pour 71 textes sur 1 990 : les autres commencent par leurs articles ou leur

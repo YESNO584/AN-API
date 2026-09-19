@@ -554,13 +554,13 @@ signale la panne.
 | `promulgues.json` | 106 Ko | — | Les 107 lois déjà promulguées |
 | `arretes.json` | 57 Ko | — | Les 88 textes **arrêtés en chemin** : rejetés, non adoptés, retirés, caducs |
 | `groupes/<ref>.json` | 113 Ko | — | **Les députés d'un groupe** — civilité, prénom, nom, circonscription, numéro de siège (12 fichiers, 577 députés). La page les lit tous à l'ouverture de l'hémicycle, pour compter les femmes et les hommes |
-| `textes/<uid>.json` | 21 Mo | — | Un fichier par texte : parcours, votes, auteur, cosignataires (médiane 4 Ko). Il porte aussi les deux rubriques écrites hors ligne — la description du texte et le résumé de ses débats — quand elles existent, avec leur origine |
+| `textes/<uid>.json` | 21 Mo | — | Un fichier par texte : parcours, votes, auteur, cosignataires (médiane 4 Ko), la **formule** du document et la **procédure accélérée** quand le gouvernement l'a engagée. Il porte aussi les deux rubriques écrites hors ligne — la description du texte et le résumé de ses débats — quand elles existent, avec leur origine |
 | `amendements/<uid>.json` | 30 Mo | — | Les amendements d'un texte, chargés seulement si on les ouvre (médiane 90 Ko, 289 fichiers) |
 | `paroles/<uid>.json` | 13 Mo | — | **Ce que les groupes ont dit du texte en séance**, mot pour mot, chargé seulement si on l'ouvre (médiane 54 Ko, 172 fichiers) |
 | `travaux.json` | 337 Ko | — | Les 708 dossiers qui n'aboutissent à aucune loi, et leurs catégories : **l'onglet « Travaux »** |
 | `calendrier.json` | 1 Ko | — | Les mois qui portent des événements, et combien : l'index du calendrier |
 | `calendrier/<AAAA-MM>.json` | 404 Ko | — | Un mois par fichier : séances, commissions, décisions, votes, promulgations |
-| `versions/<uid>/<document>.json` | — | — | **Le texte d'une version d'un texte de loi**, article par article, avec ce qui a changé depuis la version précédente et les **amendements adoptés** sur chaque article. Un fichier par version, chargé seulement si on l'ouvre |
+| `versions/<uid>/<document>.json` | — | — | **Le texte d'une version d'un texte de loi**, article par article, avec ce qui a changé depuis la version précédente et les **amendements adoptés** sur chaque article. Un fichier par version, chargé seulement si on l'ouvre (jusqu'à 2,8 Mo — le projet de loi de finances pour 2026). C'est ce que lit l'onglet « Texte » de la fiche |
 | `changements/<uid>.json` | — | — | Ce qu'une loi change au droit **et ce qu'elle y ajoute** : les articles changés groupés par code, et ses propres articles à part (`articlesAjoutes`). **Aucun texte** — la liste sert à choisir |
 | `changements/<uid>/<LEGIARTI>.json` | — | — | Un article : son texte entier, découpé en morceaux égaux, retirés, ajoutés |
 
