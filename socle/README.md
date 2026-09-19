@@ -439,6 +439,13 @@ législature.
 pas. Un groupe absent de cette table, passé ou futur, reçoit une couleur
 calculée sur sa position, du rouge à gauche au bleu à droite.
 
+**L'effectif.** Le nombre de députés d'un groupe n'est pas publié comme tel :
+c'est un **compte** des députés en exercice rattachés au groupe. Il totalise
+577, le nombre de sièges de l'Assemblée — c'est ce qui permet d'en dessiner la
+composition. Deux groupes sont écartés parce qu'ils n'ont aucun député : la
+base les garde parce qu'un scrutin cite leur identifiant sans qu'aucun groupe
+y corresponde.
+
 **La base garde tout**, y compris les dossiers qui ne fabriquent pas de loi et
 les textes promulgués. Les colonnes `est_loi` et `statut` le disent ; c'est à
 l'affichage de trier. Un socle qui jette des données oblige à tout recharger
@@ -505,7 +512,7 @@ signale la panne.
 | `index.html` | 29 Ko | — | **La maquette** (`../maquette/feed.html`, recopiée ici). Publiée à côté des données, elle les lit par une adresse relative |
 | `etat.json` | 581 o | — | D'où viennent les données, de quand, et si le dernier chargement s'est bien passé |
 | `etapes.json` | 846 o | 477 o | Les six étapes du parcours et leurs comptes |
-| `groupes.json` | 1,9 Ko | — | Les groupes politiques, **rangés de la gauche à la droite de l'hémicycle**, avec leur couleur d'affichage |
+| `groupes.json` | 1,9 Ko | — | Les groupes politiques, **rangés de la gauche à la droite de l'hémicycle**, avec leur couleur d'affichage et leur **effectif** (577 députés en tout) |
 | `textes.json` | 829 Ko | **121 Ko** | **Le fichier principal** : les 1 990 textes en cours |
 | `promulgues.json` | 106 Ko | — | Les 107 lois déjà promulguées |
 | `arretes.json` | 57 Ko | — | Les 88 textes **arrêtés en chemin** : rejetés, non adoptés, retirés, caducs |

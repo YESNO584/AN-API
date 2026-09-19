@@ -394,6 +394,32 @@
   .evt .resultat { font-size: .75rem; color: var(--gris); margin-top: .3rem; }
   .evt .resultat b { color: var(--texte); }
 
+  /* ---------- l'hémicycle ---------- */
+  .hemicycle { margin: .2rem 0 1.1rem; }
+  .hemicycle svg { width: 100%; height: auto; display: block; }
+  /* Un liseré de la couleur du fond détache deux sièges voisins de même
+     couleur, sans dessiner de trait par-dessus la couleur du groupe. */
+  .hemicycle svg circle { stroke: var(--fond); stroke-width: .16; }
+  /* Un groupe choisi : les autres s'effacent, aucun ne disparaît. */
+  .hemicycle svg.un-seul g { opacity: .2; }
+  .hemicycle svg.un-seul g.vu { opacity: 1; }
+  .hemi-liste { display: flex; flex-direction: column; gap: .35rem; }
+  .hemi-groupe {
+    display: flex; align-items: center; gap: .55rem; width: 100%;
+    font: inherit; text-align: left; cursor: pointer; color: var(--texte);
+    background: var(--carte); border: 1px solid var(--trait);
+    border-radius: 10px; padding: .5rem .6rem;
+  }
+  .hemi-groupe[aria-pressed="true"] { border-color: var(--accent); }
+  .hemi-groupe i { width: .5rem; height: 1.7rem; border-radius: 3px; flex: 0 0 auto;
+                   background: var(--doux); }
+  .hemi-groupe .sigle { flex: 0 0 auto; width: 4.3rem; font-size: .8rem; font-weight: 650; }
+  .hemi-groupe .nom { flex: 1; min-width: 0; font-size: .76rem; color: var(--gris);
+                      line-height: 1.3; }
+  .hemi-groupe .n { flex: 0 0 auto; font-size: .9rem; font-weight: 650;
+                    font-variant-numeric: tabular-nums; }
+  .hemi-groupe .n span { font-size: .7rem; font-weight: 500; color: var(--faible); }
+
   /* ---------- ce qu'une loi change au droit ---------- */
   /* L'entrée en vigueur, sur la carte du fil : une loi promulguée peut ne pas
      s'appliquer encore, et c'est ce qu'on cherche à savoir en premier. */
@@ -866,6 +892,14 @@
           <circle cx="15.5" cy="17.5" r="1.2" class="plein"/>
         </svg>
       </button>
+      <button class="bouton-agenda" id="bouton-hemicycle"
+              aria-label="Composition de l'Assemblée nationale">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M3.5 19a8.5 8.5 0 0 1 17 0"/>
+          <path d="M7 19a5 5 0 0 1 10 0"/>
+          <path d="M10.5 19a1.5 1.5 0 0 1 3 0"/>
+        </svg>
+      </button>
     </div>
     <p class="compte" id="compte">Chargement…</p>
     <div class="barre">
@@ -1085,6 +1119,14 @@ const EXPLICATIONS = {
     "devenu. Elle est calculée mot à mot à partir du texte officiel publié par " +
     "la Direction de l'information légale et administrative — rien n'est " +
     "reformulé ni résumé."],
+  hemicycle: ["Ce dessin est une convention",
+    "Deux choses seulement viennent de la source. Le nombre de députés de " +
+    "chaque groupe, qui est un compte. Et l'ordre des groupes, de la gauche à " +
+    "la droite, calculé sur les numéros de siège que l'Assemblée publie. La " +
+    "place exacte d'un siège dans le dessin, elle, n'est pas une donnée : " +
+    "l'open data ne dit pas où chaque député s'assied, et les couleurs sont " +
+    "un choix d'affichage. Le dessin montre donc des proportions justes, pas " +
+    "un plan de salle."],
   vigueur: ["L'entrée en vigueur",
     "Une loi promulguée ne s'applique pas forcément tout de suite, ni en une " +
     "seule fois : certains de ses articles peuvent n'entrer en vigueur que " +
@@ -3675,6 +3717,137 @@ function ligneEvenement(e) {
   return b;
 }
 
+/* ------------------------------------------------------------------ *
+ * L'hémicycle : la composition de l'Assemblée
+ *
+ * Les 577 sièges, coloriés par groupe, de la gauche à la droite. Ce qui est
+ * mesuré : l'effectif de chaque groupe (un compte de députés) et l'ordre des
+ * groupes (le numéro de siège médian de leurs députés, publié par
+ * l'Assemblée). Ce qui est une convention : la place d'un siège dans le
+ * dessin — l'open data ne dit pas où chaque député s'assied — et les
+ * couleurs. L'écran le dit lui-même, au toucher.
+ * ------------------------------------------------------------------ */
+
+const RANGEES = 12;            // rangées d'arcs, du fond de la salle au perchoir
+const CREUX = 0.45;            // rayon de la rangée la plus courte, en part du grand
+
+function siegesEnArcs(total, rangees = RANGEES) {
+  // Une rangée longue porte plus de sièges qu'une rangée courte : on répartit
+  // au prorata du rayon. L'arrondi ne tombe jamais juste — on rattrape le
+  // reste sur les rangées extérieures, les plus longues.
+  const rayons = [];
+  for (let i = 0; i < rangees; i++) {
+    rayons.push(CREUX + (1 - CREUX) * i / (rangees - 1));
+  }
+  const somme = rayons.reduce((a, b) => a + b, 0);
+  const parRangee = rayons.map((r) => Math.max(1, Math.round(total * r / somme)));
+  let ecart = total - parRangee.reduce((a, b) => a + b, 0);
+  for (let i = rangees - 1; ecart !== 0; i = (i + rangees - 1) % rangees) {
+    const pas = ecart > 0 ? 1 : -1;
+    parRangee[i] += pas;
+    ecart -= pas;
+  }
+
+  const sieges = [];
+  parRangee.forEach((combien, i) => {
+    for (let k = 0; k < combien; k++) {
+      // π à gauche, 0 à droite, avec un demi-pas de marge aux deux bouts.
+      sieges.push({ angle: Math.PI * (1 - (k + 0.5) / combien), rayon: rayons[i] });
+    }
+  });
+  // De la gauche vers la droite ; à angle égal, du fond vers le perchoir.
+  sieges.sort((a, b) => b.angle - a.angle || a.rayon - b.rayon);
+  return sieges;
+}
+
+const SVG = "http://www.w3.org/2000/svg";
+
+function dessinerHemicycle(groupes, total) {
+  const sieges = siegesEnArcs(total);
+  const svg = document.createElementNS(SVG, "svg");
+  svg.setAttribute("viewBox", "0 0 100 56");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label",
+    `${total} sièges coloriés par groupe, de la gauche à la droite de l'hémicycle`);
+  let pris = 0;
+  for (const g of groupes) {
+    const part = document.createElementNS(SVG, "g");
+    part.dataset.sigle = g.sigle;
+    part.setAttribute("fill", g.couleur || "#8d8d8d");
+    for (let k = 0; k < g.effectif && pris < sieges.length; k++, pris++) {
+      const s = sieges[pris];
+      const point = document.createElementNS(SVG, "circle");
+      point.setAttribute("cx", (50 + 46 * s.rayon * Math.cos(s.angle)).toFixed(2));
+      point.setAttribute("cy", (53 - 46 * s.rayon * Math.sin(s.angle)).toFixed(2));
+      point.setAttribute("r", "1.05");
+      part.append(point);
+    }
+    svg.append(part);
+  }
+  return svg;
+}
+
+function ouvrirHemicycle() {
+  const f = ouvrirEcran();
+  f.append(boutonRetour("", "Retour au fil"));
+  f.append(el("h2", "fiche-titre", "L'Assemblée nationale"));
+
+  // Les groupes sans député sont écartés par la publication ; l'ordre vient
+  // d'elle aussi. Le tri est ici par sûreté, pas pour recalculer quoi que ce soit.
+  const groupes = [...GROUPES.values()]
+    .filter((g) => g.effectif > 0)
+    .sort((a, b) => a.rang - b.rang);
+  if (!groupes.length) {
+    f.append(el("div", "vide",
+      "Composition indisponible : la publication du jour ne porte pas encore "
+      + "l'effectif des groupes."));
+    return;
+  }
+  const total = groupes.reduce((n, g) => n + g.effectif, 0);
+
+  const sous = el("p", "fiche-sous",
+    `${nb.format(total)} députés, ${groupes.length} groupes, `
+    + "de la gauche à la droite de l'hémicycle. ");
+  const aide = el("button", "aide", "ⓘ");
+  aide.setAttribute("aria-label", "Ce que ce dessin montre, et ce qu'il ne montre pas");
+  aide.addEventListener("click",
+    () => expliquer(...EXPLICATIONS.hemicycle, "Effectifs mesurés, places dessinées"));
+  sous.append(aide);
+  f.append(sous);
+
+  const zone = el("div", "hemicycle");
+  const svg = dessinerHemicycle(groupes, total);
+  zone.append(svg);
+  f.append(zone);
+
+  // Toucher un groupe l'isole dans le dessin ; le retoucher rend tout le monde.
+  let vu = null;
+  const liste = el("div", "hemi-liste");
+  for (const g of groupes) {
+    const ligne = el("button", "hemi-groupe");
+    ligne.setAttribute("aria-pressed", "false");
+    const teinte = el("i");
+    if (g.couleur) teinte.style.background = g.couleur;
+    ligne.append(teinte);
+    ligne.append(el("span", "sigle", g.sigle));
+    ligne.append(el("span", "nom", g.nom || ""));
+    const compte = el("span", "n", nb.format(g.effectif));
+    compte.append(el("span", null, " dép."));
+    ligne.append(compte);
+    ligne.addEventListener("click", () => {
+      vu = vu === g.sigle ? null : g.sigle;
+      svg.classList.toggle("un-seul", vu !== null);
+      svg.querySelectorAll("g").forEach(
+        (n) => n.classList.toggle("vu", n.dataset.sigle === vu));
+      liste.querySelectorAll(".hemi-groupe").forEach(
+        (n, i) => n.setAttribute("aria-pressed",
+          String(groupes[i].sigle === vu)));
+    });
+    liste.append(ligne);
+  }
+  f.append(liste);
+}
+
 function fermerFiche() {
   document.body.classList.remove("fiche-ouverte");
   $("frise-bas").hidden = false;
@@ -3688,6 +3861,7 @@ function fermerFiche() {
 
 function router() {
   if (location.hash === "#/calendrier") return ouvrirAgenda();
+  if (location.hash === "#/hemicycle") return ouvrirHemicycle();
   const article = location.hash.match(/^#\/change\/([\w-]+)\/(\w+)$/);
   if (article) return ouvrirArticle(article[1], article[2]);
   const change = location.hash.match(/^#\/change\/([\w-]+)$/);
@@ -3727,6 +3901,10 @@ surveillerLeTour($("fil"));
 
 $("bouton-agenda").addEventListener("click", () => {
   location.hash = "#/calendrier";
+});
+
+$("bouton-hemicycle").addEventListener("click", () => {
+  location.hash = "#/hemicycle";
 });
 
 $("bascule").addEventListener("click", () => {

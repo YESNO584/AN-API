@@ -273,6 +273,23 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 | La ligne de résultat sous l'événement | **S** (libellé de l'acte, décompte du vote) |
 | « Aucune séance ni aucun vote ce mois-ci… » | **N** |
 
+### L'hémicycle
+
+L'écran s'ouvre par le bouton en forme d'arcs, à côté du calendrier. Le
+**dessin** est la seule image de l'application qui ne recopie rien : l'open
+data publie des numéros de siège, pas un plan de salle, et ne dit pas où
+chaque député s'assied. Les proportions, elles, sont justes.
+
+| | |
+|---|---|
+| « L'Assemblée nationale », « dép. » | **N** |
+| « 577 députés, 12 groupes » | **C** — un compte des députés rattachés à chaque groupe |
+| L'ordre des groupes, de la gauche à la droite | **C** — **mesuré** sur les numéros de siège (voir `socle/README.md`) |
+| Sigle et nom complet de chaque groupe | **S** |
+| La couleur de chaque groupe | **N** — convention d'affichage, `COULEURS_GROUPES` |
+| **La place d'un siège dans le dessin** | **N** — une convention : 12 rangées d'arcs remplies de la gauche à la droite. Rien dans la source ne la donne |
+| « Ce dessin est une convention » (au toucher du ⓘ) | **N** — l'écran dit lui-même ce qui est mesuré et ce qui est dessiné |
+
 ### Messages d'attente et de panne
 
 « Chargement… », « Données indisponibles », « Fiche indisponible : … »,

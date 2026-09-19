@@ -782,14 +782,22 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     # Les groupes, rangés de la gauche à la droite de l'hémicycle. L'ordre est
     # mesuré sur les numéros de siège publiés ; la couleur est une convention
     # d'affichage, que la page reprend telle quelle plutôt que d'en inventer.
+    # L'effectif est un compte des députés en exercice, pas une donnée publiée
+    # comme telle : c'est ce qui permet de dessiner la composition. Les groupes
+    # à zéro député sont écartés — la base en garde deux, hérités de scrutins
+    # qui citent un identifiant sans groupe correspondant.
+    groupes_publies = [dict(g) for g in cx.execute(
+        "SELECT g.ref, g.sigle, g.nom, g.rang, g.siege_median, g.couleur,"
+        " COUNT(a.ref) effectif"
+        " FROM groupe g LEFT JOIN acteur a ON a.groupe_ref = g.ref"
+        " GROUP BY g.ref HAVING effectif > 0 ORDER BY g.rang")]
     tailles["groupes.json"] = ecrire(sortie / "groupes.json", {
         "genereLe": genere_le,
         "ordre": "de la gauche à la droite de l'hémicycle, d'après les numéros"
                  " de siège publiés par l'Assemblée",
         "couleurs": "convention d'affichage — l'open data n'en publie aucune",
-        "groupes": [dict(g) for g in cx.execute(
-            "SELECT ref, sigle, nom, rang, siege_median, couleur"
-            " FROM groupe ORDER BY rang")],
+        "deputes": sum(g["effectif"] for g in groupes_publies),
+        "groupes": groupes_publies,
     })
 
     tailles["etapes.json"] = ecrire(sortie / "etapes.json", {
