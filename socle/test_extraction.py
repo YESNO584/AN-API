@@ -982,6 +982,7 @@ class AuteursEtPhotos(unittest.TestCase):
                {"typeOrgane": "GP", "dateFin": None,
                 "organes": {"organeRef": "PO999"}},
                {"typeOrgane": "ASSEMBLEE", "dateFin": None,
+                "mandature": {"placeHemicycle": "077"},
                 "election": {"lieu": {"departement": "Pas-de-Calais",
                                       "numDepartement": "62", "numCirco": "5"}}}]}}
 
@@ -1017,11 +1018,40 @@ class AuteursEtPhotos(unittest.TestCase):
         a = extraction.lire_acteurs(self._archive([change]))["PA2000"]
         self.assertEqual(a["groupeRef"], "PO222")
 
+    def test_le_numero_de_siege_perd_son_zero_de_remplissage(self):
+        """La source écrit « 077 » ; on affiche 77.
+
+        Le zéro est un remplissage de la source, pas une donnée. Le garder
+        ferait écrire « siège 077 » à l'écran.
+        """
+        a = extraction.lire_acteurs(self._archive([self.ELU]))["PA2000"]
+        self.assertEqual(a["siege"], "77")
+
+    def test_un_depute_sans_siege_n_en_recoit_pas_un_faux(self):
+        """Mesuré le 2026-09-19 : 576 députés sur 577 ont un numéro de siège.
+
+        Le 577e n'en a pas. Mettre 0, ou une chaîne vide, le ferait passer pour
+        assis quelque part.
+        """
+        muet = dict(self.ELU)
+        muet["mandats"] = {"mandat": [{"typeOrgane": "ASSEMBLEE", "dateFin": None,
+                                       "mandature": {"placeHemicycle": None}}]}
+        self.assertIsNone(
+            extraction.lire_acteurs(self._archive([muet]))["PA2000"]["siege"])
+
+    def test_une_place_qui_n_est_pas_un_nombre_est_ecartee(self):
+        bizarre = dict(self.ELU)
+        bizarre["mandats"] = {"mandat": [{"typeOrgane": "ASSEMBLEE", "dateFin": None,
+                                          "mandature": {"placeHemicycle": "tribune"}}]}
+        self.assertIsNone(
+            extraction.lire_acteurs(self._archive([bizarre]))["PA2000"]["siege"])
+
     def test_un_senateur_n_a_pas_de_circonscription_a_l_assemblee(self):
         a = extraction.lire_acteurs(self._archive([self.ELU]),
                                     groupe_et_photo=False)["PA2000"]
         self.assertIsNone(a["departement"])
         self.assertIsNone(a["circo"])
+        self.assertIsNone(a["siege"])
 
     def test_un_depute_sans_lieu_d_election_ne_fait_pas_tomber_la_lecture(self):
         """Mesuré : le champ existe pour les 577, mais rien ne le garantit."""

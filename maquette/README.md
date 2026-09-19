@@ -51,25 +51,36 @@ rien à corriger, mais il ne faut pas promettre un agenda prévisionnel.
 Le second bouton de l'en-tête, en forme d'arcs, ouvre la **composition de
 l'Assemblée** : les 577 sièges dessinés en arcs, coloriés par groupe, de la
 gauche à la droite, puis la liste des 12 groupes avec leur sigle, leur nom
-complet et leur effectif. **Toucher un groupe ouvre la liste de ses députés** —
-photo, nom et circonscription, classés par nom. **Toucher les sièges d'un groupe dans
-le dessin l'isole** : les autres s'effacent sans disparaître, et les retoucher
-les rend.
+complet, leur effectif et leur compte de femmes et d'hommes.
+
+**Toucher un groupe l'ouvre sur place** : les autres groupes disparaissent de
+la liste, ses sièges restent en couleur dans le dessin, et ses députés
+s'affichent juste sous son nom — photo, nom, circonscription et **numéro de
+siège**, classés par nom. Toucher les sièges d'un groupe dans le dessin fait la
+même chose. Pour refermer : la ligne du groupe, ou le retour du téléphone —
+l'état est dans l'adresse (`#/hemicycle/<sigle>`), ce qui rend aussi le lien
+partageable.
 
 **Ce qui est mesuré, et ce qui est dessiné.** L'effectif d'un groupe est un
 compte de députés ; l'ordre des groupes est calculé sur les numéros de siège
-publiés par l'Assemblée (voir `socle/README.md`). Mais **la place d'un siège
-dans le dessin n'est pas une donnée** : l'open data ne dit pas où chaque
-député s'assied. Les 12 rangées d'arcs, remplies de la gauche à la droite,
-sont une convention — les proportions sont justes, le plan de salle ne l'est
-pas. L'écran le dit lui-même au toucher du ⓘ, et `docs/CE-QUE-L-ON-ECRIT.md`
-le classe ligne par ligne.
+publiés par l'Assemblée (voir `socle/README.md`). La source donne même **le
+numéro du siège de chaque député**, affiché sur sa ligne. Ce qu'elle ne donne
+pas, c'est **où se trouve ce siège dans la salle** : les 12 rangées d'arcs,
+remplies de la gauche à la droite, sont donc une convention — les proportions
+et l'ordre sont justes, le plan de salle ne l'est pas. L'écran le dit lui-même
+au toucher du ⓘ, et `docs/CE-QUE-L-ON-ECRIT.md` le classe ligne par ligne.
 
-Le dessin ne charge rien de plus : il lit `groupes.json`, déjà chargé au
-démarrage pour colorier les votes. La liste des députés d'un groupe, elle, est
-un fichier à part (`groupes/<ref>.json`), lu seulement quand on ouvre le
-groupe — 12 fichiers, 113 Ko en tout, dont aucun n'est chargé tant qu'on ne
-demande rien.
+**Le compte femmes / hommes est fait dans la page**, sur la civilité que la
+source imprime devant chaque nom — « Mme » ou « M. ». Rien d'autre n'est
+publié là-dessus. Le total de l'Assemblée ne s'affiche que si les douze
+groupes ont été lus : un total incomplet vaut moins que pas de total.
+
+Le dessin lit `groupes.json`, déjà chargé au démarrage pour colorier les
+votes. Les députés sont dans un fichier par groupe (`groupes/<ref>.json`), 12
+fichiers, 113 Ko en tout : **l'écran les lit tous à son ouverture**, une seule
+fois, pour compter les femmes et les hommes de chaque groupe. Sans cela il
+faudrait publier ces deux nombres, et attendre une publication à chaque
+correction.
 
 **Les photos ne viennent pas de notre socle.** Ce sont des fichiers du site de
 l'Assemblée, dont l'adresse se déduit de l'identifiant du député ; le

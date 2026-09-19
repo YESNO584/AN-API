@@ -276,9 +276,10 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 ### L'hémicycle
 
 L'écran s'ouvre par le bouton en forme d'arcs, à côté du calendrier. Le
-**dessin** est la seule image de l'application qui ne recopie rien : l'open
-data publie des numéros de siège, pas un plan de salle, et ne dit pas où
-chaque député s'assied. Les proportions, elles, sont justes.
+**dessin** est la seule image de l'application qui ne recopie rien. La source
+publie le **numéro du siège** de chaque député — 576 sur 577 — mais pas la
+position de ce siège dans la salle : c'est cette position, et elle seule, que
+le dessin invente. Les proportions et l'ordre, eux, sont justes.
 
 | | |
 |---|---|
@@ -287,7 +288,8 @@ chaque député s'assied. Les proportions, elles, sont justes.
 | L'ordre des groupes, de la gauche à la droite | **C** — **mesuré** sur les numéros de siège (voir `socle/README.md`) |
 | Sigle et nom complet de chaque groupe | **S** |
 | La couleur de chaque groupe | **N** — convention d'affichage, `COULEURS_GROUPES` |
-| **La place d'un siège dans le dessin** | **N** — une convention : 12 rangées d'arcs remplies de la gauche à la droite. Rien dans la source ne la donne |
+| **La place d'un siège dans le dessin** | **N** — une convention : 12 rangées d'arcs remplies de la gauche à la droite. La source donne le numéro du siège, pas l'endroit où il se trouve dans la salle |
+| « 220 F / 357 H », et le compte de chaque groupe | **C** — compté **à l'affichage** sur la civilité (« Mme » / « M. ») que la source imprime devant chaque nom. Rien d'autre n'est publié là-dessus, et rien n'est ajouté. Un député sans civilité n'est compté d'aucun côté |
 | « Ce dessin est une convention » (au toucher du ⓘ) | **N** — l'écran dit lui-même ce qui est mesuré et ce qui est dessiné |
 
 ### Les députés d'un groupe
@@ -298,6 +300,7 @@ Toucher un groupe, sous le dessin, ouvre la liste de ses députés.
 |---|---|
 | Civilité, prénom, nom | **S** |
 | Le département et le numéro de circonscription | **S** |
+| Le numéro de siège (« siège 585 ») | **S** — seul le zéro de remplissage de la source est enlevé (« 077 » → 77). 576 députés sur 577 en ont un ; le dernier n'en affiche aucun |
 | **La photo** | **S** (le fichier est celui du site de l'Assemblée) + **C** (son adresse, calculée sur l'identifiant du député — l'open data ne la publie pas). Chargée depuis le site de l'Assemblée, pas depuis notre socle ; une photo absente laisse une pastille grise, jamais une image brisée |
 | « 1re circonscription », « 3e circonscription » | **C** — la source donne « 1 », « 3 » ; seule la forme est à nous |
 | L'ordre de la liste (par nom, puis par prénom) | **C** — la source ne classe pas. Les accents sont ignorés pour classer seulement : « Bénard » vient avant « Brugerolles », et le nom affiché garde les siens |

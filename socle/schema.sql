@@ -139,6 +139,10 @@ CREATE TABLE IF NOT EXISTS acteur (
     -- vide pour un sénateur ou un ministre, qui n'en ont pas à l'Assemblée.
     departement TEXT,
     circo       TEXT,
+    -- Le numéro de siège dans l'hémicycle, sans son zéro de remplissage.
+    -- Même numérotation que celle des scrutins, vérifié le 2026-09-19.
+    -- 576 députés sur 577 en ont un.
+    siege       TEXT,
     photo       TEXT
 );
 

@@ -808,15 +808,19 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "groupes": groupes_publies,
     })
 
-    # Les députés d'un groupe, un fichier par groupe, chargé seulement quand on
-    # ouvre le groupe — comme les amendements. Tout est recopié de la source :
-    # la civilité, le prénom, le nom, le département et le numéro de
-    # circonscription. Le classement, lui, est à nous : par nom, puis par
-    # prénom, ce que la source ne fait pas.
+    # Les députés d'un groupe, un fichier par groupe. Tout est recopié de la
+    # source : la civilité, le prénom, le nom, le département, le numéro de
+    # circonscription et celui du siège dans l'hémicycle. Le classement, lui,
+    # est à nous : par nom, puis par prénom, ce que la source ne fait pas.
+    #
+    # La page lit ces douze fichiers à l'ouverture de l'hémicycle — 113 Ko en
+    # tout — pour compter les femmes et les hommes de chaque groupe sur les
+    # civilités. Ce compte n'est donc pas publié ici : il se refait à
+    # l'affichage, et reste juste sans nouvelle publication.
     deputes = 0
     for g in groupes_publies:
         membres = [dict(l) for l in cx.execute(
-            "SELECT ref, civilite, prenom, nom, departement, circo, photo"
+            "SELECT ref, civilite, prenom, nom, departement, circo, siege, photo"
             " FROM acteur WHERE groupe_ref = ?", (g["ref"],))]
         # Le classement se fait ici et non en SQL : SQLite range « Bénard »
         # après « Brugerolles », parce qu'il compare des octets et que « é »

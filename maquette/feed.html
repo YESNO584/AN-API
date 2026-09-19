@@ -420,6 +420,9 @@
   .hemi-groupe .n { flex: 0 0 auto; font-size: .9rem; font-weight: 650;
                     font-variant-numeric: tabular-nums; }
   .hemi-groupe .n span { font-size: .7rem; font-weight: 500; color: var(--faible); }
+  .hemi-liste + .hf-total, .fiche-sous .hf-total { font-variant-numeric: tabular-nums; }
+  .hemi-groupe .hf { flex: 0 0 auto; font-size: .7rem; color: var(--gris);
+                     font-variant-numeric: tabular-nums; white-space: nowrap; }
   .hemi-groupe .chevron { flex: 0 0 auto; color: var(--faible); font-size: 1.1rem;
                           line-height: 1; }
 
@@ -1139,13 +1142,17 @@ const EXPLICATIONS = {
     "la Direction de l'information légale et administrative — rien n'est " +
     "reformulé ni résumé."],
   hemicycle: ["Ce dessin est une convention",
-    "Deux choses seulement viennent de la source. Le nombre de députés de " +
-    "chaque groupe, qui est un compte. Et l'ordre des groupes, de la gauche à " +
-    "la droite, calculé sur les numéros de siège que l'Assemblée publie. La " +
-    "place exacte d'un siège dans le dessin, elle, n'est pas une donnée : " +
-    "l'open data ne dit pas où chaque député s'assied, et les couleurs sont " +
-    "un choix d'affichage. Le dessin montre donc des proportions justes, pas " +
-    "un plan de salle."],
+    "L'Assemblée publie le numéro du siège de chaque député — 576 sur 577 en " +
+    "ont un, et c'est la même numérotation que celle des scrutins, sur " +
+    "laquelle l'ordre des groupes est calculé. Ce qu'elle ne publie pas, " +
+    "c'est où se trouve ce siège dans la salle. Le dessin place donc les " +
+    "sièges de la gauche à la droite dans l'ordre des groupes, sans " +
+    "prétendre à un plan de salle : les proportions et l'ordre sont justes, " +
+    "la position d'un siège dans le dessin est une convention. Les couleurs " +
+    "aussi.\n\nLe compte « 30 F / 41 H » d'un groupe est fait à l'affichage, " +
+    "en lisant la civilité que la source imprime devant chaque nom — « Mme » " +
+    "ou « M. ». L'open data ne publie rien d'autre là-dessus, et nous " +
+    "n'ajoutons rien : ce qui est compté est ce qui est écrit."],
   deputes: ["Les députés du groupe",
     "Civilité, prénom, nom, département et numéro de circonscription sont " +
     "recopiés de l'open data de l'Assemblée, mot pour mot. Deux choses sont " +
@@ -3812,7 +3819,75 @@ function dessinerHemicycle(groupes, total) {
   return svg;
 }
 
-function ouvrirHemicycle() {
+// Les députés d'un groupe, une fois lus, ne se relisent pas : douze fichiers,
+// 113 Ko, et l'écran s'en sert pour deux choses — compter les femmes et les
+// hommes de chaque groupe, et déplier la liste de celui qu'on ouvre.
+const MEMBRES = new Map();
+
+async function membresDuGroupe(g) {
+  if (MEMBRES.has(g.ref)) return MEMBRES.get(g.ref);
+  const d = await lire(`groupes/${g.ref}.json`);
+  const liste = d?.deputes || null;
+  MEMBRES.set(g.ref, liste);
+  return liste;
+}
+
+/* Femmes et hommes, comptés sur la civilité imprimée par la source. Un député
+   dont la civilité manque n'est compté ni d'un côté ni de l'autre : mieux vaut
+   un total qui ne tombe pas juste qu'un classement inventé. */
+function femmesEtHommes(deputes) {
+  let femmes = 0, hommes = 0;
+  for (const x of deputes || []) {
+    if (x.civilite === "Mme") femmes++;
+    else if (x.civilite === "M.") hommes++;
+  }
+  return { femmes, hommes };
+}
+
+/* ---------- les députés d'un groupe ---------- */
+/* La circonscription telle que la source la donne : un département en clair et
+   un numéro. Le numéro s'écrit comme on l'écrit en français — « 1re », puis
+   « 2e ». C'est la seule retouche, et elle ne porte que sur la forme. */
+function circonscription(d) {
+  if (!d.departement && !d.circo) return "";
+  if (!d.circo) return d.departement;
+  const rang = d.circo === "1" ? "1re" : d.circo + "e";
+  return `${d.departement}, ${rang} circonscription`;
+}
+
+function ligneDepute(x) {
+  const ligne = el("div", "depute");
+  // Les photos ne sont pas dans l'open data : ce sont des fichiers du site de
+  // l'Assemblée, chargés depuis lui. `loading = "lazy"` compte ici — sans
+  // cela, ouvrir le RN demanderait 122 images d'un coup.
+  if (x.photo) {
+    const img = el("img");
+    img.src = x.photo;
+    img.alt = "";
+    img.loading = "lazy";
+    // Toutes ne sont pas en ligne : on remplace sans casser la mise en page
+    // plutôt que d'afficher une image brisée.
+    img.addEventListener("error", () => img.replaceWith(el("div", "sans-photo", "—")));
+    ligne.append(img);
+  } else {
+    ligne.append(el("div", "sans-photo", "—"));
+  }
+  const corps = el("div", "corps");
+  corps.append(el("b", null, [x.civilite, x.prenom, x.nom].filter(Boolean).join(" ")));
+  // Le siège vient après la circonscription. Un député sur 577 n'en a pas :
+  // la ligne n'en affiche alors aucun.
+  const ou = [circonscription(x), x.siege ? "siège " + x.siege : ""]
+             .filter(Boolean).join(" · ");
+  if (ou) corps.append(el("span", "ou", ou));
+  ligne.append(corps);
+  return ligne;
+}
+
+/* Un seul écran, deux états : tous les groupes, ou un seul groupe ouvert avec
+   ses députés en dessous. C'est l'adresse qui porte l'état — `#/hemicycle` ou
+   `#/hemicycle/<sigle>` — de sorte que le retour du téléphone referme le
+   groupe au lieu de quitter l'hémicycle. */
+async function ouvrirHemicycle(sigle = null) {
   const f = ouvrirEcran();
   f.append(boutonRetour("", "Retour au fil"));
   f.append(el("h2", "fiche-titre", "L'Assemblée nationale"));
@@ -3828,11 +3903,16 @@ function ouvrirHemicycle() {
       + "l'effectif des groupes."));
     return;
   }
+  const choisi = groupes.find((g) => g.sigle === sigle) || null;
   const total = groupes.reduce((n, g) => n + g.effectif, 0);
 
   const sous = el("p", "fiche-sous",
     `${nb.format(total)} députés, ${groupes.length} groupes, `
     + "de la gauche à la droite de l'hémicycle. ");
+  // Le total femmes / hommes se complète quand les douze fichiers sont lus,
+  // comme les comptes par groupe : la phrase ne fait pas attendre l'écran.
+  const totalHF = el("span", "hf-total");
+  sous.append(totalHF);
   const aide = el("button", "aide", "ⓘ");
   aide.setAttribute("aria-label", "Ce que ce dessin montre, et ce qu'il ne montre pas");
   aide.addEventListener("click",
@@ -3845,23 +3925,24 @@ function ouvrirHemicycle() {
   zone.append(svg);
   f.append(zone);
 
-  // Toucher les sièges d'un groupe dans le dessin l'isole ; les retoucher
-  // rendent tout le monde. C'est le geste d'exploration, à côté de la liste,
-  // qui elle mène aux députés.
-  let vu = null;
+  // Le groupe ouvert garde ses sièges en couleur ; les autres s'effacent sans
+  // disparaître. Toucher des sièges ouvre ce groupe, comme sa ligne.
+  svg.classList.toggle("un-seul", !!choisi);
+  svg.querySelectorAll("g").forEach(
+    (n) => n.classList.toggle("vu", !!choisi && n.dataset.sigle === choisi.sigle));
   svg.addEventListener("click", (ev) => {
     const part = ev.target.closest("g");
-    const sigle = part && part.dataset.sigle;
-    if (!sigle) return;
-    vu = vu === sigle ? null : sigle;
-    svg.classList.toggle("un-seul", vu !== null);
-    svg.querySelectorAll("g").forEach(
-      (n) => n.classList.toggle("vu", n.dataset.sigle === vu));
+    const vise = part && part.dataset.sigle;
+    if (vise) location.hash = vise === sigle
+      ? "#/hemicycle" : "#/hemicycle/" + encodeURIComponent(vise);
   });
 
+  // La liste : tous les groupes, ou le seul qui est ouvert.
   const liste = el("div", "hemi-liste");
-  for (const g of groupes) {
+  f.append(liste);
+  for (const g of (choisi ? [choisi] : groupes)) {
     const ligne = el("button", "hemi-groupe");
+    ligne.setAttribute("aria-expanded", String(g === choisi));
     const teinte = el("i");
     if (g.couleur) teinte.style.background = g.couleur;
     ligne.append(teinte);
@@ -3870,85 +3951,61 @@ function ouvrirHemicycle() {
     const compte = el("span", "n", nb.format(g.effectif));
     compte.append(el("span", null, " dép."));
     ligne.append(compte);
-    ligne.append(el("span", "chevron", "›"));
+    // Le compte femmes / hommes arrive avec le fichier du groupe : la ligne
+    // s'affiche sans attendre, et se complète. Un fichier qui manque ne laisse
+    // pas un chiffre faux, il ne laisse rien.
+    const hf = el("span", "hf");
+    ligne.append(hf);
+    ligne.append(el("span", "chevron", g === choisi ? "‹" : "›"));
     ligne.addEventListener("click", () => {
-      location.hash = "#/hemicycle/" + encodeURIComponent(g.sigle);
+      location.hash = g === choisi
+        ? "#/hemicycle" : "#/hemicycle/" + encodeURIComponent(g.sigle);
     });
     liste.append(ligne);
+    membresDuGroupe(g).then((membres) => {
+      if (!membres) return;
+      const { femmes, hommes } = femmesEtHommes(membres);
+      hf.textContent = `${nb.format(femmes)} F / ${nb.format(hommes)} H`;
+    });
   }
-  f.append(liste);
-}
 
-/* ---------- les députés d'un groupe ---------- */
-/* La circonscription telle que la source la donne : un département en clair et
-   un numéro. Le numéro s'écrit comme on l'écrit en français — « 1re », puis
-   « 2e ». C'est la seule retouche, et elle ne porte que sur la forme. */
-function circonscription(d) {
-  if (!d.departement && !d.circo) return "";
-  if (!d.circo) return d.departement;
-  const rang = d.circo === "1" ? "1re" : d.circo + "e";
-  return `${d.departement}, ${rang} circonscription`;
-}
+  // Le total de l'Assemblée : la somme des douze groupes, pas un chiffre à
+  // part. Si un seul fichier manque, la phrase ne dit rien plutôt que de
+  // donner un total incomplet pour le total.
+  Promise.all(groupes.map(membresDuGroupe)).then((tous) => {
+    if (tous.some((x) => !x)) return;
+    const somme = tous.flat();
+    const { femmes, hommes } = femmesEtHommes(somme);
+    if (femmes + hommes === somme.length) {
+      totalHF.textContent = `${nb.format(femmes)} F / ${nb.format(hommes)} H. `;
+    }
+  });
 
-async function ouvrirGroupe(sigle) {
-  const f = ouvrirEcran();
-  const retour = boutonRetour("#/hemicycle", "Retour à l'hémicycle");
-  f.append(retour);
+  if (!choisi) return;
 
-  const connu = GROUPES.get(sigle);
-  if (!connu) {
-    f.append(el("div", "vide", "Groupe inconnu."));
-    return;
-  }
-  f.append(el("p", "avertissement", "Chargement…"));
-
-  const d = await lire(`groupes/${connu.ref}.json`);
-  f.textContent = "";
-  f.append(retour);
-  if (!d || !(d.deputes || []).length) {
-    f.append(el("h2", "fiche-titre", connu.nom || sigle));
+  // Les députés du groupe ouvert, juste sous sa ligne.
+  const attente = el("p", "avertissement", "Chargement…");
+  f.append(attente);
+  const membres = await membresDuGroupe(choisi);
+  attente.remove();
+  if (!membres || !membres.length) {
     f.append(el("div", "vide",
       "La liste des députés de ce groupe n'est pas encore publiée. "
       + "Elle arrive avec la publication du matin."));
     return;
   }
+  const detail = el("p", "fiche-sous",
+    `${nb.format(membres.length)} députés, classés par nom. `);
+  const aideNoms = el("button", "aide", "ⓘ");
+  aideNoms.setAttribute("aria-label", "D'où viennent ces noms");
+  aideNoms.addEventListener("click",
+    () => expliquer(...EXPLICATIONS.deputes, choisi.sigle));
+  detail.append(aideNoms);
+  f.append(detail);
 
-  const titre = el("h2", "fiche-titre", d.nom || sigle);
-  f.append(titre);
-  const sous = el("p", "fiche-sous",
-    `${nb.format(d.effectif)} députés, classés par nom. `);
-  const aide = el("button", "aide", "ⓘ");
-  aide.setAttribute("aria-label", "D'où viennent ces noms");
-  aide.addEventListener("click", () => expliquer(...EXPLICATIONS.deputes, d.sigle));
-  sous.append(aide);
-  f.append(sous);
-
-  const liste = el("div", "deputes");
-  for (const x of d.deputes) {
-    const ligne = el("div", "depute");
-    // Les photos ne sont pas dans l'open data : ce sont des fichiers du site de
-    // l'Assemblée, chargés depuis lui. `loading = "lazy"` compte ici — sans
-    // cela, ouvrir le RN demanderait 122 images d'un coup.
-    if (x.photo) {
-      const img = el("img");
-      img.src = x.photo;
-      img.alt = "";
-      img.loading = "lazy";
-      // Toutes ne sont pas en ligne : on remplace sans casser la mise en page
-      // plutôt que d'afficher une image brisée.
-      img.addEventListener("error", () => img.replaceWith(el("div", "sans-photo", "—")));
-      ligne.append(img);
-    } else {
-      ligne.append(el("div", "sans-photo", "—"));
-    }
-    const corps = el("div", "corps");
-    corps.append(el("b", null, [x.civilite, x.prenom, x.nom].filter(Boolean).join(" ")));
-    const ou = circonscription(x);
-    if (ou) corps.append(el("span", "ou", ou));
-    ligne.append(corps);
-    liste.append(ligne);
-  }
-  f.append(liste);
+  const lignes = el("div", "deputes");
+  for (const x of membres) lignes.append(ligneDepute(x));
+  f.append(lignes);
 }
 
 function fermerFiche() {
@@ -3966,7 +4023,7 @@ function router() {
   if (location.hash === "#/calendrier") return ouvrirAgenda();
   if (location.hash === "#/hemicycle") return ouvrirHemicycle();
   const groupe = location.hash.match(/^#\/hemicycle\/(.+)$/);
-  if (groupe) return ouvrirGroupe(decodeURIComponent(groupe[1]));
+  if (groupe) return ouvrirHemicycle(decodeURIComponent(groupe[1]));
   const article = location.hash.match(/^#\/change\/([\w-]+)\/(\w+)$/);
   if (article) return ouvrirArticle(article[1], article[2]);
   const change = location.hash.match(/^#\/change\/([\w-]+)$/);
