@@ -2714,7 +2714,7 @@ function blocTexte(uid, versions, plat) {
   // Chaque vue dit quelle version elle montre et de quand : sans cela, trois
   // boutons courts laisseraient croire qu'on lit toujours le même document.
   const vues = [
-    { cle: "depose", bouton: "Déposé", ref: initiale.ref, mode: "apres",
+    { cle: "depose", bouton: "Version déposée", ref: initiale.ref, mode: "apres",
       sous: initiale.nom + ", " + quand(initiale)
             + " — le texte tel qu'il a été déposé" },
   ];
@@ -2722,12 +2722,11 @@ function blocTexte(uid, versions, plat) {
   // donc pas de choix à proposer.
   if (versions.length > 1) {
     vues.push(
-      // « Ce qui change » est déjà le mot de la bascule d'un article de loi :
-      // un seul nom par chose, d'un écran à l'autre.
-      { cle: "change", bouton: "Ce qui change", ref: derniere.ref, mode: "diff",
+      { cle: "change", bouton: "Modifications", ref: derniere.ref, mode: "diff",
         sous: derniere.nom + ", " + quand(derniere)
               + " — les différences avec la version précédente" },
-      { cle: "ajour", bouton: "À jour", ref: derniere.ref, mode: "apres",
+      // Espace insécable : sans elle, le bouton casse en « Version à / jour ».
+      { cle: "ajour", bouton: "Version \u00e0\u00a0jour", ref: derniere.ref, mode: "apres",
         sous: derniere.nom + ", " + quand(derniere)
               + " — le texte tel qu'il se lit aujourd'hui, sans les différences" });
   }

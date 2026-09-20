@@ -293,7 +293,7 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 
 | | |
 |---|---|
-| Les trois boutons (« Déposé », « Ce qui change », « À jour ») | **N** — les mêmes mots que la bascule d'un article de loi |
+| Les trois boutons (« Version déposée », « Modifications », « Version à jour ») | **N** |
 | La ligne sous les boutons (« Texte adopté par l'Assemblée, 29 janvier 2026 — … ») | **S** pour le nom de la version et sa date, **N** pour la phrase qui suit |
 | Leur date | **S** |
 | **Le texte des articles** | **S**, **mot pour mot** — c'est le document publié par l'Assemblée, rien n'est reformulé |

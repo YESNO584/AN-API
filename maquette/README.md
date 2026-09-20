@@ -259,16 +259,17 @@ l'onglet « Articles » ne parle pas du texte : il parle du droit qu'il change.
 L'onglet montre **trois choses, et pas une de plus**, entre lesquelles on
 choisit par **trois boutons côte à côte** :
 
-1. **Déposé** — le texte qu'on a voulu faire voter ;
-2. **Ce qui change** — ce que la dernière version a changé, avec les
+1. **Version déposée** — le texte qu'on a voulu faire voter ;
+2. **Modifications** — ce que la dernière version a changé, avec les
    différences en vert et en rouge, la même comparaison que dans le parcours ;
-3. **À jour** — cette dernière version sans les différences, telle qu'elle se
-   lit aujourd'hui.
+3. **Version à jour** — cette dernière version sans les différences, telle
+   qu'elle se lit aujourd'hui.
 
-C'est la même bascule que pour un article de loi, avec les mêmes mots : un
-seul geste à apprendre pour choisir ce qu'on regarde. Sous les boutons, une
-ligne rappelle **quelle version on lit et de quand** — sans elle, trois mots
-courts laisseraient croire qu'on lit toujours le même document.
+C'est la même bascule que pour un article de loi : un seul geste à apprendre
+pour choisir ce qu'on regarde. Les mots, eux, diffèrent — l'écran d'un article
+dit « Ce qui change » là où celui-ci dit « Modifications ». Sous les boutons,
+une ligne rappelle **quelle version on lit et de quand** — sans elle, trois
+libellés courts laisseraient croire qu'on lit toujours le même document.
 
 **Le texte n'est demandé qu'à l'ouverture de l'onglet**, et une version lue est
 gardée : passer d'un bouton à l'autre ne retélécharge rien. Une version pèse
