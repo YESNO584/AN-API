@@ -187,7 +187,16 @@ def faits_du_texte_en_cours(uid: str, texte: dict) -> dict | None:
     # les trois premiers articles, et qui arrivait au rédacteur avec ces
     # articles pleins de substance.
     tous = [a for a in (d.get("articles") or []) if a.get("quoi") != "retire"]
-    retires = len(d.get("articles") or []) - len(tous)
+    # **`quoi: retire` ne veut pas dire « supprimé ».** Il dit seulement que
+    # l'article n'est plus imprimé dans cette version, ce qui recouvre quatre
+    # cas très différents : une vraie suppression, un article éclaté et
+    # renuméroté, des articles adoptés « (Conformes) » regroupés en un bloc, et
+    # le bloc de signature de la version précédente. Le compter faisait croire
+    # à un texte qui maigrit là où il grossissait.
+    #
+    # Ce qui dit la suppression est `etat`, sur un article **présent** : la
+    # source imprime alors « Article 3 — (Supprimé) ».
+    supprimes = sum(1 for a in tous if a.get("etat") == "supprimé")
     # La source publie parfois un article sans son texte : « Article 1er »,
     # « (Supprimé) », « (Conforme) » et rien d'autre. Mesuré le 2026-09-20 :
     # 73 articles sur 1 163 récoltés, et 8 textes dont la moitié ou plus sont
@@ -209,10 +218,13 @@ def faits_du_texte_en_cours(uid: str, texte: dict) -> dict | None:
         # se croie pas complète quand elle ne l'est pas.
         **({"articlesSansTexte": len(tous) - len(porteurs)}
            if len(porteurs) < len(tous) else {}),
-        # Les articles que cette version a supprimés : écartés, et comptés,
-        # pour qu'on sache que le texte a maigri.
-        **({"articlesRetires": retires} if retires else {}),
+        # Combien d'articles cette version a vidés — le texte a vraiment maigri.
+        **({"articlesSupprimes": supprimes} if supprimes else {}),
+        # `etat` vaut « supprimé », « nouveau », ou rien : sans lui, un
+        # rédacteur ne peut pas savoir si un article vide a été vidé par cette
+        # version ou simplement publié sans son texte.
         "articles": [{"numero": a.get("numero"), "titre": a.get("titre"),
+                      **({"etat": a["etat"]} if a.get("etat") else {}),
                       "texte": a["texte"][:EXTRAIT_VERSION]}
                      for a in articles],
     }

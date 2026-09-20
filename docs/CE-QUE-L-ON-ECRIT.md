@@ -47,6 +47,7 @@ texte parle. La description répond à cette question en deux phrases.
 | Comment elle est signalée | Une icône et une mention sous la liste — « Générée par une IA ». Au survol sur un ordinateur, la mention complète ; au toucher sur un téléphone, une explication qui dit d'où elle vient, qu'elle peut se tromper, quand elle a été écrite et par quel modèle |
 | D'où elle vient | `socle/descriptions.json`, un fichier **versionné**, écrit hors ligne. C'est la seule donnée du projet qui ne vienne pas d'une source publique |
 | Sur quoi elle s'appuie | **Le texte réel des articles**, lu dans les fichiers publiés : ce que la loi ajoute au droit, mot pour mot, et ce qu'elle en retire. Pas le titre, qui ne dit rien — « Projet de loi portant diverses dispositions d'adaptation au droit de l'Union européenne » en est la démonstration |
+| Quel texte est décrit | **La dernière version publiée**, jamais une rédaction dépassée : le droit en vigueur pour une loi promulguée, la dernière version du texte pour un texte en cours. Mesuré le 2026-09-20 : sur 249 textes en cours, **123 se décrivent sur une rédaction postérieure au dépôt**. Et le titre, lui, ne bouge pas — un texte garde l'intitulé de son dépôt même quand la commission a retiré ce qu'il promettait, si bien que la description dit parfois l'inverse du titre. C'est alors l'information la plus utile de la fiche |
 | Sur quoi **le contexte** s'appuie | **Les mêmes fichiers publiés, et rien d'autre** : les morceaux « retiré » des articles, qui sont la rédaction d'avant mot pour mot, le parcours du texte, et ce que les orateurs ont dit en séance. **Jamais une connaissance extérieure** — ni actualité, ni chiffre, ni événement qui ne soit pas dans les données du projet. Cette règle-là n'est pas contrôlable par un programme : elle tient à la rédaction, et c'est pourquoi elle est écrite ici |
 | Ce qui se passe s'il n'y en a pas | La rubrique ne s'affiche pas. Pas de cadre vide, pas de phrase d'attente |
 
@@ -460,8 +461,12 @@ chiffres du document sont des exemples de mise en page.
 | Longueur médiane d'une prise de parole | 4 260 caractères | mesure notée dans `socle/publier.py` |
 | Textes suivis | 2 151 | `docs/CE-QUE-L-ON-SUIT.md`, mesuré le 2026-09-01 |
 | Lois promulguées | 107 | `docs/CE-QUE-L-ON-SUIT.md`, mesuré le 2026-09-01 |
-| Descriptions écrites | 107 | `socle/descriptions.json` — 107 par une IA, 0 par une personne |
-| Descriptions portant un contexte | 107 | `socle/descriptions.json`, écrit le 2026-09-19 |
+| Descriptions écrites | 356 | `socle/descriptions.json` — 356 par une IA, 0 par une personne : les 107 lois promulguées, et 249 textes examinés à partir de la commission |
+| Descriptions portant un contexte | 322 | 34 n'en ont pas : la source ne porte aucun « avant » à lire, et l'inventer est interdit |
+| Puces de mesure | 1 719 | 32 descriptions n'en ont aucune — un texte qui autorise l'approbation d'un traité n'a qu'une chose à dire |
+| Textes décrits sur une partie de leurs articles | 32 | la récolte garde les 12 articles les plus longs ; le plus gros écart est un texte de 108 articles dont 12 ont été lus. Ces descriptions sont exactes, pas exhaustives |
+| Textes dont la source publie des articles sans leur texte | 8 | « Article 3 — (Supprimé) » et rien d'autre. La description ne dit alors rien de leur contenu |
+| Textes sans description faute de version publiée | 27 | sur les 276 du périmètre : un texte déposé au Sénat a ses versions ailleurs |
 | Noms d'usage retenus | 3 | Ripost, Duplomb, Ddadue — sur 26 candidats relevés dans les débats publiés |
 | Résumés de débats écrits | 171 | `socle/resumes_debats.json` — sur 172 textes qui ont des débats publiés |
 | Groupes et arguments de ces résumés | 1 711 / 6 144 | mesuré le 2026-09-20 |
