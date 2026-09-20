@@ -833,3 +833,77 @@ les écarte par `HAVING effectif > 0` — sinon la liste des groupes affiche
 14 lignes dont deux vides. Le total est alors exactement 577, ce qui sert de
 contrôle : un effectif publié qui ne fait pas 577 signale un problème de
 rattachement, pas un choix d'affichage.
+
+
+## 2026-09-20 — Signaler un amendement disputé, sans dire « controversé »
+
+### L'intuition était juste sur le tri, fausse sur le mot
+
+« Plus discuté = plus controversé » paraît évident, et c'est faux. Mesuré sur
+les 967 amendements dont on connaît à la fois le scrutin et le débat, la
+corrélation de rang entre le volume de débat et le serré du vote est de
+**−0,07** : nulle. Le débat médian fait 15 paragraphes que le vote se joue à
+zéro voix d'écart ou à 100 contre 20. Le meilleur prédicteur trouvé est le
+**nombre de votants** (+0,14), c'est-à-dire à quel point l'hémicycle est
+plein — donc l'heure, pas le sujet. Et une décision de procédure écrase tout :
+quand le président annonce « un orateur par groupe », le débat passe de 13 à
+49 paragraphes de médiane.
+
+**Ce qui marche quand même, c'est le tri à l'intérieur d'un texte.** Comparer
+deux amendements de deux textes revient à comparer deux séances ; les comparer
+dans le même texte annule ce biais. Sur la loi Ripost, l'amendement du permis
+de conduire sort **2e sur 104** au volume de débat.
+
+D'où la règle retenue : le repère exige **les deux conditions séparément** —
+écart de scrutin et nombre d'orateurs —, il s'appelle « adopté de justesse,
+après un long échange », et le mot « controversé » est banni de l'écran. Un
+repère doit promettre ce qu'il compte, pas ce qu'on aimerait qu'il mesure.
+
+### Compter les paragraphes trompe, compter les orateurs non
+
+Deux amendements du même texte : 51 paragraphes pour **4 orateurs** (un
+discours haché par les interruptions) contre 58 paragraphes pour **15
+orateurs** (un vrai échange). Le nombre de personnes distinctes sépare les
+deux ; le nombre de paragraphes les confond.
+
+### Le dénominateur compte plus que le seuil
+
+**97 % des amendements adoptés n'ont aucun écart de vote** : 438 sur 14 428 le
+sont par scrutin public, le reste à main levée. Et 19 lois promulguées sur 107
+ont au moins un scrutin sur amendement. Une absence de repère ne peut donc pas
+se lire comme « consensuel », et l'explication au toucher doit le dire — sinon
+le repère ment par son silence, ce qui est pire que de ne rien afficher.
+
+### Trois attributs de la source qui traînent, et une clé qui sauve
+
+Le compte rendu porte sur chaque paragraphe un `adt` (l'amendement), un `art`
+(l'article) et un `bibard` (le texte). **Les trois traînent d'un bloc au
+suivant.** Sur l'amendement 885 de la loi Ripost, `adt` annonce 605. Vérifié :
+837 contradictions et 1 590 absences sur 13 665 annonces. Ce qui est fiable est
+la **phrase du président** — « pour soutenir l'amendement n° N » — et, pour le
+texte, le **point de niveau 1** qui ouvre la discussion.
+
+Et pour rattacher un compte à un amendement dans un dossier, le numéro ne
+suffit pas : deux lectures y portent les mêmes numéros. La clé est le **numéro
+de dépôt du document amendé**.
+
+### La chaîne s'arrête au texte, pas à la loi
+
+L'onglet « Texte » relie déjà un amendement à l'article **du texte**. Aller
+jusqu'à l'article **du code** qu'une loi promulguée change demanderait de
+franchir le renumérotage : la mesure du permis de conduire est à l'article 3 du
+texte et à l'**article 7** de la loi — dont l'article 3 parle d'autre chose.
+`legi.db` garde bien `changement.article_loi` (renseigné 250 fois sur 250 pour
+cette loi) mais il n'est pas publié, et même publié il serait trop grossier :
+l'article 7 change 18 articles de code quand l'amendement n'en écrit qu'un.
+
+### Deux pièges d'outillage, revus deux fois chacun
+
+- **`until ! pgrep -f "<motif>"` se voit lui-même** et boucle pour toujours :
+  sa propre ligne de commande contient le motif. Trois boucles d'attente ont
+  été perdues comme ça dans la même session.
+- **Le garde-fou de portée crie à tort sur `cp a b`** quand la destination est
+  relative et contient un `/` : son motif attrape le dernier segment comme un
+  chemin absolu. Contourné en écrivant des chemins absolus dans le projet —
+  mais c'est exactement le genre de fausse alerte qui apprend à contourner un
+  garde-fou, et qui mériterait d'être corrigée.

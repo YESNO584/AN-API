@@ -1466,6 +1466,150 @@ def completer_les_sigles(paroles: list[dict],
     return paroles
 
 
+# ---------------------------------------------------------------------------
+# Combien de monde a parlé d'un amendement
+#
+# L'onglet « Texte » montre déjà les amendements adoptés sur chaque article.
+# Ce qui manquait est l'ampleur du débat : un amendement défendu, contesté par
+# six groupes et adopté à deux voix près n'a rien d'un amendement de
+# coordination, et rien ne le disait à l'écran.
+#
+# **On ne récolte qu'un compte, jamais le texte.** Les prises de parole de la
+# discussion des articles ne sont pas publiées : les rapprocher d'un amendement
+# demanderait de trancher des cas que la source ne tranche pas. Un nombre
+# d'orateurs, lui, se compte sans rien interpréter.
+#
+# Trois règles, mesurées le 2026-09-20 sur les 601 comptes rendus :
+#
+# - **L'amendement se nomme dans la phrase de la présidence** — « La parole est
+#   à M. le ministre, pour soutenir l'amendement n° 885 rectifié ». 14 930
+#   occurrences. On ne se sert **pas** de l'attribut `adt` du paragraphe : il
+#   traîne d'un amendement au suivant. Sur 13 665 annonces vérifiables, il en
+#   contredit 837 et manque sur 1 590 — et sur l'amendement 885 de la loi
+#   Ripost, il annonce 605.
+# - **Une discussion commune ne se découpe pas.** 27 % des blocs portent
+#   plusieurs amendements défendus à la suite avant qu'on ne vote : ce qui s'y
+#   dit vaut pour l'ensemble, pas pour l'un d'eux. On les laisse de côté.
+# - **Un bloc n'est gardé que si la séance a annoncé un sort.** Sans cette
+#   clôture, un bloc court jusqu'à l'annonce suivante et avale ce qui ne le
+#   concerne pas.
+#
+# Le nombre d'orateurs compte les **personnes distinctes**, présidence exclue,
+# interruptions comprises : « Et l'alcool ? » lancé des bancs est quelqu'un qui
+# prend part au débat. C'est ce qui distingue un échange d'un long monologue —
+# l'amendement 885 a 15 orateurs pour 58 paragraphes, quand un autre du même
+# texte en a 3 pour 36.
+SOUTENIR_AMENDEMENT = re.compile(
+    r"pour soutenir\s+"
+    r"(?:l['’]amendement|les amendements identiques|le sous-amendement)s?"
+    r"\s*n[^0-9]{0,12}(\d+)", re.IGNORECASE)
+
+SORT_AMENDEMENT = re.compile(
+    r"\(\s*(?:L['’]amendement|Les amendements identiques|Le sous-amendement)s?"
+    r"\s*n[^0-9]{0,12}\d+[^)]*?(?:est|sont|n['’]est|ne sont)[^)]*\)",
+    re.IGNORECASE)
+
+
+def _nom_d_orateur(para) -> str | None:
+    """Qui parle dans ce paragraphe, présidence exclue."""
+    orateurs = para.find(NS_DEBATS + "orateurs")
+    for orateur in (orateurs if orateurs is not None else []):
+        nom = (orateur.findtext(NS_DEBATS + "nom") or "").strip()
+        if nom and not est_la_presidence(nom):
+            return nom
+    return None
+
+
+def debats_par_amendement(racine) -> Iterator[dict]:
+    """Par amendement discuté seul dans cette séance : combien en ont parlé.
+
+    Rend `numeros` — les numéros de dépôt du texte discuté, comme
+    `prises_de_parole` — et non un identifiant de dossier : le rapprochement
+    demande la liste des documents, que ce module ne charge pas.
+
+    Le texte est celui qu'annonce le point de niveau 1, jamais l'attribut
+    `bibard` du paragraphe, qui traîne comme `adt`.
+    """
+    contenu = racine.find(NS_DEBATS + "contenu")
+    if contenu is None:
+        return
+    brut = racine.findtext(f"{NS_DEBATS}metadonnees/{NS_DEBATS}dateSeance") or ""
+    jour = f"{brut[:4]}-{brut[4:6]}-{brut[6:8]}" if len(brut) >= 8 else None
+    seance = racine.findtext(NS_DEBATS + "uid")
+
+    numeros: list[str] = []
+    bloc: dict | None = None
+
+    def clore() -> Iterator[dict]:
+        """Rend le bloc en cours s'il est exploitable, et le referme."""
+        nonlocal bloc
+        if bloc and bloc["ferme"] and len(bloc["amendements"]) == 1:
+            yield {"seance": seance, "date": jour, "numeros": list(bloc["numeros"]),
+                   "amendement": bloc["amendements"][0],
+                   "orateurs": len(bloc["orateurs"]),
+                   "paragraphes": bloc["paragraphes"]}
+        bloc = None
+
+    for point in contenu:
+        if point.tag != NS_DEBATS + "point":
+            continue
+        if point.get("nivpoint") == "1":
+            yield from clore()
+            numeros = (numeros_de_texte(point.get("valeur"))
+                       if point.get("code_grammaire") == "TITRE_TEXTE_DISCUSSION"
+                       else [])
+        if not numeros:
+            continue
+        # `iter` et non `findall` : dans la discussion des articles, les
+        # paragraphes sont enfouis sous un point d'amendement et un
+        # `interExtraction`, alors qu'ils sont posés à plat dans les sections
+        # d'argumentaire.
+        for para in point.iter(NS_DEBATS + "paragraphe"):
+            corps = _texte_du_noeud(para.find(NS_DEBATS + "texte"))
+            if not corps:
+                continue
+            annonce = SOUTENIR_AMENDEMENT.search(corps)
+            if annonce:
+                # Un sort a été annoncé depuis la dernière annonce : le bloc
+                # précédent est clos, celui-ci commence.
+                if bloc and bloc["ferme"]:
+                    yield from clore()
+                if bloc is None:
+                    bloc = {"numeros": numeros, "amendements": [], "orateurs": set(),
+                            "paragraphes": 0, "ferme": False}
+                bloc["amendements"].append(annonce.group(1))
+                continue
+            if bloc is None:
+                continue
+            bloc["paragraphes"] += 1
+            nom = _nom_d_orateur(para)
+            if nom:
+                bloc["orateurs"].add(nom)
+            if SORT_AMENDEMENT.search(corps):
+                bloc["ferme"] = True
+    yield from clore()
+
+
+def lire_debats_par_amendement(archive: pathlib.Path) -> list[dict]:
+    """Le compte d'orateurs de chaque amendement discuté seul, dans l'archive.
+
+    Deuxième lecture de la même archive de 55,8 Mo, et c'est assumé : la
+    récolte des argumentaires marche par prise de parole, celle-ci par bloc de
+    discussion, et mêler les deux machines ferait une fonction que personne ne
+    pourrait plus modifier sans casser l'autre. Le coût mesuré est de douze
+    secondes sur une récupération qui en prend soixante.
+    """
+    import xml.etree.ElementTree as ET
+
+    blocs: list[dict] = []
+    with zipfile.ZipFile(archive) as zf:
+        for nom in zf.namelist():
+            if not nom.endswith(".xml"):
+                continue
+            blocs.extend(debats_par_amendement(ET.fromstring(zf.read(nom))))
+    return blocs
+
+
 # Le préfixe d'identifiant des documents déposés à l'Assemblée pour cette
 # législature. Il faut le poser : le même numéro de dépôt sert au Sénat et à
 # nous. « n° 698 » désigne quatre documents dans l'archive — une proposition

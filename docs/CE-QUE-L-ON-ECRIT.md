@@ -300,7 +300,32 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 | **Le texte des articles** | **S**, **mot pour mot** — c'est le document publié par l'Assemblée, rien n'est reformulé |
 | Le vert et le rouge des différences | **C** — comparaison mot à mot entre deux versions de la source, la même que celle du parcours |
 | « Modifié », « Nouveau », « Retiré », « Inchangé » | **C** — notre lecture de la comparaison |
+| **Les amendements adoptés sous chaque article changé** (vue « Modifications ») | **S** — numéro, auteur, groupe. Le rapprochement à l'article, lui, est **C** |
+| « **!** Adopté de justesse, après un long échange » | **C** — un seuil posé sur deux chiffres de la source, jamais une appréciation. Voir ci-dessous |
+| « 39 pour, 37 contre · 15 orateurs » | **S** pour le scrutin, **C** pour le compte d'orateurs |
+| L'ordre des amendements sous un article | **C** — les plus documentés d'abord, puis l'ordre de la source |
 | « Le texte de ce projet ou de cette proposition n'est pas publié ici… » | **N** |
+
+**Le repère « Adopté de justesse, après un long échange » est un calcul, pas
+une rubrique rédigée**, et il ne dit jamais « controversé ». Il tombe quand
+deux conditions mesurées sont réunies : le scrutin public s'est joué à moins
+de 10 % d'écart entre les voix pour et les voix contre, **et** au moins huit
+personnes distinctes ont pris la parole sur cet amendement en séance. Les deux
+chiffres sont comptés séparément et ne s'annoncent pas l'un l'autre : mesuré le
+2026-09-20 sur les 967 amendements dont on connaît les deux, la corrélation de
+rang entre le volume de débat et le serré du vote est de **−0,07**, c'est-à-dire
+nulle. Le repère dit donc exactement ce qu'il compte.
+
+**Le compte d'orateurs est un nombre, jamais un texte.** Les prises de parole
+de la discussion des articles ne sont pas recopiées : les rapprocher d'un
+amendement demanderait de trancher des cas que la source ne tranche pas — 27 %
+des blocs de discussion portent plusieurs amendements défendus à la suite, et
+ceux-là ne sont pas comptés du tout. Un nombre d'orateurs, lui, se compte sans
+rien interpréter.
+
+**L'absence du repère ne dit rien.** 97 % des amendements adoptés le sont à
+main levée, sans qu'aucun décompte de voix soit enregistré : ils n'ont donc pas
+d'écart, et n'en auront jamais. L'explication au toucher le dit.
 
 La **« formule »** du document — la phrase de la source qui dit ce que le texte
 vise (« visant à offrir des réponses immédiates… ») — est publiée telle quelle

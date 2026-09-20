@@ -1355,5 +1355,146 @@ class LesPrisesDeParole(unittest.TestCase):
         self.assertEqual(self.paroles(corps), [])
 
 
+def donne_la_parole(numero: str, adt: str = "") -> str:
+    """La phrase par laquelle la présidence lance la défense d'un amendement."""
+    return (f'<paragraphe code_grammaire="DISC_ARTICLES_3_1" adt="{adt}">'
+            f"<orateurs><orateur><nom>M. le président</nom><id>719024</id>"
+            f"<qualite/></orateur></orateurs>"
+            f"<texte>La parole est à M. Untel, pour soutenir l’amendement "
+            f"n<exposant>o</exposant> {numero}.</texte></paragraphe>")
+
+
+def sort_annonce(numero: str, adopte: bool = True) -> str:
+    """La ligne en italique qui clôt la discussion d'un amendement."""
+    verbe = "est adopté" if adopte else "n’est pas adopté"
+    return (f'<paragraphe code_grammaire="SCRUT_ADTS_1_9"><orateurs/><texte>'
+            f"<italique>(L’amendement n<exposant>o</exposant> {numero} "
+            f"{verbe}.)</italique></texte></paragraphe>")
+
+
+class LAmpleurDuDebatDUnAmendement(unittest.TestCase):
+    """Combien de personnes ont parlé d'un amendement — un compte, pas un texte."""
+
+    def blocs(self, corps, **kw):
+        return list(extraction.debats_par_amendement(seance(corps, **kw)))
+
+    def test_un_amendement_discute_seul_porte_ses_orateurs(self):
+        corps = titre_de_texte() + section(
+            "Discussion des articles",
+            donne_la_parole("885 rectifié")
+            + parole("M. Laurent Nuñez", "Il vise à suspendre le permis.",
+                     acteur="PA759834")
+            + parole("Mme Elsa Faucillon", "Et l’alcool ?", acteur="PA721896")
+            + sort_annonce("885 rectifié"))
+        self.assertEqual(self.blocs(corps), [{
+            "seance": "CRSANR5L17S2026O1N168", "date": "2026-02-25",
+            "numeros": ["2406"], "amendement": "885",
+            "orateurs": 2, "paragraphes": 3}])
+
+    def test_l_attribut_adt_de_la_source_n_est_pas_cru(self):
+        """Il traîne d'un amendement au suivant : sur 13 665 annonces
+        vérifiables il en contredit 837, et sur l'amendement 885 de la loi
+        Ripost il annonce 605. Le numéro vient de la phrase du président."""
+        corps = titre_de_texte() + section(
+            "Discussion des articles",
+            donne_la_parole("885 rectifié", adt=" 605")
+            + parole("M. Laurent Nuñez", "Il vise à…", acteur="PA759834")
+            + sort_annonce("885 rectifié"))
+        self.assertEqual(self.blocs(corps)[0]["amendement"], "885")
+
+    def test_une_discussion_commune_n_est_pas_decoupee(self):
+        """27 % des blocs portent plusieurs amendements défendus à la suite :
+        ce qui s'y dit vaut pour l'ensemble, pas pour l'un d'eux."""
+        corps = titre_de_texte() + section(
+            "Discussion des articles",
+            donne_la_parole("366")
+            + parole("Mme Danielle Brulebois", "Il rétablit l’article.",
+                     acteur="PA719890")
+            + donne_la_parole("236")
+            + parole("M. Ugo Bernalicis", "Le nôtre le supprime.", acteur="PA720430")
+            + sort_annonce("366", adopte=False))
+        self.assertEqual(self.blocs(corps), [])
+
+    def test_un_bloc_sans_sort_annonce_n_est_pas_garde(self):
+        """Sans clôture, un bloc court jusqu'à l'annonce suivante et avale ce
+        qui ne le concerne pas."""
+        corps = titre_de_texte() + section(
+            "Discussion des articles",
+            donne_la_parole("885")
+            + parole("M. Laurent Nuñez", "Il vise à…", acteur="PA759834"))
+        self.assertEqual(self.blocs(corps), [])
+
+    def test_deux_amendements_a_la_suite_font_deux_blocs(self):
+        corps = titre_de_texte() + section(
+            "Discussion des articles",
+            donne_la_parole("597")
+            + parole("Mme Andrée Taurinya", "Nous le supprimons.", acteur="PA794106")
+            + sort_annonce("597", adopte=False)
+            + donne_la_parole("598")
+            + parole("M. Jean-François Coulomme", "Il vise l’alinéa 2.",
+                     acteur="PA795136")
+            + parole("M. Vincent Caure", "Avis défavorable.", acteur="PA842311")
+            + sort_annonce("598", adopte=False))
+        self.assertEqual([(b["amendement"], b["orateurs"]) for b in self.blocs(corps)],
+                         [("597", 1), ("598", 2)])
+
+    def test_la_presidence_n_est_pas_un_orateur(self):
+        """Elle donne la parole, elle ne débat pas."""
+        corps = titre_de_texte() + section(
+            "Discussion des articles",
+            donne_la_parole("885")
+            + parole("M. Laurent Nuñez", "Il vise à…", acteur="PA759834")
+            + parole("M. le président", "Quel est l’avis de la commission ?",
+                     acteur="PA719024")
+            + sort_annonce("885"))
+        self.assertEqual(self.blocs(corps)[0]["orateurs"], 1)
+
+    def test_une_interruption_est_quelqu_un_qui_prend_part_au_debat(self):
+        """« Et l'alcool ? » lancé des bancs compte : c'est ce qui distingue un
+        échange d'un long monologue."""
+        corps = titre_de_texte() + section(
+            "Discussion des articles",
+            donne_la_parole("885")
+            + parole("M. Laurent Nuñez", "Il vise à…", acteur="PA759834")
+            + parole("M. Emeric Salmon", "C’est illégal !", acteur="PA794954",
+                     code="INTERRUPTION_1_10")
+            + sort_annonce("885"))
+        self.assertEqual(self.blocs(corps)[0]["orateurs"], 2)
+
+    def test_un_orateur_qui_reprend_la_parole_ne_compte_qu_une_fois(self):
+        corps = titre_de_texte() + section(
+            "Discussion des articles",
+            donne_la_parole("885")
+            + parole("M. Ugo Bernalicis", "D’abord ceci.", acteur="PA720430")
+            + parole("M. Ugo Bernalicis", "Ensuite cela.", acteur="PA720430")
+            + sort_annonce("885"))
+        self.assertEqual(self.blocs(corps)[0]["orateurs"], 1)
+
+    def test_un_debat_sans_texte_identifie_ne_donne_rien(self):
+        corps = ('<point nivpoint="1" code_grammaire="TITRE_TEXTE_DISCUSSION">'
+                 "<orateurs/><texte>Questions au gouvernement</texte></point>"
+                 + section("Discussion des articles",
+                           donne_la_parole("885")
+                           + parole("M. Untel", "Il vise à…")
+                           + sort_annonce("885")))
+        self.assertEqual(self.blocs(corps), [])
+
+    def test_le_texte_change_avec_le_point_de_niveau_1(self):
+        """Deux textes se discutent dans la même séance : chaque bloc part avec
+        le numéro de dépôt annoncé au-dessus de lui."""
+        corps = (titre_de_texte()
+                 + section("Discussion des articles",
+                           donne_la_parole("12")
+                           + parole("M. Untel", "Le premier texte.")
+                           + sort_annonce("12"))
+                 + titre_de_texte(" (n[[o]] 2984)")
+                 + section("Discussion des articles",
+                           donne_la_parole("885")
+                           + parole("M. Untel", "Le second texte.")
+                           + sort_annonce("885")))
+        self.assertEqual([(b["numeros"], b["amendement"]) for b in self.blocs(corps)],
+                         [(["2406"], "12"), (["2984"], "885")])
+
+
 if __name__ == "__main__":
     sys.exit(0 if unittest.main(exit=False, verbosity=2).result.wasSuccessful() else 1)

@@ -185,6 +185,7 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
     # dossier — il cite le numéro de dépôt du texte, qu'il faut rapprocher des
     # documents, la date de séance départageant les numéros ambigus.
     lignes_parole = []
+    debats_amdt: dict[tuple, tuple] = {}
     if "debats" in archives:
         sigles = {g["sigle"] for g in rangs if g["sigle"]}
         par_numero = {n: refs & connus for n, refs
@@ -202,8 +203,28 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
                 parole["ordre"], parole["acteur_ref"], parole["nom"],
                 parole["qualite"], parole["sigle"], parole["texte"],
             ))
+        # Et, dans la même archive, l'ampleur du débat de chaque amendement
+        # discuté seul. Le dossier se trouve comme pour une parole ; le numéro
+        # de dépôt, lui, est gardé tel quel — c'est lui qui rattachera le
+        # compte au bon document amendé, donc à la bonne lecture.
+        for bloc in extraction.lire_debats_par_amendement(archives["debats"]):
+            uid = extraction.dossier_des_numeros(
+                bloc["numeros"], bloc["date"], par_numero, dates_du_dossier)
+            if not uid:
+                continue
+            for numero_texte in bloc["numeros"]:
+                cle = (uid, numero_texte, bloc["amendement"], bloc["seance"])
+                # Un amendement peut revenir dans la même séance — après une
+                # suspension, ou en seconde délibération. On garde le débat le
+                # plus fourni plutôt que d'additionner des orateurs qui sont
+                # peut-être les mêmes.
+                vu = debats_amdt.get(cle)
+                if not vu or bloc["orateurs"] > vu[0]:
+                    debats_amdt[cle] = (bloc["orateurs"], bloc["paragraphes"],
+                                        bloc["date"])
 
     with connexion:                     # une transaction, ouverte et refermée ici
+        connexion.execute("DELETE FROM debat_amendement")
         connexion.execute("DELETE FROM parole")
         connexion.execute("DELETE FROM amendement")
         connexion.execute("DELETE FROM acteur")
@@ -233,6 +254,11 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
             "INSERT INTO amendement VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", lignes_amdt)
         connexion.executemany(
             "INSERT INTO parole VALUES (?,?,?,?,?,?,?,?,?,?)", lignes_parole)
+        connexion.executemany(
+            "INSERT INTO debat_amendement VALUES (?,?,?,?,?,?,?)",
+            [(uid, numero_texte, numero, seance, date, orateurs, paragraphes)
+             for (uid, numero_texte, numero, seance), (orateurs, paragraphes, date)
+             in debats_amdt.items()])
     return len(dossiers), len(etapes), len(lignes_vote), len(lignes_amdt), len(lignes_parole)
 def afficher_journal(connexion: sqlite3.Connection, combien: int = 10) -> None:
     lignes = connexion.execute(

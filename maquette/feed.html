@@ -522,6 +522,17 @@
                 text-overflow: ellipsis; white-space: nowrap; }
   .amdts .fleche { margin-left: auto; color: var(--faible); font-size: .75rem; }
   .amdts .rien { font-size: .78rem; color: var(--faible); line-height: 1.4; }
+  /* Un amendement tient sur deux lignes quand il a été débattu : le lien
+     au-dessus, le repère et ses chiffres en dessous. Le trait sépare deux
+     amendements voisins, que leurs deux lignes rendraient sinon illisibles. */
+  .amdts .amdt + .amdt { border-top: 1px solid var(--trait); margin-top: .15rem;
+                         padding-top: .15rem; }
+  .amdts .etiq.dispute { color: var(--accent); background: var(--accent-doux);
+                         border-color: currentColor; font-size: .72rem;
+                         margin: .1rem 0 .25rem; }
+  .amdts .etiq.dispute b { font-weight: 700; margin-right: .25rem; }
+  .amdts .chiffres-amdt { display: block; font-size: .72rem; color: var(--gris);
+                          padding-left: .7rem; margin-bottom: .2rem; }
 
   .resume-change { display: flex; gap: .45rem; margin: 0 0 1rem; }
   .resume-change .tuile {
@@ -1249,6 +1260,15 @@ const EXPLICATIONS = {
     "commune. Sans elle, le texte ferait des allers-retours entre les deux " +
     "chambres jusqu'à ce qu'elles s'accordent. La date est celle que la source " +
     "donne à cet acte du parcours."],
+  amendementDebattu: ["Un amendement adopté de justesse, après un long échange",
+    "Deux choses sont comptées, séparément. Le vote : ce scrutin public s'est " +
+    "joué à moins de 10 % d'écart entre les voix pour et les voix contre. Le " +
+    "débat : au moins huit personnes ont pris la parole sur cet amendement en " +
+    "séance. Aucune des deux ne dit l'autre — sur les 967 amendements où l'on " +
+    "connaît les deux, un long débat n'annonce pas un vote serré, ni " +
+    "l'inverse. Un amendement sans ce repère n'est pas pour autant passé sans " +
+    "discussion : 97 % des amendements adoptés le sont à main levée, sans " +
+    "qu'aucun décompte de voix soit enregistré."],
   vigueur: ["L'entrée en vigueur",
     "Une loi promulguée ne s'applique pas forcément tout de suite, ni en une " +
     "seule fois : certains de ses articles peuvent n'entrer en vigueur que " +
@@ -2668,6 +2688,13 @@ function carteParole(p) {
  * l'onglet le dit au lieu d'afficher un cadre vide.
  * ------------------------------------------------------------------ */
 
+/* Les articles sur lesquels une liste d'amendements a un sens : ceux qui ont
+   bougé. Un article inchangé n'a pas d'amendement adopté par définition, et
+   lui afficher « la source ne relie ce changement à aucun amendement »
+   nommerait un changement qui n'a pas eu lieu. Un article initial non plus :
+   la version déposée ne vient d'aucun amendement. */
+const A_CHANGE = new Set(["modifie", "nouveau", "retire"]);
+
 function articlesDeLaVersion(d, mode) {
   const zone = el("div");
   const tous = (d.articles || []).flatMap((a) => a.morceaux || []);
@@ -2686,7 +2713,20 @@ function articlesDeLaVersion(d, mode) {
       tete.append(el("span", "quoi " + a.quoi, mots[a.quoi]));
     }
     zone.append(tete);
+    // Les amendements adoptés sur cet article, dans la seule vue qui montre
+    // ce qui a changé : les deux autres montrent un texte, pas une
+    // transformation, et une liste d'amendements n'y voudrait rien dire.
+    if (mode === "diff" && A_CHANGE.has(a.quoi)) {
+      zone.append(carteAmendementsDeLArticle(a.amendements || []));
+    }
     zone.append(texteCompare(a.morceaux, mode, a.texte));
+  }
+  if (mode === "diff") {
+    zone.append(el("p", "avertissement",
+      "Les amendements sont rapprochés par le numéro d'article : la page dit "
+      + "lesquels ont été adoptés sur cet article, jamais quel mot vient de "
+      + "quel amendement — il faudrait pour cela interpréter l'instruction de "
+      + "l'amendement, et le texte affiché ne serait plus celui de la source."));
   }
   return zone;
 }
@@ -3880,6 +3920,52 @@ function ligneVersion(uid, v) {
   return li;
 }
 
+/* Un amendement « débattu » : adopté de justesse, après un long échange.
+ *
+ * Les deux seuils sont ici, et pas dans le socle, parce que c'est un choix
+ * d'affichage : le socle publie les chiffres bruts — le scrutin et le nombre
+ * d'orateurs — et ne tranche rien.
+ *
+ * **Le repère ne dit pas « controversé », et c'est voulu.** Mesuré le
+ * 2026-09-20 sur les 967 amendements dont on connaît à la fois le vote et le
+ * débat : le volume de débat et le serré du vote sont indépendants
+ * (corrélation de rang −0,07). Un amendement voté 54 contre 54 a eu 48
+ * paragraphes de débat, un autre voté 50 contre 50 en a eu 12. Le repère dit
+ * donc ce qu'il compte, et rien de plus.
+ *
+ * Avec ces seuils, 4 amendements sur les 183 mesurables de la législature le
+ * portent — dont celui qui permet de suspendre le permis de conduire d'un
+ * usager de stupéfiants, adopté 39 contre 37 après 15 orateurs. */
+const ECART_DEBATTU = 0.10;
+const ORATEURS_DEBATTU = 8;
+
+const estDebattu = (a) => Boolean(
+  a.vote && a.debat && a.vote.ecart < ECART_DEBATTU
+  && a.debat.orateurs >= ORATEURS_DEBATTU);
+
+/* L'ordre d'affichage : ce qu'on sait le plus, d'abord. Les amendements dont
+   on ne sait rien gardent l'ordre de la source — un tri stable ne les
+   mélange pas entre eux. */
+function rangAmendement(a) {
+  if (estDebattu(a)) return 0;
+  if (a.vote && a.debat) return 1;
+  if (a.vote || a.debat) return 2;
+  return 3;
+}
+
+function amendementsClasses(liste) {
+  return liste
+    .map((a, i) => [a, i])
+    .sort(([a, ia], [b, ib]) =>
+      rangAmendement(a) - rangAmendement(b)
+      // À rang égal, le vote le plus serré passe devant ; à défaut de vote,
+      // le débat le plus fourni.
+      || ((a.vote ? a.vote.ecart : 2) - (b.vote ? b.vote.ecart : 2))
+      || ((b.debat ? b.debat.orateurs : 0) - (a.debat ? a.debat.orateurs : 0))
+      || ia - ib)
+    .map(([a]) => a);
+}
+
 function carteAmendementsDeLArticle(liste) {
   const boite = el("div", "amdts");
   if (!liste.length) {
@@ -3888,10 +3974,14 @@ function carteAmendementsDeLArticle(liste) {
       + "changement à aucun amendement."));
     return boite;
   }
+  const classes = amendementsClasses(liste);
+  const debattus = classes.filter(estDebattu).length;
   boite.append(el("div", "chapeau",
     `${nb.format(liste.length)} amendement${liste.length > 1 ? "s" : ""} `
-    + `adopté${liste.length > 1 ? "s" : ""}`));
-  for (const a of liste) {
+    + `adopté${liste.length > 1 ? "s" : ""}`
+    + (debattus ? ` — ${nb.format(debattus)} débattu${debattus > 1 ? "s" : ""}` : "")));
+  for (const a of classes) {
+    const ligne = el("div", "amdt");
     const lien = el("a");
     lien.href = "https://www.assemblee-nationale.fr/dyn/17/amendements/"
                 + a.uid.replace(/^AM/, "");
@@ -3899,10 +3989,33 @@ function carteAmendementsDeLArticle(liste) {
     const teinte = el("i");
     if (a.couleur) teinte.style.background = a.couleur;
     lien.append(teinte, el("span", "num", "n° " + a.numero));
-    const qui = [a.nom, a.sigle].filter(Boolean).join(" · ");
+    // Un amendement du Gouvernement n'a pas de député pour auteur : sa ligne
+    // dirait « n° 885 » et rien d'autre. La source nomme son type d'auteur,
+    // et c'est ce qu'on affiche à la place.
+    const qui = [a.nom, a.sigle].filter(Boolean).join(" · ")
+                || (a.typeAuteur === "Député" ? "" : a.typeAuteur || "");
     if (qui) lien.append(el("span", "qui", qui));
     lien.append(el("span", "fleche", "↗"));
-    boite.append(lien);
+    ligne.append(lien);
+    // Le repère est un bouton, posé **à côté** du lien et non dedans : un
+    // bouton dans un lien n'est pas du HTML valable, et le toucher ouvrirait
+    // le site de l'Assemblée au lieu de l'explication.
+    if (estDebattu(a)) {
+      const marque = etiquette("dispute", "", EXPLICATIONS.amendementDebattu,
+                               `n° ${a.numero}`);
+      marque.append(el("b", null, "!"),
+                    document.createTextNode("Adopté de justesse, après un long échange"));
+      ligne.append(marque);
+    }
+    // Les chiffres s'affichent dès qu'on en a un, repère ou pas : c'est ce
+    // qui permet de vérifier le repère, et de voir ce qui lui a manqué.
+    const chiffres = [];
+    if (a.vote) chiffres.push(`${nb.format(a.vote.pour)} pour, `
+                              + `${nb.format(a.vote.contre)} contre`);
+    if (a.debat) chiffres.push(`${nb.format(a.debat.orateurs)} orateur`
+                               + `${a.debat.orateurs > 1 ? "s" : ""}`);
+    if (chiffres.length) ligne.append(el("span", "chiffres-amdt", chiffres.join(" · ")));
+    boite.append(ligne);
   }
   return boite;
 }
@@ -3950,7 +4063,7 @@ async function ouvrirVersion(uid, ref) {
       tete.append(el("span", "quoi", "La source dit : " + a.etat));
     }
     f.append(tete);
-    if (a.quoi !== "initial") f.append(carteAmendementsDeLArticle(a.amendements || []));
+    if (A_CHANGE.has(a.quoi)) f.append(carteAmendementsDeLArticle(a.amendements || []));
     f.append(texteCompare(a.morceaux, "diff", a.texte));
   }
 

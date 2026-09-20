@@ -14,7 +14,8 @@ lire aucune donnée.
 | `publier.py` | Écrit la base en fichiers tout prêts — **c'est ce qui est mis en ligne** |
 | `serveur.py` | Sert la base en direct. **Outil de développement local**, pas ce qui tourne en production |
 | `schema.sql` | Le modèle de données |
-| `test_extraction.py` | 115 tests sur les règles de lecture |
+| `test_extraction.py` | 136 tests sur les règles de lecture |
+| `test_publier.py` | 12 tests sur le rattachement d'un scrutin et d'un débat à un amendement adopté |
 | `legi.py` | Lit le droit consolidé et compare deux rédactions d'un article. **Ne télécharge rien, n'écrit nulle part.** |
 | `recuperer_legi.py` | Va chercher, dans le droit consolidé, ce que nos lois y ont changé. Écrit dans `legi.db` |
 | `test_legi.py` | 86 tests sur ces règles-là |
@@ -211,6 +212,7 @@ côtés **une fois la forme retirée** : `remplacement_de_forme`.
 ./publier.py        # écrit public/ — ce qui sera mis en ligne
 ./serveur.py        # http://127.0.0.1:8000, pour travailler en local
 ./test_extraction.py
+./test_publier.py
 ```
 
 La base **n'est pas versionnée** : c'est un fichier de données, reconstruit en
@@ -420,6 +422,52 @@ jusqu'à 19 510 amendements :
 
 Le dispositif, lui, est toujours complet : c'est la partie qui dit ce que
 l'amendement fait. Le compte réel est publié à côté, jamais masqué.
+
+### Combien de monde a parlé d'un amendement
+
+L'onglet « Texte » d'une fiche montre, sous chaque article changé, les
+amendements adoptés qui l'ont changé. Ce qui manquait était l'ampleur du
+débat : un amendement défendu par le gouvernement, contesté par six groupes et
+adopté à deux voix près n'a rien d'un amendement de coordination, et rien ne le
+disait à l'écran.
+
+Deux chiffres s'y ajoutent, tous deux venus de la source :
+
+- **le scrutin**, quand il y en a un — `votes_par_amendement` le retrouve par
+  le numéro que l'objet du scrutin nomme. Mesuré le 2026-09-20 : les 2 248
+  scrutins sur amendement de la législature en portent tous un ;
+- **le nombre d'orateurs**, compté par `extraction.debats_par_amendement` dans
+  les comptes rendus de séance.
+
+**C'est un compte, jamais un texte.** Les prises de parole de la discussion des
+articles ne sont pas recopiées : les rapprocher d'un amendement demanderait de
+trancher des cas que la source ne tranche pas. Un nombre d'orateurs, lui, se
+compte sans rien interpréter.
+
+Trois règles, mesurées le 2026-09-20 sur les 601 comptes rendus de la
+législature, et **chacune tenue par un test** :
+
+| La règle | Pourquoi |
+|---|---|
+| L'amendement se nomme dans la **phrase de la présidence** — « pour soutenir l'amendement n° 885 rectifié » | 14 930 occurrences. L'attribut `adt` du paragraphe, lui, traîne d'un amendement au suivant : il contredit 837 des 13 665 annonces vérifiables et manque sur 1 590. Sur l'amendement 885 de la loi Ripost, il annonce 605 |
+| **Une discussion commune ne se découpe pas** | 27 % des blocs portent plusieurs amendements défendus à la suite avant qu'on ne vote : ce qui s'y dit vaut pour l'ensemble, pas pour l'un d'eux |
+| Un bloc n'est gardé que si **la séance a annoncé un sort** | Sans clôture, un bloc court jusqu'à l'annonce suivante et avale ce qui ne le concerne pas |
+
+Restent **5 910 amendements** discutés seuls et clos, sur 383 séances. Le
+compte est celui des **personnes distinctes**, présidence exclue, interruptions
+comprises : « Et l'alcool ? » lancé des bancs est quelqu'un qui prend part au
+débat. C'est ce qui sépare un échange d'un long monologue — l'amendement 885 a
+15 orateurs pour 58 paragraphes, quand un autre du même texte en a 3 pour 36.
+
+La table `debat_amendement` porte le **numéro de dépôt du document amendé**, et
+pas seulement le dossier : c'est lui qui sépare les lectures, l'amendement n° 1
+d'une première lecture et celui d'une nouvelle lecture portant le même numéro
+dans le même dossier. Un numéro que deux scrutins du même dossier revendiquent
+n'est, pour la même raison, rattaché à aucun des deux.
+
+**Ce que le socle ne décide pas :** quand un amendement mérite un repère à
+l'écran. Il publie les deux chiffres bruts ; le seuil est un choix d'affichage,
+et il est dans `maquette/feed.html`, nommé et visible.
 
 ### L'ordre des groupes est mesuré, leur couleur est une convention
 

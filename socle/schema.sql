@@ -260,3 +260,31 @@ CREATE TABLE IF NOT EXISTS parole (
 -- s'entrelacent.
 CREATE INDEX IF NOT EXISTS parole_par_dossier
     ON parole (dossier_uid, date, seance, ordre);
+
+-- Combien de personnes ont parlé d'un amendement, en séance.
+--
+-- **Un compte, jamais un texte.** Les prises de parole de la discussion des
+-- articles ne sont pas recopiées : les rapprocher d'un amendement demanderait
+-- de trancher des cas que la source ne tranche pas. Un nombre d'orateurs, lui,
+-- se compte sans rien interpréter — et il sert à dire qu'un amendement a été
+-- débattu, pas ce qui s'y est dit.
+--
+-- Une seule ligne par amendement **discuté seul** : quand plusieurs
+-- amendements sont défendus à la suite avant qu'on ne vote — 27 % des blocs —
+-- ce qui s'y dit vaut pour l'ensemble, et rien n'est enregistré.
+--
+-- `texte_numero` est le numéro de dépôt du document amendé — « 2984 » pour le
+-- texte de commission de la loi Ripost. Il est là pour séparer les lectures :
+-- l'amendement n° 1 d'une première lecture et celui d'une nouvelle lecture
+-- portent le même numéro dans le même dossier, et seul le document amendé les
+-- distingue.
+CREATE TABLE IF NOT EXISTS debat_amendement (
+    dossier_uid  TEXT    NOT NULL REFERENCES dossier(uid) ON DELETE CASCADE,
+    texte_numero TEXT    NOT NULL,   -- 2984
+    numero       TEXT    NOT NULL,   -- 885, tel que la présidence le prononce
+    seance       TEXT    NOT NULL,
+    date         TEXT    NOT NULL,
+    orateurs     INTEGER NOT NULL,   -- personnes distinctes, présidence exclue
+    paragraphes  INTEGER NOT NULL,
+    PRIMARY KEY (dossier_uid, texte_numero, numero, seance)
+);

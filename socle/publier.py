@@ -372,27 +372,138 @@ def ouvrir_textes() -> sqlite3.Connection | None:
     return cx
 
 
-def amendements_adoptes(cx: sqlite3.Connection, ref: str) -> dict:
+# Le numéro d'amendement, tel que l'objet d'un scrutin le nomme : « sur
+# l'amendement n° 885 (rect.) du Gouvernement à l'article 3 du projet de
+# loi… ». On ne retient que le **premier** nommé : un objet qui ajoute « et
+# les amendements identiques suivants » ne dit pas lesquels, et deviner ferait
+# porter un vote à un amendement que la source ne désigne pas.
+NUMERO_D_AMENDEMENT = re.compile(
+    r"(?:l['’]amendement|le sous-amendement)\s+n°\s*(\d+)", re.IGNORECASE)
+
+
+def numero_de_document(ref: str | None) -> str:
+    """Le numéro de dépôt que porte la référence d'un document.
+
+    « PRJLANR5L17BTC2984 » → « 2984 », « PIONANR5L17BTA0224 » → « 224 ». Les
+    zéros de tête tombent : la séance dit « n° 224 ».
+    """
+    trouve = re.search(r"(\d+)$", ref or "")
+    return str(int(trouve.group(1))) if trouve else ""
+
+
+def votes_par_amendement(cx: sqlite3.Connection,
+                         dossier_uid: str) -> dict[str, list[dict]]:
+    """Les scrutins publics d'un dossier, rangés par numéro d'amendement.
+
+    Mesuré le 2026-09-20 : les 2 248 scrutins sur amendement de la législature
+    nomment tous un numéro dans leur objet, sans exception.
+
+    **Un numéro ne désigne pas un amendement à lui seul.** 69 couples (dossier,
+    numéro) sur 4 372 sont portés par deux documents du même dossier — deux
+    lectures, où l'amendement n° 1 de l'une et celui de l'autre n'ont rien à
+    voir. C'est pourquoi cette fonction rend une **liste** : c'est la date qui
+    départage, et elle appartient à l'appelant, qui sait de quel document il
+    parle et quand ce document a été discuté.
+    """
+    trouves: dict[str, list[dict]] = {}
+    for l in cx.execute(
+            "SELECT numero, date, objet, sort, pour, contre, abstentions"
+            " FROM vote WHERE dossier_uid = ? AND portee = 'amendement'",
+            (dossier_uid,)):
+        nomme = NUMERO_D_AMENDEMENT.search(l["objet"] or "")
+        if not nomme:
+            continue
+        exprimes = (l["pour"] or 0) + (l["contre"] or 0)
+        if not exprimes:
+            continue
+        trouves.setdefault(nomme.group(1), []).append({
+            "scrutin": l["numero"], "date": l["date"], "sort": l["sort"],
+            "pour": l["pour"], "contre": l["contre"],
+            "abstentions": l["abstentions"],
+            # L'écart en part des suffrages exprimés : un 39 contre 37 et un
+            # 390 contre 370 se lisent pareil, et c'est ce qui compte.
+            "ecart": round(abs(l["pour"] - l["contre"]) / exprimes, 4)})
+    return trouves
+
+
+def debats_par_amendement(cx: sqlite3.Connection, dossier_uid: str) -> dict[tuple, dict]:
+    """Combien de personnes ont parlé de chaque amendement, par document amendé.
+
+    La clé est (numéro de dépôt du document, numéro d'amendement) : c'est ce
+    qui sépare les lectures, deux amendements d'un même dossier pouvant porter
+    le même numéro sur deux documents différents.
+    """
+    return {(l["texte_numero"], l["numero"]):
+            {"orateurs": l["orateurs"], "paragraphes": l["paragraphes"]}
+            for l in cx.execute(
+                "SELECT texte_numero, numero, MAX(orateurs) orateurs,"
+                " MAX(paragraphes) paragraphes FROM debat_amendement"
+                " WHERE dossier_uid = ? GROUP BY texte_numero, numero",
+                (dossier_uid,))}
+
+
+def amendements_adoptes(cx: sqlite3.Connection, ref: str,
+                        votes: dict[str, list[dict]] | None = None,
+                        debats: dict[tuple, dict] | None = None,
+                        fenetre: tuple[str, str] | None = None) -> dict:
     """Les amendements adoptés sur une version, rangés par article visé.
 
     Le rapprochement se fait par le numéro d'article et par la position que
     donne la source — « sur » l'article, ou « après » lui. **Jamais par le
     texte** : dire quel mot vient de quel amendement demanderait d'interpréter
     l'instruction de l'amendement, donc de fabriquer du texte de loi.
+
+    Chaque amendement porte, quand la source les donne, son scrutin et
+    l'ampleur de son débat. **Les deux manquent le plus souvent, et ce n'est
+    pas un défaut** : 97 % des amendements adoptés l'ont été à main levée,
+    sans qu'aucun décompte soit enregistré. Une absence ne dit donc pas qu'un
+    amendement est passé sans discussion — elle dit qu'on n'en sait rien.
+
+    `fenetre` est l'intervalle de dates pendant lequel ce document a été
+    amendé : de son adoption à celle de la version suivante. C'est lui qui
+    départage deux lectures qui numérotent leurs amendements pareil.
     """
+    votes = votes or {}
+    debats = debats or {}
+    document = numero_de_document(ref)
     lignes = cx.execute(
-        "SELECT a.uid, a.numero, a.article, a.ou, a.division,"
+        "SELECT a.uid, a.numero, a.article, a.ou, a.division, a.type_auteur,"
         " ac.civilite, ac.prenom, ac.nom, g.sigle, g.couleur"
         " FROM amendement a"
         " LEFT JOIN acteur ac ON ac.ref = a.auteur_ref"
         " LEFT JOIN groupe g ON g.ref = a.groupe_ref"
         " WHERE a.texte_ref = ? AND a.sort = 'Adopté'"
         " ORDER BY a.ordre", (ref,)).fetchall()
+
+    def chiffres(numero: str | None) -> dict:
+        """Le scrutin et le débat de cet amendement, s'ils existent.
+
+        Le numéro de la base porte parfois une mention — « 885 (Rect) » — que
+        ni le scrutin ni la séance ne reprennent à l'identique. On le réduit
+        donc à ses chiffres. Un numéro de commission, « CL755 », n'a jamais de
+        scrutin en séance : il ne trouvera rien, et c'est juste.
+        """
+        chiffre = re.match(r"\s*(\d+)", numero or "")
+        if not chiffre:
+            return {}
+        cle = chiffre.group(1)
+        # Le scrutin doit tomber dans la fenêtre du document : sinon c'est
+        # celui d'une autre lecture, qui numérote ses amendements pareil.
+        candidats = [v for v in votes.get(cle, ())
+                     if not fenetre or fenetre[0] <= v["date"] <= fenetre[1]]
+        return {**({"vote": candidats[0]} if len(candidats) == 1 else {}),
+                **({"debat": debats[(document, cle)]}
+                   if (document, cle) in debats else {})}
+
     return textes_mod.amendements_du_document(
         [{"uid": l["uid"], "numero": l["numero"],
           "nom": " ".join(x for x in (l["prenom"], l["nom"]) if x) or None,
           "civilite": l["civilite"], "sigle": l["sigle"], "couleur": l["couleur"],
-          "division": {"article": l["article"], "ou": l["ou"], "type": l["division"]}}
+          # Un amendement du Gouvernement n'a pas de député pour auteur : sans
+          # ce champ, sa ligne n'affiche qu'un numéro et personne.
+          "typeAuteur": l["type_auteur"],
+          "division": {"article": l["article"], "ou": l["ou"], "type": l["division"]},
+          **chiffres(l["numero"])}
          for l in lignes])
 
 
@@ -424,16 +535,25 @@ def versions_du_texte(cx: sqlite3.Connection, textes_cx: sqlite3.Connection | No
     return suite
 
 
-def comparaison_des_versions(cx: sqlite3.Connection, suite: list[dict]) -> list[dict]:
+def comparaison_des_versions(cx: sqlite3.Connection, suite: list[dict],
+                             dossier_uid: str) -> list[dict]:
     """Une version comparée à la précédente, avec ses amendements adoptés."""
     sortie = []
+    # Cherchés une fois pour tout le texte : ils servent à chacune des
+    # versions, et une fiche en compte jusqu'à cinq.
+    votes = votes_par_amendement(cx, dossier_uid)
+    debats = debats_par_amendement(cx, dossier_uid)
     for rang, version in enumerate(suite):
         avant = suite[rang - 1] if rang else None
         lignes = (textes_mod.comparer(avant["articles"], version["articles"])
                   if avant else textes_mod.premiere_version(version["articles"]))
         # Les amendements sont déposés sur la version **précédente** : ce sont
         # eux qui l'ont transformée en celle-ci.
-        index = amendements_adoptes(cx, avant["ref"]) if avant else {}
+        # La fenêtre pendant laquelle ce document-là a été amendé : de son
+        # adoption à celle de la version qui en est sortie.
+        index = (amendements_adoptes(cx, avant["ref"], votes, debats,
+                                     (avant["date"], version["date"]))
+                 if avant else {})
         for ligne in lignes:
             ligne["amendements"] = textes_mod.amendements_de_l_article(index, ligne)
         sortie.append({
@@ -985,7 +1105,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         # pèse jusqu'à 1,4 Mo — et la fiche ne porte que de quoi afficher la
         # ligne dans le parcours.
         suite = versions_du_texte(cx, textes_cx, parcours)
-        comparaisons = comparaison_des_versions(cx, suite) if suite else []
+        comparaisons = comparaison_des_versions(cx, suite, l["uid"]) if suite else []
         for comparaison in comparaisons:
             versions_ecrites += ecrire(
                 sortie / "versions" / l["uid"] / f'{comparaison["ref"]}.json',

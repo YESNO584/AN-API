@@ -113,6 +113,35 @@ a pas encore d'application, de base de données ni de dépendances.
   de comparaison unique et fixe. Deux comparaisons, donc deux mots : **ne pas
   les aligner** en croyant réparer un oubli de vocabulaire (décidé le
   2026-09-20).
+- **« Plus discuté » n'est pas « controversé », et le repère de l'onglet
+  « Texte » ne promet que ce qu'il compte** (mesuré le 2026-09-20). Sur les 967
+  amendements dont on connaît à la fois le scrutin et le débat, la corrélation
+  de rang entre le volume de débat et le serré du vote est de **−0,07** : nulle.
+  Le repère « Adopté de justesse, après un long échange » exige donc **les deux
+  conditions séparément** — moins de 10 % d'écart au scrutin *et* au moins 8
+  orateurs distincts — et le mot « controversé » est interdit à l'écran. Les
+  deux seuils vivent dans `maquette/feed.html` parce que c'est un choix
+  d'affichage ; le socle publie les chiffres bruts et ne tranche rien. **Son
+  absence ne dit rien** : 97 % des amendements adoptés le sont à main levée,
+  sans qu'aucun décompte de voix existe.
+- **Un amendement se nomme dans la phrase de la présidence, jamais par
+  l'attribut `adt` du compte rendu.** Celui-ci traîne d'un amendement au
+  suivant : il contredit 837 des 13 665 annonces vérifiables et manque sur
+  1 590 — sur l'amendement 885 de la loi Ripost, il annonce 605. Deux règles
+  vont avec, et `socle/test_extraction.py` les tient : **une discussion commune
+  ne se découpe pas** (27 % des blocs portent plusieurs amendements défendus à
+  la suite, et ce qui s'y dit vaut pour l'ensemble), et **un bloc sans sort
+  annoncé n'est pas gardé**.
+- **Le débat d'un amendement se compte, il ne se recopie pas.** Seul le nombre
+  d'orateurs distincts est publié ; les prises de parole de la discussion des
+  articles ne le sont toujours pas. Les rapprocher d'un amendement demanderait
+  de trancher des cas que la source ne tranche pas — un compte, lui, ne demande
+  rien à interpréter.
+- **Un numéro d'amendement ne suffit pas à désigner un amendement dans un
+  dossier :** deux lectures y portent les mêmes numéros. Ce qui les sépare est
+  le **numéro de dépôt du document amendé** (`debat_amendement.texte_numero`,
+  `publier.numero_de_document`). Un numéro que deux scrutins du même dossier
+  revendiquent n'est rattaché à aucun des deux.
 - **Dans le résumé des débats, l'IA n'écrit que les arguments.** Le camp de
   chaque groupe — « ont voté pour », « ont voté contre » — est relevé dans le
   scrutin publié par `assembler_resumes.py`, jamais repris de la rédaction.

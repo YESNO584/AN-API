@@ -278,6 +278,44 @@ Sous les boutons, une ligne rappelle **quelle version on lit et de quand** —
 sans elle, trois libellés courts laisseraient croire qu'on lit toujours le même
 document.
 
+##### Les amendements qui ont fait la modification, et lequel a été disputé
+
+Dans la vue « Modifications », et dans elle seule, chaque article changé porte
+**les amendements adoptés qui l'ont changé** : leur numéro, leur auteur, son
+groupe. Les deux autres vues montrent un texte, pas une transformation — une
+liste d'amendements n'y voudrait rien dire. Le rapprochement se fait par le
+numéro d'article, **jamais par le texte** : la page dit lesquels ont été
+adoptés sur cet article, jamais quel mot vient de quel amendement.
+
+Certains portent un repère : « **!** Adopté de justesse, après un long
+échange ». Il tombe quand **deux conditions mesurées** sont réunies — le
+scrutin public s'est joué à moins de 10 % d'écart, **et** au moins huit
+personnes distinctes ont pris la parole sur cet amendement en séance. Les
+chiffres s'affichent à côté, repère ou pas : « 39 pour, 37 contre · 15
+orateurs ». C'est ce qui permet de vérifier le repère, et de voir ce qui lui a
+manqué.
+
+**Il ne dit pas « controversé », et ce n'est pas une litote.** Mesuré le
+2026-09-20 sur les 967 amendements dont on connaît à la fois le vote et le
+débat, le volume de débat et le serré du vote sont **indépendants** :
+corrélation de rang de −0,07, c'est-à-dire rien. Un amendement voté 54 contre
+54 a eu 48 paragraphes de débat, un autre voté 50 contre 50 en a eu 12 ; et le
+plus discuté de la législature — 358 paragraphes, 90 orateurs — a été rejeté
+161 contre 67, sans suspense. Le repère dit donc exactement ce qu'il compte, et
+rien de plus. Les deux seuils sont dans `feed.html`, nommés, parce que c'est un
+choix d'affichage : le socle publie les chiffres bruts et ne tranche rien.
+
+**L'absence du repère ne veut rien dire.** 97 % des amendements adoptés le sont
+à main levée, sans qu'aucun décompte de voix soit enregistré : ils n'ont pas
+d'écart et n'en auront jamais. L'explication au toucher le dit, pour qu'une
+absence ne se lise pas comme « passé sans discussion ».
+
+**Les amendements sont classés**, et non plus rangés dans l'ordre de la
+source : ceux qui portent le repère d'abord, puis ceux dont on connaît le vote
+et le débat — du plus serré au moins serré —, puis ceux dont on ne sait qu'une
+chose, puis ceux dont on ne sait rien, qui gardent l'ordre de la source. Le
+chapeau annonce le compte : « 4 amendements adoptés — 1 débattu ».
+
 **Le texte n'est demandé qu'à l'ouverture de l'onglet**, et une version lue est
 gardée : passer d'un bouton à l'autre ne retélécharge rien. Une version pèse
 jusqu'à **2,8 Mo** (mesuré le 2026-09-19 sur le projet de loi de finances pour
