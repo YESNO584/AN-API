@@ -266,10 +266,17 @@ choisit par **trois boutons côte à côte** :
    qu'elle se lit aujourd'hui.
 
 C'est la même bascule que pour un article de loi : un seul geste à apprendre
-pour choisir ce qu'on regarde. Les mots, eux, diffèrent — l'écran d'un article
-dit « Ce qui change » là où celui-ci dit « Modifications ». Sous les boutons,
-une ligne rappelle **quelle version on lit et de quand** — sans elle, trois
-libellés courts laisseraient croire qu'on lit toujours le même document.
+pour choisir ce qu'on regarde. Les mots, eux, diffèrent, et **ce n'est pas un
+oubli** : les deux écrans ne comparent pas la même chose. L'écran d'un article
+dit « Ce qui change » parce qu'il montre ce qu'une loi promulguée change **au
+droit en vigueur** — un point de comparaison unique et fixe. Ici, les
+« Modifications » sont celles que la commission puis la séance apportent **au
+texte déposé**, et ce point de comparaison bouge à chaque étape du parcours.
+Deux comparaisons différentes, donc deux mots.
+
+Sous les boutons, une ligne rappelle **quelle version on lit et de quand** —
+sans elle, trois libellés courts laisseraient croire qu'on lit toujours le même
+document.
 
 **Le texte n'est demandé qu'à l'ouverture de l'onglet**, et une version lue est
 gardée : passer d'un bouton à l'autre ne retélécharge rien. Une version pèse

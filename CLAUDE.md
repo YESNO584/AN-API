@@ -105,6 +105,14 @@ a pas encore d'application, de base de données ni de dépendances.
   `origine` vaut `ia` ou `humain` — remplacer une rubrique générée par une
   rubrique rédigée ne demande aucun code. **Étendre l'exception à une
   troisième rubrique se décide d'abord dans `docs/CE-QUE-L-ON-ECRIT.md`.**
+- **« Modifications » et « Ce qui change » nomment deux choses différentes, et
+  l'écart est voulu.** L'onglet « Texte » d'une fiche montre ce que la
+  commission puis la séance changent **au texte déposé** — un point de
+  comparaison qui bouge à chaque étape du parcours ; l'écran d'un article de
+  loi montre ce qu'une loi promulguée change **au droit en vigueur** — un point
+  de comparaison unique et fixe. Deux comparaisons, donc deux mots : **ne pas
+  les aligner** en croyant réparer un oubli de vocabulaire (décidé le
+  2026-09-20).
 - **Dans le résumé des débats, l'IA n'écrit que les arguments.** Le camp de
   chaque groupe — « ont voté pour », « ont voté contre » — est relevé dans le
   scrutin publié par `assembler_resumes.py`, jamais repris de la rédaction.
