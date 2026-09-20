@@ -39,6 +39,19 @@ SOCLE = "https://yesno584.github.io/AN-API"
 # Les paroles complètes restent affichées dans l'application, mot pour mot :
 # ce fichier-ci ne sert qu'à écrire.
 CARACTERES_PAR_PAROLE = 2500
+# Pourquoi les paroles sans sigle sont mises à part, et pas dans les groupes.
+# Sans cette séparation, un rédacteur écrivait les arguments d'un « groupe sans
+# groupe » que `assembler_resumes.py` refusait ensuite un par un : il contrôle
+# les sigles contre `paroles/<uid>.json`, qui n'en porte que douze — les onze
+# groupes et NI. Quatre rédactions sur dix y ont perdu du temps le 2026-09-20.
+SANS_GROUPE = (
+    "Paroles dont l'orateur n'a pas été rattaché à un groupe : ce n'est pas un "
+    "groupe politique mais un reste. Mesuré le 2026-09-20 : 128 paroles sur "
+    "2 976, dans 91 textes, chez 60 orateurs — des ministres, des non-inscrits, "
+    "et des députés d'un vrai groupe que le rapprochement a manqués "
+    "(95,6 % d'attribution). **N'écris aucun argument à partir d'elles** : "
+    "assembler_resumes.py les refuserait, et elles mêlent des orateurs de bords "
+    "différents. Elles sont ici pour que tu saches ce qui a été dit d'autre.")
 
 
 def lire(socle: str, chemin: str):
@@ -81,8 +94,13 @@ def faits_du_texte(socle: str, uid: str, taille: int = CARACTERES_PAR_PAROLE) ->
     # dans celui du fichier des paroles.
     ordre = {g["sigle"]: g.get("rang", 99) for g in (vote or {}).get("groupes", [])}
     par_groupe: dict[str, list[dict]] = {}
+    orphelines: list[dict] = []
     for p in paroles["paroles"]:
-        par_groupe.setdefault(p.get("sigle") or "sans groupe", []).append(p)
+        # Une parole dont l'orateur n'a pas été rattaché à un groupe ne peut
+        # pas servir à écrire l'argument d'un groupe : elle est mise à part,
+        # jamais mêlée aux autres. Voir `SANS_GROUPE` ci-dessous.
+        (par_groupe.setdefault(p["sigle"], []) if p.get("sigle")
+         else orphelines).append(p)
 
     groupes = []
     for sigle in sorted(par_groupe, key=lambda s: (ordre.get(s, 99), s)):
@@ -104,6 +122,11 @@ def faits_du_texte(socle: str, uid: str, taille: int = CARACTERES_PAR_PAROLE) ->
         "uid": uid,
         "titre": texte.get("titre"),
         "aEcrire": "au plus 4 arguments par groupe, tirés de ses paroles",
+        **({"sansGroupe": {"pourquoi": SANS_GROUPE,
+                           "paroles": [{"nom": p.get("nom"),
+                                        "texte": (p.get("texte") or "")[:taille]}
+                                       for p in orphelines]}}
+           if orphelines else {}),
         "voteSurLEnsemble": ({"date": vote.get("date"), "sort": vote.get("sort"),
                               "objet": vote.get("objet"), "pour": vote.get("pour"),
                               "contre": vote.get("contre"),
