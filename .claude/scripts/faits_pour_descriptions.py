@@ -180,7 +180,14 @@ def faits_du_texte_en_cours(uid: str, texte: dict) -> dict | None:
     d = lire_ou_rien(f"{SOCLE}/versions/{uid}/{derniere['ref']}.json")
     if not d:
         return None
-    tous = d.get("articles") or []
+    # **Un article `retire` porte l'ANCIENNE rédaction, pas la nouvelle.** Une
+    # version liste aussi ce qu'elle a supprimé, pour que la comparaison puisse
+    # l'afficher barré. Le garder ici faisait décrire un texte qui n'existe
+    # plus : trouvé le 2026-09-20 sur un texte dont la commission avait vidé
+    # les trois premiers articles, et qui arrivait au rédacteur avec ces
+    # articles pleins de substance.
+    tous = [a for a in (d.get("articles") or []) if a.get("quoi") != "retire"]
+    retires = len(d.get("articles") or []) - len(tous)
     # La source publie parfois un article sans son texte : « Article 1er »,
     # « (Supprimé) », « (Conforme) » et rien d'autre. Mesuré le 2026-09-20 :
     # 73 articles sur 1 163 récoltés, et 8 textes dont la moitié ou plus sont
@@ -202,6 +209,9 @@ def faits_du_texte_en_cours(uid: str, texte: dict) -> dict | None:
         # se croie pas complète quand elle ne l'est pas.
         **({"articlesSansTexte": len(tous) - len(porteurs)}
            if len(porteurs) < len(tous) else {}),
+        # Les articles que cette version a supprimés : écartés, et comptés,
+        # pour qu'on sache que le texte a maigri.
+        **({"articlesRetires": retires} if retires else {}),
         "articles": [{"numero": a.get("numero"), "titre": a.get("titre"),
                       "texte": a["texte"][:EXTRAIT_VERSION]}
                      for a in articles],
