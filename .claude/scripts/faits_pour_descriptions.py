@@ -157,6 +157,47 @@ def extrait(article: dict) -> dict:
     }
 
 
+# Combien d'articles d'une version on garde, et quelle longueur. Une version
+# pèse jusqu'à 2,8 Mo (le projet de loi de finances pour 2026) : on n'en lit
+# pas 276 en entier. Les plus longs d'abord — un article de deux lignes dit
+# souvent « la présente loi entre en vigueur le… ».
+ARTICLES_VERSION = 12
+EXTRAIT_VERSION = 1800
+
+
+def faits_du_texte_en_cours(uid: str, texte: dict) -> dict | None:
+    """Ce qu'un texte en cours décide, dans sa **dernière version publiée**.
+
+    Pas le texte déposé : un texte réécrit en commission ne dit plus ce qu'il
+    disait au dépôt, et le décrire au dépôt serait décrire un texte qui
+    n'existe plus. C'est la version que l'onglet « Texte » de la fiche montre
+    sous « Version à jour », et le même fichier publié.
+    """
+    versions = texte.get("versions") or []
+    if not versions:
+        return None
+    derniere = versions[-1]
+    d = lire_ou_rien(f"{SOCLE}/versions/{uid}/{derniere['ref']}.json")
+    if not d:
+        return None
+    articles = sorted((d.get("articles") or []),
+                      key=lambda a: -len(a.get("texte") or ""))[:ARTICLES_VERSION]
+    return {
+        "uid": uid,
+        "titre": texte.get("titre"),
+        "type": texte.get("type"),
+        "aEcrire": A_ECRIRE,
+        "quelleVersion": {"nom": derniere.get("nom"), "date": derniere.get("date"),
+                          "ref": derniere["ref"], "surCombien": len(versions)},
+        "dossier": parcours(uid),
+        "articlesEnTout": len(d.get("articles") or []),
+        "articlesLus": len(articles),
+        "articles": [{"numero": a.get("numero"), "titre": a.get("titre"),
+                      "texte": (a.get("texte") or "")[:EXTRAIT_VERSION]}
+                     for a in articles],
+    }
+
+
 A_ECRIRE = ("un contexte d'un paragraphe au plus — ce qui se passait avant,"
             " tiré des morceaux « retire » et des paroles, jamais de mémoire ;"
             " une accroche d'une phrase ; au plus 8 mesures ; et le nom d'usage"
@@ -200,10 +241,40 @@ def main() -> int:
                     help="joindre un échantillon des prises de parole en séance :"
                          " la seule matière d'un nom d'usage, et la meilleure"
                          " d'un contexte. Les fichiers y gagnent 10 Ko environ")
+    ap.add_argument("--textes", help="identifiants de dossier séparés par des"
+                                     " virgules, ou un fichier qui en porte un"
+                                     " par ligne. Récolte alors la DERNIÈRE"
+                                     " VERSION PUBLIÉE de chacun, au lieu des"
+                                     " lois promulguées")
     args = ap.parse_args()
 
     SOCLE = args.socle.rstrip("/")
     args.sortie.mkdir(parents=True, exist_ok=True)
+
+    # Deux sources, selon ce qu'on décrit — c'est la règle qui décide de tout :
+    # une loi promulguée se décrit sur le droit qu'elle change et qui est en
+    # vigueur, un texte en cours sur sa dernière version publiée.
+    if args.textes:
+        chemin = pathlib.Path(args.textes)
+        uids = ([x.strip() for x in chemin.read_text(encoding="utf-8").split() if x.strip()]
+                if chemin.exists()
+                else [x.strip() for x in args.textes.split(",") if x.strip()])
+        ecrits = sautes = 0
+        for uid in uids:
+            texte = lire_ou_rien(f"{SOCLE}/textes/{uid}.json")
+            faits = faits_du_texte_en_cours(uid, texte) if texte else None
+            if not faits:
+                sautes += 1
+                print(f"  {uid} : aucune version publiée à lire", file=sys.stderr)
+                continue
+            (args.sortie / f"{uid}.json").write_text(
+                json.dumps(faits, ensure_ascii=False, indent=1), encoding="utf-8")
+            ecrits += 1
+            print(f'  {uid}  {faits["articlesLus"]:>2}/{faits["articlesEnTout"]:<4}'
+                  f'  {faits["quelleVersion"]["nom"][:28]:28}  {(faits["titre"] or "")[:44]}')
+        print(f"{ecrits} textes écrits dans {args.sortie}, {sautes} sans version",
+              file=sys.stderr)
+        return 0
 
     voulues = set((args.lois or "").split(",")) if args.lois else None
     promulguees = lire(f"{SOCLE}/promulgues.json")["textes"]

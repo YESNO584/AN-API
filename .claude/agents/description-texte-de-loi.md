@@ -65,10 +65,16 @@ liste `versions` de `textes/<uid>.json` :
 réécrit en commission ne dit plus ce qu'il disait au dépôt, et décrire le dépôt
 serait décrire un texte qui n'existe plus.
 
-> `faits_pour_descriptions.py` ne récolte aujourd'hui que le premier cas : il
-> part de `promulgues.json`. La récolte du second reste à écrire. Si on te
-> demande de décrire un texte en cours, lis les fichiers `versions/` toi-même,
-> et dis-le dans ton rapport.
+`faits_pour_descriptions.py` récolte les deux cas :
+
+- sans option, il part de `promulgues.json` et lit le droit consolidé ;
+- avec `--textes <fichier ou liste>`, il lit la **dernière version publiée**
+  de chaque texte — `quelleVersion` te dit laquelle et sur combien.
+
+Il garde les **12 articles les plus longs**, coupés à 1 800 caractères. Un
+article de deux lignes dit souvent « la présente loi entre en vigueur le… » :
+ce n'est pas là qu'est le fond. `articlesLus` sur `articlesEnTout` te dit
+toujours ce que tu n'as pas vu.
 
 ## La forme
 
