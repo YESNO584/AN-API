@@ -180,8 +180,14 @@ def faits_du_texte_en_cours(uid: str, texte: dict) -> dict | None:
     d = lire_ou_rien(f"{SOCLE}/versions/{uid}/{derniere['ref']}.json")
     if not d:
         return None
-    articles = sorted((d.get("articles") or []),
-                      key=lambda a: -len(a.get("texte") or ""))[:ARTICLES_VERSION]
+    tous = d.get("articles") or []
+    # La source publie parfois un article sans son texte : « Article 1er »,
+    # « (Supprimé) », « (Conforme) » et rien d'autre. Mesuré le 2026-09-20 :
+    # 73 articles sur 1 163 récoltés, et 8 textes dont la moitié ou plus sont
+    # dans ce cas. Les compter comme « lus » faisait annoncer « 7 sur 7 » là où
+    # 4 étaient vides, donc surestimer la matière d'une description.
+    porteurs = [a for a in tous if (a.get("texte") or "").strip()]
+    articles = sorted(porteurs, key=lambda a: -len(a["texte"]))[:ARTICLES_VERSION]
     return {
         "uid": uid,
         "titre": texte.get("titre"),
@@ -190,10 +196,14 @@ def faits_du_texte_en_cours(uid: str, texte: dict) -> dict | None:
         "quelleVersion": {"nom": derniere.get("nom"), "date": derniere.get("date"),
                           "ref": derniere["ref"], "surCombien": len(versions)},
         "dossier": parcours(uid),
-        "articlesEnTout": len(d.get("articles") or []),
+        "articlesEnTout": len(tous),
         "articlesLus": len(articles),
+        # Ce que la source ne publie pas : le dire, pour qu'une description ne
+        # se croie pas complète quand elle ne l'est pas.
+        **({"articlesSansTexte": len(tous) - len(porteurs)}
+           if len(porteurs) < len(tous) else {}),
         "articles": [{"numero": a.get("numero"), "titre": a.get("titre"),
-                      "texte": (a.get("texte") or "")[:EXTRAIT_VERSION]}
+                      "texte": a["texte"][:EXTRAIT_VERSION]}
                      for a in articles],
     }
 
