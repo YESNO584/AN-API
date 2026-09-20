@@ -42,6 +42,7 @@ import datetime as dt
 import glob
 import json
 import pathlib
+import re
 import sys
 
 RACINE = pathlib.Path(__file__).resolve().parents[2]
@@ -57,6 +58,29 @@ CARACTERES_MAX = 240
 # groupe absent du scrutin garde une position vide : ce n'est pas la même
 # chose, et l'écran ne doit pas les confondre.
 POSITIONS = ("pour", "contre", "abstention", "partagé")
+
+# Ce qui trahit une position de vote écrite par la rédaction. La règle était
+# dite mais pas contrôlée : mesuré le 2026-09-20, 7 arguments sur 6 137 la
+# violaient — « Le groupe annonce qu'il soutiendra le texte », « Le groupe
+# choisit d'adopter le texte sans modification ». Un argument qui dit comment
+# un groupe a voté double le scrutin affiché juste à côté, et peut le
+# contredire : c'est la faute que tout le reste de la chaîne évite.
+#
+# Le motif vise les tournures où le SUJET est le groupe et le VERBE un verbe de
+# scrutin. Il laisse passer « le budget voté l'an dernier », « la motion de
+# rejet », « soutenir l'agriculture » — mesuré, ces emplois sont la grande
+# majorité des occurrences de ces verbes.
+DIT_UN_VOTE = re.compile(
+    r"(?:\b(?:le |ce |notre |son )?groupe\b|\bil\b|\bnous\b|\bils\b)"
+    r"[^.;]{0,45}?"
+    r"\b(?:vote|votent|votera|voteront|voterons|votons|"
+    r"soutient|soutiendra|soutiendront|soutiendrons|"
+    r"s['’]oppose|s['’]opposera|s['’]opposeront|"
+    r"rejette|rejettera|rejettent|"
+    r"adopte|adoptera|adoptent|approuve|approuvera|"
+    r"s['’]abstient|s['’]abstiendra|s['’]abstiendront)\b"
+    r"|\bannonce qu['’]il\b|\bchoisit d['’](?:adopter|approuver|rejeter|voter)\b",
+    re.IGNORECASE)
 
 LISEZMOI = (
     "Le résumé des débats d'un texte, tel qu'il s'affiche en tête de l'onglet "
@@ -151,6 +175,13 @@ def controler(uid: str, ecrit: dict, refus: list[str]) -> dict | None:
         if trop_long:
             refus.append(f"{uid} / {qui} : un argument dépasse "
                          f"{CARACTERES_MAX} caractères")
+            continue
+        # Le camp vient du scrutin, jamais de la rédaction : un argument qui
+        # dit comment ce groupe a voté est refusé, même s'il est vrai.
+        vote_ecrit = [a for a in propres if DIT_UN_VOTE.search(a)]
+        if vote_ecrit:
+            refus.append(f"{uid} / {qui} : un argument dit une position de "
+                         f"vote — « {vote_ecrit[0][:70]}… »")
             continue
         if qui in dit:
             groupes.append({"sigle": qui,

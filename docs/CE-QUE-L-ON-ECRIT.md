@@ -314,6 +314,7 @@ différente partageaient un seul nom. Elles ont désormais chacune le leur.
 | **Le résumé, en tête de l'onglet** | **IA** pour les arguments, **S** pour les camps de vote — voir l'exception n° 2 ci-dessus |
 | « Groupes rangés d'après le scrutin du 23 octobre 2025 sur l'ensemble du texte — adopté » | **C** (la date et le sort viennent du scrutin) + **N** (les mots) |
 | « Ont voté pour », « Ont voté contre », « Se sont abstenus », « Se sont partagés » | **N** — le rangement, lui, est **S** |
+| « Dit aussi en séance », et le nom des orateurs sans groupe | **N** (les mots) + **S** (les noms, tels que le compte rendu les imprime) — ils viennent après les camps, jamais dedans : un ministre n'est pas député, il ne vote pas |
 | L'avertissement en tête | **N** |
 | Nom de l'orateur, qualité, sigle du groupe, nom de la section, date | **S** |
 | **Le texte de la prise de parole** | **S**, **entier** — rien n'est coupé (médiane 4 260 caractères) ; le « Lire la suite » ne fait que replier à l'écran |
@@ -463,7 +464,9 @@ chiffres du document sont des exemples de mise en page.
 | Descriptions portant un contexte | 107 | `socle/descriptions.json`, écrit le 2026-09-19 |
 | Noms d'usage retenus | 3 | Ripost, Duplomb, Ddadue — sur 26 candidats relevés dans les débats publiés |
 | Résumés de débats écrits | 171 | `socle/resumes_debats.json` — sur 172 textes qui ont des débats publiés |
-| Groupes et arguments de ces résumés | 1 711 / 6 137 | mesuré le 2026-09-20 |
+| Groupes et arguments de ces résumés | 1 711 / 6 144 | mesuré le 2026-09-20 |
+| Orateurs nommés, sans groupe | 108 / 386 arguments | sur 83 textes — ministres et non-inscrits, affichés après les camps |
+| Arguments disant une position de vote | 0 | refusé par `assembler_resumes.py` ; 7 l'avaient franchi avant que le contrôle existe |
 | Résumés sans camp de vote | 45 | ces textes n'ont pas de scrutin sur l'ensemble : l'écran affiche « Ce qui a été dit » |
 | Rubriques de l'application concernées par l'exception | 2 | la description d'un texte, et le résumé de ses débats |
 

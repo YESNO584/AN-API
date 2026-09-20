@@ -19,6 +19,11 @@ import unittest.mock
 import recuperer_textes
 import textes
 
+# Le schéma se trouve à côté de ce fichier, pas dans le répertoire d'où on
+# lance les tests : sans cela, `python3 socle/test_textes.py` depuis la racine
+# échouait là où `python3 test_textes.py` depuis `socle/` passait.
+SCHEMA = pathlib.Path(__file__).resolve().parent / "schema.sql"
+
 
 def document(*paragraphes: str, note: str = "") -> str:
     """Un document tel que l'Assemblée le publie, réduit à l'essentiel."""
@@ -252,7 +257,7 @@ class Recuperation(unittest.TestCase):
         téléchargée nomme le document de chaque étape."""
         chemin = pathlib.Path(tempfile.mkdtemp()) / "parlement.db"
         cx = sqlite3.connect(chemin)
-        cx.executescript(pathlib.Path("schema.sql").read_text(encoding="utf-8"))
+        cx.executescript(SCHEMA.read_text(encoding="utf-8"))
         cx.execute("INSERT INTO dossier (uid, legislature, titre, type, est_loi, statut)"
                    " VALUES ('D1', '17', 'Un texte', 'Proposition de loi ordinaire', 1, 'en_cours')")
         cx.execute("INSERT INTO dossier (uid, legislature, titre, type, est_loi, statut)"

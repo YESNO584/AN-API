@@ -29,7 +29,7 @@
      "sigle": "EcoS",
      "position": null,
      "arguments": [
-      "Le groupe ne votera aucun texte émanant du Rassemblement national, qu'il qualifie de force politique d'extrême droite.",
+      "Pour le groupe, aucun texte émanant du Rassemblement national ne mérite d'être discuté au fond, ce parti étant à ses yeux une force d'extrême droite.",
       "Ces propositions de loi ne serviraient qu'à construire un récit politique et à « montrer patte blanche ».",
       "Il n'y a pas de petite compromission avec l'extrême droite : donner ses voix est « un acte sans retour »."
      ]
@@ -208,8 +208,26 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Prisca Thevenot",
+     "arguments": [
+      "Effacer la réforme des retraites comme une dette au Monopoly creuserait le déficit de 15 milliards d'euros de plus en 2030 et de 21 milliards à partir de 2035.",
+      "Le financement proposé repose sur des taxes sur les fumeurs et sur des bénéfices dits exceptionnels, qui par définition ne sont pas garantis d'une année sur l'autre.",
+      "Revenir sur la réforme balaierait aussi ses avancées, comme la revalorisation des petites pensions et la reconnaissance des droits des aidants."
+     ]
+    },
+    {
+     "nom": "Mme Astrid Panosyan-Bouvet",
+     "arguments": [
+      "Le système par répartition comptait 4 actifs par retraité en 1960 ; il n'en compte plus que 1,7. C'est ce mur des chiffres qui commande.",
+      "Le fonds de réserve des retraites, doté de 20 milliards d'euros, ne tiendrait que trois ans, alors qu'un régime par répartition s'envisage sur des décennies.",
+      "Équilibrer les retraites par les cotisations demanderait des hausses bien plus fortes que celles avancées, et pose aussitôt la question du coût du travail et du salaire net."
+     ]
+    }
+   ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N51349": {
@@ -318,8 +336,19 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Aurore Bergé",
+     "arguments": [
+      "Le Conseil d'État a écarté l'idée d'une présomption de culpabilité : il reviendra toujours à la justice d'établir les faits et l'intention de l'auteur.",
+      "Après l'avis du Conseil d'État, les quatre critères qui caractérisent aujourd'hui l'agression sexuelle sont conservés et des éléments s'y ajoutent, pour la sécurité juridique.",
+      "Le texte pose des bases juridiques claires pour passer d'une culture du viol à une culture du consentement : ne pas dire non ne veut pas dire oui.",
+      "C'est un message aux victimes qui ont eu le courage de témoigner comme à celles qui n'ont pas osé affronter cette épreuve."
+     ]
+    }
+   ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N53284": {
@@ -424,8 +453,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Laurent Nuñez",
+     "arguments": [
+      "Toutes les mesures du texte sont souhaitées par les services de renseignement.",
+      "Il ne s'agit pas seulement de police administrative : aucune disposition du texte ne se passe d'un juge, qui intervient souvent plusieurs fois."
+     ]
+    }
+   ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N50686": {
@@ -537,12 +575,23 @@
      "arguments": [
       "L'acte II de l'école inclusive annoncé en 2023 est resté sans suite, les gouvernements qui l'ont promis ayant été dissous.",
       "Les familles décrivent un parcours du combattant : dossiers à rallonge, délais interminables, manque de places en instituts médico-éducatifs.",
-      "Le groupe vote le texte comme une petite avancée, mais réclame de nouvelles Ulis et des milliers de places en établissement spécialisé."
+      "Le groupe ne voit dans le texte qu'une petite avancée, et réclame de nouvelles Ulis ainsi que des milliers de places en établissement spécialisé."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Jean Bodart",
+     "arguments": [
+      "Pour trop d'enfants, aller à l'école est un parcours d'obstacles : ils décrochent faute d'accompagnement, et leurs parents passent des mois en démarches pour obtenir quelques heures d'aide humaine.",
+      "Le texte étend à tous les élèves concernés le livret qui suit leur parcours et renforce la formation des accompagnants, dont une partie pourrait avoir lieu avant la prise de fonctions.",
+      "Il crée un cadre commun d'évaluation pour les maisons départementales du handicap et prévoit des réponses pour les enfants français scolarisés hors de France.",
+      "Généraliser dès 2027 les pôles d'appui à la scolarité serait précipité : les études disponibles sont partielles et les expérimentations trop disparates."
      ]
     }
    ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N51039": {
@@ -612,7 +661,7 @@
      "arguments": [
       "La situation migratoire de Mayotte est exceptionnelle, sans équivalent dans aucun autre territoire de la République.",
       "Le groupe partage l'objectif final du texte : lutter contre l'immigration illégale à Mayotte.",
-      "Le texte a été dénaturé par un amendement ; le groupe le vote parce que le ministre s'est engagé à une deuxième lecture."
+      "Le texte a été dénaturé par un amendement ; le groupe s'en remet à l'engagement du ministre d'ouvrir une deuxième lecture."
      ]
     },
     {
@@ -652,8 +701,18 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Gérald Darmanin",
+     "arguments": [
+      "Lors de deux référendums, l'immense majorité des Mahorais a exprimé son attachement à la France : les renvoyer vers les Comores ne serait pas digne de la République.",
+      "Le durcissement du droit du sol décidé en 2018 a montré une certaine efficacité, sans tout régler, d'où un nouvel examen du sujet.",
+      "Depuis 2018, des femmes enceintes ne risquent plus leur vie en accouchant sur des barques de fortune ou sur les plages pour que l'enfant naisse sur le sol français."
+     ]
+    }
+   ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N53187": {
@@ -755,12 +814,13 @@
      "arguments": [
       "Il s'agit d'une urgence de santé publique, éducative et culturelle : les effets sur les plus jeunes ne sont plus à prouver.",
       "D'autres pays ont choisi d'agir avec fermeté, comme l'Australie : pourquoi pas la France ?",
-      "Malgré la loi sur la majorité numérique, rien n'a été mis en œuvre."
+      "Malgré la loi sur la majorité numérique, rien n'a été mis en œuvre.",
+      "Vérifier l'âge des utilisateurs obligerait tout le monde à prouver son identité, sans que le texte dise comment protéger les données ni éviter la surveillance."
      ]
     }
    ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N54218": {
@@ -873,8 +933,27 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Florent Boudié",
+     "arguments": [
+      "Toutes les forces politiques de l'assemblée de Corse, y compris celles qui contestent le projet, ont participé pendant vingt-quatre mois à son écriture, à la virgule près.",
+      "Le texte ne sert pas les intérêts d'une force politique en particulier.",
+      "Il n'y aurait pas deux catégories de citoyens en Corse : il n'y a qu'un seul peuple, et la souveraineté nationale reste celle du peuple tout entier."
+     ]
+    },
+    {
+     "nom": "Mme Françoise Gatel",
+     "arguments": [
+      "Deux conceptions se font face : une République uniforme, et une République tout aussi indivisible mais attentive à la diversité de ses territoires.",
+      "Le texte est né d'un débat inédit entre les élus choisis par les Corses et le gouvernement.",
+      "Le mot « communauté » est ici à prendre au sens d'où vient le mot « commune » : des gens qui partagent un même espace de vie, pas un repli sur soi.",
+      "Le cadre actuel est très insuffisant : sur cinquante-trois demandes d'adaptation formulées par la Corse, quatre seulement ont été acceptées."
+     ]
+    }
+   ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N50444": {
@@ -1021,7 +1100,8 @@
      "arguments": [
       "Selon l'écrivain cité à la tribune, l'Afrique n'est pas un musée pour l'Europe et son patrimoine ne peut rester en exil.",
       "Le texte organise une procédure administrative de déclassement permettant de restituer des biens spoliés.",
-      "Il touche à la manière dont le pays assume son histoire : justice, mémoire, reconnaissance et réparation."
+      "Il touche à la manière dont le pays assume son histoire : justice, mémoire, reconnaissance et réparation.",
+      "Jusqu'ici, les collections publiques étant inaliénables, chaque restitution exigeait une loi spécifique, au cas par cas."
      ]
     },
     {
@@ -1082,8 +1162,19 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Florence Joubert",
+     "arguments": [
+      "La loi-cadre simplifie les restitutions et les fonde davantage sur la science, là où les lois au cas par cas donnaient l'impression d'un processus opaque.",
+      "Jusqu'ici, le Parlement se prononçait sans éléments scientifiques, réduit au rôle de chambre d'enregistrement des engagements de l'exécutif.",
+      "Le rapport du comité scientifique devrait être rendu public sans avoir besoin de l'accord de l'État demandeur, sinon l'opacité menace.",
+      "La restitution devrait être conditionnée à des engagements clairs de l'État demandeur sur la conservation, l'accessibilité et la protection du bien rendu."
+     ]
+    }
+   ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N50692": {
@@ -1106,7 +1197,7 @@
      "sigle": "GDR",
      "position": "contre",
      "arguments": [
-      "Le groupe s'oppose d'abord à la méthode employée pour réformer la loi PLM.",
+      "Le groupe conteste d'abord la méthode employée pour réformer la loi PLM.",
       "Le rapporteur a tout tenté pour atténuer la médiocrité d'un texte frappé du sceau du soupçon."
      ]
     },
@@ -1174,12 +1265,25 @@
      "position": "pour",
      "arguments": [
       "Depuis plus de quarante ans, ces trois villes sont soumises à un mode de scrutin exorbitant du droit commun.",
-      "Le groupe rappelle que la loi PLM fut conçue dans un but partisan, pour affaiblir le maire de Paris de l'époque."
+      "Le groupe rappelle que la loi PLM fut conçue dans un but partisan, pour affaiblir le maire de Paris de l'époque.",
+      "Ce mode de scrutin est difficilement lisible pour les électeurs et propice aux arrangements d'entre-deux-tours : il a permis de remporter Marseille en étant minoritaire en voix.",
+      "Dire qu'on ne change pas un scrutin à moins d'un an d'une élection oublie que la loi de 1982 fut faite ainsi, et qu'une réforme récente a visé les communes de moins de 1 000 habitants."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Patrick Mignola",
+     "arguments": [
+      "Les électeurs de Paris, Lyon et Marseille pourront enfin choisir directement leur maire, comme dans n'importe quelle autre commune de France.",
+      "Ils auront une double possibilité démocratique : désigner leur maire d'arrondissement, de proximité, et le maire de la ville.",
+      "Les élus issus des urnes en mars 2026 y gagneront une légitimité nouvelle, celle du suffrage universel.",
+      "La répartition des compétences entre mairie centrale et mairies d'arrondissement demandera du temps et pourra être revue ensuite."
      ]
     }
    ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N54083": {
@@ -1290,8 +1394,19 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Catherine Vautrin",
+     "arguments": [
+      "L'effort sur les rémunérations et les indemnités des militaires représente plus de 400 millions d'euros par an.",
+      "L'aide aux familles de militaires se poursuit sur le logement, l'école et l'emploi du conjoint.",
+      "Le nouvel état d'alerte répond à une menace grave et actuelle, permet d'accélérer le réarmement sans toucher aux libertés, et le Parlement pourra refuser de le prolonger.",
+      "La surveillance par algorithme existe dans le droit depuis 2015 et reste étroitement encadrée ; son extension aux adresses internet a été validée par les autorités de contrôle."
+     ]
+    }
+   ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N50724": {
@@ -1390,8 +1505,18 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Aurore Bergé",
+     "arguments": [
+      "L'antisémitisme se renouvelle et prend de nouvelles formes, et ce sont les étudiants qui en font les frais.",
+      "Il y a celui qui tague, insulte, intimide, viole et tue, et un antisémitisme d'atmosphère qui pousse des Français juifs à se faire discrets et à cacher tout signe distinctif.",
+      "Le texte combat d'un même mouvement l'antisémitisme et le racisme : l'universalisme républicain ne trie pas et ne hiérarchise pas les haines."
+     ]
+    }
+   ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N53981": {
@@ -1446,7 +1571,7 @@
      "sigle": "Dem",
      "position": "pour",
      "arguments": [
-      "Le groupe choisit d'adopter le texte sans modification, pour donner toute sa portée à l'accord.",
+      "Toucher au texte affaiblirait l'accord des partenaires sociaux : pour le groupe, il doit rester tel quel.",
       "Signé par une large majorité d'organisations syndicales et patronales, l'accord traduit un équilibre imparfait mais réel."
      ]
     },
@@ -1490,8 +1615,19 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Jean-Pierre Farandou",
+     "arguments": [
+      "Les personnes qui quittent leur emploi par rupture conventionnelle sont en moyenne mieux loties que les autres demandeurs d'emploi : plus de cadres, et une allocation plus élevée.",
+      "Quatre ruptures conventionnelles sur dix sont en réalité des démissions déguisées, alors qu'une démission n'ouvre pas droit à l'assurance chômage.",
+      "Rester inactif deux ou trois ans n'aide pas un senior à retrouver du travail : l'accord mise sur la formation et la reconversion, avec des moyens en plus.",
+      "L'assurance chômage n'a pas à financer les préretraites, qui relèvent des entreprises ; celles-ci ont déjà été mises à contribution sur les indemnités de rupture."
+     ]
+    }
+   ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N52100": {
@@ -1623,7 +1759,7 @@
      "sigle": "EcoS",
      "position": "contre",
      "arguments": [
-      "Le groupe s'oppose à une tendance : traiter des problèmes réels — protoxyde d'azote, tirs de mortier, conflictualité — par un « choc d'autorité ».",
+      "Le groupe conteste une tendance : traiter des problèmes réels — protoxyde d'azote, tirs de mortier, conflictualité — par un « choc d'autorité ».",
       "La grande loi promise sur les troubles à l'ordre public n'est pas celle qui est présentée."
      ]
     },
@@ -1768,7 +1904,6 @@
      "sigle": "HOR",
      "position": "pour",
      "arguments": [
-      "Le groupe annonce qu'il soutiendra le texte pour en faire un texte utile.",
       "L'article 1er s'inscrit dans le sillage de la loi d'orientation pour la souveraineté alimentaire."
      ]
     },
@@ -1799,8 +1934,19 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Annie Genevard",
+     "arguments": [
+      "Toute activité humaine laisse une empreinte sur l'environnement : lier systématiquement l'agriculture à la dégradation de l'eau est injuste envers les agriculteurs.",
+      "La démocratie de l'eau consiste aussi à consulter les agriculteurs.",
+      "Le petit nombre d'exploitations qui irriguent n'est pas une raison de ne rien faire : le texte vise justement à ce qu'elles soient plus nombreuses là où c'est nécessaire.",
+      "Le droit de l'environnement prévoit déjà une politique active de stockage de l'eau, pour garantir l'irrigation et la sécurité de la production agricole."
+     ]
+    }
+   ],
    "origine": "ia",
-   "le": "2026-09-19",
+   "le": "2026-09-20",
    "modele": "claude-opus-5"
   },
   "DLR5L17N52985": {
@@ -2133,6 +2279,15 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Amélie de Montchalin",
+     "arguments": [
+      "Chacun paie, mais chacun reçoit : entre 17 et 59 ans, on reçoit plus de 2 000 euros par an en moyenne, les accouchements sont pris en charge à 100 % et les soins des enfants sans franchise.",
+      "Le gouvernement répondra à toutes les questions d'une commission d'enquête sur les comptes de la sécurité sociale : rien n'est caché, et tracer les flux financiers est la mission du ministre."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -2259,6 +2414,15 @@
       "Le déficit dépasse 6 % de la richesse nationale en dehors de toute période de crise, faute de la moindre réforme de fond.",
       "Ce texte ne fait qu'entériner des décisions déjà prises : on ne réécrit pas un passé budgétaire.",
       "L'État est prisonnier de sa dépendance à la dette pour financer une croissance trop faible et d'une bureaucratie qui étouffe toute réforme."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Laurent Saint-Martin",
+     "arguments": [
+      "Sans ce texte de fin d'année, le calendrier ne permettrait plus de boucler les budgets de l'exercice, de payer les fonctionnaires ni de soutenir la Nouvelle-Calédonie et les plus fragiles.",
+      "Il porte 1 milliard d'euros de crédits pour la Nouvelle-Calédonie, le financement des opérations militaires extérieures, l'aide à l'Ukraine et le versement de l'allocation aux adultes handicapés."
      ]
     }
    ],
@@ -2550,7 +2714,9 @@
      "position": "pour",
      "arguments": [
       "Le diagnostic était partagé par tous : le sport français, le football en particulier, réclamait des mesures concrètes pour sortir de l'impasse.",
-      "Le texte reste perfectible, mais il fait le travail attendu par le sport français."
+      "Le texte reste perfectible, mais il fait le travail attendu par le sport français.",
+      "Une réforme pensée pour le football ne doit pas produire d'effets de bord sur les autres disciplines, dont certaines reposent sur des modèles bien plus fragiles.",
+      "Fédérations et ligues doivent garder la capacité de fixer ensemble les règles de leur discipline, sans qu'une intervention de l'État devienne une tutelle permanente."
      ]
     },
     {
@@ -2625,7 +2791,9 @@
      "position": "pour",
      "arguments": [
       "Le sport professionnel français fait trop souvent la une pour ses scandales, ses conflits d'intérêts et ses dérives de gouvernance.",
-      "Un club aux moyens bien inférieurs peut rivaliser avec les plus riches quand il a un projet solide, un ancrage local et une gestion rigoureuse."
+      "Un club aux moyens bien inférieurs peut rivaliser avec les plus riches quand il a un projet solide, un ancrage local et une gestion rigoureuse.",
+      "Moderniser la gouvernance du sport professionnel, sécuriser son financement et lutter contre le piratage des retransmissions sont des objectifs légitimes.",
+      "Le texte a été pensé pour le football : certaines règles de gouvernance ou de financement paraissent inadaptées au rugby et aux sports ancrés dans les territoires."
      ]
     }
    ],
@@ -2744,6 +2912,17 @@
       "Le texte arrive dans la précipitation, en pleine période électorale, et ne fait qu'effleurer les vrais problèmes du monde agricole.",
       "Prix injustes, crises climatiques et charges croissantes : les alertes des agriculteurs appellent autre chose que des corrections administratives.",
       "Les résultats des élections révèlent des fractures et une volonté de renouvellement dont le gouvernement devra tenir compte."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Annie Genevard",
+     "arguments": [
+      "La recherche agricole n'est pas négligée : le budget de l'institut national de recherche pour l'agriculture et l'alimentation dépasse le milliard d'euros.",
+      "La loi d'orientation agricole apporte la formation des jeunes, la reconnaissance des chambres d'agriculture et la fin des poursuites pénales pour les atteintes non intentionnelles à l'environnement.",
+      "Si la réponse paraît tardive, la chute du gouvernement a empêché d'ouvrir le moindre débat au Parlement pendant près d'un mois, du 4 au 24 décembre.",
+      "Tant que le budget n'est pas en place, le ministère fonctionne en mode dégradé et ne peut même pas lancer d'appels à projets."
      ]
     }
    ],
@@ -2988,6 +3167,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "Un enfant seul face à une procédure qui décide de son avenir n'a pas vraiment de voix : sans avocat, personne ne parle à ses côtés.",
+      "Un enfant n'est pas un justiciable comme les autres : vulnérable, souvent dans un contexte familial instable, il se retrouve seul devant le juge.",
+      "Là où des juridictions ont testé la présence systématique d'un avocat, l'enfant comprend mieux, parle davantage et se sent en sécurité.",
+      "Au pénal, ce droit à l'avocat est déjà garanti à tous les mineurs sans distinction d'âge : l'enfant n'a pas à prouver qu'il comprend pour être protégé."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -3227,6 +3417,15 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Prisca Thevenot",
+     "arguments": [
+      "La réforme des retraites de 2023 a aussi valorisé les congés parentaux, créé une pension pour les enfants orphelins et revalorisé les pensions de 850 000 retraités modestes.",
+      "Le texte entraînerait des dépenses publiques supplémentaires sans prévoir la moindre recette en face, ce qui n'est pas permis à une proposition de loi."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -3343,6 +3542,17 @@
      "position": "contre",
      "arguments": [
       "Ce texte n'est pas un simple ajustement de fin d'année : il dresse le bilan financier des années écoulées."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Amélie de Montchalin",
+     "arguments": [
+      "Ce texte n'est pas le bilan d'un quinquennat, mais celui d'une année budgétaire très particulière, dont le budget est né d'un compromis entre les deux chambres.",
+      "Un déficit de 5,4 % n'a rien de formidable et le problème des finances publiques n'est pas résolu.",
+      "La hausse des dépenses vient largement du covid, puis de la lutte contre l'inflation et la crise de l'énergie ; toute l'Europe a vu sa dette monter.",
+      "Les 100 millions d'euros promis pour Gaza seront versés avant la fin de l'année sans ouverture de crédits supplémentaires."
      ]
     }
    ],
@@ -3601,6 +3811,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Françoise Gatel",
+     "arguments": [
+      "Ce débat aurait dû avoir lieu en 2015, au moment du découpage des régions : faute de vraies évaluations et consultations, il revient aujourd'hui.",
+      "Égalité ne veut pas dire uniformité : les règles de gestion diffèrent déjà selon la taille des communes, et la différenciation existe depuis le début de la République.",
+      "Adapter n'est pas déroger : c'est tenir compte de la diversité des territoires pour mieux servir les habitants.",
+      "Le gouvernement est à l'écoute de ce texte, mais souhaite avancer avec sérieux et sans faire l'économie de la concertation."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -3836,6 +4057,17 @@
       "Les crises récentes l'ont montré : les nations qui produisent imposent leurs conditions à celles qui dépendent des autres.",
       "Le rachat public est ici une réponse brutale, coûteuse et mal préparée, face à une situation qui demande méthode et constance.",
       "Une autre voie était proposée, celle d'une action spécifique de l'État pour protéger les intérêts stratégiques, et elle n'a pas été retenue."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Jean Bodart",
+     "arguments": [
+      "Le contexte a changé depuis la première lecture : un plan acier européen existe, la taxe carbone aux frontières fonctionne et un contrat d'électricité à prix compétitif a été signé.",
+      "La construction du plus grand four électrique d'Europe à Dunkerque est actée : 1,3 milliard d'euros, deux millions de tonnes par an, une mise en service en 2029.",
+      "L'urgence n'est plus la même qu'il y a un an : la nationalisation serait aujourd'hui une mauvaise réponse.",
+      "Le mal de la sidérurgie européenne est structurel : les surcapacités mondiales atteindront 721 millions de tonnes en 2027."
      ]
     }
    ],
@@ -4081,6 +4313,16 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Astrid Panosyan-Bouvet",
+     "arguments": [
+      "Plutôt que d'attendre un autre texte, l'accord signé en juin par les partenaires sociaux est transposé tout de suite, pour disposer dès septembre d'outils facilitant les reconversions.",
+      "La transposition a été écrite presque en temps réel avec les partenaires sociaux, pour que ce qu'ils ont négocié se retrouve bien dans le texte.",
+      "Il ne faut pas opposer l'emploi des jeunes à celui des seniors : sortir les plus de 50 ans du marché du travail dans les années 1970 a fait baisser les deux."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -4210,6 +4452,14 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Rachida Dati",
+     "arguments": [
+      "Le service public de l'audiovisuel donne accès à la culture, permet de s'émanciper et de s'élever socialement : c'est à ce titre qu'il faut le protéger."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -4332,6 +4582,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Richard Ramos",
+     "arguments": [
+      "Le partage de la valeur est déséquilibré : aucun patron de la grande distribution ne met fin à ses jours faute de gagner assez, des agriculteurs y pensent en ce moment même.",
+      "Les dirigeants des petites entreprises qui transforment les produits alimentaires font plus que jamais le chemin entre l'usine et le tribunal de commerce.",
+      "Ce texte doit décider comment se répartit la valeur entre celui qui produit et celui qui transforme grâce à son savoir-faire.",
+      "Manger est vital et reste un art de vivre ; la grande distribution a parfois creusé un gouffre entre celui qui produit et celui qui consomme."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -4447,6 +4708,17 @@
       "Dans l'agglomération parisienne, 36 % des mis en cause sont étrangers, 40 % pour les violences sexuelles, 50 % pour les cambriolages ; 25 % des détenus en France sont étrangers.",
       "74 % des Français estiment qu'il existe un lien entre immigration et insécurité.",
       "Le Danemark, gouverné à gauche, a instauré une durée de rétention illimitée pour les étrangers en situation irrégulière."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Florent Boudié",
+     "arguments": [
+      "Les victimes de la traite des êtres humains peuvent obtenir un titre de séjour : elles ne sont pas visées par ce texte, au contraire elles sont protégées.",
+      "Les personnes en simple situation irrégulière ne sont pas concernées : il n'est pas question de prolonger leur rétention.",
+      "Le champ des infractions permettant de porter la rétention de 90 à 210 jours a été réduit pour s'en tenir aux auteurs des crimes les plus graves.",
+      "Une interdiction du territoire est une décision de justice : personne n'est en situation irrégulière par nature."
      ]
     }
    ],
@@ -4811,6 +5083,25 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Florent Boudié",
+     "arguments": [
+      "La question calédonienne demande gravité et humilité : les députés de l'archipel vivent cette réalité au quotidien, pas ceux de l'Hexagone.",
+      "La mission conduite sur place doit dresser la table du dialogue et y réunir toutes les parties prenantes, l'État compris.",
+      "L'urgence est de rendre à l'État sa totale impartialité, pour renouer le dialogue et permettre la reconstruction."
+     ]
+    },
+    {
+     "nom": "M. François-Noël Buffet",
+     "arguments": [
+      "L'avenir du territoire est indissociable du nickel : deux usines sont fermées et la troisième tourne au ralenti, la filière doit être relancée dès maintenant.",
+      "230 millions d'euros supplémentaires ont été débloqués pour 2024, fléchés vers les provinces et les communes afin qu'elles puissent payer leurs fournisseurs.",
+      "Le chômage partiel a été prolongé jusqu'à la fin de l'année, et l'État prend en charge la totalité de la reconstruction des écoles et 70 % des autres bâtiments publics.",
+      "Pour 2025, l'avance versée au territoire est passée de 500 à 770 millions d'euros, dont 80 millions pour les travaux de reconstruction des communes."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -5070,6 +5361,17 @@
       "Les déserts médicaux ne sont plus l'exception mais le cas général, et c'est un défi vital pour le pacte social.",
       "L'endroit où l'on naît et où l'on vieillit ne devrait pas décider autant de l'accès aux soins et de l'espoir de guérir.",
       "Plus de 6 millions de Français vivent dans des zones où l'accès aux soins n'est plus qu'un souvenir."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Guillaume Garot",
+     "arguments": [
+      "Les inégalités d'accès aux soins se creusent entre les territoires, donc entre les Français, et la situation ne peut pas continuer à se dégrader.",
+      "Former davantage de médecins est juste, mais la formation est longue : il faut aussi des solutions immédiates.",
+      "La télémédecine ne peut pas remplacer complètement une consultation d'humain à humain, sans écran interposé.",
+      "Réguler l'installation a déjà fait ses preuves pour d'autres professions de santé ; un chercheur a calculé que 600 000 personnes de zones mal dotées trouveraient un médecin chaque année."
      ]
     }
    ],
@@ -5560,6 +5862,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Amélie de Montchalin",
+     "arguments": [
+      "Un impôt de 2 % sur le patrimoine exigerait un plafonnement : la suppression du plafond n'a été admise que lorsque le taux était de 0,5 %.",
+      "Depuis 1984, les biens professionnels n'ont jamais été comptés dans l'assiette de l'ancien impôt sur la fortune, car les y inclure avait nui à l'économie.",
+      "Les fondateurs d'une entreprise très valorisée en bourse qui réinvestit tout peuvent n'en tirer aucun revenu, et le texte n'apporte pas de réponse à ces situations.",
+      "Entre 2011 et 2016, 580 foyers dépassant le seuil de l'ancien impôt sur la fortune ont quitté la France, soit un tiers de l'assiette visée ; 160 sont revenus entre 2018 et 2021."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -5798,6 +6111,17 @@
       "La seule solution durable est d'augmenter le nombre de médecins et de mieux les répartir sur le territoire.",
       "Le manque de médecins est le vrai problème, et le texte se contente de le transférer vers les infirmiers.",
       "La consultation infirmière, le droit de prescription encadré et l'accès direct sont des avancées attendues de longue date."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "Le rôle des infirmiers n'est pas reconnu à sa juste valeur, à commencer par la rémunération, et la profession reste enfermée dans une liste d'actes qui nourrit sa perte d'attractivité.",
+      "Le texte inscrit les missions des infirmiers dans la loi et renvoie le détail des actes au règlement, ce qui permettra de les faire évoluer plus souplement.",
+      "Reconnaître la consultation infirmière et les soins relationnels affirme que le soin ne se réduit pas à une série de gestes techniques.",
+      "Étendre la pratique avancée à la protection maternelle et infantile, à la santé scolaire et à l'aide à l'enfance est logique, mais ces services manquent déjà cruellement de professionnels."
      ]
     }
    ],
@@ -6773,6 +7097,25 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Loïc Prud’homme",
+     "arguments": [
+      "Les promoteurs de l'épandage par drone reviennent cinq ans après, en se cachant cette fois derrière la santé des agriculteurs, dont ils découvrent soudain la pénibilité du travail.",
+      "Le souci d'un vigneron bio n'est pas de remplacer des salariés qualifiés par des drones, mais le réchauffement et la dérive des pesticides venus des parcelles voisines, que ce texte aggravera.",
+      "Les ouvriers viticoles ne réclament pas des drones qui les remplaceraient, mais de meilleures conditions de travail, moins de pesticides et des salaires à la hauteur de leur tâche."
+     ]
+    },
+    {
+     "nom": "Mme Annie Genevard",
+     "arguments": [
+      "Les drones seraient réservés aux produits de biocontrôle, aux produits autorisés en agriculture biologique et aux produits à faible risque : aucune industrie n'y gagnerait l'ouverture des vannes.",
+      "L'épandage par drone améliore la sécurité et les conditions de travail des agriculteurs qui pulvérisent.",
+      "Rien n'a bougé sur ce sujet depuis 2021, alors que le monde agricole attend cette technologie.",
+      "La petite filière du riz attend cette autorisation, sans laquelle elle est condamnée à dépérir."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -6879,6 +7222,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Charles Alloncle",
+     "arguments": [
+      "Il y a une France que l'on ne voit pas : celle des indépendants, des artisans et des commerçants, qui n'a pas le luxe de pouvoir s'arrêter de travailler.",
+      "Depuis huit ans, ces entrepreneurs sont rongés par l'incertitude et lassés des injonctions contradictoires.",
+      "L'abaissement du seuil de franchise allait soumettre plus de 205 000 petites entreprises à la TVA : une mesure inique, effacée quatre mois après le budget qui l'avait créée.",
+      "Les entrepreneurs étouffent : seuls dans les méandres administratifs, des nuits passées sur la comptabilité, la peur d'être jugé à la moindre baisse de chiffre d'affaires."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -6977,6 +7331,26 @@
       "Le texte contient l'interdiction totale de la vente de voitures neuves à moteur thermique dès 2035.",
       "Il facilite le déploiement des énergies renouvelables, une impasse à nos yeux, alors que le nucléaire reste écarté de la classification verte européenne.",
       "Certaines mesures sont bénéfiques : sanction durcie pour la conduite sans assurance, pouvoirs renforcés de l'agence du médicament contre les ruptures d'approvisionnement."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Timothée Houssin",
+     "arguments": [
+      "Les objectifs énergétiques de la France devraient se décider dans le débat sur la programmation de l'énergie, et non au détour d'une transposition de règles européennes.",
+      "L'Europe fixe des minima d'énergies renouvelables et non d'énergies décarbonées, alors que l'électricité française est déjà décarbonée à 95 % grâce au nucléaire.",
+      "Une production dépendante de la météo et impossible à stocker à grande échelle ne peut pas assurer la sécurité d'approvisionnement du pays.",
+      "Ces choix venus de Bruxelles pèsent sur la compétitivité des entreprises, sur le pouvoir d'achat et sur la souveraineté énergétique."
+     ]
+    },
+    {
+     "nom": "Mme Sandrine Le Feur",
+     "arguments": [
+      "Le texte a été examiné en veillant à ne pas aller au-delà des règles européennes, pour ne pas abîmer l'attractivité du pays.",
+      "Il encourage les carburants durables dans le transport aérien et renforce les dispositifs pour décarboner le parc automobile.",
+      "Il adapte le droit français à la lutte contre les gaz à effet de serre et à la prévention des inondations, et reconnaît la qualification des infirmiers formés en Roumanie.",
+      "Il encadre les obligations vertes et les cryptoactifs et harmonise les règles des virements instantanés en euros, au nom de la transparence des marchés financiers."
      ]
     }
    ],
@@ -7212,6 +7586,14 @@
       "Une résolution européenne sur ce sujet avait été refusée en conférence des présidents, d'où le choix d'une proposition de loi.",
       "Des amendements ont été déposés au Parlement européen pour permettre aux États de rendre l'étiquetage national obligatoire, sans succès.",
       "Il s'agit de défendre les agriculteurs contre la concurrence déloyale."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Serge Papin",
+     "arguments": [
+      "La transparence sur l'origine se joue au niveau européen : c'est à cette échelle qu'il faut agir, et le dossier y sera rouvert."
      ]
     }
    ],
@@ -7908,6 +8290,15 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Marc Ferracci",
+     "arguments": [
+      "Le gouvernement s'engage à suivre scrupuleusement la conversion du site et à être attentif à ses conséquences sociales pour les salariés.",
+      "Les filières industrielles, renouvelables comme nucléaire, demandent visibilité et stabilité, ce à quoi répond la publication de la feuille de route de l'énergie."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -8014,6 +8405,23 @@
       "À 18 ans, c'est trop souvent l'abandon : près d'un quart des jeunes qui recourent à l'aide alimentaire ou à l'hébergement d'urgence sont d'anciens enfants placés.",
       "L'État s'est trop longtemps effacé, laissant les départements seuls en première ligne, et vingt ans de textes n'ont rien changé sur le terrain.",
       "Sans reprise en main de l'aide sociale à l'enfance par l'État et sans moyens ciblés, ce texte restera trop timide."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "Le système de protection de l'enfance est à bout de souffle : les besoins augmentent quand les effectifs manquent, les places d'accueil saturent et les budgets départementaux ne suivent plus.",
+      "Des juges pour enfants renoncent à placer des mineurs en danger, faute de solution : quand une décision de justice ne peut plus être exécutée, l'État de droit vacille.",
+      "Les placements à l'hôtel, pourtant interdits, continuent dans certains cas faute d'autre solution.",
+      "Le cadre juridique existe : le problème est l'écart devenu vertigineux entre les textes et leur application, faute de moyens."
+     ]
+    },
+    {
+     "nom": "Mme Charlotte Parmentier-Lecocq",
+     "arguments": [
+      "Le gouvernement s'engage à répondre aux problèmes de la protection de l'enfance, avec un texte qui sera bientôt présenté au Parlement."
      ]
     }
    ],
@@ -8228,6 +8636,17 @@
       "Des séismes pourraient ouvrir ces poches sous-marines et renvoyer le CO2 dans l'atmosphère, ramenant au point de départ.",
       "Les fonds marins abritent une biodiversité fragile, encore mal connue et essentielle à l'équilibre de la planète.",
       "Le pays aurait dû depuis longtemps investir dans ses propres plateformes de stockage en mer."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Jean-Noël Barrot",
+     "arguments": [
+      "La capture de carbone restera une exception, mais la quasi-totalité des scénarios des experts du climat en prévoient une part.",
+      "Le Haut Conseil pour le climat reconnaît lui aussi qu'une part, minoritaire, de capture de carbone sera nécessaire.",
+      "On ne peut pas imposer des obligations ou des pénalités quand il n'existe aucune autre solution : des usines de l'industrie ou de la chimie n'en ont pas.",
+      "Ces lourdes pénalités pèseraient sur la capacité de ces sites industriels à maintenir l'emploi, alors que ce protocole offre une solution complémentaire."
      ]
     }
    ],
@@ -8453,6 +8872,17 @@
       "La Cour de justice européenne n'a jamais interdit de sanctionner le séjour irrégulier : elle a dit qu'une peine de prison ne doit pas entraver la procédure de retour.",
       "Plusieurs décisions européennes confirment qu'une sanction financière proportionnée reste compatible avec le droit de l'Union.",
       "En 2012, la France a fait du zèle, au-delà de ce que le droit européen exigeait."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Thomas Cazenave",
+     "arguments": [
+      "Le texte est un texte d'affichage : même en vigueur, il resterait inutile et nourrirait un peu plus le sentiment d'impuissance publique.",
+      "Quand ce délit existait, en 2009, plus de 100 000 personnes ont été mises en cause et 80 000 placées en garde à vue, mais moins de 1 % ont été condamnées pour ce seul motif.",
+      "Une amende de 3 750 euros ne dissuade pas des personnes le plus souvent insolvables d'entrer ou de rester sur le territoire.",
+      "Le dispositif embolierait la chaîne pénale : policiers, gardes à vue, procureurs, juges, greffiers, avocats et recouvrement mobilisés pour presque rien."
      ]
     }
    ],
@@ -8696,6 +9126,26 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Karl Olive",
+     "arguments": [
+      "En 1954, 44 000 personnes ont dû tout quitter — maison, langue, parfois leur nom — en croyant que la France les accueillerait.",
+      "Des cales de bateaux insalubres aux camps de Bias, Sainte-Livrade ou Noyant-d'Allier, elles ont connu un accueil indigne et leurs enfants ont grandi derrière des barbelés administratifs.",
+      "Un arrêté les a confinées dans les marges et leur a refusé le droit commun, les empêchant de s'intégrer et de construire.",
+      "Leurs enfants devenus adultes ont élevé la voix, non pour réclamer vengeance, mais pour demander reconnaissance."
+     ]
+    },
+    {
+     "nom": "M. Olivier Faure",
+     "arguments": [
+      "La réparation commence par les mots : elle suppose de reconnaître que la France, parfois, n'a pas été exemplaire.",
+      "Dans ces centres d'hébergement, la France a continué de se comporter comme face à des colonisés, alors qu'elle avait affaire à des Français.",
+      "Dire de ces familles qu'elles étaient dociles est faux : souvent des femmes ne parlant pas la langue, elles ont travaillé, parfois au noir, pour donner un avenir à leurs enfants.",
+      "Diên Biên Phu fut la première guerre gagnée par une armée de décolonisation contre une armée coloniale, ce qui explique sans doute que cette mémoire ait été enfouie."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -8924,6 +9374,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Annie Genevard",
+     "arguments": [
+      "Il n'y a pas d'un côté les anti-cadmium et de l'autre les pro-cadmium : réduire le cadmium des engrais et viser 20 milligrammes par kilo fait l'accord de tous.",
+      "La contrainte pèsera sur ceux qui mettent les engrais sur le marché, au bénéfice des agriculteurs et de la santé de la population.",
+      "Le gouvernement prépare déjà deux décrets et trois arrêtés, dont ceux qui fixent les seuils au-delà desquels un engrais est dangereux.",
+      "La trajectoire proposée atteindrait le seuil européen d'ici six mois, avec une exigence supérieure à celle de la réglementation européenne."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -9027,6 +9488,43 @@
       "Appliquer une peine avant l'appel revient à punir une personne encore présumée innocente.",
       "Le droit d'être élu est un pilier de la démocratie, garanti depuis 1789 et dont le Conseil constitutionnel a rappelé la valeur en mars 2025.",
       "Un jugement non définitif peut priver un citoyen de son mandat ou l'empêcher de se présenter à une élection."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Charles Alloncle",
+     "arguments": [
+      "Ce qui est combattu n'est pas la peine d'inéligibilité, mais son application immédiate, avant que tous les recours aient été jugés.",
+      "Tant que les recours ne sont pas épuisés, l'innocence reste présumée : appliquer la peine tout de suite revient à planter une épée dans l'urne.",
+      "Cette sanction a été prononcée cinquante fois plus l'an dernier qu'il y a six ans.",
+      "Trois juges ne devraient pas pouvoir effacer d'un seul trait la volonté de millions de Français."
+     ]
+    },
+    {
+     "nom": "Mme Prisca Thevenot",
+     "arguments": [
+      "Le texte n'est pas une loi pour les Français mais une loi d'exception, taillée pour une seule personne, condamnée en première instance pour détournement de fonds publics.",
+      "On ne peut pas réclamer la sévérité, la tolérance zéro et l'exemplarité pour les autres, puis quémander l'indulgence pour soi-même.",
+      "Partout où elle avance, l'extrême droite veut mettre la justice au pas : fragiliser l'application immédiate des peines affaiblit l'État de droit."
+     ]
+    },
+    {
+     "nom": "M. Florent Boudié",
+     "arguments": [
+      "Il n'y a pas de juge politique en France : laisser entendre que l'autorité judiciaire rendrait des décisions politiques est infondé.",
+      "Chaque année, 20 000 peines d'inéligibilité sont prononcées, un millier s'appliquent immédiatement et une poignée seulement visent des élus : le texte est de circonstance.",
+      "L'application immédiate n'est jamais automatique : elle suppose une audience publique, une motivation et un examen individuel, et l'appel corrige les erreurs.",
+      "Le texte ne protège en rien les droits des justiciables et risque d'introduire une profonde iniquité dans la justice pénale."
+     ]
+    },
+    {
+     "nom": "M. Gérald Darmanin",
+     "arguments": [
+      "La mesure ne concerne, mot pour mot, qu'une seule personne.",
+      "La moitié des vingt-quatre personnes condamnées dans cette affaire n'ont pas fait appel : leur condamnation est définitive, ce qui contredit l'idée d'un procès politique.",
+      "Dire que chacun reste présumé innocent tant qu'un appel n'a pas été jugé est faux lorsque la condamnation n'a pas été contestée.",
+      "Un tel changement méritait l'avis du Conseil d'État, une étude d'impact et un vrai débat, plutôt qu'une phrase ajoutée qui crée une inégalité dans le droit pénal."
      ]
     }
    ],
@@ -9269,6 +9767,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Amélie de Montchalin",
+     "arguments": [
+      "La boussole du gouvernement est un déficit ramené sous 5 % : au-delà, la trajectoire allant de 5,8 % en 2024 à 5 % en 2026 ne tiendrait plus.",
+      "L'effort doit venir pour moitié au moins d'une baisse des dépenses, et pour moitié au plus d'une hausse des prélèvements.",
+      "Les prélèvements obligatoires doivent rester sous leur niveau de 2019, soit 44 % de la richesse produite.",
+      "La crédibilité de la France se joue aussi devant les Français : il faut des décisions budgétaires lisibles, même si elles ne sont pas accueillies avec enthousiasme."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -9387,6 +9896,14 @@
       "Il a aussi obtenu la réduction à 60 jours du délai de paiement des experts judiciaires, qui attendent parfois des années.",
       "Pour assécher les réseaux criminels, il faut les frapper au portefeuille : systématiser, automatiser, confisquer.",
       "Les chiffres de la délinquance augmentent chaque année et appellent une politique pénale plus moderne et sans compromis."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Jean-Luc Warsmann",
+     "arguments": [
+      "Aucun groupe ne se satisfait de la partie du texte sur les experts judiciaires : le délai de paiement retenu, soixante jours assortis d'intérêts de retard, reste en discussion."
      ]
     }
    ],
@@ -9621,6 +10138,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Jean-Luc Bourgeaux",
+     "arguments": [
+      "Plus de 300 agriculteurs mettent fin à leurs jours chaque année, une détresse souvent tue ou minorée.",
+      "Développer le réseau de sentinelles et mieux coordonner l'accompagnement local sont des objectifs légitimes et partagés.",
+      "Le texte ne traite qu'une partie du problème : la détresse naît de l'accumulation des difficultés, revenus insuffisants, marchés instables, charges et démarches administratives.",
+      "Les agriculteurs demandent avant tout de vivre dignement de leur travail et un allègement des normes, pas seulement un accompagnement psychologique."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -9725,6 +10253,17 @@
       "Ce texte seul ne suffira pas : il faut une politique familiale globale, fondée sur la reconnaissance, la justice et la responsabilité.",
       "Les familles sont traitées comme une charge budgétaire alors qu'elles sont un trésor national.",
       "Le texte oublie le plafond de l'avantage fiscal lié aux enfants, abaissé en 2013 ; aide directe et avantage fiscal sont complémentaires."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "Près de la moitié des familles n'ont qu'un seul enfant, soit 3,5 millions de foyers, et n'ont droit à aucune allocation familiale.",
+      "L'arrivée d'un enfant fait chuter le niveau de vie dès la première année et, cinq ans après, le salaire des mères reste amputé d'un quart.",
+      "Ouvrir le droit dès le premier enfant, comme cela se fait déjà outre-mer, laisse des questions ouvertes : montant, articulation avec les autres aides, coût de 4 à 5 milliards par an.",
+      "L'aide financière ne suffira pas : il faut aussi des places en crèche, une réforme des congés parentaux et l'accès au logement."
      ]
     }
    ],
@@ -9835,6 +10374,17 @@
       "Certains hésitent désormais à répondre au téléphone quand le numéro n'est pas dans leur répertoire.",
       "Il s'agit de protéger les plus vulnérables, parfois abusés voire arnaqués à la suite de ces appels.",
       "Le législateur a toujours été devancé par ceux qui pratiquent le démarchage, souvent depuis l'étranger."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Thomas Cazenave",
+     "arguments": [
+      "Trois quarts des Français subissent un démarchage téléphonique chaque semaine, plus d'un tiers chaque jour : une intrusion permanente qui mine leur tranquillité.",
+      "Le fichier d'opposition, fondé sur un refus exprimé après coup, a montré ses limites : c'est au consommateur de choisir s'il veut être sollicité.",
+      "Demander l'accord préalable existe déjà pour la prospection par courrier électronique et met le droit français en accord avec les règles européennes de protection des données.",
+      "Les interdictions déjà posées dans les secteurs exposés aux fraudes, comme la rénovation énergétique ou le compte de formation, doivent être maintenues."
      ]
     }
    ],
@@ -10070,6 +10620,16 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Jean-Pierre Farandou",
+     "arguments": [
+      "Le désaccord porte sur le rôle de l'entreprise : l'emploi ne naît pas spontanément, il vient d'entreprises qui prennent des risques et doivent trouver des clients.",
+      "La concurrence est mondiale et rude : les produits chinois arrivent en France et perturbent nos entreprises, et cette réalité finira par nous rattraper.",
+      "L'autre reproche entendu est différent : les données d'évaluation manqueraient encore pour se faire un avis définitif sur le dispositif."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -10184,6 +10744,17 @@
       "Les outre-mer souffrent de surcoûts liés à l'éloignement, à l'insularité et à la dépendance envers quelques acteurs économiques.",
       "Les produits de première nécessité y sont particulièrement chers et pèsent lourdement sur le quotidien.",
       "Les mesures proposées manquent parfois de pragmatisme."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Manuel Valls",
+     "arguments": [
+      "Presque tous les territoires ultramarins vivent sous des monopoles massifs, alors que la liberté d'entreprendre ne se comprend pas sans justice ni concurrence loyale.",
+      "La transparence sur les marges est nécessaire, d'autant que nombre de ces grands groupes perçoivent des fonds publics.",
+      "Le rôle de l'Autorité de la concurrence doit être conforté et étendu partout où c'est nécessaire, pour la transparence et l'encadrement des marges.",
+      "Ne pas agir sur le plan économique et social nourrirait le désespoir et ferait courir le risque d'une rupture définitive entre une partie de ces territoires et la République."
      ]
     }
    ],
@@ -10406,6 +10977,33 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Jean-Luc Bourgeaux",
+     "arguments": [
+      "Plus de 5,4 millions de salariés ont des titres-restaurant, surtout ceux qui n'ont pas de cantine ; entre août 2021 et août 2023, les prix alimentaires ont bondi de 20 %.",
+      "Ces titres ne peuvent pas à eux seuls protéger le pouvoir d'achat : plus de 20 millions de salariés n'y ont pas accès.",
+      "Les habitudes ont basculé vers les grandes surfaces, passées de 22 % à 31 % du marché quand la restauration tombait de 46 % à 40 %, soit 550 millions d'euros de chiffre d'affaires déplacés.",
+      "La dérogation doit rester temporaire : les restaurants, en majorité de très petites entreprises, traversent une période difficile, et aucun acteur ne demande qu'elle devienne définitive."
+     ]
+    },
+    {
+     "nom": "M. Richard Ramos",
+     "arguments": [
+      "Le repas est un moment de lien social, et la France est reconnue pour sa gastronomie, inscrite au patrimoine culturel immatériel de l'humanité.",
+      "Les restaurateurs qui transforment le produit brut résistent à l'expansion des fast-foods, qui apportent maladies cardiovasculaires, diabète, obésité et standardisation des goûts.",
+      "Détourner le titre-restaurant de sa destination donnerait l'impression qu'on peut le réduire à un chèque alimentaire, alors qu'il doit d'abord financer un repas au restaurant."
+     ]
+    },
+    {
+     "nom": "Mme Laurence Garnier",
+     "arguments": [
+      "Le titre-restaurant date de 1967 et demande une réforme de fond, qui peut commencer dès le mois de janvier.",
+      "Rendre la dérogation définitive figerait la situation et crisperait les acteurs avant même l'ouverture des discussions.",
+      "Tout le monde juge ce dispositif imparfait : le graver dans le marbre en l'état ne serait pas une bonne chose."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -10493,6 +11091,25 @@
       "Le texte vise toute forme de plastique, y compris réutilisable, contrairement à ce qui avait été dit en commission.",
       "Les efforts des industriels pour écoconcevoir et respecter les normes environnementales sont ignorés.",
       "À quoi servent les politiques de recyclage si l'on est de toute façon contre l'usage du plastique ?"
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Jean-Luc Bourgeaux",
+     "arguments": [
+      "L'interdiction avait déjà été décidée par le Parlement, mais l'annulation de son décret d'application l'a fragilisée : le texte lève cette incertitude.",
+      "Face à des risques sanitaires encore mal connus pour les enfants, la prudence s'impose : c'est le principe de précaution.",
+      "Sortir du plastique ne doit pas créer une autre dépendance : l'inox et la céramique viennent surtout d'Asie, et il faudrait des filières françaises et européennes.",
+      "Les collectivités devront changer leurs équipements : les petites communes et les cuisines centrales auront besoin d'un accompagnement financier et logistique."
+     ]
+    },
+    {
+     "nom": "M. Nicolas Thierry",
+     "arguments": [
+      "Il ne s'agit pas de créer une protection nouvelle mais de sauver une protection déjà décidée par le Parlement, attaquée par une faille juridique.",
+      "La science n'a pas reculé : plus de 1 200 études montrent que des substances chimiques passent du plastique vers les aliments, sous l'effet de la chaleur et de l'usure.",
+      "Une étude internationale a retrouvé dans le corps humain plus de 3 600 substances venues des emballages et ustensiles : ces matériaux ne sont pas sûrs, même conformes à la réglementation."
      ]
     }
    ],
@@ -10611,6 +11228,17 @@
       "L'écart entre les promesses faites et la dette réellement constatée atteint 270 milliards d'euros.",
       "Les impôts continuent d'augmenter, à rebours des promesses, et le déficit se creuse en même temps.",
       "Il suffit de lire les propres documents budgétaires du gouvernement pour constater son bilan."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Amélie de Montchalin",
+     "arguments": [
+      "L'absence de budget n'est pas un succès mais un échec collectif : le travail n'a pas été fait dans les temps.",
+      "Des élections anticipées n'auraient pas donné de budget : sans députés, il n'y a plus de budget du tout.",
+      "La loi spéciale n'a rien de miraculeux : les agriculteurs et les entrepreneurs ont besoin d'un cadre, donc d'un vrai budget.",
+      "La continuité de l'État impose de traiter les urgences sanitaires, y compris animales, comme une épidémie qui se répand."
      ]
     }
    ],
@@ -11069,6 +11697,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "Onze milliardaires détiennent en France plus de la moitié de la presse quotidienne généraliste, des audiences de télévision et des audiences de radio.",
+      "L'information n'a jamais été aussi abondante et accessible, mais les leviers d'influence n'ont jamais été aussi concentrés.",
+      "Mesurer l'influence à la possession d'un journal ou d'une chaîne n'a plus de sens : certains acteurs maîtrisent des écosystèmes entiers de diffusion.",
+      "Les règles contre la concentration datent de 1986 et raisonnent média par média : c'est à cet anachronisme que le texte répond."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -11289,6 +11928,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Annie Genevard",
+     "arguments": [
+      "La crise viticole est profonde et tient à plusieurs causes, dont le changement climatique, qui n'est pas sans lien avec l'objet du texte.",
+      "Les Français consomment moins de vin : la demande recule, l'offre dépasse la consommation et les viticulteurs se retrouvent en surproduction.",
+      "L'État a engagé près d'un milliard d'euros pour la filière et 120 millions pour un plan d'arrachage répondant à la surproduction.",
+      "Le dispositif sert aux vignes abandonnées mais surtout aux vignes en activité : faute d'arrachage, une maladie de la vigne se répand et fragilise encore le secteur."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -11399,6 +12049,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Auguste Evrard",
+     "arguments": [
+      "Dans le Pas-de-Calais, des centaines de familles ont vécu des jours avec de l'eau dans leur maison : maisons abîmées, activités à l'arrêt, agriculteurs sans savoir s'ils seraient indemnisés.",
+      "Ce ne sont pas les crues qui ont pris de court les territoires, mais la lenteur : l'eau monte en quelques heures, les procédures prennent des semaines ou des mois.",
+      "Un maire qui veut protéger ses habitants se heurte à un enchevêtrement d'autorisations et de délais, tout en restant sous la menace de sa propre responsabilité.",
+      "La peur demeure longtemps après le retrait des eaux : à chaque pluie, l'inquiétude revient dans les foyers touchés."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -11501,6 +12162,17 @@
       "Le texte copie ce qui s'applique à Paris et dans les grandes métropoles, où les résultats sont désastreux : gentrification des centres et rejet des plus pauvres loin des villes.",
       "Les riches profiteront des plafonds de loyer, les pauvres resteront pauvres, rejoints par une classe moyenne elle aussi appauvrie.",
       "Il faudrait plutôt un grand plan de défiscalisation du logement, dans la lignée des lois Pons de 1986 et Girardin de 2003."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "Outre-mer, les loyers dépassent régulièrement ceux du reste du pays et pèsent plus lourd encore dans le budget des ménages, dont le revenu médian est plus faible.",
+      "La tension n'est pas passagère : foncier limité, coûts de construction renchéris par des normes pensées pour l'Hexagone, et un déficit estimé à plus de 110 000 logements.",
+      "L'encadrement des loyers ouvert en 2018 n'a visé aucun territoire ultramarin, et l'inscription tardive de trente-huit villes en 2023 est arrivée après la clôture des candidatures.",
+      "L'expérimentation proposée reste facultative, limitée à cinq ans et pilotée par les collectivités : elle n'est pas imposée d'en haut et vise les secteurs où les loyers ont décroché."
      ]
     }
    ],
@@ -11608,6 +12280,17 @@
       "Des Kali'nas et des Arawaks de Guyane ont été montrés en 1892 et plusieurs sont morts loin de leur terre, victimes du froid, des maladies et de conditions indignes.",
       "Cette histoire est née sous des gouvernements républicains qui prétendaient parler au nom du progrès, de la science et de l'émancipation.",
       "D'apparence limitée, le texte a une portée morale et mémorielle considérable : il fait sortir des collections publiques des restes et des moulages conservés par le Muséum."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "En 1892, trente-trois Kali'nas et Arawaks furent recrutés sur la promesse d'une vie meilleure, puis exhibés dans un zoo parisien comme les spécimens d'une humanité prétendue primitive ; huit n'y survécurent pas.",
+      "Cinq ans après leur mort, six de ces corps furent exhumés pour rejoindre les collections d'un muséum : traités comme des objets de leur vivant, ils le sont restés dans la mort.",
+      "Ces zoos humains ont fait près de 30 000 victimes en France et en Europe, et la pratique a duré : en 1994 encore, des Ivoiriens étaient exhibés près de Nantes.",
+      "Ces restes appartiennent au domaine public : ni un ministre ni un conservateur ne peut les en sortir, seule la loi le peut."
      ]
     }
    ],
@@ -11905,6 +12588,26 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Guillaume Florquin",
+     "arguments": [
+      "Un retraité modeste renonce parfois à une aide nécessaire, de peur qu'elle soit reprise après sa mort sur le peu qu'il voulait laisser à ses enfants.",
+      "Le minimum vieillesse est le dernier filet pour ceux dont la pension ne suffit pas : plus de 750 000 personnes le percevaient fin 2024, et une sur deux est une femme seule.",
+      "Ces chiffres racontent les carrières hachées, le temps partiel et les emplois peu payés, surtout chez les femmes.",
+      "L'héritage en jeu n'est pas un portefeuille d'actions : c'est souvent un pavillon ou une petite ferme, payés par des dizaines d'années de mensualités."
+     ]
+    },
+    {
+     "nom": "M. Jean Bodart",
+     "arguments": [
+      "Au-delà de 100 000 euros de patrimoine, les sommes versées peuvent aujourd'hui être reprises sur la succession ; le texte supprime désormais purement et simplement cette récupération.",
+      "Quel sens a une allocation de solidarité si cette solidarité doit être remboursée demain par les héritiers du bénéficiaire ?",
+      "Tous ne partagent pas cette analyse : pour certains, la solidarité va dans les deux sens et il n'est pas illégitime que les héritiers en restituent une part.",
+      "Plus d'une personne éligible sur deux ne demande pas cette allocation, et la crainte d'une reprise sur la maison familiale en dissuade une partie."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -12001,6 +12704,25 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Hervé de Lépinau",
+     "arguments": [
+      "La colère des campagnes vient d'une réglementation française kafkaïenne et d'une concurrence internationale déloyale que les gouvernements successifs n'ont pas su combattre.",
+      "Le message des paysans tient en une phrase : plus d'interdiction sans solution.",
+      "La France s'est voulue le laboratoire mondial de l'écologie punitive : aucun pays ne la suit, et tous inondent son marché de produits cultivés sans les mêmes contraintes.",
+      "Le texte n'est pas le grand soir de la production agricole, mais un coup de frein à la dégringolade que subit l'agriculture française."
+     ]
+    },
+    {
+     "nom": "Mme Annie Genevard",
+     "arguments": [
+      "Les agriculteurs demandent qu'on les laisse accéder à l'eau et aux produits qui sauvent les récoltes, et moderniser des bâtiments d'élevage, ce qui améliore aussi le bien-être animal.",
+      "Opposer l'agriculture et l'environnement a fracturé le lien entre la société et ceux qui la nourrissent.",
+      "Le texte n'a qu'une ambition : alléger les contraintes du métier et rendre leur dignité aux agriculteurs."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -12086,6 +12808,17 @@
       "Confisqué en 1916, il est entré dans les collections françaises et a été exposé au musée du Trocadéro puis au musée du Quai Branly.",
       "Son retour est réclamé de longue date, et la Côte d'Ivoire l'a officiellement demandé à la France en 2019.",
       "Rendre ce tambour réaffirme l'amitié qui lie la France à la Côte d'Ivoire, dont le rôle fut important au moment de la décolonisation."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "La quasi-totalité du patrimoine matériel de l'Afrique subsaharienne est conservée hors du continent ; rendre une œuvre n'est pas se déposséder, c'est regarder le passé en face.",
+      "Ce tambour servait de voix au peuple ébrié et alertait les villages de l'arrivée des recruteurs de travail forcé ; l'administration coloniale l'a confisqué pour empêcher les communautés de s'organiser.",
+      "La Côte d'Ivoire a réclamé 148 pièces en 2019 et la restitution du tambour a été promise en 2021 ; un dépôt temporaire à Abidjan n'est pas un transfert de propriété.",
+      "La France multiplie les lois au cas par cas, après le Bénin et le Sénégal, alors que la loi générale promise depuis 2017 se fait toujours attendre."
      ]
     }
    ],
@@ -12800,6 +13533,26 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Philippe Fait",
+     "arguments": [
+      "Le changement climatique n'est plus une hypothèse : il fragilise déjà les infrastructures et met sous tension le système d'assurance.",
+      "Près d'un Français sur quatre est exposé au risque d'inondation et le coût des dégâts atteint des niveaux inédits.",
+      "On ne peut plus reconstruire ni aménager comme hier : il faut entretenir durablement la culture du risque.",
+      "Les territoires d'outre-mer sont en première ligne, exposés aux cyclones, aux submersions marines et à l'érosion des côtes."
+     ]
+    },
+    {
+     "nom": "Mme Sandrine Le Feur",
+     "arguments": [
+      "Le coût moyen des catastrophes naturelles est passé de 1,5 à 3,5 milliards d'euros en vingt ans, avec des pointes au-delà de 10 milliards.",
+      "Laisser les assureurs se retirer sans bruit des territoires les plus sinistrés reviendrait à abandonner leurs habitants.",
+      "Inscrire l'adaptation au climat dans la loi empêchera de construire, d'aménager ou d'investir comme si la trajectoire du climat n'existait pas.",
+      "Reconstruire à l'identique au même endroit entretient un cycle sans fin de catastrophes et d'indemnisations ; chaque sinistre doit devenir l'occasion de mieux faire."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -13136,6 +13889,16 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Pascale Bordes",
+     "arguments": [
+      "L'interdiction pénale n'a jamais empêché l'avortement : elle l'a rendu dangereux et inégalitaire, surtout pour les femmes modestes qui ne pouvaient pas partir à l'étranger.",
+      "La clandestinité imposait des pratiques d'une violence extrême, traumatisantes, souvent mutilantes et parfois mortelles.",
+      "Un demi-siècle après la dépénalisation, les souffrances physiques et morales endurées ne peuvent plus être contestées."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -13345,6 +14108,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Jean-Pierre Taite",
+     "arguments": [
+      "Supprimer les normes de décence énergétique laisserait les locataires les plus modestes dans des logements froids, humides et gagnés par les moisissures.",
+      "Plus de cinq millions de logements sont classés F ou G ; dans les pires, la facture d'énergie atteint environ 2 250 euros par an, le double d'un logement correctement isolé.",
+      "Plutôt que de démanteler les normes, il faut accompagner les propriétaires : les aides à la rénovation peuvent être élargies et le calendrier ajusté.",
+      "La rénovation représente quatre millions d'emplois directs et indirects : de quoi relancer un secteur sinistré et donner du travail stable aux artisans et aux petites entreprises."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -13438,6 +14212,26 @@
       "Il est révoltant que des élèves soient maltraités ou agressés par les adultes chargés de les instruire, dans le public comme dans le privé.",
       "Les institutions scolaires ont failli, et il faut le reconnaître solennellement pour permettre une juste réparation.",
       "Le groupe regrette que le texte n'ait pas été écrit avec tous les groupes, alors que son sujet aurait pu les rassembler."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Philippe Fait",
+     "arguments": [
+      "Les révélations de ces dernières années ont mis au jour des violences physiques, psychologiques et sexuelles à l'école, et des défaillances : contrôles insuffisants, alertes ignorées.",
+      "Le texte est d'abord un acte de reconnaissance : des souffrances endurées, et de la responsabilité publique quand elle n'a pas su protéger les plus vulnérables.",
+      "Aucune institution, aucune tradition, aucun statut n'est supérieur à la protection de l'enfant.",
+      "Contrôler l'honorabilité des adultes, inspecter régulièrement les établissements privés sous contrat et garder trace des sanctions sont des réponses nécessaires."
+     ]
+    },
+    {
+     "nom": "M. Paul Vannier",
+     "arguments": [
+      "Des dizaines de milliers d'élèves ont subi la violence d'adultes, et beaucoup la subissent encore aujourd'hui.",
+      "La responsabilité est aussi celle de l'État, qui a renoncé pendant des décennies à ses missions de prévention et de contrôle, au prétexte de la guerre scolaire.",
+      "Les enfants qui parlaient, les familles qui interpellaient et les enseignants qui alertaient ont été méprisés, ignorés, parfois réprimés.",
+      "Le texte prolonge une enquête parlementaire dont les cinquante recommandations ont fait l'unanimité, puis un travail mené avec les victimes, les personnels et les parents."
      ]
     }
    ],
@@ -13633,6 +14427,32 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "La part de la population alimentée par une eau conforme aux normes sur les pesticides est tombée de 96 % en 2015 à 74 % huit ans plus tard.",
+      "Les outils actuels ne préviennent pas les pollutions : un rapport interministériel parle d'un échec global de la préservation de la qualité de l'eau.",
+      "Les coûts de dépollution pèsent sur les usagers et les communes alors que la pollution vient d'ailleurs ; le prix de l'eau a monté d'environ 16 % en deux ans et demi.",
+      "Prévenir coûte moins cher que dépolluer, mais les restrictions envisagées auront des effets économiques sur des exploitations déjà fragiles, qu'il faut accompagner."
+     ]
+    },
+    {
+     "nom": "M. Sébastien Humbert",
+     "arguments": [
+      "L'eau est contrôlée régulièrement et sa qualité reste largement satisfaisante : en 2023, 98,4 % de la population a reçu une eau conforme sur le plan microbiologique.",
+      "Le texte se trompe de cible en laissant entendre que la pollution des eaux souterraines viendrait des seules activités agricoles.",
+      "Les agriculteurs ont déjà fait des efforts, mais les aides censées les compenser sont versées avec des retards excessifs.",
+      "Interdire les pesticides dès 2030 sans produit de remplacement toucherait un cinquième des terres cultivées et ferait perdre jusqu'à 40 % de productivité."
+     ]
+    },
+    {
+     "nom": "Mme Sandrine Le Feur",
+     "arguments": [
+      "Le texte a un cadre volontairement étroit : il ne refait pas une grande loi sur l'eau, et le stockage de l'eau relève d'un autre texte, celui sur l'urgence agricole."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -13719,6 +14539,17 @@
       "Développer le transport à voile réduit la dépendance aux énergies fossiles et renforce l'indépendance énergétique.",
       "La France a le deuxième espace maritime du monde et le premier cargo à voile est français.",
       "Les avantages fiscaux prévus, jusqu'à 100 % des surcoûts, doivent être ciblés, limités dans le temps et proportionnés à l'état des finances publiques."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Timothée Houssin",
+     "arguments": [
+      "Débattre des cargos à voile quand des millions de Français subissent l'explosion des prix du carburant montre le décalage entre l'ordre du jour et leurs préoccupations.",
+      "Les taxes font plus de la moitié du prix à la pompe, et 17 centimes par litre payés par les automobilistes financeront en partie ce texte.",
+      "La propulsion par le vent est une piste sérieuse pour décarboner le transport maritime et un levier industriel : 1 100 emplois aujourd'hui, 4 000 possibles d'ici 2030.",
+      "Elle reste marginale : 50 à 60 navires équipés sur plus de 60 000, et le plus souvent en appoint, pour 5 à 20 % de carburant économisé."
      ]
     }
    ],
@@ -14376,6 +15207,14 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. François Rebsamen",
+     "arguments": [
+      "L'État a été présent, y compris quand la chambre de commerce gérait les infrastructures : sa subvention est passée de 187 à 237 millions d'euros pour assurer la continuité territoriale."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -14475,6 +15314,17 @@
       "Le dispositif visait à protéger les petites et moyennes entreprises des rachats étrangers en évitant que les héritiers aient à vendre.",
       "Son usage s'est beaucoup développé ces dernières années, ce qui est la preuve de son utilité.",
       "L'exonération est passée de 50 à 75 % en 2005 et la durée de conservation de six à quatre ans en 2007."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Sophie-Laurence Roy",
+     "arguments": [
+      "Il n'y a ni emplois ni salariés sans entreprises, et pas d'entreprises sans entrepreneurs : quand un salarié peut reprendre l'entreprise où il travaille, il faut l'aider.",
+      "D'ici à 2032, 700 000 entreprises devront être cédées, et une année de 50 000 transmissions représente 770 000 emplois maintenus.",
+      "Une entreprise non transmise disparaît le plus souvent, ou passe sous pavillon étranger pour être pillée avant d'être liquidée.",
+      "Allonger les engagements de conservation, réduire l'avantage fiscal et interdire certains montages rendrait la transmission plus coûteuse, donc plus rare."
      ]
     }
    ],
@@ -14689,6 +15539,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Sophie-Laurence Roy",
+     "arguments": [
+      "L'information des victimes est déjà prévue par la loi et appliquée : ce texte ajouterait du travail à des fonctionnaires débordés et coûterait davantage.",
+      "Sur 700 000 plaintes classées sans suite, 85 % concernent des vols ou des dégradations, qui donnent lieu à une indemnisation par les assurances.",
+      "Par le jeu des contrats d'assurance, ce sont souvent les assureurs qui seraient prévenus des motifs du classement, alors qu'ils n'en ont que faire.",
+      "Le coût pourrait atteindre 4,9 millions d'euros par an, à raison de 7 euros par courrier recommandé."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -14895,6 +15756,17 @@
       "Faciliter la vie des actifs est un juste retour de leur contribution à la richesse du pays.",
       "Dans de nombreuses zones urbaines et périurbaines, les travailleurs modestes ne trouvent pas de logement abordable près de leur travail.",
       "Le diagnostic de performance énergétique est devenu une machine punitive qui abîme le marché du logement."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Frédéric Boccaletti",
+     "arguments": [
+      "Plus de 4,2 millions de personnes sont mal logées et 2,7 millions de ménages doivent recourir au logement social.",
+      "Il est insupportable que le travail ne suffise plus pour se loger : des travailleurs pauvres dorment encore dans leur voiture.",
+      "Ce texte ne résoudra pas la crise du logement : il faudrait surtout permettre à tous d'accéder à la propriété.",
+      "La règle qui impose un quota de logements sociaux doit être rebranchée sur les réalités locales : une commune doit en construire 403 pour 86 demandes et paie 125 000 euros de pénalités."
      ]
     }
    ],
@@ -15214,6 +16086,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "Entre 1966 et 1996, la Polynésie a accueilli 193 essais nucléaires, qui ont laissé une empreinte durable sur son environnement et sa santé.",
+      "La reconnaissance et l'indemnisation n'ont pas été lancées spontanément par l'État : elles ont été arrachées par des années de mobilisation locale.",
+      "Le texte ne marque pas de rupture : il prolonge un processus inachevé, qui laisse la Polynésie payer seule les soins des maladies liées aux essais.",
+      "L'accès à la réparation reste un parcours d'obstacles, mais élargir le droit à indemnisation ne doit pas aboutir à des réparations amoindries."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -15312,6 +16195,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Thierry Frappé",
+     "arguments": [
+      "L'accès à l'hôpital public ne doit en aucun cas dépendre de la capacité à payer un stationnement.",
+      "Payer pour se garer quand on vient se soigner ou accompagner un proche est une double peine, un impôt déguisé sur la maladie, alors qu'un Français sur trois renonce à des soins.",
+      "La maladie rend captif : le patient ne choisit ni l'heure, ni le lieu, ni la durée, et ses proches non plus.",
+      "Le péage s'est installé parce que l'hôpital manque de moyens et que des établissements ont confié leurs parkings à des gestionnaires privés."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -15407,6 +16301,25 @@
       "Dès 1969, huit ans après le statut de territoire d'outre-mer, l'école primaire a été confiée à la mission catholique.",
       "L'Assemblée se prononce à quelques jours seulement de la fin de la convention en cours.",
       "L'accord mettant fin au conflit entre enseignants et enseignement catholique date pourtant de juillet 2023."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. José Gonzalez",
+     "arguments": [
+      "Le texte met fin à une situation devenue obsolète pour les enseignants du premier degré de Wallis-et-Futuna, après deux mois et demi de grève.",
+      "Le niveau des élèves y est très en deçà des moyennes nationales, en français comme en mathématiques, et ce n'est pas acceptable.",
+      "Changer le statut ne suffira pas : à Mayotte et en Guyane, l'enseignement est national et les résultats sont comparables, parfois inférieurs.",
+      "Il faut des moyens : formation adaptée, classement en éducation prioritaire renforcée et comité de suivi, sans quoi la réforme restera un affichage."
+     ]
+    },
+    {
+     "nom": "Mme Élisabeth Borne",
+     "arguments": [
+      "Le taux d'encadrement, très favorable avec 116 professeurs pour 1 400 élèves, sera conservé et les postes maintenus.",
+      "Les enseignants transférés auront un plan de formation, sur place, à distance et à l'institut du professorat de Nouméa.",
+      "Le texte de 1976 qui régit l'emploi de ces agents est devenu obsolète : il cessera de s'appliquer dès la publication du décret, visée avant la fin de l'année."
      ]
     }
    ],
@@ -15511,6 +16424,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Jean-Luc Bourgeaux",
+     "arguments": [
+      "Après une carrière complète, un chef d'exploitation touche en moyenne 938 euros brut par mois de retraite de base, 1 142 euros avec la complémentaire : moins que le seuil de pauvreté.",
+      "Pour les conjoints collaborateurs, la retraite de base tourne autour de 309 euros par mois.",
+      "Le calcul de la retraite sur les vingt-cinq années les plus avantageuses, obtenu en 2023, répondait déjà à un impératif de justice entre les régimes.",
+      "L'intention du texte est louable et partagée : la revalorisation des retraites agricoles est un combat mené depuis plusieurs années avec d'autres groupes."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -15606,6 +16530,26 @@
       "Les progrès techniques ont réduit la fraude à la carte, si bien que les fraudeurs visent les outils les plus exposés.",
       "Le chèque reste une cible privilégiée, avec 364 millions d'euros de pertes par an.",
       "Les virements frauduleux coûtent 312 millions par an, dont la moitié via de faux relevés d'identité bancaire."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Jean-Pierre Taite",
+     "arguments": [
+      "En 2023, la fraude aux moyens de paiement a coûté près de 1,2 milliard d'euros, et elle sert parfois à régler des amendes, payer un impôt ou détourner des aides.",
+      "Les progrès de sécurité des paiements à distance ont poussé les fraudeurs à s'adapter : les arnaques aux coordonnées bancaires frauduleuses ont atteint 150 millions d'euros en 2023.",
+      "La fraude au chèque revient alors même que ce moyen de paiement recule année après année.",
+      "Un fichier national des coordonnées bancaires douteuses tenu par la Banque de France permettrait aux acteurs du paiement de partager l'information et de mieux détecter les fraudes."
+     ]
+    },
+    {
+     "nom": "Mme Sophie-Laurence Roy",
+     "arguments": [
+      "La fraude aux moyens de paiement coûte 1,2 milliard par an aux particuliers et aux entreprises, et les victimes se retrouvent trop souvent sans recours.",
+      "Toute mesure permettant de mieux détecter et de bloquer les mouvements frauduleux est bonne à prendre, ici par un meilleur partage des informations bancaires.",
+      "Il manque un mécanisme permettant de vérifier auprès de celui qui a émis un chèque que cette émission est régulière.",
+      "Aucune disposition ne vise les fraudes à la carte bancaire, qui représentent pourtant 43 % des montants fraudés."
      ]
     }
    ],
@@ -15709,6 +16653,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Charlotte Parmentier-Lecocq",
+     "arguments": [
+      "L'objectif est partagé : rembourser tous les fauteuils roulants, adaptés au handicap et options comprises, sans un euro à la charge de la personne.",
+      "Le principe du remboursement intégral figure déjà dans la loi de financement de la sécurité sociale pour 2024 ; ce qui reste à régler, ce sont ses modalités d'application.",
+      "Les négociations avec fabricants et distributeurs sont difficiles mais en passe d'aboutir ; une nouvelle loi les écraserait et ramènerait le dossier au point de départ.",
+      "Un nouveau texte devrait faire la navette entre les deux chambres, ce qui retarderait d'autant le remboursement que tout le monde veut atteindre vite."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -15797,6 +16752,25 @@
       "Diversifier les profils des candidats est nécessaire, mais pas par un concours distinct et plus accessible.",
       "Réserver des places sur des critères sociaux rompt l'égalité d'accès aux emplois publics.",
       "Aider ceux qui n'en ont pas les moyens à préparer les concours est en revanche un devoir."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Pauline Levasseur",
+     "arguments": [
+      "Prolonger le dispositif jusqu'en 2028 lui donne une stabilité et garantit qu'il profitera aux générations d'élèves à venir.",
+      "L'ouverture aux écoles des grands corps techniques offre à des élèves de milieux modestes l'accès à l'ingénierie, aux mines, aux ponts ou à l'armement.",
+      "L'application rétroactive aux concours ouverts depuis août 2024 permet aux élèves entrés dès l'ouverture du programme d'en bénéficier."
+     ]
+    },
+    {
+     "nom": "Mme Claudia Rouaux",
+     "arguments": [
+      "Les enfants d'ouvriers représentent près de 20 % de la population active mais seulement 5 % des élèves des écoles de la haute fonction publique.",
+      "En 2019, 73 % des élèves de l'École nationale d'administration avaient un père cadre supérieur, et aucun n'était enfant d'ouvrier.",
+      "Une haute fonction publique diversifiée se protège du conformisme et s'enrichit des expériences de vie de ceux qui la composent.",
+      "Ce concours réservait 10 à 15 % des places de cinq grandes écoles ; son arrêt fin 2024 a laissé dans l'incertitude des candidats qui préparaient déjà la session suivante."
      ]
     }
    ],
@@ -16956,6 +17930,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "Entre 1962 et 1984, au moins 2 015 enfants réunionnais ont été envoyés de force dans l'Hexagone, sans leur consentement, privés de leur famille et parfois de leur nom.",
+      "Cette politique répondait à la croissance démographique de La Réunion et au dépeuplement de campagnes de l'Hexagone : ces enfants ont servi de variable d'ajustement.",
+      "L'État devra reconnaître avoir conduit l'une des politiques les plus sombres de notre histoire contemporaine.",
+      "Cette violence s'inscrit dans un ensemble : avortements et stérilisations forcés à La Réunion, signatures d'abandon extorquées à des parents qui ne savaient pas lire."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -17045,6 +18030,17 @@
       "L'immense majorité des crèches, quel que soit leur statut, se soucient de la qualité ; les abus existent et doivent être combattus partout.",
       "La commission d'enquête a établi que les fonds d'investissement présents au capital des grands groupes n'exercent pas de pression sur les coûts à court terme.",
       "L'interdiction totale des fonds d'investissement prévue au départ méritait donc d'être réécrite."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Thierry Frappé",
+     "arguments": [
+      "L'accueil de la petite enfance n'est pas une prestation de service : les premières années décident du développement de l'enfant et exigent un cadre stable et des professionnels formés.",
+      "Rationnements, encadrement insuffisant, maltraitances, opacité financière : ces dérives, même exceptionnelles, traduisent une logique où la rentabilité passe avant l'enfant.",
+      "Il faut des voies de signalement claires et accessibles et, dans chaque structure, un référent chargé de la prévention, les départements suivant déjà les établissements.",
+      "Trois journées pédagogiques par an dans chaque crèche permettraient de former les équipes en continu et d'analyser ensemble leurs pratiques."
      ]
     }
    ],
@@ -17140,6 +18136,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "Mme Nicole Sanquer",
+     "arguments": [
+      "Le texte répond à deux demandes formelles des élus de Martinique : l'une sur l'énergie en 2023, l'autre sur l'eau et l'assainissement en 2024.",
+      "C'est un texte de confiance envers les élus martiniquais, leur connaissance du terrain et leur capacité à définir des règles adaptées à leur île.",
+      "L'égalité entre territoires n'impose pas l'uniformité : chacun doit avoir les moyens de répondre aux besoins de sa population.",
+      "Laisser les territoires d'outre-mer fixer eux-mêmes certaines règles est possible depuis 2003, mais cet outil a été bien trop peu utilisé."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -17224,6 +18231,26 @@
       "L'aide humanitaire passe mal : après le tremblement de terre de mars 2025, la junte a multiplié les obstacles aux organisations qu'elle avait pourtant appelées.",
       "L'ONU recense plus de 3 millions de personnes déplacées dans le pays et 1 million qui l'ont fui.",
       "Le climat de menaces et de violences dénoncé par l'ONU compromet la tenue même des élections du 28 décembre."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Gisèle Lelouis",
+     "arguments": [
+      "Depuis le coup d'État militaire de 2021, la Birmanie s'enfonce dans la violence : plus de 20 000 détenus politiques, des villages bombardés, la famine utilisée comme arme.",
+      "Les minorités paient le prix le plus lourd, en particulier les Rohingyas, victimes de persécutions systémiques et de déplacements forcés.",
+      "L'organe d'enquête créé par l'ONU n'est pas un tribunal : notre procédure pénale empêchait donc les échanges avec lui, et la convention comble ce vide.",
+      "Le texte est nécessaire contre l'impunité : ceux qui ordonnent le massacre de civils doivent savoir que la justice peut les rattraper, où qu'ils soient."
+     ]
+    },
+    {
+     "nom": "M. Alain David",
+     "arguments": [
+      "L'organe d'enquête de l'ONU ne juge pas : il réunit preuves et informations pour que des tribunaux, français ou internationaux, puissent juger les responsables.",
+      "Les atrocités commises contre les Rohingyas ont motivé sa création ; dans les camps du Bangladesh, près de la moitié des déportés sont des enfants sans identité, nés de viols.",
+      "Les crimes continuent : un hôpital bombardé il y a six jours, au moins trente morts, et plus de 200 opposants, journalistes et responsables associatifs arrêtés le jour même.",
+      "L'échange d'informations avec les juges nationaux est indispensable, puisqu'il est impossible de se rendre sur place pour recueillir ces preuves."
      ]
     }
    ],
@@ -17411,6 +18438,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. David Habib",
+     "arguments": [
+      "Le pays paraît divisé comme jamais et il ne se passe pas un jour sans faits d'antisémitisme et de racisme : il faut se raccrocher à ce qui fait notre patrimoine commun.",
+      "Élever Alfred Dreyfus au grade de général donne l'occasion de lui demander pardon unanimement.",
+      "La République moderne est née du combat de ceux qui l'ont défendu : tous les Français sont égaux et doivent être jugés sur leurs actes, jamais sur des préjugés.",
+      "La statue de Bernard Lazare, à Nîmes, profanée pendant la guerre, mériterait elle aussi une réhabilitation."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -17495,6 +18533,17 @@
       "Des policiers chargés de 25 kilos de matériel tentent d'éviter des tirs de mortier destinés à les défigurer.",
       "Des peines minimales pour les récidivistes relèvent du bon sens.",
       "Ce texte reste une avancée modeste, en attendant une refonte d'ampleur du système pénal et judiciaire."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Pascale Bordes",
+     "arguments": [
+      "La justice a perdu de vue la place des victimes, au profit d'une attention permanente portée au délinquant.",
+      "Les peines minimales ont été supprimées et la prison est devenue l'exception, une peine ferme ne pouvant être prononcée qu'en dernier recours.",
+      "Dix ans après ce changement, la France connaît la surpopulation carcérale et la récidive : la méthode a échoué.",
+      "Pour enrayer la violence, il faut que délinquants et criminels aient la certitude qu'une peine sera prononcée contre eux."
      ]
     }
    ],
@@ -17590,6 +18639,17 @@
      ]
     }
    ],
+   "orateurs": [
+    {
+     "nom": "M. Antoine Armand",
+     "arguments": [
+      "Des montages comme le partage de la propriété ou la rétention des terres pendant cinq ans servent à détourner l'esprit des lois censées protéger le foncier agricole.",
+      "Permettre aux organismes qui régulent les ventes de terres agricoles de mieux contrôler une opération en cas de soupçon de fraude va dans le bon sens.",
+      "Quand ces organismes ne veulent racheter qu'une partie d'une vente, le vendeur pourra toujours leur imposer de tout acheter : le changement reste mince.",
+      "Étendre le délai de vingt ans aux zones où le logement est tendu aurait placé les deux tiers du territoire sous ce régime, contre cinq ans pour le reste, montagne comprise."
+     ]
+    }
+   ],
    "origine": "ia",
    "le": "2026-09-20",
    "modele": "claude-opus-5"
@@ -17669,6 +18729,25 @@
       "Cette évolution ne traduit pas un rejet de l'engagement, mais le désir d'un engagement libre et réfléchi.",
       "Le mariage est par essence un acte volontaire fondé sur un consentement libre et éclairé.",
       "Les jeunes veulent des institutions qui correspondent à leurs valeurs et un droit qui protège sans enfermer."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "Mme Pascale Bordes",
+     "arguments": [
+      "Le mariage ne peut jamais valoir consentement automatique ou permanent : le consentement reste libre, personnel et toujours révocable.",
+      "La justice européenne a jugé qu'un refus de relations sexuelles ne peut pas fonder un divorce pour faute ; fermer cette porte était indispensable et attendu.",
+      "Le problème ne venait pas de la loi mais de l'interprétation qu'en faisaient les tribunaux : la vie commune n'a jamais créé d'obligation sexuelle.",
+      "Écrire dans la loi qu'une obligation n'existe pas crée une obligation négative sans portée réelle, contraire à la logique du droit civil."
+     ]
+    },
+    {
+     "nom": "Mme Aurore Bergé",
+     "arguments": [
+      "Un homme sur quatre estime encore qu'une femme doit avoir des relations sexuelles par devoir, et autant disent avoir déjà douté du consentement de leur partenaire.",
+      "Il est utile que la loi affirme clairement que le mariage n'a jamais été une autorisation à contrôler le corps de l'autre.",
+      "Le consentement ne se présume jamais, que l'on porte ou non un anneau au doigt."
      ]
     }
    ],
@@ -17918,6 +18997,26 @@
       "Le texte accumule les contraintes pour les propriétaires comme pour les entreprises, dans une course à la sanction, sans résoudre les problèmes.",
       "Un délai de réparation de deux à huit jours est déconnecté du terrain : pour les appareils anciens, les pièces sont introuvables et fabriquées à la demande.",
       "Exiger un stock de pièces de rechange pose un problème de coût et de faisabilité pour des composants qui ne sont plus produits en série."
+     ]
+    }
+   ],
+   "orateurs": [
+    {
+     "nom": "M. Julien Gabarron",
+     "arguments": [
+      "Les pannes qui se prolongent pénalisent les personnes à mobilité réduite, les jeunes parents et les personnes âgées, et cela arrive trop souvent.",
+      "Avant d'ajouter une loi, il faudrait s'assurer que les contrôles techniques obligatoires tous les cinq ans sont bien faits et que leurs résultats sont exploités.",
+      "Obliger à détenir un stock de pièces détachées serait impossible à contrôler et ferait monter les coûts d'entretien, répercutés sur les propriétaires et les locataires.",
+      "Beaucoup de pièces sont importées et leur approvisionnement échappe aux entreprises : les sanctionner pour une pénurie venue de l'étranger n'a pas de sens."
+     ]
+    },
+    {
+     "nom": "M. Paul Vannier",
+     "arguments": [
+      "Avec 100 millions de trajets par jour, l'ascenseur est le premier transport collectif du pays ; en panne, il enferme chez elles les personnes handicapées ou trop fragiles pour s'en passer.",
+      "Dans le parc social, les ascenseurs tombent trois fois plus souvent en panne qu'ailleurs, et les pannes y durent plus longtemps.",
+      "Quatre multinationales dominent un secteur très rentable, 5 milliards d'euros de bénéfices en 2023, pendant que 1,5 million de pannes sont enregistrées chaque année.",
+      "Chaque année, un enfant, un adolescent ou un agent de maintenance meurt dans un accident d'ascenseur, sans que personne ne soit tenu pour responsable."
      ]
     }
    ],

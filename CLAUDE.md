@@ -197,6 +197,16 @@ not evidence of clean code — it is evidence that nothing was checked.
 - Edits/writes are restricted to this folder and its subfolders. This is
   enforced by `permissions.deny` plus the `enforce-scope.sh` PreToolUse hook —
   it is not optional and does not depend on remembering this instruction.
+- **Working files go in `tmp/`**, inside the project, which git ignores.
+  Harvested facts, drafting batches, measurements: everything intermediate.
+  Anywhere outside the project is refused.
+- **The hook watches `Bash` too, since 2026-09-20.** It used to read only the
+  `file_path` of an editing tool, so `echo … > /elsewhere` wrote outside the
+  project unnoticed — two sessions did exactly that after `Write` was blocked.
+  It now also refuses a command whose redirection, `tee`, `cp` or `mv` targets
+  a path outside the project. **It is a tripwire, not a wall**: a shell command
+  can always write in a way a pattern does not recognise. It makes the accident
+  impossible and the deliberate bypass visible, which is what it is for.
 - Reads are limited to this project's scope. Reads outside the project prompt
   for explicit confirmation (`permissions.ask`) rather than happening
   silently. Files or internet sources shared directly in a prompt are always

@@ -1,0 +1,6 @@
+# Le dossier de travail du projet : tout ce qui s'y trouve est jetable, et
+# rien n'y est versionné. C'est ici que vont les fichiers intermédiaires —
+# faits récoltés, lots de rédaction, mesures — pour que la règle « on n'écrit
+# que dans le projet » n'ait pas à être contournée.
+*
+!.gitignore
