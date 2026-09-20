@@ -528,7 +528,11 @@ jour du débat, la date, la section. 3 384 prises de parole sur 172 textes de
 loi. L'onglet vient juste après les articles ; le vote sur l'ensemble a le
 sien, le premier de la barre.
 
-**Depuis le 2026-09-19, un résumé écrit par une IA ouvre l'onglet.** Il range
+**Depuis le 2026-09-19, un résumé écrit par une IA ouvre l'onglet**, et
+**171 des 172 textes qui ont des débats publiés en ont un** (1 711 groupes,
+6 137 arguments, mesuré le 2026-09-20). Le seul texte sans résumé est celui
+dont toutes les prises de parole portaient, en réalité, sur un autre texte de
+la même séance. Il range
 les groupes par ce qu'ils ont voté — « ont voté pour », « ont voté contre »,
 « se sont abstenus », « se sont partagés » — et donne sous chacun **au plus
 quatre arguments**, tirés de ses seules prises de parole. Les paroles complètes

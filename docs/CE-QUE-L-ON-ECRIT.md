@@ -462,7 +462,9 @@ chiffres du document sont des exemples de mise en page.
 | Descriptions écrites | 107 | `socle/descriptions.json` — 107 par une IA, 0 par une personne |
 | Descriptions portant un contexte | 107 | `socle/descriptions.json`, écrit le 2026-09-19 |
 | Noms d'usage retenus | 3 | Ripost, Duplomb, Ddadue — sur 26 candidats relevés dans les débats publiés |
-| Résumés de débats écrits | 19 | `socle/resumes_debats.json` — sur 172 textes qui ont des débats publiés |
+| Résumés de débats écrits | 171 | `socle/resumes_debats.json` — sur 172 textes qui ont des débats publiés |
+| Groupes et arguments de ces résumés | 1 711 / 6 137 | mesuré le 2026-09-20 |
+| Résumés sans camp de vote | 45 | ces textes n'ont pas de scrutin sur l'ensemble : l'écran affiche « Ce qui a été dit » |
 | Rubriques de l'application concernées par l'exception | 2 | la description d'un texte, et le résumé de ses débats |
 
 Et les quatre constats sur la chaîne de publication — celle qui récupère,
