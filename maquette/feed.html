@@ -853,6 +853,12 @@
                             text-transform: uppercase; color: var(--gris); }
   .resume-debats .camp.pour h5 { color: var(--ok); }
   .resume-debats .camp.contre h5 { color: var(--accent); }
+  /* Les orateurs sans groupe : séparés des camps par un trait, parce qu'ils
+     n'en sont pas un. Un ministre ne vote pas. */
+  .resume-debats .camp.orateurs { margin-top: .9rem; padding-top: .7rem;
+                                  border-top: 1px solid var(--trait); }
+  .resume-debats .pourquoi-orateurs { font-size: .76rem; color: var(--gris);
+                                      line-height: 1.4; margin: 0 0 .2rem; }
   .resume-debats .groupe-dit { margin-top: .45rem; }
   .resume-debats .qui { display: flex; align-items: baseline; gap: .35rem;
                         flex-wrap: wrap; }
@@ -2872,6 +2878,33 @@ function blocResumeDebats(resume) {
       carte.append(tete);
       const liste = el("ul");
       for (const a of g.arguments) liste.append(el("li", null, a));
+      carte.append(liste);
+      zone.append(carte);
+    }
+    boite.append(zone);
+  }
+
+  // Les orateurs que la source n'a rattachés à aucun groupe : un ministre, un
+  // non-inscrit. **Ils viennent après les camps, jamais dedans** — un ministre
+  // n'est pas député, il ne vote pas, il n'a donc pas de camp. Les afficher
+  // sous un sigle inventé ferait dire à un groupe ce qu'il n'a pas dit.
+  if ((resume.orateurs || []).length) {
+    const zone = el("div", "camp orateurs");
+    zone.append(el("h5", null, "Dit aussi en séance"));
+    // La mention une fois pour toutes, sous le titre : répétée sur chaque
+    // carte, elle tenait sur la ligne d'un nom court et passait à la ligne
+    // sur un nom long, ce qui donnait deux mises en page pour une même chose.
+    zone.append(el("p", "pourquoi-orateurs",
+      "Le compte rendu ne rattache ces orateurs à aucun groupe : ce sont des "
+      + "membres du gouvernement ou des députés sans groupe. Ils ne votent "
+      + "donc pas dans les camps ci-dessus."));
+    for (const o of resume.orateurs) {
+      const carte = el("div", "groupe-dit");
+      const tete = el("div", "qui");
+      tete.append(el("b", null, o.nom));
+      carte.append(tete);
+      const liste = el("ul");
+      for (const a of o.arguments) liste.append(el("li", null, a));
       carte.append(liste);
       zone.append(carte);
     }

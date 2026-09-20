@@ -25,6 +25,15 @@ Forme attendue d'un lot :
 
 Un groupe qui a parlé sans voter garde ses arguments, sans position. Un groupe
 qui a voté sans parler n'apparaît pas : le résumé dit ce qui a été dit.
+
+**Une clé peut aussi être le nom d'un orateur sans groupe** — un ministre, un
+non-inscrit — que la source n'a rattaché à aucun sigle :
+
+    {"DLR5L17N53067": {"EPR": ["…"], "M. Philippe Fait": ["…"]}}
+
+Ces orateurs sont publiés à part, sous `orateurs`, **sans position de vote** :
+un ministre n'est pas député, il ne vote pas, il n'a donc pas de camp. Leurs
+noms sont contrôlés contre les paroles publiées, comme les sigles.
 """
 from __future__ import annotations
 
@@ -89,6 +98,30 @@ def paroles_publiees(uid: str) -> dict[str, int]:
     return {g["sigle"]: g.get("paroles", 0) for g in (d.get("groupes") or [])}
 
 
+def orateurs_sans_groupe(uid: str) -> dict[str, int]:
+    """Les orateurs que la source n'a rattachés à aucun groupe, par nom.
+
+    Un ministre n'est pas député : il ne vote pas, donc il n'a pas de camp. Un
+    non-inscrit non plus n'a pas de groupe. Leurs arguments s'affichent sous
+    leur nom, à part, après les camps de vote — jamais mêlés à un groupe.
+
+    Mesuré le 2026-09-20 : 128 prises de parole sur 2 976, dans 91 textes, chez
+    60 orateurs. Certains sont des députés d'un vrai groupe que le
+    rapprochement a manqués (95,6 % d'attribution) : **c'est à la rédaction de
+    lire ce que l'orateur revendique**, et d'écrire son argument sous le sigle
+    de son groupe quand il dit y appartenir.
+    """
+    fichier = PUBLIE / "paroles" / f"{uid}.json"
+    if not fichier.exists():
+        return {}
+    d = json.loads(fichier.read_text(encoding="utf-8"))
+    compte: dict[str, int] = {}
+    for p in d.get("paroles") or []:
+        if not p.get("sigle") and p.get("nom"):
+            compte[p["nom"]] = compte.get(p["nom"], 0) + 1
+    return compte
+
+
 def controler(uid: str, ecrit: dict, refus: list[str]) -> dict | None:
     vote = vote_decisif(uid)
     # Présent au scrutin et sans position : personne n'y a voté dans ce groupe.
@@ -96,32 +129,41 @@ def controler(uid: str, ecrit: dict, refus: list[str]) -> dict | None:
                               if g.get("position") in POSITIONS else "aucun_vote")
                  for g in (vote or {}).get("groupes", [])}
     dit = paroles_publiees(uid)
+    seuls = orateurs_sans_groupe(uid)
 
-    groupes = []
-    for sigle, arguments in ecrit.items():
-        if sigle not in dit:
-            refus.append(f"{uid} / {sigle} : ce groupe n'a pas parlé sur ce texte")
+    groupes, orateurs = [], []
+    for qui, arguments in ecrit.items():
+        # Une clé est soit un sigle de groupe, soit le nom d'un orateur que la
+        # source n'a rattaché à aucun groupe. Les deux se contrôlent contre les
+        # paroles publiées ; ce qui n'est ni l'un ni l'autre est refusé.
+        if qui not in dit and qui not in seuls:
+            refus.append(f"{uid} / {qui} : n'a pas parlé sur ce texte")
             continue
         propres = [a.strip() for a in (arguments or []) if a and a.strip()]
         if not propres:
-            refus.append(f"{uid} / {sigle} : aucun argument")
+            refus.append(f"{uid} / {qui} : aucun argument")
             continue
         if len(propres) > ARGUMENTS_MAX:
-            refus.append(f"{uid} / {sigle} : {len(propres)} arguments, "
+            refus.append(f"{uid} / {qui} : {len(propres)} arguments, "
                          f"{ARGUMENTS_MAX} au plus")
             continue
         trop_long = [a for a in propres if len(a) > CARACTERES_MAX]
         if trop_long:
-            refus.append(f"{uid} / {sigle} : un argument dépasse "
+            refus.append(f"{uid} / {qui} : un argument dépasse "
                          f"{CARACTERES_MAX} caractères")
             continue
-        groupes.append({"sigle": sigle,
-                        # Relevée dans le scrutin, jamais dans le lot.
-                        "position": positions.get(sigle),
-                        "arguments": propres})
+        if qui in dit:
+            groupes.append({"sigle": qui,
+                            # Relevée dans le scrutin, jamais dans le lot.
+                            "position": positions.get(qui),
+                            "arguments": propres})
+        else:
+            # Pas de position : un orateur sans groupe n'est pas un camp, et
+            # un ministre ne vote pas.
+            orateurs.append({"nom": qui, "arguments": propres})
 
-    if not groupes:
-        refus.append(f"{uid} : aucun groupe retenu")
+    if not groupes and not orateurs:
+        refus.append(f"{uid} : aucun groupe ni orateur retenu")
         return None
     # L'ordre de l'hémicycle : celui du scrutin quand il existe, sinon celui
     # du fichier des paroles, qui est déjà rangé de la gauche à la droite. Sans
@@ -131,10 +173,14 @@ def controler(uid: str, ecrit: dict, refus: list[str]) -> dict | None:
     if not rangs:
         rangs = {sigle: i for i, sigle in enumerate(dit)}
     groupes.sort(key=lambda g: (rangs.get(g["sigle"], 99), g["sigle"]))
+    # Les orateurs dans l'ordre où le compte rendu les fait parler.
+    ordre_dit = {nom: i for i, nom in enumerate(seuls)}
+    orateurs.sort(key=lambda o: ordre_dit.get(o["nom"], 99))
     return {
         "vote": ({"date": vote.get("date"), "sort": vote.get("sort"),
                   "objet": vote.get("objet")} if vote else None),
         "groupes": groupes,
+        **({"orateurs": orateurs} if orateurs else {}),
     }
 
 

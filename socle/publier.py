@@ -743,10 +743,16 @@ def lire_resumes_debats() -> dict[str, dict]:
     for uid, r in (contenu.get("resumes") or {}).items():
         groupes = [g for g in (r.get("groupes") or [])
                    if g.get("sigle") and (g.get("arguments") or [])]
+        # Les orateurs que la source n'a rattachés à aucun groupe — un
+        # ministre, un non-inscrit. Ils s'affichent sous leur nom, après les
+        # camps, et n'ont jamais de position : un ministre ne vote pas.
+        orateurs = [o for o in (r.get("orateurs") or [])
+                    if o.get("nom") and (o.get("arguments") or [])]
         # Sans origine sûre, on ne publie pas : une rubrique écrite qui ne dit
         # pas qui l'a écrite est exactement ce que le projet refuse.
-        if groupes and r.get("origine") in ("ia", "humain"):
+        if (groupes or orateurs) and r.get("origine") in ("ia", "humain"):
             retenus[uid] = {"vote": r.get("vote"), "groupes": groupes,
+                            **({"orateurs": orateurs} if orateurs else {}),
                             "origine": r["origine"], "le": r.get("le"),
                             "modele": r.get("modele") or None}
     return retenus
