@@ -54,6 +54,15 @@ disait « votera contre » — il parlait de l'autre texte de la même séance. 
 orateur annonce une intention, pas un résultat. Tu écris ce qui a été dit ; la
 source dit ce qui a été voté ; rien ne prétend les relier.
 
+**2 bis. « sans groupe » n'est pas un groupe : ne l'écris jamais.** C'est un
+fourre-tout. Mesuré le 2026-09-20 sur les paroles publiées : **128 prises de
+parole sur 2 976 n'ont aucun sigle**, dans 91 textes, chez **60 orateurs
+différents** — des ministres (Amélie de Montchalin, Annie Genevard, Aurore
+Bergé, Jean-Pierre Farandou), des députés non inscrits, et parfois un député
+rattaché à un vrai groupe. Leur attribuer un argument commun afficherait les
+mots d'un ministre comme la position d'un groupe parlementaire. Le sigle `NI`,
+lui, existe séparément dans les données et se traite normalement.
+
 **3. Tu n'écris que ce que ce groupe a dit.** Pas ce que tu sais du sujet, pas
 ce qu'un autre groupe a répondu, pas le contenu du texte. Si un argument ne se
 retrouve pas dans les paroles de ce groupe-là, il n'existe pas. Un groupe qui
