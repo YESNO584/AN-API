@@ -65,6 +65,25 @@ liste `versions` de `textes/<uid>.json` :
 réécrit en commission ne dit plus ce qu'il disait au dépôt, et décrire le dépôt
 serait décrire un texte qui n'existe plus.
 
+**Et le titre, lui, ne bouge pas.** C'est le piège le plus coûteux de cette
+rubrique : un texte garde l'intitulé de son dépôt même quand la commission a
+retiré ce qu'il promettait. Trois cas rencontrés le 2026-09-20, sur un seul
+paquet de vingt-cinq :
+
+- « Prioriser les travailleurs dans l'attribution de logements sociaux » — la
+  commission a **supprimé** le critère « travailleurs ». La version à décrire
+  raccourcit la liste des publics prioritaires, et ne donne aucune priorité
+  aux travailleurs.
+- « Suppression des comités Théodule » — la version transmise a perdu la
+  plupart de ses articles : elle ne supprime plus qu'une poignée d'instances.
+- « Pour plus de sport et moins de sucre » — le volet sucre n'est plus qu'un
+  objectif national et des rapports ; seul le pass sport est contraignant.
+
+**Écris ce que les articles font, jamais ce que le titre promet.** Quand les
+deux se contredisent, dis-le : c'est l'information la plus utile de la fiche.
+Mesuré sur la même récolte : 123 textes sur 249 se décrivent sur une rédaction
+postérieure au dépôt.
+
 `faits_pour_descriptions.py` récolte les deux cas :
 
 - sans option, il part de `promulgues.json` et lit le droit consolidé ;
