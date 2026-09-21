@@ -907,3 +907,75 @@ l'article 7 change 18 articles de code quand l'amendement n'en écrit qu'un.
   chemin absolu. Contourné en écrivant des chemins absolus dans le projet —
   mais c'est exactement le genre de fausse alerte qui apprend à contourner un
   garde-fou, et qui mériterait d'être corrigée.
+
+## 2026-09-21 — Trois boutons qui ne tenaient pas leur promesse
+
+### Le libellé disait la vérité, la place disait autre chose
+
+« Version déposée », « Modifications », « Version à jour » : posé entre les
+deux autres, le bouton du milieu promet la différence entre eux. Il montrait
+**une seule étape** — la dernière — et sa ligne d'explication le disait
+honnêtement (« les différences avec la version précédente »). Personne ne la
+lit contre la promesse de la rangée.
+
+Le coût était énorme et invisible : sur la loi Ripost, la dernière étape est la
+commission mixte paritaire, **4 amendements**, quand le texte en a vu **245**
+adoptés depuis son dépôt. La vue laissait croire à un texte presque intact.
+
+**La leçon : un groupe de boutons est une phrase.** Vérifier chaque libellé
+seul ne suffit pas ; il faut lire la rangée entière et se demander ce qu'elle
+promet.
+
+### « (Conforme) » : la source n'imprime pas ce qui est déjà voté
+
+**Le défaut le plus grave de la journée, et il ne venait pas du code.** Un
+document tardif ne réimprime pas les articles sur lesquels les deux chambres se
+sont accordées : il écrit « (Conforme) ». Mesuré : **23 articles sur 75** de la
+dernière version étaient vides ou réduits à leur mention. Comparés au texte
+déposé, ils sortaient **entièrement supprimés** — un article sur trois montré
+comme effacé alors qu'il est intact.
+
+Et la mention n'était même pas reconnue : `MENTION` connaissait « nouveau »,
+« supprimé » et « non modifié », pas « conforme ». L'article s'affichait donc
+réduit au mot « (Conforme) ».
+
+La règle retenue : reprendre la rédaction **à la dernière version qui
+l'imprime**. Ce n'est pas reconstituer du texte — c'est suivre une instruction
+que la source écrit noir sur blanc. Un « (Supprimé) », lui, reste supprimé.
+Après correction, **les seuls articles sans rien de commun avec leur homonyme
+du dépôt sont ceux que la source déclare supprimés** : zéro fausse suppression.
+
+### Ce que je croyais être le risque ne l'était pas
+
+J'avais annoncé mesurer le renumérotage : un amendement adopté sur « l'article
+3 » d'une étape pouvait-il se retrouver sur un autre article à la fin ? La
+mesure n'en trouve aucun cas. Le vrai problème était ailleurs — et il fallait
+mesurer pour le voir, pas raisonner.
+
+Ce que la mesure a trouvé à la place : le rapprochement place **12 amendements
+de plus** sur le parcours que la somme des étapes (330 contre 318), parce que
+`racine()` attache un amendement « après l'article 4 bis » à **tous** les
+articles nés à côté — « 4 bis aa », « 4 bis ab », « 4 bis a ». C'est un
+comportement d'avant, pas une nouveauté, et l'écran avertit déjà qu'il ne dit
+pas quel mot vient de quel amendement.
+
+### Vérifier sur trois documents ne vérifie rien
+
+Ma première vérification de l'onglet « Texte » était juste — sur le décor que
+j'avais chargé. En local, seuls les trois premiers documents de la loi Ripost
+étaient lus, donc l'onglet comparait l'étape où se trouvait l'amendement que je
+cherchais. Sur le site complet, cinq versions existent, et l'onglet en comparait
+deux autres. **La capture d'écran de l'utilisateur a vu ce que ma mesure ne
+pouvait pas voir.**
+
+Ce qui l'aurait attrapé : vérifier sur un texte dont **toutes** les versions
+sont chargées, et comparer le nombre d'amendements affichés à celui que la base
+annonce pour le dossier entier.
+
+### Un incident de publication ressemble à un bogue d'affichage
+
+La même capture ne montrait **aucun** amendement, sur aucun article. Cause :
+l'archive des amendements (300 Mo, facultative) n'était pas arrivée à la
+publication de la nuit — `0 amendements — source indisponible`. Relancer la
+publication a suffi. **Avant de chercher un bogue dans la page, lire
+`etat.json` du site** : il dit quelle source a manqué.

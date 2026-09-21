@@ -67,13 +67,26 @@ FIN_DU_TEXTE = re.compile(r"^assnatEndnote", re.I)
 # serait pire que d'en garder un de trop.
 HORS_TEXTE = ("assnatHeader", "assnatFooter", "assnat1Tome", "assnat2Partie")
 
-# « (Nouveau) », « (Supprimé) », « (Non modifié) » : la source annonce l'état
-# de l'article, soit dans son titre, soit dans un paragraphe juste en dessous.
-# Ce n'est pas du texte de loi — laissée dans le corps, la mention
-# « (Non modifié) » s'affiche comme un ajout de la commission alors qu'elle dit
-# exactement le contraire.
-MENTION = re.compile(r"^\(\s*(non modifiés?|supprimés?|nouveaux?)[^)]*\)\s*", re.I)
-MENTION_TITRE = re.compile(r"\(\s*(non modifiés?|supprimés?|nouveaux?)[^)]*\)", re.I)
+# « (Nouveau) », « (Supprimé) », « (Non modifié) », « (Conforme) » : la source
+# annonce l'état de l'article, soit dans son titre, soit dans un paragraphe
+# juste en dessous. Ce n'est pas du texte de loi — laissée dans le corps, la
+# mention « (Non modifié) » s'affiche comme un ajout de la commission alors
+# qu'elle dit exactement le contraire.
+#
+# **« Conforme » a été ajouté le 2026-09-21**, et son absence coûtait cher : la
+# mention restait dans le corps de l'article, donc l'article s'affichait comme
+# réduit à ce seul mot. Mesuré sur les deux textes lus ce jour-là, 8 articles
+# sur 75 de la dernière version étaient dans ce cas.
+MENTION = re.compile(
+    r"^\(\s*(non modifiés?|supprimés?|nouveaux?|conformes?)[^)]*\)\s*", re.I)
+MENTION_TITRE = re.compile(
+    r"\(\s*(non modifiés?|supprimés?|nouveaux?|conformes?)[^)]*\)", re.I)
+
+# Les mentions qui disent « cet article ne change pas, et je ne le réimprime
+# pas ». Sa rédaction est celle de la version d'avant, et il faut aller la
+# chercher là-bas : la comparer à un texte vide le montrerait entièrement
+# supprimé, c'est-à-dire l'inverse de ce que la source dit.
+NON_REPRODUIT = ("conforme", "non modifié")
 
 BALISE = re.compile(r"<(p|h\d|table)([^>]*)>(.*?)</\1>", re.S)
 CLASSE = re.compile(r'class="([^"]*)"')
@@ -164,7 +177,8 @@ def etat(titre: str, texte: str) -> str | None:
         return None
     mot = m.group(1).lower()
     for debut, propre in (("non modifi", "non modifié"), ("supprim", "supprimé"),
-                          ("nouveau", "nouveau"), ("nouveaux", "nouveau")):
+                          ("nouveau", "nouveau"), ("nouveaux", "nouveau"),
+                          ("conforme", "conforme")):
         if mot.startswith(debut):
             return propre
     return mot
@@ -265,6 +279,71 @@ def amendements_de_l_article(index: dict, ligne: dict) -> list[dict]:
         if base != num:
             return index.get((base, "Après"), []) + index.get((base, "Avant"), [])
     return index.get((num, "A"), [])
+
+
+def version_a_jour(suite: list[dict[str, str]]) -> dict[str, str]:
+    """Le texte de chaque article tel qu'il se lit après la dernière étape.
+
+    `suite` est la liste des versions dans l'ordre du parcours, chacune étant
+    un dictionnaire `{titre: texte}`.
+
+    **Une version tardive ne réimprime pas les articles déjà accordés** : elle
+    imprime « (Conforme) » ou « (Non modifié) » à leur place. Les comparer au
+    texte déposé les montrerait entièrement supprimés, ce qui est le contraire
+    de ce que la source dit. On reprend donc leur rédaction **à la dernière
+    version qui les imprime**. Ce n'est pas reconstituer du texte : c'est
+    suivre l'instruction que la source écrit noir sur blanc.
+
+    Mesuré le 2026-09-21 : 23 articles sur 75 de la dernière version étaient
+    vides ou réduits à leur mention.
+
+    Un article « (Supprimé) » est bien supprimé : sa rédaction ne revient pas.
+    Un article qu'une version tardive ne cite plus du tout non plus — il n'est
+    pas dans le résultat, et `comparer` le dira retiré.
+    """
+    if not suite:
+        return {}
+    ancien: dict[str, str] = {}
+    for articles in suite[:-1]:
+        for titre, brut in articles.items():
+            if sans_mention(brut).strip():
+                ancien[numero(titre)] = brut
+    a_jour = {}
+    for titre, brut in suite[-1].items():
+        repris = ancien.get(numero(titre))
+        if (etat(titre, brut) in NON_REPRODUIT
+                and not sans_mention(brut).strip() and repris):
+            # Le titre reste celui de la dernière version — c'est lui qui
+            # numérote l'article aujourd'hui — mais le corps vient d'avant.
+            a_jour[titre] = sans_mention(repris)
+        else:
+            a_jour[titre] = brut
+    return a_jour
+
+
+def amendements_du_parcours(etapes: list[dict], ligne: dict) -> list[dict]:
+    """Tous les amendements adoptés sur cet article, d'un bout à l'autre.
+
+    `etapes` est une liste de `{"quand": …, "index": …}`, dans l'ordre du
+    parcours : `index` est celui qu'a construit `amendements_du_document` pour
+    le document amendé à cette étape, et `quand` dit **qui** l'a amendé — la
+    commission ou la séance.
+
+    Le rapprochement reste celui de `amendements_de_l_article` : **par le
+    numéro d'article, à chaque étape, jamais par le texte.** Il porte donc une
+    hypothèse de plus que la comparaison d'une seule étape — qu'un numéro
+    désigne le même article du dépôt à la fin. Chaque amendement part avec
+    l'étape où il a été adopté, pour que l'écran puisse le dire au lieu de
+    laisser croire à un changement d'un seul coup.
+
+    Un même amendement ne peut pas apparaître deux fois : deux étapes ne
+    partagent aucun document amendé.
+    """
+    trouves = []
+    for etape in etapes:
+        for a in amendements_de_l_article(etape["index"], ligne):
+            trouves.append({**a, "quand": etape["quand"]})
+    return trouves
 
 
 def resume(lignes: list[dict]) -> dict[str, int]:

@@ -533,6 +533,8 @@
   .amdts .etiq.dispute b { font-weight: 700; margin-right: .25rem; }
   .amdts .chiffres-amdt { display: block; font-size: .72rem; color: var(--gris);
                           padding-left: .7rem; margin-bottom: .2rem; }
+  .amdts .quand-amdt { display: block; font-size: .72rem; color: var(--faible);
+                       padding-left: .7rem; }
 
   .resume-change { display: flex; gap: .45rem; margin: 0 0 1rem; }
   .resume-change .tuile {
@@ -2699,7 +2701,11 @@ function articlesDeLaVersion(d, mode) {
   const zone = el("div");
   const tous = (d.articles || []).flatMap((a) => a.morceaux || []);
   if (mode === "diff" && tous.length) {
-    const par = /BTC\d+$/.test(d.ref) ? "par la commission"
+    // Un fichier qui porte des étapes est la comparaison du parcours entier :
+    // dire « par la commission » y serait faux, puisque la commission et la
+    // séance y ont chacune mis la main.
+    const par = (d.etapes || []).length ? "depuis le dépôt du texte"
+              : /BTC\d+$/.test(d.ref) ? "par la commission"
               : /BTA\d+$/.test(d.ref) ? "en séance"
               : "depuis la version précédente";
     zone.append(legendeDiff(tous, par));
@@ -2711,6 +2717,12 @@ function articlesDeLaVersion(d, mode) {
                    identique: "Inchangé", initial: null };
     if (mode === "diff" && mots[a.quoi]) {
       tete.append(el("span", "quoi " + a.quoi, mots[a.quoi]));
+    }
+    // Un article sans texte n'est pas un bogue d'affichage : la source dit
+    // « (Supprimé) » et n'en imprime plus rien. Sans cette mention, le titre
+    // reste seul au-dessus d'un cadre vide, ce qui se lit comme une panne.
+    if (a.etat && !(a.texte || "").trim()) {
+      tete.append(el("span", "quoi", "La source dit : " + a.etat));
     }
     zone.append(tete);
     // Les amendements adoptés sur cet article, dans la seule vue qui montre
@@ -2726,21 +2738,27 @@ function articlesDeLaVersion(d, mode) {
       "Les amendements sont rapprochés par le numéro d'article : la page dit "
       + "lesquels ont été adoptés sur cet article, jamais quel mot vient de "
       + "quel amendement — il faudrait pour cela interpréter l'instruction de "
-      + "l'amendement, et le texte affiché ne serait plus celui de la source."));
+      + "l'amendement, et le texte affiché ne serait plus celui de la source."
+      + ((d.etapes || []).length
+         ? " Ici le rapprochement porte sur tout le parcours, ce qui suppose "
+           + "qu'un numéro d'article désigne le même article du dépôt à "
+           + "aujourd'hui. Chaque amendement dit donc où il a été adopté."
+         : "")));
   }
   return zone;
 }
 
 // Le texte demandé, gardé une fois lu : passer d'un bouton à l'autre ne doit
-// pas retélécharger 2,8 Mo. La clé est la référence du document, pas le mode —
-// les trois vues se dessinent à partir du même fichier.
+// pas retélécharger 2,8 Mo. La clé est le nom du fichier, pas le mode — deux
+// des trois vues se dessinent à partir du même.
 const VERSIONS_LUES = new Map();
 
-async function versionLue(uid, ref) {
-  if (!VERSIONS_LUES.has(ref)) {
-    VERSIONS_LUES.set(ref, await lire(`versions/${uid}/${ref}.json`));
+async function versionLue(uid, nom) {
+  const cle = uid + "/" + nom;
+  if (!VERSIONS_LUES.has(cle)) {
+    VERSIONS_LUES.set(cle, await lire(`versions/${uid}/${nom}.json`));
   }
-  return VERSIONS_LUES.get(ref);
+  return VERSIONS_LUES.get(cle);
 }
 
 function blocTexte(uid, versions, plat) {
@@ -2760,7 +2778,8 @@ function blocTexte(uid, versions, plat) {
   // Chaque vue dit quelle version elle montre et de quand : sans cela, trois
   // boutons courts laisseraient croire qu'on lit toujours le même document.
   const vues = [
-    { cle: "depose", bouton: "Version déposée", ref: initiale.ref, mode: "apres",
+    { cle: "depose", bouton: "Version déposée", fichier: initiale.ref,
+      mode: "apres",
       sous: initiale.nom + ", " + quand(initiale)
             + " — le texte tel qu'il a été déposé" },
   ];
@@ -2768,11 +2787,28 @@ function blocTexte(uid, versions, plat) {
   // donc pas de choix à proposer.
   if (versions.length > 1) {
     vues.push(
-      { cle: "change", bouton: "Modifications", ref: derniere.ref, mode: "diff",
-        sous: derniere.nom + ", " + quand(derniere)
-              + " — les différences avec la version précédente" },
+      // **La comparaison va du texte déposé à la version à jour**, et non
+      // d'une étape à la suivante. Les trois boutons promettent cela, et
+      // c'est ce qu'on veut savoir : ce que le texte déposé est devenu. Une
+      // seule étape aurait montré, pour une loi arrivée au bout, la
+      // commission mixte paritaire — 4 amendements sur la loi Ripost, quand
+      // le texte en a vu 245 adoptés depuis son dépôt.
+      //
+      // Le socle la publie dans son propre fichier, dès qu'un texte a deux
+      // versions ; ce qu'une étape précise a changé reste dans le fichier de
+      // sa version, et s'ouvre depuis le parcours.
+      { cle: "change", bouton: "Modifications", fichier: "depuis-le-depot",
+        mode: "diff",
+        sous: "Du " + initiale.nom.toLowerCase() + " du " + quand(initiale)
+              + " au " + derniere.nom.toLowerCase() + " du " + quand(derniere)
+              + " — tout ce qui a changé en chemin" },
       // Espace insécable : sans elle, le bouton casse en « Version à / jour ».
-      { cle: "ajour", bouton: "Version \u00e0\u00a0jour", ref: derniere.ref, mode: "apres",
+      // Même fichier que « Modifications », et pour une raison de fond : le
+      // dernier document **ne réimprime pas** les articles déjà accordés, il
+      // écrit « (Conforme) ». Le texte à jour de ces articles est celui de la
+      // version qui les imprime, et c'est le socle qui va le chercher.
+      { cle: "ajour", bouton: "Version \u00e0\u00a0jour",
+        fichier: "depuis-le-depot", mode: "apres",
         sous: derniere.nom + ", " + quand(derniere)
               + " — le texte tel qu'il se lit aujourd'hui, sans les différences" });
   }
@@ -2788,7 +2824,7 @@ function blocTexte(uid, versions, plat) {
     sous.textContent = vue.sous;
     zone.textContent = "";
     zone.append(el("p", "avertissement", "Chargement…"));
-    const d = await versionLue(uid, vue.ref);
+    const d = await versionLue(uid, vue.fichier);
     // Un autre bouton a pu être touché pendant le chargement : ne pas écraser
     // ce qu'on regarde maintenant par ce qu'on regardait avant.
     if (sous.textContent !== vue.sous) return;
@@ -3997,6 +4033,10 @@ function carteAmendementsDeLArticle(liste) {
     if (qui) lien.append(el("span", "qui", qui));
     lien.append(el("span", "fleche", "↗"));
     ligne.append(lien);
+    // Où il a été adopté — en commission ou en séance. Il n'y a que dans la
+    // comparaison du parcours entier que la question se pose : une étape
+    // seule n'a qu'une réponse, déjà écrite au-dessus de la liste.
+    if (a.quand) ligne.append(el("span", "quand-amdt", "Adopté " + a.quand));
     // Le repère est un bouton, posé **à côté** du lien et non dedans : un
     // bouton dans un lien n'est pas du HTML valable, et le toucher ouvrirait
     // le site de l'Assemblée au lieu de l'explication.

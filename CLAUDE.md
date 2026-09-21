@@ -113,6 +113,23 @@ a pas encore d'application, de base de données ni de dépendances.
   de comparaison unique et fixe. Deux comparaisons, donc deux mots : **ne pas
   les aligner** en croyant réparer un oubli de vocabulaire (décidé le
   2026-09-20).
+- **L'onglet « Texte » compare le texte déposé à la version à jour, pas une
+  étape à la suivante** (corrigé le 2026-09-21). Les trois boutons promettent
+  cette comparaison-là, et c'est la question qu'on se pose. La version d'avant
+  ne montrait qu'une étape : sur la loi Ripost, la commission mixte paritaire
+  et ses 4 amendements, quand le texte en a vu 245 adoptés depuis son dépôt.
+  Le socle publie cette comparaison à part, dans
+  `versions/<uid>/depuis-le-depot.json`. **La comparaison d'une étape reste
+  dans le fichier de chaque version** et s'affiche depuis le parcours : deux
+  questions différentes, deux écrans, et ne pas les fondre.
+- **Un document tardif ne réimprime pas les articles déjà accordés : il écrit
+  « (Conforme) ».** Mesuré le 2026-09-21 : 23 articles sur 75 de la dernière
+  version étaient vides ou réduits à leur mention, et la comparaison les
+  montrait **entièrement supprimés**. `textes.version_a_jour` reprend leur
+  rédaction à la dernière version qui les imprime — suivre l'instruction de la
+  source, pas reconstituer du texte. Un « (Supprimé) » reste supprimé. La
+  mention « conforme » a rejoint `MENTION` : sans elle, l'article s'affichait
+  réduit à ce seul mot.
 - **« Plus discuté » n'est pas « controversé », et le repère de l'onglet
   « Texte » ne promet que ce qu'il compte** (mesuré le 2026-09-20). Sur les 967
   amendements dont on connaît à la fois le scrutin et le débat, la corrélation

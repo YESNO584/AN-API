@@ -346,6 +346,11 @@ NOM_DE_VERSION = (("BTC", "Texte de la commission"),
                   ("BTA", "Texte adopté par l'Assemblée"),
                   ("B", "Texte déposé"))
 
+# Qui a amendé le texte pour produire cette version. C'est la **forme du
+# document** qui le dit, et elle seule : un texte de commission sort d'une
+# commission, un texte adopté sort d'une séance.
+QUI_A_AMENDE = (("BTC", "en commission"), ("BTA", "en séance"))
+
 
 def nom_de_version(ref: str) -> str:
     sans_numero = ref.rstrip("0123456789")
@@ -353,6 +358,15 @@ def nom_de_version(ref: str) -> str:
         if sans_numero.endswith(forme):
             return nom
     return "Texte"
+
+
+def qui_a_amende(ref: str) -> str:
+    """« en commission » ou « en séance », d'après la version produite."""
+    sans_numero = ref.rstrip("0123456789")
+    for forme, quand in QUI_A_AMENDE:
+        if sans_numero.endswith(forme):
+            return quand
+    return "en cours de parcours"
 
 
 def ouvrir_textes() -> sqlite3.Connection | None:
@@ -536,13 +550,27 @@ def versions_du_texte(cx: sqlite3.Connection, textes_cx: sqlite3.Connection | No
 
 
 def comparaison_des_versions(cx: sqlite3.Connection, suite: list[dict],
-                             dossier_uid: str) -> list[dict]:
-    """Une version comparée à la précédente, avec ses amendements adoptés."""
+                             dossier_uid: str) -> tuple[list[dict], dict | None]:
+    """Chaque version comparée à la précédente, **et** le parcours entier.
+
+    Deux comparaisons, et elles ne répondent pas à la même question. Celle
+    d'une étape dit ce que cette réunion-là a changé ; celle du parcours dit ce
+    que le texte déposé est devenu — ce qu'on veut savoir quand on ouvre une
+    fiche. Le premier écran de la maquette montrait la dernière étape, qui pour
+    une loi arrivée au bout est la commission mixte paritaire : 4 amendements
+    sur la loi Ripost, quand le texte en a vu 245 adoptés depuis son dépôt.
+
+    La seconde est `None` quand le texte n'a qu'une version : il n'y a alors
+    aucun parcours à raconter. Dès deux versions elle existe, même quand elle
+    ressemble à l'unique étape — elle porte en plus le **texte à jour** des
+    articles que la dernière version ne réimprime pas.
+    """
     sortie = []
     # Cherchés une fois pour tout le texte : ils servent à chacune des
     # versions, et une fiche en compte jusqu'à cinq.
     votes = votes_par_amendement(cx, dossier_uid)
     debats = debats_par_amendement(cx, dossier_uid)
+    etapes = []
     for rang, version in enumerate(suite):
         avant = suite[rang - 1] if rang else None
         lignes = (textes_mod.comparer(avant["articles"], version["articles"])
@@ -554,6 +582,9 @@ def comparaison_des_versions(cx: sqlite3.Connection, suite: list[dict],
         index = (amendements_adoptes(cx, avant["ref"], votes, debats,
                                      (avant["date"], version["date"]))
                  if avant else {})
+        if avant:
+            etapes.append({"quand": qui_a_amende(version["ref"]), "index": index,
+                           "date": version["date"]})
         for ligne in lignes:
             ligne["amendements"] = textes_mod.amendements_de_l_article(index, ligne)
         sortie.append({
@@ -564,7 +595,28 @@ def comparaison_des_versions(cx: sqlite3.Connection, suite: list[dict],
             "resume": textes_mod.resume(lignes),
             "articles": lignes,
         })
-    return sortie
+
+    if len(suite) < 2:
+        return sortie, None
+
+    depose, jour = suite[0], suite[-1]
+    # **Le texte à jour n'est pas celui du dernier document.** Une version
+    # tardive ne réimprime pas les articles déjà accordés : elle écrit
+    # « (Conforme) ». Voir `textes.version_a_jour`.
+    articles_a_jour = textes_mod.version_a_jour([v["articles"] for v in suite])
+    lignes = textes_mod.comparer(depose["articles"], articles_a_jour)
+    for ligne in lignes:
+        ligne["amendements"] = textes_mod.amendements_du_parcours(etapes, ligne)
+    parcours = {
+        "ref": jour["ref"], "nom": jour["nom"], "date": jour["date"],
+        "etape": jour["etape"],
+        "precedent": {"ref": depose["ref"], "nom": depose["nom"],
+                      "date": depose["date"]},
+        "etapes": [{"quand": e["quand"], "date": e["date"]} for e in etapes],
+        "resume": textes_mod.resume(lignes),
+        "articles": lignes,
+    }
+    return sortie, parcours
 
 
 def articles_de_pure_forme(legi_cx: sqlite3.Connection | None) -> set[str]:
@@ -1105,11 +1157,20 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         # pèse jusqu'à 1,4 Mo — et la fiche ne porte que de quoi afficher la
         # ligne dans le parcours.
         suite = versions_du_texte(cx, textes_cx, parcours)
-        comparaisons = comparaison_des_versions(cx, suite, l["uid"]) if suite else []
+        comparaisons, depuis_le_depot = (
+            comparaison_des_versions(cx, suite, l["uid"]) if suite else ([], None))
         for comparaison in comparaisons:
             versions_ecrites += ecrire(
                 sortie / "versions" / l["uid"] / f'{comparaison["ref"]}.json',
                 {"genereLe": genere_le, **comparaison})
+        # Le parcours entier, dans son propre fichier : c'est ce que l'onglet
+        # « Texte » montre sous « Modifications » et sous « Version à jour »,
+        # et il n'a pas de version à lui. Il porte le texte à jour de chaque
+        # article, y compris de ceux que le dernier document ne réimprime pas.
+        if depuis_le_depot:
+            versions_ecrites += ecrire(
+                sortie / "versions" / l["uid"] / "depuis-le-depot.json",
+                {"genereLe": genere_le, **depuis_le_depot})
         # La colonne `description` de la base est la formule de la source : on
         # la republie sous son nom, et on libère la clé `description` pour la
         # rubrique écrite. Les laisser toutes deux sous le même nom revenait à

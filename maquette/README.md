@@ -260,10 +260,21 @@ L'onglet montre **trois choses, et pas une de plus**, entre lesquelles on
 choisit par **trois boutons côte à côte** :
 
 1. **Version déposée** — le texte qu'on a voulu faire voter ;
-2. **Modifications** — ce que la dernière version a changé, avec les
-   différences en vert et en rouge, la même comparaison que dans le parcours ;
-3. **Version à jour** — cette dernière version sans les différences, telle
-   qu'elle se lit aujourd'hui.
+2. **Modifications** — **tout ce qui a changé du texte déposé à la version à
+   jour**, avec les différences en vert et en rouge ;
+3. **Version à jour** — le même texte sans les différences, tel qu'il se lit
+   aujourd'hui.
+
+**Les trois boutons parlent des deux mêmes documents, et « Modifications » est
+la différence entre les deux autres.** Ce n'était pas le cas au début : la vue
+comparait la dernière version à celle qui la précède, donc **une seule étape**.
+Sur la loi Ripost, cette étape est la commission mixte paritaire, qui n'a que
+4 amendements, alors que le texte en a vu 245 adoptés depuis son dépôt — la vue
+laissait donc croire qu'il n'avait presque pas bougé. Corrigé le 2026-09-21.
+
+Pour voir ce qu'une étape précise a changé, le parcours reste là : chaque
+version s'y ouvre avec sa propre comparaison. Deux questions différentes, deux
+écrans.
 
 C'est la même bascule que pour un article de loi : un seul geste à apprendre
 pour choisir ce qu'on regarde. Les mots, eux, diffèrent, et **ce n'est pas un
@@ -278,14 +289,39 @@ Sous les boutons, une ligne rappelle **quelle version on lit et de quand** —
 sans elle, trois libellés courts laisseraient croire qu'on lit toujours le même
 document.
 
+##### « (Conforme) » : la dernière version ne réimprime pas tout
+
+**Un document tardif n'imprime pas les articles sur lesquels les deux chambres
+se sont déjà accordées : il écrit « (Conforme) » à leur place.** Mesuré le
+2026-09-21 : **23 articles sur 75** de la dernière version étaient vides ou
+réduits à cette mention. Comparés au texte déposé, ils s'affichaient
+**entièrement supprimés** — l'inverse exact de ce que la source dit, et sur un
+article en trois.
+
+La rédaction de ces articles est donc reprise **à la dernière version qui les
+imprime**. Ce n'est pas reconstituer du texte : c'est suivre l'instruction que
+la source écrit noir sur blanc. Un article « (Supprimé) », lui, reste supprimé —
+c'est un vrai changement. Après correction, les seuls articles qui n'ont plus
+rien de commun avec leur homonyme du dépôt sont ceux-là.
+
+C'est aussi pourquoi « Version à jour » lit **le même fichier** que
+« Modifications » : le texte à jour d'un article conforme n'est pas dans le
+dernier document.
+
 ##### Les amendements qui ont fait la modification, et lequel a été disputé
 
 Dans la vue « Modifications », et dans elle seule, chaque article changé porte
-**les amendements adoptés qui l'ont changé** : leur numéro, leur auteur, son
-groupe. Les deux autres vues montrent un texte, pas une transformation — une
-liste d'amendements n'y voudrait rien dire. Le rapprochement se fait par le
-numéro d'article, **jamais par le texte** : la page dit lesquels ont été
-adoptés sur cet article, jamais quel mot vient de quel amendement.
+**les amendements adoptés qui l'ont changé, de toutes les étapes** : leur
+numéro, leur auteur, son groupe, et **où ils ont été adoptés** — « Adopté en
+commission », « Adopté en séance ». Les deux autres vues montrent un texte, pas
+une transformation — une liste d'amendements n'y voudrait rien dire.
+
+Le rapprochement se fait par le numéro d'article, **jamais par le texte** : la
+page dit lesquels ont été adoptés sur cet article, jamais quel mot vient de quel
+amendement. Couvrir tout le parcours ajoute **une hypothèse** — qu'un numéro
+d'article désigne le même article du dépôt à aujourd'hui — et l'écran le dit.
+La mention de l'étape est là pour ça : elle empêche de lire la liste comme un
+changement d'un seul coup.
 
 Certains portent un repère : « **!** Adopté de justesse, après un long
 échange ». Il tombe quand **deux conditions mesurées** sont réunies — le

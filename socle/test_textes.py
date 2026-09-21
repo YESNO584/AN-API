@@ -237,6 +237,125 @@ class Amendements(unittest.TestCase):
         self.assertEqual(textes.amendements_de_l_article(self.index, self.ligne("4")), [])
 
 
+class LeTexteAJour(unittest.TestCase):
+    """Une version tardive ne réimprime pas ce qui est déjà accordé.
+
+    Mesuré le 2026-09-21 : 23 articles sur 75 de la dernière version étaient
+    vides ou réduits à leur mention. Les comparer au texte déposé les montrait
+    entièrement supprimés — l'inverse de ce que la source dit.
+    """
+
+    def test_un_article_conforme_reprend_sa_redaction_d_avant(self):
+        suite = [{"Article 2 bis": "L’article L. 211-7 est ainsi modifié."},
+                 {"Article 2 bis": "(Conforme)"}]
+        self.assertEqual(textes.version_a_jour(suite),
+                         {"Article 2 bis": "L’article L. 211-7 est ainsi modifié."})
+
+    def test_un_article_non_modifie_aussi(self):
+        suite = [{"Article 4": "Le premier alinéa est complété."},
+                 {"Article 4": "(Non modifié)"}]
+        self.assertEqual(textes.version_a_jour(suite)["Article 4"],
+                         "Le premier alinéa est complété.")
+
+    def test_un_article_supprime_ne_revient_pas(self):
+        """« Supprimé » est un vrai changement, pas une absence d'impression."""
+        suite = [{"Article 6": "Le code de la santé publique est ainsi modifié."},
+                 {"Article 6": "(Supprimé)"}]
+        self.assertEqual(textes.version_a_jour(suite)["Article 6"], "(Supprimé)")
+
+    def test_la_redaction_reprise_est_la_plus_recente(self):
+        suite = [{"Article 3": "au dépôt"},
+                 {"Article 3": "en commission"},
+                 {"Article 3": "(Conforme)"}]
+        self.assertEqual(textes.version_a_jour(suite)["Article 3"], "en commission")
+
+    def test_un_article_qui_porte_du_texte_n_est_pas_touche(self):
+        suite = [{"Article 1er": "au dépôt"}, {"Article 1er": "réécrit en séance"}]
+        self.assertEqual(textes.version_a_jour(suite)["Article 1er"],
+                         "réécrit en séance")
+
+    def test_un_article_que_la_derniere_version_ne_cite_plus_n_est_pas_inventé(self):
+        """`comparer` le dira retiré ; ce n'est pas à cette règle-ci de le
+        faire revenir."""
+        suite = [{"Article 9": "au dépôt", "Article 1er": "a"},
+                 {"Article 1er": "a"}]
+        self.assertEqual(sorted(textes.version_a_jour(suite)), ["Article 1er"])
+
+    def test_un_conforme_sans_redaction_d_avant_reste_tel_quel(self):
+        """On n'invente pas un texte que la source n'a jamais imprimé."""
+        suite = [{"Article 7": "(Conforme)"}, {"Article 7": "(Conforme)"}]
+        self.assertEqual(textes.version_a_jour(suite)["Article 7"], "(Conforme)")
+
+    def test_sans_version_il_n_y_a_rien_a_jour(self):
+        self.assertEqual(textes.version_a_jour([]), {})
+
+    def test_la_mention_conforme_n_est_pas_du_texte_de_loi(self):
+        """Sans cet ajout, l'article s'affichait réduit au mot « (Conforme) »."""
+        self.assertEqual(textes.etat("Article 2 bis", "(Conforme)"), "conforme")
+        self.assertEqual(textes.sans_mention("(Conforme) Le reste du texte."),
+                         "Le reste du texte.")
+
+
+class AmendementsDuParcours(unittest.TestCase):
+    """Tous les amendements adoptés sur un article, du dépôt à aujourd'hui.
+
+    L'onglet « Texte » compare le texte déposé à la version à jour : il lui
+    faut les amendements de **toutes** les étapes, chacun disant laquelle.
+    """
+
+    def etapes(self):
+        return [
+            {"quand": "en commission",
+             "index": textes.amendements_du_document([
+                 amendement("Article PREMIER", numero="CL12"),
+                 amendement("Article 3", numero="CL55"),
+                 amendement("Article PREMIER", ou="Après", numero="CL80")])},
+            {"quand": "en séance",
+             "index": textes.amendements_du_document([
+                 amendement("Article 3", numero="885"),
+                 amendement("Article 3", numero="181")])},
+        ]
+
+    def ligne(self, numero, quoi="modifie"):
+        return {"numero": numero, "quoi": quoi}
+
+    def test_les_deux_etapes_se_cumulent_dans_l_ordre(self):
+        trouves = textes.amendements_du_parcours(self.etapes(), self.ligne("3"))
+        self.assertEqual([(a["numero"], a["quand"]) for a in trouves],
+                         [("CL55", "en commission"), ("885", "en séance"),
+                          ("181", "en séance")])
+
+    def test_chaque_amendement_dit_ou_il_a_ete_adopte(self):
+        """Sans cette mention, la liste laisserait croire à un changement
+        d'un seul coup alors que la commission et la séance y ont chacune mis
+        la main."""
+        trouves = textes.amendements_du_parcours(self.etapes(), self.ligne("1er"))
+        self.assertEqual([(a["numero"], a["quand"]) for a in trouves],
+                         [("CL12", "en commission")])
+
+    def test_un_article_ne_du_parcours_garde_la_regle_du_voisin(self):
+        """« 1er bis » naît d'un amendement déposé **après** l'article 1er, et
+        la règle vaut à chaque étape comme pour une seule."""
+        trouves = textes.amendements_du_parcours(self.etapes(),
+                                                 self.ligne("1er bis", "nouveau"))
+        self.assertEqual([a["numero"] for a in trouves], ["CL80"])
+
+    def test_un_article_qu_aucune_etape_n_a_touche_rend_une_liste_vide(self):
+        self.assertEqual(
+            textes.amendements_du_parcours(self.etapes(), self.ligne("9")), [])
+
+    def test_sans_etape_il_n_y_a_rien_a_cumuler(self):
+        self.assertEqual(textes.amendements_du_parcours([], self.ligne("3")), [])
+
+    def test_l_amendement_d_origine_n_est_pas_modifie(self):
+        """`quand` s'ajoute ; le reste de l'amendement reste celui de la
+        source, et l'index d'une étape n'est pas abîmé au passage."""
+        etapes = self.etapes()
+        textes.amendements_du_parcours(etapes, self.ligne("3"))
+        garde = etapes[1]["index"][("3", "A")][0]
+        self.assertNotIn("quand", garde)
+
+
 class Recuperation(unittest.TestCase):
     """Ce qui se lit, ce qui se garde, et ce qui s'arrête à l'heure."""
 

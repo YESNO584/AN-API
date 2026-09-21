@@ -295,12 +295,14 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 | | |
 |---|---|
 | Les trois boutons (« Version déposée », « Modifications », « Version à jour ») | **N** |
+| Le texte d'un article que la dernière version n'imprime pas (« (Conforme) ») | **S** — repris mot pour mot à la dernière version qui l'imprime, parce que c'est ce que la mention dit. Rien n'est reconstitué |
+| « Adopté en commission », « Adopté en séance » | **C** — d'après la forme du document produit, `BTC` ou `BTA` |
 | La ligne sous les boutons (« Texte adopté par l'Assemblée, 29 janvier 2026 — … ») | **S** pour le nom de la version et sa date, **N** pour la phrase qui suit |
 | Leur date | **S** |
 | **Le texte des articles** | **S**, **mot pour mot** — c'est le document publié par l'Assemblée, rien n'est reformulé |
 | Le vert et le rouge des différences | **C** — comparaison mot à mot entre deux versions de la source, la même que celle du parcours |
 | « Modifié », « Nouveau », « Retiré », « Inchangé » | **C** — notre lecture de la comparaison |
-| **Les amendements adoptés sous chaque article changé** (vue « Modifications ») | **S** — numéro, auteur, groupe. Le rapprochement à l'article, lui, est **C** |
+| **Les amendements adoptés sous chaque article changé** (vue « Modifications ») | **S** — numéro, auteur, groupe, **toutes étapes confondues**. Le rapprochement à l'article, lui, est **C**, et il suppose qu'un numéro d'article désigne le même article du dépôt à aujourd'hui |
 | « **!** Adopté de justesse, après un long échange » | **C** — un seuil posé sur deux chiffres de la source, jamais une appréciation. Voir ci-dessous |
 | « 39 pour, 37 contre · 15 orateurs » | **S** pour le scrutin, **C** pour le compte d'orateurs |
 | L'ordre des amendements sous un article | **C** — les plus documentés d'abord, puis l'ordre de la source |

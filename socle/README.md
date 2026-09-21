@@ -423,6 +423,32 @@ jusqu'à 19 510 amendements :
 Le dispositif, lui, est toujours complet : c'est la partie qui dit ce que
 l'amendement fait. Le compte réel est publié à côté, jamais masqué.
 
+### Le texte à jour n'est pas celui du dernier document
+
+**Un document tardif ne réimprime pas les articles sur lesquels les deux
+chambres se sont déjà accordées : il écrit « (Conforme) » à leur place.**
+Mesuré le 2026-09-21 : **23 articles sur 75** de la dernière version étaient
+vides ou réduits à leur mention. Comparés au texte déposé, ils sortaient
+**entièrement supprimés** — l'inverse de ce que la source dit.
+
+`textes.version_a_jour` reprend donc leur rédaction **à la dernière version qui
+les imprime**. Ce n'est pas reconstituer du texte : c'est suivre l'instruction
+que la source écrit. Un article « (Supprimé) » reste supprimé, et un article
+qu'une version tardive ne cite plus du tout n'est pas ressuscité — `comparer`
+le dira retiré.
+
+La mention « (Conforme) » **n'était pas reconnue** avant cette date : elle
+restait dans le corps de l'article, qui s'affichait donc réduit à ce seul mot.
+Elle a rejoint `MENTION` avec « nouveau », « supprimé » et « non modifié ».
+
+Cette comparaison-là — **du texte déposé à la version à jour** — est publiée à
+part, dans `versions/<uid>/depuis-le-depot.json`, et c'est elle que l'onglet
+« Texte » affiche. La comparaison d'une étape à la suivante reste dans le
+fichier de chaque version : ce sont deux questions différentes. Chaque
+amendement de la comparaison du parcours porte **l'étape où il a été adopté**,
+que la forme du document donne — un texte de commission sort d'une commission,
+un texte adopté sort d'une séance.
+
 ### Combien de monde a parlé d'un amendement
 
 L'onglet « Texte » d'une fiche montre, sous chaque article changé, les
