@@ -306,6 +306,10 @@ La **valeur** montrée en haut de cette fenêtre vient toujours des données.
 | « **!** Adopté de justesse, après un long échange » | **C** — un seuil posé sur deux chiffres de la source, jamais une appréciation. Voir ci-dessous |
 | « 39 pour, 37 contre · 15 orateurs » | **S** pour le scrutin, **C** pour le compte d'orateurs |
 | L'ordre des amendements sous un article | **C** — les plus documentés d'abord, puis l'ordre de la source |
+| La fiche d'un amendement : dispositif, exposé sommaire, auteur, groupe | **S**, mot pour mot. L'exposé y est entier, jamais coupé |
+| Le vert et le rouge du dispositif | **C** — la coloration ne marque que ce que la source met elle-même entre guillemets |
+| « 15 personnes ont pris la parole sur cet amendement, en 58 paragraphes » | **C** — un compte, jamais les phrases |
+| « Vote sur l'amendement n° 885 (rect.) », dans le parcours | **S** — le numéro est celui que l'objet du scrutin imprime |
 | « Le texte de ce projet ou de cette proposition n'est pas publié ici… » | **N** |
 
 **Le repère « Adopté de justesse, après un long échange » est un calcul, pas

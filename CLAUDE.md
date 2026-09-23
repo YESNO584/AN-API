@@ -130,6 +130,17 @@ a pas encore d'application, de base de données ni de dépendances.
   source, pas reconstituer du texte. Un « (Supprimé) » reste supprimé. La
   mention « conforme » a rejoint `MENTION` : sans elle, l'article s'affichait
   réduit à ce seul mot.
+- **Chaque amendement adopté a sa fiche, dans son propre fichier.**
+  `amendements/<uid>/<amendement>.json` — 12 521 fichiers, **2 Ko de médiane**.
+  Un fichier par *texte* a été essayé et rejeté : 4,5 Mo au pire, et le prix
+  d'une fiche ne doit pas dépendre du texte dont elle vient. C'est ce qui
+  permet de se passer du plafond de 150 amendements par texte, qui ne vaut que
+  pour la liste de l'onglet « Amendements ». Seuls les **adoptés** en ont une.
+- **L'adresse d'un amendement sur le site de l'Assemblée est son identifiant
+  entier, « AM » compris** (vérifié le 2026-09-23 : l'adresse amputée répond
+  404, la complète répond 200). Et `.fleche` est le **bouton rond** du
+  parcours : la donner à une flèche de lien lui met un cercle de 1,6 rem autour
+  d'un signe de 0,75 rem.
 - **« Plus discuté » n'est pas « controversé », et le repère de l'onglet
   « Texte » ne promet que ce qu'il compte** (mesuré le 2026-09-20). Sur les 967
   amendements dont on connaît à la fois le scrutin et le débat, la corrélation

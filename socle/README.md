@@ -15,7 +15,7 @@ lire aucune donnée.
 | `serveur.py` | Sert la base en direct. **Outil de développement local**, pas ce qui tourne en production |
 | `schema.sql` | Le modèle de données |
 | `test_extraction.py` | 136 tests sur les règles de lecture |
-| `test_publier.py` | 12 tests sur le rattachement d'un scrutin et d'un débat à un amendement adopté |
+| `test_publier.py` | 17 tests sur le rattachement d'un scrutin et d'un débat à un amendement adopté, et sur sa fiche |
 | `legi.py` | Lit le droit consolidé et compare deux rédactions d'un article. **Ne télécharge rien, n'écrit nulle part.** |
 | `recuperer_legi.py` | Va chercher, dans le droit consolidé, ce que nos lois y ont changé. Écrit dans `legi.db` |
 | `test_legi.py` | 86 tests sur ces règles-là |
@@ -448,6 +448,28 @@ fichier de chaque version : ce sont deux questions différentes. Chaque
 amendement de la comparaison du parcours porte **l'étape où il a été adopté**,
 que la forme du document donne — un texte de commission sort d'une commission,
 un texte adopté sort d'une séance.
+
+### La fiche d'un amendement : un fichier par amendement
+
+L'onglet « Texte » relie chaque article changé aux amendements qui l'ont
+changé ; toucher l'un d'eux ouvre sa fiche — ce qu'il fait mot pour mot, ce que
+son auteur en dit, qui a voté quoi, combien de monde en a parlé.
+
+**Un fichier par amendement, et le choix est mesuré.**
+`amendements/<uid>.json` sert la liste de l'onglet : plafonnée à 150 par texte,
+l'exposé coupé à 400 caractères. Un fichier par **texte** ne convenait pas —
+238 fichiers, 25 Ko de médiane mais **4,5 Mo au pire**, et le prix d'une fiche
+ne doit pas dépendre du texte dont elle vient. Un fichier par amendement pèse
+**2 Ko de médiane**, 5 Ko au neuvième décile, et on n'en demande qu'un :
+`amendements/<uid>/<amendement>.json`, 12 521 fichiers, 33,8 Mo en tout.
+
+Seuls les **adoptés** en ont une, et seulement s'ils portent un dispositif :
+ce sont eux que l'onglet « Texte » relie à un article, et un amendement rejeté
+n'a pas de fiche à ouvrir. Vérifié : les 2 226 amendements que les
+comparaisons de versions citent ont tous leur fiche.
+
+L'exposé sommaire y est **entier** : c'est le fond de l'écran, et le couper
+reviendrait à choisir ce qui compte.
 
 ### Combien de monde a parlé d'un amendement
 

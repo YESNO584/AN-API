@@ -513,24 +513,40 @@
            margin-bottom: .6rem; background: var(--carte); }
   .amdts .chapeau { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em;
                     color: var(--accent); font-weight: 620; margin-bottom: .35rem; }
-  .amdts a { display: flex; align-items: center; gap: .4rem; text-decoration: none;
-             color: inherit; padding: .22rem 0; font-size: .8rem; }
   .amdts i { width: .3rem; height: .95rem; border-radius: 2px; flex: 0 0 auto;
              background: var(--trait-fort); }
   .amdts .num { font-weight: 620; flex: 0 0 auto; }
   .amdts .qui { color: var(--gris); min-width: 0; overflow: hidden;
                 text-overflow: ellipsis; white-space: nowrap; }
-  .amdts .fleche { margin-left: auto; color: var(--faible); font-size: .75rem; }
+  /* La flèche d'un lien sortant, et **pas** le bouton rond `.fleche` du
+     parcours : porter sa classe lui donnait un cercle de 1,6 rem autour d'un
+     signe de 0,75 rem, décentré. */
+  .sortant { color: var(--faible); font-size: .75rem; flex: 0 0 auto; }
+  /* La ligne d'un amendement dans la liste d'un article. Sa classe n'est plus
+     `.amdt` : c'était celle de la **carte** d'un amendement, qui lui posait un
+     cadre et un fond dont elle n'a que faire. */
+  .amdts .rang-amdt { padding: .15rem 0; }
+  .amdts .rang-amdt + .rang-amdt { border-top: 1px solid var(--trait);
+                                   margin-top: .15rem; padding-top: .3rem; }
+  .amdts .vers-amdt { display: flex; align-items: center; gap: .4rem; width: 100%;
+                      padding: .3rem 0; font: inherit; font-size: .8rem;
+                      text-align: left; color: inherit; background: none;
+                      border: 0; cursor: pointer; }
+  .amdts .vers-amdt:active .num { color: var(--accent); }
+  .amdts .vers-amdt .chevron { margin-left: auto; color: var(--faible);
+                               font-size: 1.1rem; line-height: 1; }
   .amdts .rien { font-size: .78rem; color: var(--faible); line-height: 1.4; }
   /* Un amendement tient sur deux lignes quand il a été débattu : le lien
      au-dessus, le repère et ses chiffres en dessous. Le trait sépare deux
      amendements voisins, que leurs deux lignes rendraient sinon illisibles. */
-  .amdts .amdt + .amdt { border-top: 1px solid var(--trait); margin-top: .15rem;
-                         padding-top: .15rem; }
-  .amdts .etiq.dispute { color: var(--accent); background: var(--accent-doux);
-                         border-color: currentColor; font-size: .72rem;
-                         margin: .1rem 0 .25rem; }
-  .amdts .etiq.dispute b { font-weight: 700; margin-right: .25rem; }
+  /* La pastille sert à deux endroits : sous un article de l'onglet « Texte »,
+     où elle porte sa phrase, et sur une ligne de vote du parcours, où elle se
+     réduit au « ! » faute de place. */
+  .etiq.dispute { color: var(--accent); background: var(--accent-doux);
+                  border-color: currentColor; font-size: .72rem; }
+  .etiq.dispute b { font-weight: 700; }
+  .amdts .etiq.dispute { margin: .1rem 0 .25rem; }
+  .amdts .etiq.dispute b { margin-right: .25rem; }
   .amdts .chiffres-amdt { display: block; font-size: .72rem; color: var(--gris);
                           padding-left: .7rem; margin-bottom: .2rem; }
   .amdts .quand-amdt { display: block; font-size: .72rem; color: var(--faible);
@@ -2444,14 +2460,38 @@ function ligneParcours(e) {
   return li;
 }
 
+// Le numéro que l'objet d'un scrutin nomme : « l'amendement n° 885 (rect.) du
+// Gouvernement à l'article 3 du projet de loi… ». Le premier nommé seulement —
+// un objet qui ajoute « et les amendements identiques suivants » ne dit pas
+// lesquels.
+const NUMERO_D_AMENDEMENT = /(l['’]amendement|le sous-amendement)\s+n°\s*(\d+(?:\s*\(rect[^)]*\))?)/i;
+
 function ligneVoteParcours(v) {
   const li = el("li");
   const d = el("details");
   const tete = el("summary", "rang");
   tete.append(el("span", "j", dateCourte.format(enDate(v.date))));
   const q = el("div", "q");
-  q.append(el("b", null, (PORTEES[v.portee] || ["Vote"])[0]));
+  // « Vote sur l'amendement n° 885 » plutôt que « Vote sur un amendement » :
+  // une fiche en compte jusqu'à 290, et sans le numéro elles se ressemblent
+  // toutes. Le numéro vient de l'objet du scrutin, mot pour mot.
+  const nomme = v.portee === "amendement"
+    ? (v.objet || "").match(NUMERO_D_AMENDEMENT) : null;
+  // Avec un numéro, le libellé devient précis — « Vote sur l'amendement
+  // n° 885 » — et l'article indéfini de `PORTEES` n'a plus lieu d'être.
+  q.append(el("b", null, nomme
+    ? "Vote sur " + nomme[1].toLowerCase() + " n° " + nomme[2].replace(/\s+/g, " ")
+    : (PORTEES[v.portee] || ["Vote"])[0]));
   const ch = el("div", "ch");
+  // La même pastille que dans l'onglet « Texte », aux mêmes deux conditions.
+  // Le compte des orateurs est publié sur le scrutin lui-même, rattaché par
+  // le socle — la page ne rapproche rien.
+  if (estDebattu({ vote: { ecart: ecartDuVote(v) }, debat: v.debat })) {
+    const marque = etiquette("dispute", "", EXPLICATIONS.amendementDebattu,
+                             nomme ? "n° " + nomme[2] : v.objet);
+    marque.append(el("b", null, "!"));
+    ch.append(marque);
+  }
   ch.append(etiquette(v.sort === "adopté" ? "promulguee" : "arrete",
                       v.sort === "adopté" ? "Adopté" : "Rejeté",
                       EXPLICATIONS.conclusion,
@@ -2697,7 +2737,7 @@ function carteParole(p) {
    la version déposée ne vient d'aucun amendement. */
 const A_CHANGE = new Set(["modifie", "nouveau", "retire"]);
 
-function articlesDeLaVersion(d, mode) {
+function articlesDeLaVersion(d, mode, uid) {
   const zone = el("div");
   const tous = (d.articles || []).flatMap((a) => a.morceaux || []);
   if (mode === "diff" && tous.length) {
@@ -2729,7 +2769,7 @@ function articlesDeLaVersion(d, mode) {
     // ce qui a changé : les deux autres montrent un texte, pas une
     // transformation, et une liste d'amendements n'y voudrait rien dire.
     if (mode === "diff" && A_CHANGE.has(a.quoi)) {
-      zone.append(carteAmendementsDeLArticle(a.amendements || []));
+      zone.append(carteAmendementsDeLArticle(a.amendements || [], uid));
     }
     zone.append(texteCompare(a.morceaux, mode, a.texte));
   }
@@ -2829,7 +2869,7 @@ function blocTexte(uid, versions, plat) {
     // ce qu'on regarde maintenant par ce qu'on regardait avant.
     if (sous.textContent !== vue.sous) return;
     zone.textContent = "";
-    zone.append(d ? articlesDeLaVersion(d, vue.mode)
+    zone.append(d ? articlesDeLaVersion(d, vue.mode, uid)
                   : el("p", "avertissement", "Texte indisponible."));
   };
 
@@ -3976,8 +4016,16 @@ const ECART_DEBATTU = 0.10;
 const ORATEURS_DEBATTU = 8;
 
 const estDebattu = (a) => Boolean(
-  a.vote && a.debat && a.vote.ecart < ECART_DEBATTU
+  a.vote && a.debat && a.vote.ecart != null && a.vote.ecart < ECART_DEBATTU
   && a.debat.orateurs >= ORATEURS_DEBATTU);
+
+// L'écart d'un scrutin, en part des suffrages exprimés : un 39 contre 37 et un
+// 390 contre 370 se lisent pareil. Le socle le calcule déjà pour un amendement
+// rattaché à un article ; le parcours, lui, part du scrutin brut.
+function ecartDuVote(v) {
+  const exprimes = (v.pour || 0) + (v.contre || 0);
+  return exprimes ? Math.abs(v.pour - v.contre) / exprimes : null;
+}
 
 /* L'ordre d'affichage : ce qu'on sait le plus, d'abord. Les amendements dont
    on ne sait rien gardent l'ordre de la source — un tri stable ne les
@@ -4002,7 +4050,7 @@ function amendementsClasses(liste) {
     .map(([a]) => a);
 }
 
-function carteAmendementsDeLArticle(liste) {
+function carteAmendementsDeLArticle(liste, uid) {
   const boite = el("div", "amdts");
   if (!liste.length) {
     boite.append(el("p", "rien",
@@ -4017,22 +4065,27 @@ function carteAmendementsDeLArticle(liste) {
     + `adopté${liste.length > 1 ? "s" : ""}`
     + (debattus ? ` — ${nb.format(debattus)} débattu${debattus > 1 ? "s" : ""}` : "")));
   for (const a of classes) {
-    const ligne = el("div", "amdt");
-    const lien = el("a");
-    lien.href = "https://www.assemblee-nationale.fr/dyn/17/amendements/"
-                + a.uid.replace(/^AM/, "");
-    lien.target = "_blank"; lien.rel = "noopener";
+    const ligne = el("div", "rang-amdt");
+    // **La ligne mène à la fiche de l'amendement, pas au site de
+    // l'Assemblée.** Le lien sortant y est, dans la fiche : un seul geste, une
+    // seule destination, et le texte de l'amendement s'ouvre sans quitter
+    // l'application.
+    const bouton = el("button", "vers-amdt");
+    bouton.type = "button";
     const teinte = el("i");
     if (a.couleur) teinte.style.background = a.couleur;
-    lien.append(teinte, el("span", "num", "n° " + a.numero));
+    bouton.append(teinte, el("span", "num", "n° " + a.numero));
     // Un amendement du Gouvernement n'a pas de député pour auteur : sa ligne
     // dirait « n° 885 » et rien d'autre. La source nomme son type d'auteur,
     // et c'est ce qu'on affiche à la place.
     const qui = [a.nom, a.sigle].filter(Boolean).join(" · ")
                 || (a.typeAuteur === "Député" ? "" : a.typeAuteur || "");
-    if (qui) lien.append(el("span", "qui", qui));
-    lien.append(el("span", "fleche", "↗"));
-    ligne.append(lien);
+    if (qui) bouton.append(el("span", "qui", qui));
+    bouton.append(el("span", "chevron", "›"));
+    bouton.addEventListener("click", () => {
+      location.hash = `#/amendement/${uid}/${a.uid}`;
+    });
+    ligne.append(bouton);
     // Où il a été adopté — en commission ou en séance. Il n'y a que dans la
     // comparaison du parcours entier que la question se pose : une étape
     // seule n'a qu'une réponse, déjà écrite au-dessus de la liste.
@@ -4103,7 +4156,9 @@ async function ouvrirVersion(uid, ref) {
       tete.append(el("span", "quoi", "La source dit : " + a.etat));
     }
     f.append(tete);
-    if (A_CHANGE.has(a.quoi)) f.append(carteAmendementsDeLArticle(a.amendements || []));
+    if (A_CHANGE.has(a.quoi)) {
+      f.append(carteAmendementsDeLArticle(a.amendements || [], uid));
+    }
     f.append(texteCompare(a.morceaux, "diff", a.texte));
   }
 
@@ -4112,6 +4167,124 @@ async function ouvrirVersion(uid, ref) {
     + "lesquels ont été adoptés sur cet article, jamais quel mot vient de quel "
     + "amendement — il faudrait pour cela interpréter l'instruction de "
     + "l'amendement, et le texte affiché ne serait plus celui de la source."));
+}
+
+/* ------------------------------------------------------------------ *
+ * La fiche d'un amendement adopté
+ *
+ * Ce qu'il fait mot pour mot, ce que son auteur en dit, qui a voté quoi, et
+ * combien de monde en a parlé. **Un fichier par amendement**, demandé à
+ * l'ouverture : deux kilo-octets de médiane, et on n'en demande qu'un — le
+ * prix d'une fiche ne dépend pas du texte dont elle vient.
+ *
+ * Seuls les amendements **adoptés** en ont une : ce sont eux que l'onglet
+ * « Texte » relie à un article. Un amendement rejeté reste dans la liste de
+ * l'onglet « Amendements », sans fiche à ouvrir.
+ * ------------------------------------------------------------------ */
+
+async function ouvrirAmendement(uid, amdt) {
+  const f = ouvrirEcran();
+  const retour = boutonRetour("#/texte/" + uid, "Retour au texte");
+  f.append(retour, el("p", "avertissement", "Chargement de l'amendement…"));
+
+  let a;
+  try {
+    a = await lire(`amendements/${uid}/${amdt}.json`, true);
+  } catch (e) {
+    f.textContent = "";
+    f.append(retour, el("div", "vide", "Amendement indisponible : " + e.message));
+    return;
+  }
+  f.textContent = "";
+  f.append(retour);
+  f.append(el("h2", "fiche-titre", "Amendement n° " + (a.numero || "—")));
+  const situe = [a.article, a.sort,
+                 a.date_depot ? "déposé le " + dateLongue.format(enDate(a.date_depot)) : ""]
+    .filter(Boolean).join(" · ");
+  f.append(el("p", "fiche-sous", situe));
+
+  // Son auteur : un député avec sa photo et son groupe, ou le type que la
+  // source nomme — « Gouvernement », « Commission ».
+  if (a.nom) {
+    f.append(personne({ civilite: a.civilite, prenom: a.prenom, nom: a.nom,
+                        photo: a.photo, sigle: a.sigle, nom_groupe: a.nom_groupe,
+                        couleur: a.couleur }, "Auteur de l'amendement"));
+  } else if (a.type_auteur) {
+    const b = bloc("Auteur de l'amendement", false, true);
+    b.append(el("p", "disp", a.type_auteur));
+    f.append(b);
+  }
+
+  if (estDebattu(a)) {
+    const l = el("div", "lignes");
+    const marque = etiquette("dispute", "", EXPLICATIONS.amendementDebattu,
+                             "n° " + a.numero);
+    marque.append(el("b", null, "!"),
+                  document.createTextNode("Adopté de justesse, après un long échange"));
+    l.append(marque);
+    f.append(l);
+  }
+
+  // Ce que l'amendement fait, mot pour mot. **Rien n'est reconstitué** : la
+  // coloration ne marque que ce que la source met elle-même entre guillemets.
+  const quoi = bloc("Ce que l'amendement fait", false, true);
+  quoi.append(el("p", "avertissement",
+    "Un amendement n'est pas une version modifiée du texte : c'est une "
+    + "instruction, reproduite ici mot pour mot. En vert ce qu'il ajoute, en "
+    + "rouge barré ce qu'il retire — d'après sa propre formulation."));
+  const disp = el("p", "disp");
+  for (const m of a.morceaux || []) {
+    if (m.role === "neutre") disp.append(document.createTextNode(m.texte));
+    else disp.append(el("span", m.role, "« " + m.texte + " »"));
+  }
+  if (!(a.morceaux || []).length) disp.textContent = a.dispositif || "";
+  quoi.append(disp);
+  f.append(quoi);
+
+  if (a.expose) {
+    const e = bloc("Ce que son auteur en dit", false, true);
+    e.append(el("p", "expose", a.expose));
+    f.append(e);
+  }
+
+  // Le scrutin, groupe par groupe — le même dessin que partout ailleurs.
+  if (a.vote) {
+    const v = bloc(`Le vote — ${nb.format(a.vote.pour)} pour, `
+                   + `${nb.format(a.vote.contre)} contre`, false, true);
+    v.append(groupesDuVote({ ...a.vote, objet: a.vote.objet || situe }));
+    f.append(v);
+  } else {
+    const v = bloc("Le vote", false, true);
+    v.append(el("p", "avertissement",
+      "Aucun scrutin public sur cet amendement. C'est le cas le plus "
+      + "fréquent : 97 % des amendements adoptés le sont à main levée, sans "
+      + "qu'aucun décompte de voix soit enregistré."));
+    f.append(v);
+  }
+
+  // Le débat : un compte, jamais les phrases. Les rapprocher d'un amendement
+  // demanderait de trancher des cas que la source ne tranche pas.
+  if (a.debat) {
+    const d = bloc("Le débat en séance", false, true);
+    d.append(el("p", "disp",
+      `${nb.format(a.debat.orateurs)} personne`
+      + `${a.debat.orateurs > 1 ? "s ont" : " a"} pris la parole sur cet `
+      + `amendement, en ${nb.format(a.debat.paragraphes)} paragraphes de `
+      + `compte rendu.`));
+    d.append(el("p", "avertissement",
+      "Le projet compte les orateurs, il ne recopie pas ce qu'ils ont dit : "
+      + "rattacher une phrase à un amendement demanderait de trancher des cas "
+      + "que la source ne tranche pas. Le compte rendu entier est sur le site "
+      + "de l'Assemblée."));
+    f.append(d);
+  }
+
+  const liens = el("div", "liens");
+  const lien = el("a", "etiq lien", "Voir l'amendement sur assemblee-nationale.fr");
+  lien.href = "https://www.assemblee-nationale.fr/dyn/17/amendements/" + a.uid;
+  lien.target = "_blank"; lien.rel = "noopener";
+  liens.append(lien);
+  f.append(liens);
 }
 
 /* ------------------------------------------------------------------ *
@@ -4705,6 +4878,8 @@ function router() {
   if (change) return ouvrirChangements(change[1]);
   const version = location.hash.match(/^#\/version\/([\w-]+)\/([\w-]+)$/);
   if (version) return ouvrirVersion(version[1], version[2]);
+  const amendement = location.hash.match(/^#\/amendement\/([\w-]+)\/([\w-]+)$/);
+  if (amendement) return ouvrirAmendement(amendement[1], amendement[2]);
   const texte = location.hash.match(/^#\/texte\/([\w-]+)$/);
   if (texte) return ouvrirFiche(texte[1]);
   fermerFiche();

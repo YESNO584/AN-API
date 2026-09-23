@@ -570,6 +570,27 @@ l'écran, dans un bloc replié : consultables, mais hors du compte.
 la comparaison est un calcul mot à mot — la même bibliothèque standard que
 partout ailleurs dans ce projet.
 
+### La fiche d'un amendement
+
+Toucher un amendement, sous un article de la vue « Modifications », ouvre sa
+fiche : ce qu'il **fait** mot pour mot — en vert ce qu'il ajoute, en rouge
+barré ce qu'il retire, d'après sa propre formulation —, ce que son **auteur**
+en dit, **qui a voté quoi** groupe par groupe quand il y a eu un scrutin, et
+**combien de monde en a parlé** en séance. Le lien vers le site de l'Assemblée
+est au bas de la fiche, pas sur la ligne : un geste, une destination.
+
+**Le débat se compte, il ne se recopie pas** : « 15 personnes ont pris la
+parole sur cet amendement, en 58 paragraphes de compte rendu ». Rattacher une
+phrase à un amendement demanderait de trancher des cas que la source ne
+tranche pas, et l'écran le dit.
+
+Sans scrutin, la fiche ne laisse pas un vide : elle explique que 97 % des
+amendements adoptés le sont à main levée, sans qu'aucun décompte existe.
+
+**Le fichier est demandé à l'ouverture de la fiche**, et il n'y en a qu'un —
+2 Ko de médiane. C'est ce qui permet de se passer du plafond de 150 amendements
+par texte qui vaut pour la liste de l'onglet.
+
 ### Les amendements, et ce qu'on n'affiche pas
 
 **Un amendement n'est pas une version modifiée du texte.** C'est une

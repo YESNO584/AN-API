@@ -37,7 +37,8 @@ def base() -> sqlite3.Connection:
 def amendement(cx, numero, texte_ref, article="Article 3", ordre=1):
     cx.execute(
         "INSERT INTO amendement (uid, dossier_uid, numero, ordre, article,"
-        " texte_ref, ou, division, sort) VALUES (?,?,?,?,?,?,'A','ARTICLE','Adopté')",
+        " texte_ref, ou, division, sort, dispositif)"
+        " VALUES (?,?,?,?,?,?,'A','ARTICLE','Adopté','Après l’alinéa 8, insérer…')",
         (f"AM{numero}{texte_ref}", "D1", numero, ordre, article, texte_ref))
 
 
@@ -163,6 +164,71 @@ class LeDebatDUnAmendement(unittest.TestCase):
         self.assertEqual(seul["numero"], "42")
         self.assertNotIn("vote", seul)
         self.assertNotIn("debat", seul)
+
+
+class LaFicheDUnAmendement(unittest.TestCase):
+    """Ce que le socle publie pour l'écran d'un amendement adopté."""
+
+    def entier(self, cx, suite=()):
+        return {a["numero"]: a for a in publier.amendements_adoptes_en_entier(
+            cx, "D1", list(suite), publier.votes_par_amendement(cx, "D1"),
+            publier.debats_par_amendement(cx, "D1"))}
+
+    def test_seuls_les_adoptes_ont_une_fiche(self):
+        """Un amendement rejeté reste dans la liste de l'onglet, sans fiche à
+        ouvrir : l'écran ne doit pas proposer un lien vers du vide."""
+        cx = base()
+        amendement(cx, "885", BTC_PREMIERE)
+        cx.execute(
+            "INSERT INTO amendement (uid, dossier_uid, numero, article, texte_ref,"
+            " ou, division, sort, dispositif) VALUES"
+            " ('AM2','D1','886','Article 3',?,'A','ARTICLE','Rejeté','x')",
+            (BTC_PREMIERE,))
+        self.assertEqual(sorted(self.entier(cx)), ["885"])
+
+    def test_un_amendement_sans_dispositif_n_a_pas_de_fiche(self):
+        """Sa fiche n'aurait rien à montrer."""
+        cx = base()
+        cx.execute(
+            "INSERT INTO amendement (uid, dossier_uid, numero, article, texte_ref,"
+            " ou, division, sort, dispositif) VALUES"
+            " ('AM3','D1','12','Article 3',?,'A','ARTICLE','Adopté','')",
+            (BTC_PREMIERE,))
+        self.assertEqual(self.entier(cx), {})
+
+    def test_l_expose_n_est_pas_coupe(self):
+        """La liste de l'onglet le coupe à 400 caractères ; la fiche est faite
+        pour le lire en entier."""
+        cx = base()
+        long = "a" * 1200
+        cx.execute(
+            "INSERT INTO amendement (uid, dossier_uid, numero, article, texte_ref,"
+            " ou, division, sort, dispositif, expose) VALUES"
+            " ('AM4','D1','885','Article 3',?,'A','ARTICLE','Adopté','x',?)",
+            (BTC_PREMIERE, long))
+        self.assertEqual(len(self.entier(cx)["885"]["expose"]), 1200)
+
+    def test_le_scrutin_arrive_avec_ses_groupes(self):
+        """La fiche montre qui a voté quoi sans aller chercher un autre
+        fichier."""
+        cx = base()
+        amendement(cx, "885", BTC_PREMIERE)
+        scrutin(cx, "V1", "2026-07-09", "l'amendement n° 885 du Gouvernement", 39, 37)
+        cx.execute("INSERT INTO vote_groupe (vote_uid, organe_ref, sigle, nom,"
+                   " membres, position, pour, contre, abstentions, non_votants)"
+                   " VALUES ('V1','PO1','RN','Rassemblement National',122,'pour',"
+                   "19,0,0,0)")
+        vote = self.entier(cx, [{"ref": BTC_PREMIERE, "date": "2026-06-24"},
+                                {"ref": "PRJLANR5L17BTA0331", "date": "2026-07-15"}]
+                           )["885"]["vote"]
+        self.assertEqual(vote["pour"], 39)
+        self.assertEqual([g["sigle"] for g in vote["groupes"]], ["RN"])
+
+    def test_sans_scrutin_la_fiche_n_en_annonce_pas(self):
+        """97 % des amendements adoptés le sont à main levée."""
+        cx = base()
+        amendement(cx, "885", BTC_PREMIERE)
+        self.assertNotIn("vote", self.entier(cx)["885"])
 
 
 if __name__ == "__main__":

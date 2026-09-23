@@ -150,21 +150,24 @@ def resume_votes(cx: sqlite3.Connection) -> dict[str, dict]:
     return resume
 
 
-def votes_du_texte(cx: sqlite3.Connection, uid: str) -> list[dict]:
+def votes_du_texte(cx: sqlite3.Connection, uid: str,
+                   debats: dict[str, dict] | None = None) -> list[dict]:
+    """Les scrutins publics d'un texte, groupe par groupe.
+
+    `debats` donne, par identifiant de scrutin, combien de monde a parlé de
+    l'amendement voté. Il vient du rattachement **déjà résolu** par la fiche
+    des amendements — pas d'un second rapprochement par numéro, qui
+    confondrait deux lectures.
+    """
+    debats = debats or {}
     votes = []
     for v in cx.execute(
             f"SELECT {', '.join(CHAMPS_VOTE)} FROM vote WHERE dossier_uid = ?"
             " ORDER BY date DESC, numero DESC", (uid,)):
-        # Rangés comme dans l'hémicycle, de la gauche à la droite. Un groupe
-        # que la source ne nomme plus — un groupe dissous — passe en fin de
-        # liste plutôt que de disparaître.
-        groupes = [dict(g) for g in cx.execute(
-            "SELECT vg.sigle, vg.nom, vg.membres, vg.position, vg.pour, vg.contre,"
-            " vg.abstentions, vg.non_votants, g.rang, g.couleur"
-            " FROM vote_groupe vg LEFT JOIN groupe g ON g.ref = vg.organe_ref"
-            " WHERE vg.vote_uid = ?"
-            " ORDER BY g.rang IS NULL, g.rang, vg.membres DESC", (v["uid"],))]
-        votes.append({**dict(v), "groupes": groupes})
+        vote = {**dict(v), "groupes": groupes_du_scrutin(cx, v["uid"])}
+        if v["uid"] in debats:
+            vote["debat"] = debats[v["uid"]]
+        votes.append(vote)
     return votes
 
 
@@ -215,6 +218,77 @@ def amendements_du_texte(cx: sqlite3.Connection, uid: str) -> dict:
         amendements.append(a)
     return {"total": total, "publies": len(amendements), "sorts": sorts,
             "amendements": amendements}
+
+
+def amendements_adoptes_en_entier(cx: sqlite3.Connection, dossier_uid: str,
+                                  suite: list[dict], votes: dict[str, list[dict]],
+                                  debats: dict[tuple, dict]) -> list[dict]:
+    """Les amendements **adoptés** d'un texte, avec tout ce qu'on en sait.
+
+    C'est ce qui remplit la fiche d'un amendement : son dispositif et son
+    exposé **entiers**, son auteur, le scrutin s'il y en a eu un — groupe par
+    groupe — et combien de monde en a parlé.
+
+    **Un fichier par amendement, et c'est mesuré.** `amendements/<uid>.json`
+    sert la liste de l'onglet, plafonnée à 150 par texte et l'exposé coupé à
+    400 caractères : un dossier compte jusqu'à 19 510 amendements, et tout y
+    mettre ferait porter des dizaines de méga-octets à un téléphone pour une
+    liste qu'on parcourt. Un fichier par **texte** ne marchait pas non plus :
+    mesuré le 2026-09-23, 238 fichiers, 25 Ko de médiane mais **4,5 Mo au
+    pire** — le prix d'une fiche ne doit pas dépendre du texte dont elle vient.
+    Un fichier par amendement pèse deux kilo-octets, et on n'en demande qu'un.
+
+    Seuls les adoptés en ont un : ce sont eux que l'onglet « Texte » relie à un
+    article, et un amendement rejeté n'a pas de fiche à ouvrir.
+    """
+    fenetres = {avant["ref"]: (avant["date"], suite[rang + 1]["date"])
+                for rang, avant in enumerate(suite[:-1])}
+    lignes = cx.execute(
+        "SELECT a.uid, a.numero, a.article, a.ou, a.division, a.sort, a.date_depot,"
+        " a.dispositif, a.expose, a.morceaux, a.type_auteur, a.texte_ref,"
+        " ac.civilite, ac.prenom, ac.nom, ac.photo, g.sigle, g.nom nom_groupe,"
+        " g.couleur"
+        " FROM amendement a"
+        " LEFT JOIN acteur ac ON ac.ref = a.auteur_ref"
+        " LEFT JOIN groupe g ON g.ref = a.groupe_ref"
+        " WHERE a.dossier_uid = ? AND a.sort = 'Adopté' AND a.dispositif != ''"
+        " ORDER BY a.date_depot, a.ordre", (dossier_uid,)).fetchall()
+
+    sortie = []
+    for l in lignes:
+        a = dict(l)
+        a["morceaux"] = json.loads(a["morceaux"] or "[]")
+        document = numero_de_document(a.pop("texte_ref"))
+        chiffre = re.match(r"\s*(\d+)", a["numero"] or "")
+        if chiffre:
+            cle = chiffre.group(1)
+            fenetre = fenetres.get(l["texte_ref"])
+            retenus = [v for v in votes.get(cle, ())
+                       if not fenetre or fenetre[0] <= v["date"] <= fenetre[1]]
+            if len(retenus) == 1:
+                # Le scrutin entier, groupe par groupe : la fiche doit pouvoir
+                # montrer qui a voté quoi sans aller chercher un autre fichier.
+                a["vote"] = {**retenus[0],
+                             "groupes": groupes_du_scrutin(cx, retenus[0]["uid"])}
+            if (document, cle) in debats:
+                a["debat"] = debats[(document, cle)]
+        sortie.append(a)
+    return sortie
+
+
+def groupes_du_scrutin(cx: sqlite3.Connection, vote_uid: str) -> list[dict]:
+    """Qui a voté quoi, rangé comme dans l'hémicycle.
+
+    De la gauche à la droite, sur les rangs mesurés. Un groupe que la source
+    ne nomme plus — un groupe dissous — passe en fin de liste plutôt que de
+    disparaître.
+    """
+    return [dict(g) for g in cx.execute(
+        "SELECT vg.sigle, vg.nom, vg.membres, vg.position, vg.pour, vg.contre,"
+        " vg.abstentions, vg.non_votants, g.rang, g.couleur"
+        " FROM vote_groupe vg LEFT JOIN groupe g ON g.ref = vg.organe_ref"
+        " WHERE vg.vote_uid = ?"
+        " ORDER BY g.rang IS NULL, g.rang, vg.membres DESC", (vote_uid,))]
 
 
 def paroles_du_texte(cx: sqlite3.Connection, uid: str) -> dict:
@@ -421,7 +495,7 @@ def votes_par_amendement(cx: sqlite3.Connection,
     """
     trouves: dict[str, list[dict]] = {}
     for l in cx.execute(
-            "SELECT numero, date, objet, sort, pour, contre, abstentions"
+            "SELECT uid, numero, date, objet, sort, pour, contre, abstentions"
             " FROM vote WHERE dossier_uid = ? AND portee = 'amendement'",
             (dossier_uid,)):
         nomme = NUMERO_D_AMENDEMENT.search(l["objet"] or "")
@@ -431,6 +505,9 @@ def votes_par_amendement(cx: sqlite3.Connection,
         if not exprimes:
             continue
         trouves.setdefault(nomme.group(1), []).append({
+            # L'identifiant du scrutin, pour que la fiche d'un amendement
+            # puisse en montrer le détail groupe par groupe.
+            "uid": l["uid"],
             "scrutin": l["numero"], "date": l["date"], "sort": l["sort"],
             "pour": l["pour"], "contre": l["contre"],
             "abstentions": l["abstentions"],
@@ -550,7 +627,10 @@ def versions_du_texte(cx: sqlite3.Connection, textes_cx: sqlite3.Connection | No
 
 
 def comparaison_des_versions(cx: sqlite3.Connection, suite: list[dict],
-                             dossier_uid: str) -> tuple[list[dict], dict | None]:
+                             dossier_uid: str,
+                             votes: dict[str, list[dict]] | None = None,
+                             debats: dict[tuple, dict] | None = None,
+                             ) -> tuple[list[dict], dict | None]:
     """Chaque version comparée à la précédente, **et** le parcours entier.
 
     Deux comparaisons, et elles ne répondent pas à la même question. Celle
@@ -564,12 +644,13 @@ def comparaison_des_versions(cx: sqlite3.Connection, suite: list[dict],
     aucun parcours à raconter. Dès deux versions elle existe, même quand elle
     ressemble à l'unique étape — elle porte en plus le **texte à jour** des
     articles que la dernière version ne réimprime pas.
+
+    `votes` et `debats` sont cherchés une fois par texte ; l'appelant les
+    passe quand il s'en sert aussi pour la fiche des amendements.
     """
     sortie = []
-    # Cherchés une fois pour tout le texte : ils servent à chacune des
-    # versions, et une fiche en compte jusqu'à cinq.
-    votes = votes_par_amendement(cx, dossier_uid)
-    debats = debats_par_amendement(cx, dossier_uid)
+    votes = votes or votes_par_amendement(cx, dossier_uid)
+    debats = debats if debats is not None else debats_par_amendement(cx, dossier_uid)
     etapes = []
     for rang, version in enumerate(suite):
         avant = suite[rang - 1] if rang else None
@@ -1142,6 +1223,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     # citent : publier les 708 dossiers qui ne font pas de loi n'aurait
     # aucun lecteur.
     details, amendements, paroles, versions_ecrites = 0, 0, 0, 0
+    fiches_amdt = 0
     textes_cx = ouvrir_textes()
     for l in cx.execute(
             "SELECT * FROM dossier WHERE est_loi = 1 AND statut != ?",
@@ -1157,8 +1239,27 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         # pèse jusqu'à 1,4 Mo — et la fiche ne porte que de quoi afficher la
         # ligne dans le parcours.
         suite = versions_du_texte(cx, textes_cx, parcours)
+        # Cherchés une fois par texte : ils servent à la comparaison des
+        # versions **et** à la fiche de chaque amendement adopté.
+        votes_amdt = votes_par_amendement(cx, l["uid"])
+        debats_amdt = debats_par_amendement(cx, l["uid"])
         comparaisons, depuis_le_depot = (
-            comparaison_des_versions(cx, suite, l["uid"]) if suite else ([], None))
+            comparaison_des_versions(cx, suite, l["uid"], votes_amdt, debats_amdt)
+            if suite else ([], None))
+        # La fiche d'un amendement : son texte entier, son scrutin, son débat.
+        # **Un fichier par amendement**, demandé seulement quand on ouvre sa
+        # fiche — deux kilo-octets, quel que soit le texte dont il vient.
+        debat_du_scrutin = {}
+        for a in amendements_adoptes_en_entier(
+                cx, l["uid"], suite, votes_amdt, debats_amdt):
+            fiches_amdt += ecrire(
+                sortie / "amendements" / l["uid"] / f'{a["uid"]}.json',
+                {"genereLe": genere_le, **a})
+            # Le parcours affiche une pastille sur les lignes de vote qui
+            # portent sur un amendement disputé : il lui faut le compte des
+            # orateurs, rattaché ici une fois pour toutes.
+            if a.get("vote") and a.get("debat"):
+                debat_du_scrutin[a["vote"]["uid"]] = a["debat"]
         for comparaison in comparaisons:
             versions_ecrites += ecrire(
                 sortie / "versions" / l["uid"] / f'{comparaison["ref"]}.json',
@@ -1184,7 +1285,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             "parcours": parcours,
             "versions": [{k: c[k] for k in ("ref", "nom", "date", "etape", "resume")}
                          for c in comparaisons],
-            "votes": votes_du_texte(cx, l["uid"]),
+            "votes": votes_du_texte(cx, l["uid"], debat_du_scrutin),
             # **Deux choses différentes, deux clés différentes.** `formule` est
             # la phrase que la source imprime sur le document de dépôt
             # (« visant à la création d'un statut des accompagnants… ») : elle
@@ -1223,6 +1324,8 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         tailles["versions/<texte>/*.json"] = versions_ecrites
     if amendements:
         tailles["amendements/*.json"] = amendements
+    if fiches_amdt:
+        tailles["amendements/<texte>/<amendement>.json"] = fiches_amdt
     if paroles:
         tailles["paroles/*.json"] = paroles
 
