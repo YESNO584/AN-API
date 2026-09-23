@@ -104,6 +104,14 @@ jobs:
       # 2,6 Mo puis à 51,7 Mo. Le programme reprend maintenant un transfert
       # coupé là où il s'est arrêté ; ce second filet rattrape le cas où il
       # renonce quand même, plutôt que de laisser le site d'hier en ligne.
+      #
+      # **Il ne rattrape que les sources obligatoires, et c'est structurel** :
+      # une exécution où une source facultative manque *réussit*, donc la
+      # boucle ci-dessous s'arrête au premier tour sans rien reprendre. C'est
+      # ce qui a fait perdre les amendements du site trois fois sur six, du
+      # 2026-09-20 au 2026-09-23. La reprise des sources facultatives se joue
+      # donc dans `recuperer.py`, sur la source elle-même — redemander 300 Mo
+      # coûte moins cher que de retélécharger les 412 Mo de l'ensemble.
       - name: Récupérer les dossiers législatifs
         id: recuperation
         if: ${{ github.event_name != 'push'

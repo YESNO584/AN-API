@@ -1313,6 +1313,22 @@ const premier = (rendu, d) => d.getDate() === 1 ? rendu.replace(/\b1\b/, "1er") 
 const dateCourte = { format: (d) => premier(_dateCourte.format(d), d) };
 const dateLongue = { format: (d) => premier(_dateLongue.format(d), d) };
 
+/* Une archive facultative qui n'arrive pas ne vide plus la base : les données
+   de la veille restent en place. Encore faut-il le dire — sans quoi la page se
+   donnerait pour plus fraîche qu'elle n'est. `vuLe` est l'horodatage du dernier
+   téléchargement réussi de l'archive, et `genereLe` celui de la publication du
+   matin : quand les deux jours diffèrent, ce qu'on affiche date d'avant. */
+function avisDeVeille(vuLe, quoi, poids) {
+  if (!vuLe || !ETAT.genereLe) return null;
+  const jour = (iso) => String(iso).slice(0, 10);
+  if (jour(vuLe) === jour(ETAT.genereLe)) return null;
+  return el("p", "avertissement",
+    `${quoi} datent du ${dateLongue.format(enDate(jour(vuLe)))} : leur archive `
+    + `de ${poids} n'est pas arrivée entière depuis. Rien n'a été effacé, et `
+    + `le reste de la fiche est à jour. La récupération est retentée chaque `
+    + `matin.`);
+}
+
 // Les six étapes du parcours, pour la frise. « Promulguée » n'en fait pas
 // partie : c'est l'après, pas une septième étape.
 const PARCOURS = ETAPES.filter((e) => e.n !== PROMULGUEE && e.n !== ARRETE)
@@ -2647,6 +2663,8 @@ function carteAmendement(a) {
 
 async function blocAmendements(uid, total, plat) {
   const b = bloc(`Amendements — ${nb.format(total)}`, false, plat);
+  const veille = avisDeVeille(ETAT.amendementsVusLe, "Ces amendements", "297 Mo");
+  if (veille) b.append(veille);
   b.append(el("p", "avertissement",
     "Un amendement n'est pas une version modifiée du texte : c'est une instruction, " +
     "reproduite ici mot pour mot. Le texte original des articles n'est pas publié, " +
@@ -3050,6 +3068,9 @@ async function blocParoles(uid, total, plat, resume) {
   // Le résumé d'abord, les paroles entières ensuite : l'un ne remplace pas
   // l'autre, et l'ordre dit lequel fait foi.
   if (resume) b.append(blocResumeDebats(resume));
+  const veille = avisDeVeille(ETAT.debatsVusLe,
+                              "Ces prises de parole", "55,8 Mo");
+  if (veille) b.append(veille);
   b.append(el("p", "avertissement",
     "Les prises de parole en séance, recopiées du compte rendu de l'Assemblée, " +
     "mot pour mot. Elles viennent de la discussion générale et des explications " +

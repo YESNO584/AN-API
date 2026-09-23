@@ -979,3 +979,36 @@ l'archive des amendements (300 Mo, facultative) n'était pas arrivée à la
 publication de la nuit — `0 amendements — source indisponible`. Relancer la
 publication a suffi. **Avant de chercher un bogue dans la page, lire
 `etat.json` du site** : il dit quelle source a manqué.
+
+### Une reprise qui ne peut pas se déclencher
+
+La publication réessayait bien trois fois — et n'a jamais réessayé une seule
+fois. Parce qu'une exécution où une source facultative manque **réussit** : le
+programme sort avec le code 0, il n'y a donc rien à reprendre. La reprise se
+jouait au mauvais étage.
+
+Ce qui l'aurait attrapé : demander, d'une reprise automatique, **à quelle
+condition exacte elle se déclenche** — et vérifier que le cas qu'on veut
+rattraper remplit cette condition. Ici il ne la remplissait pas, et personne
+ne pouvait le voir dans les journaux : ils montraient des exécutions réussies.
+
+### Effacer une table ne suffit pas à décrire ce qu'on efface
+
+« L'archive manque, donc la table reste vide » était juste, mais incomplet :
+les amendements, les paroles et les comptes d'orateurs pendent au dossier par
+une clé étrangère `ON DELETE CASCADE`. `DELETE FROM dossier` les emportait de
+toute façon. Sauter le `DELETE FROM amendement` n'aurait donc rien changé —
+et je l'aurais cru corrigé.
+
+**Vérifié sur une base neuve en mémoire avant d'écrire le correctif**, ce qui
+a coûté trois lignes et évité un faux correctif. Le test est resté :
+`test_recuperer.py::test_effacer_le_dossier_emporte_ses_amendements_en_cascade`.
+
+### Garder des données de la veille oblige à les dater
+
+Dès qu'on garde les données d'hier plutôt que de les effacer, la page peut les
+présenter comme celles du jour. C'est une régression d'honnêteté, pas de code,
+et aucun test ne la voit. La correction fait donc partie du même travail :
+`etat.json` publie la date du dernier téléchargement réussi de chaque archive
+facultative, et la page l'affiche quand elle diffère de celle de la
+publication.

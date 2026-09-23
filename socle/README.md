@@ -263,6 +263,51 @@ En cas d'échec au milieu du rangement, **la base ne bouge pas** : l'écriture
 se fait en une seule transaction, tout ou rien. Il n'y a jamais de base à
 moitié remplie.
 
+### Une archive qui n'arrive pas n'efface plus ce qu'on avait
+
+Deux sources sont **facultatives** : les amendements (297 Mo) et les comptes
+rendus de séance (55,8 Mo). Sans elles, le parcours des textes, les votes et
+les lois promulguées se publient normalement — les rendre bloquantes revenait
+à figer tout le site pour une rubrique secondaire.
+
+Mais « facultative » ne voulait pas dire « sans conséquence ». **Trois
+publications sur six, du 2026-09-20 au 2026-09-23, ont perdu les 110 000
+amendements du site pour la journée.** Deux défauts se cumulaient, et il a
+fallu corriger les deux.
+
+**La panne vient de chez eux, et elle est passagère.** Mesuré le 2026-09-23 :
+l'archive des amendements répond `HTTP Error 504: Gateway Time-out` après
+cinquante secondes — le serveur de l'Assemblée n'a pas fini de préparer son
+plus gros fichier à temps. Le même fichier s'est téléchargé sans difficulté
+vingt minutes plus tard, 300 Mo en 103 secondes. Une reprise existait bien
+dans la publication — trois essais du programme entier — mais **elle ne
+pouvait pas se déclencher** : une exécution où une source facultative manque
+*réussit*, par construction. Elle se joue donc maintenant sur la source
+elle-même (`telecharger_en_insistant`) : trois essais, vingt secondes de
+pause. Redemander 300 Mo coûte moins cher que de retélécharger les 412 Mo de
+l'ensemble. Une source obligatoire, elle, échoue tout de suite : sans elle il
+n'y a rien à publier, et insister ne ferait que retarder l'erreur.
+
+**Et quand malgré tout elle n'arrive pas, les lignes de la veille restent.**
+La base se reconstruit de fond en comble à chaque exécution — c'est ce qui
+garantit qu'un amendement retiré par l'Assemblée disparaisse aussi de chez
+nous. Mais quand l'archive manque, il n'y a rien pour réécrire ce qu'on vient
+d'effacer. `a_reprendre` met donc les lignes de côté avant la transaction, et
+`reposer` les remet dans cette même transaction : la base reste « tout ou
+rien ». **Ne pas effacer la table n'aurait pas suffi** : les amendements, les
+paroles et les comptes d'orateurs pendent au dossier par une clé étrangère en
+cascade, si bien que `DELETE FROM dossier` les emporte de toute façon (vérifié
+le 2026-09-23 sur une base neuve). Seules reviennent les lignes dont le
+dossier existe encore : un dossier que l'archive ne porte plus n'a pas à
+ressusciter par ses amendements.
+
+**La page le dit.** `etat.json` publie `amendementsVusLe` et `debatsVusLe`, la
+date du dernier téléchargement réussi de chaque archive — la table `source`
+n'est mise à jour qu'en cas de succès, elle garde donc celle de la fois
+d'avant. Quand ce jour n'est pas celui de la publication, les onglets
+« Amendements » et « Débats » disent d'où datent ces données. Sans quoi la
+page se donnerait pour plus fraîche qu'elle n'est.
+
 ## Le modèle de données
 
 Celui du §3.1 du plan : **un dossier, des étapes datées, chacune rattachée à

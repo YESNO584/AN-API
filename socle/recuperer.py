@@ -25,6 +25,7 @@ import pathlib
 import sqlite3
 import sys
 import tempfile
+import time
 import extraction
 RACINE = pathlib.Path(__file__).resolve().parent
 BASE = RACINE / "parlement.db"
@@ -69,6 +70,48 @@ SOURCES = {
 # eux le parcours, les votes et les lois s'affichent normalement. Ils sont
 # donc facultatifs au même titre, et leur absence est publiée, pas dissimulée.
 FACULTATIVES = frozenset({"amendements", "debats"})
+
+# Combien de fois redemander une source facultative avant de la déclarer
+# absente, et combien de temps attendre entre deux essais.
+#
+# **La panne est passagère, et elle vient de chez eux.** Mesuré le 2026-09-23 :
+# l'archive des amendements a répondu `HTTP Error 504: Gateway Time-out` après
+# 50 secondes d'attente — le serveur de l'Assemblée n'a pas fini de préparer
+# son plus gros fichier à temps. Le même fichier s'est téléchargé sans
+# difficulté vingt minutes plus tard, 300 Mo en 103 secondes. Un seul essai
+# faisait donc perdre les amendements de toute la journée pour une minute
+# d'indisponibilité chez eux.
+#
+# Une reprise existait bien dans la publication — trois essais du programme
+# entier — mais elle ne pouvait pas se déclencher : une exécution où une source
+# facultative manque **réussit**, par construction. Elle doit donc se jouer
+# ici, sur la source elle-même, et non dehors : redemander 300 Mo coûte moins
+# cher que de retélécharger les 412 Mo de l'ensemble.
+ESSAIS_FACULTATIVE = 3
+PAUSE_ENTRE_ESSAIS = 20         # secondes
+def telecharger_en_insistant(nom: str, chemin: pathlib.Path,
+                             entetes: dict[str, str], url: str,
+                             dormir=time.sleep) -> dict:
+    """Télécharge, en redemandant si la source est facultative.
+
+    Une source obligatoire échoue tout de suite : sans elle il n'y a rien à
+    publier, et insister ne ferait que retarder l'erreur. Une source
+    facultative, elle, mérite qu'on insiste — voir `ESSAIS_FACULTATIVE`.
+    """
+    if nom not in FACULTATIVES:
+        return extraction.telecharger(chemin, entetes, url)
+    for essai in range(1, ESSAIS_FACULTATIVE + 1):
+        try:
+            return extraction.telecharger(chemin, entetes, url)
+        except Exception as erreur:
+            if essai == ESSAIS_FACULTATIVE:
+                raise
+            print(f"  {nom:<10} essai {essai} sur {ESSAIS_FACULTATIVE} :"
+                  f" {erreur} — on réessaie", file=sys.stderr)
+            dormir(PAUSE_ENTRE_ESSAIS)
+    raise AssertionError("inatteignable")            # pragma: no cover
+
+
 def connue(connexion: sqlite3.Connection, url: str) -> sqlite3.Row | None:
     return connexion.execute("SELECT * FROM source WHERE url = ?", (url,)).fetchone()
 def entetes_conditionnelles(ligne: sqlite3.Row | None) -> dict[str, str]:
@@ -88,6 +131,43 @@ def empreinte(fichier: pathlib.Path) -> str:
         for morceau in iter(lambda: flux.read(1 << 20), b""):
             condensat.update(morceau)
     return condensat.hexdigest()
+# Les tables qu'une archive facultative remplit à elle seule, et l'archive dont
+# chacune dépend. Ce sont exactement celles qu'une absence viderait.
+REPRISES = {
+    "amendements": ("amendement",),
+    "debats": ("parole", "debat_amendement"),
+}
+
+
+def a_reprendre(connexion: sqlite3.Connection,
+                archives: dict[str, pathlib.Path]) -> dict[str, list[sqlite3.Row]]:
+    """Les lignes de la veille à remettre en place, archive absente par archive
+    absente. Lues avant la transaction, puisque celle-ci les effacera."""
+    repris = {}
+    for source, tables in REPRISES.items():
+        if source in archives:
+            continue
+        for table in tables:
+            repris[table] = connexion.execute(f"SELECT * FROM {table}").fetchall()
+    return repris
+
+
+def reposer(connexion: sqlite3.Connection, repris: dict[str, list[sqlite3.Row]],
+            connus: set[str]) -> dict[str, list[tuple]]:
+    """Repose les lignes de la veille, **dans la transaction qui vient de les
+    effacer**. Seules reviennent celles dont le dossier existe encore : un
+    dossier que l'archive ne porte plus n'a pas à ressusciter par ses
+    amendements."""
+    gardees = {}
+    for table, anciennes in repris.items():
+        lignes = [tuple(l) for l in anciennes if l["dossier_uid"] in connus]
+        gardees[table] = lignes
+        if lignes:
+            trous = ",".join("?" * len(lignes[0]))
+            connexion.executemany(f"INSERT INTO {table} VALUES ({trous})", lignes)
+    return gardees
+
+
 def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
            aujourdhui: str) -> tuple[int, int, int, int, int]:
     """Remplace le contenu de la base par celui des archives. Tout ou rien."""
@@ -223,6 +303,27 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
                     debats_amdt[cle] = (bloc["orateurs"], bloc["paragraphes"],
                                         bloc["date"])
 
+    # **Ce qu'une source absente ne doit pas emporter avec elle.** La base est
+    # reconstruite de fond en comble à chaque exécution — c'est ce qui garantit
+    # qu'un amendement retiré par l'Assemblée disparaisse aussi de chez nous.
+    # Mais quand l'archive n'arrive pas, il n'y a rien pour réécrire ce qu'on
+    # vient d'effacer, et une minute d'indisponibilité chez eux effaçait les
+    # amendements de toute la journée. Mesuré : trois publications sur six, du
+    # 2026-09-20 au 2026-09-23.
+    #
+    # On garde donc les lignes de la veille, et on les repose après la
+    # reconstruction. **Effacer ligne à ligne ne suffirait pas** : les
+    # amendements, les paroles et les comptes d'orateurs pendent au dossier par
+    # une clé étrangère en cascade, si bien que `DELETE FROM dossier` les
+    # emporte de toute façon (vérifié le 2026-09-23 sur une base neuve).
+    #
+    # Seules reviennent les lignes dont le dossier existe encore : un dossier
+    # que l'archive ne porte plus n'a pas à ressusciter par ses amendements.
+    repris = a_reprendre(connexion, archives)
+    for table, lignes in repris.items():
+        print(f"  {table:<18} {len(lignes):>7,} lignes de la veille gardées",
+              file=sys.stderr)
+
     with connexion:                     # une transaction, ouverte et refermée ici
         connexion.execute("DELETE FROM debat_amendement")
         connexion.execute("DELETE FROM parole")
@@ -259,6 +360,12 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
             [(uid, numero_texte, numero, seance, date, orateurs, paragraphes)
              for (uid, numero_texte, numero, seance), (orateurs, paragraphes, date)
              in debats_amdt.items()])
+        # Les lignes de la veille, reposées dans la même transaction : la base
+        # reste « tout ou rien », et l'application affiche les amendements
+        # d'hier plutôt qu'un zéro qui serait faux.
+        gardees = reposer(connexion, repris, connus)
+        lignes_amdt = gardees.get("amendement", lignes_amdt)
+        lignes_parole = gardees.get("parole", lignes_parole)
     return len(dossiers), len(etapes), len(lignes_vote), len(lignes_amdt), len(lignes_parole)
 def afficher_journal(connexion: sqlite3.Connection, combien: int = 10) -> None:
     lignes = connexion.execute(
@@ -318,8 +425,8 @@ def main() -> int:
                     precedente = None if options.forcer else connue(connexion, url)
                     chemin = pathlib.Path(travail) / f"{nom}.zip"
                     try:
-                        cr = extraction.telecharger(
-                            chemin, entetes_conditionnelles(precedente), url)
+                        cr = telecharger_en_insistant(
+                            nom, chemin, entetes_conditionnelles(precedente), url)
                     except Exception as erreur:
                         if nom not in FACULTATIVES:
                             raise

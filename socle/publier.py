@@ -291,6 +291,17 @@ def groupes_du_scrutin(cx: sqlite3.Connection, vote_uid: str) -> list[dict]:
         " ORDER BY g.rang IS NULL, g.rang, vg.membres DESC", (vote_uid,))]
 
 
+def vu_le(cx: sqlite3.Connection, url: str) -> str | None:
+    """Quand cette archive a été téléchargée avec succès pour la dernière fois.
+
+    La table `source` n'est mise à jour que sur un téléchargement réussi : une
+    source absente y garde donc la date de la fois d'avant, qui est exactement
+    ce qu'on veut afficher.
+    """
+    ligne = cx.execute("SELECT vu_le FROM source WHERE url = ?", (url,)).fetchone()
+    return ligne["vu_le"] if ligne else None
+
+
 def paroles_du_texte(cx: sqlite3.Connection, uid: str) -> dict:
     """Ce que les groupes ont dit du texte en séance, mot pour mot.
 
@@ -1071,9 +1082,14 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "dossiers": cx.execute("SELECT COUNT(*) n FROM dossier").fetchone()["n"],
         "etapesEnregistrees": cx.execute("SELECT COUNT(*) n FROM etape").fetchone()["n"],
         # Ce que la page doit savoir taire plutôt que d'afficher un zéro faux :
-        # une rubrique dont la source n'est pas arrivée ce matin.
+        # une rubrique dont la source n'est jamais arrivée.
         "amendementsIndisponibles":
             cx.execute("SELECT COUNT(*) n FROM amendement").fetchone()["n"] == 0,
+        # **Et quand elle date.** Une archive qui n'arrive pas ce matin ne vide
+        # plus la base : les amendements de la veille restent affichés. Encore
+        # faut-il le dire, sans quoi la page se donnerait pour plus fraîche
+        # qu'elle n'est. C'est l'horodatage du dernier téléchargement réussi.
+        "amendementsVusLe": vu_le(cx, extraction.URL_AMENDEMENTS),
         "textesEnCours": comptes.get(extraction.EN_COURS, 0),
         "promulgues": comptes.get(extraction.PROMULGUE, 0),
         "scrutins": cx.execute("SELECT COUNT(*) n FROM vote").fetchone()["n"],
@@ -1100,6 +1116,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         # laisser croire que personne n'a parlé du texte.
         "debatsIndisponibles":
             cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"] == 0,
+        "debatsVusLe": vu_le(cx, extraction.URL_DEBATS),
         "paroles": cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"],
         "descriptions": len(descriptions),
         "resumesDebats": len(resumes_debats),

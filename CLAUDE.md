@@ -165,6 +165,22 @@ a pas encore d'application, de base de données ni de dépendances.
   articles ne le sont toujours pas. Les rapprocher d'un amendement demanderait
   de trancher des cas que la source ne tranche pas — un compte, lui, ne demande
   rien à interpréter.
+- **Une archive facultative qui n'arrive pas n'efface plus rien, et la page
+  dit d'où datent les données.** Les amendements (297 Mo) et les comptes rendus
+  (55,8 Mo) sont facultatifs, mais leur absence emportait tout : trois
+  publications sur six, du 2026-09-20 au 2026-09-23, ont perdu les 110 000
+  amendements du site pour la journée. Trois règles, et il faut les trois. La
+  source facultative **se redemande** (trois essais, vingt secondes de pause) :
+  le serveur de l'Assemblée répond `504` après cinquante secondes sur son plus
+  gros fichier, et le même fichier passe vingt minutes plus tard — la reprise
+  de la publication, elle, ne pouvait pas se déclencher, puisqu'une exécution
+  où une source facultative manque *réussit*. Les lignes de la veille sont
+  **mises de côté avant la transaction et reposées dedans** (`a_reprendre`,
+  `reposer`) — ne pas effacer la table n'aurait pas suffi, `DELETE FROM
+  dossier` les emporte en cascade. Et `etat.json` publie `amendementsVusLe` et
+  `debatsVusLe`, que la maquette affiche quand ce jour n'est pas celui de la
+  publication : **la page ne doit jamais se donner pour plus fraîche qu'elle
+  n'est.**
 - **Un numéro d'amendement ne suffit pas à désigner un amendement dans un
   dossier :** deux lectures y portent les mêmes numéros. Ce qui les sépare est
   le **numéro de dépôt du document amendé** (`debat_amendement.texte_numero`,

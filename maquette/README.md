@@ -615,6 +615,22 @@ Deux plafonds, imposés par le volume — un texte compte jusqu'à 19 510
 amendements : **150 amendements détaillés par texte**, les adoptés d'abord,
 et l'exposé de l'auteur écourté à 400 caractères. Le compte réel est affiché.
 
+#### Quand ces données datent de la veille, la page le dit
+
+Les amendements (297 Mo) et les comptes rendus de séance (55,8 Mo) viennent de
+deux archives qui n'arrivent pas toujours : le serveur de l'Assemblée coupe
+sur ses plus gros fichiers. Le socle garde alors les lignes de la veille
+plutôt que de les effacer — mais **la page ne doit jamais se donner pour plus
+fraîche qu'elle n'est**. `etat.json` porte donc `amendementsVusLe` et
+`debatsVusLe`, la date du dernier téléchargement réussi de chaque archive :
+quand ce jour n'est pas celui de la publication, les onglets « Amendements »
+et « Débats » affichent d'où datent ces données (`avisDeVeille`).
+
+Trois cas, et trois affichages différents, à ne pas confondre : les données du
+jour ne disent rien de spécial ; les données de la veille se datent ; une
+archive qui n'est jamais arrivée fait dire à la page que la rubrique manque,
+plutôt qu'afficher « 0 amendement », ce qui serait faux.
+
 ### Ce que les groupes en ont dit
 
 Dans l'onglet « Débats », **les prises de parole en séance, recopiées mot
