@@ -34,12 +34,14 @@ def base() -> sqlite3.Connection:
     return cx
 
 
-def amendement(cx, numero, texte_ref, article="Article 3", ordre=1):
+def amendement(cx, numero, texte_ref, article="Article 3", ordre=1,
+               uid=None, dispositif="Après l’alinéa 8, insérer…"):
     cx.execute(
         "INSERT INTO amendement (uid, dossier_uid, numero, ordre, article,"
         " texte_ref, ou, division, sort, dispositif)"
-        " VALUES (?,?,?,?,?,?,'A','ARTICLE','Adopté','Après l’alinéa 8, insérer…')",
-        (f"AM{numero}{texte_ref}", "D1", numero, ordre, article, texte_ref))
+        " VALUES (?,?,?,?,?,?,'A','ARTICLE','Adopté',?)",
+        (uid or f"AM{numero}{texte_ref}", "D1", numero, ordre, article,
+         texte_ref, dispositif))
 
 
 def scrutin(cx, uid, date, objet, pour, contre):
@@ -229,6 +231,65 @@ class LaFicheDUnAmendement(unittest.TestCase):
         cx = base()
         amendement(cx, "885", BTC_PREMIERE)
         self.assertNotIn("vote", self.entier(cx)["885"])
+
+
+class LeMemeAmendementPublieDeuxFois(unittest.TestCase):
+    """Mesuré le 2026-09-23 : 37 couples (document, numéro) sont portés par
+    deux amendements adoptés. 29 sont le même amendement publié deux fois, 8
+    sont deux amendements réels de deux délibérations successives."""
+
+    # Les deux identifiants du même amendement n° 59 de la loi montagne : ils
+    # ne diffèrent que par leur segment de document, et pointent le même
+    # `texte_ref`, le même article et le même texte.
+    JUMEAUX = ("AMANR5L17PO838901B2755P0D1N000059",
+               "AMANR5L17PO838901BTC2755P0D1N000059")
+
+    def test_deux_lignes_au_texte_identique_n_en_font_qu_une(self):
+        cx = base()
+        for uid in self.JUMEAUX:
+            amendement(cx, "59", BTC_PREMIERE, uid=uid)
+        lignes = cx.execute("SELECT * FROM amendement ORDER BY uid").fetchall()
+        gardees = publier.sans_les_doublons(lignes)
+        self.assertEqual([l["uid"] for l in gardees], [self.JUMEAUX[0]])
+
+    def test_deux_textes_differents_restent_deux_amendements(self):
+        """Une seconde délibération renumérote à partir de 1 : fondre les deux
+        en perdrait un."""
+        cx = base()
+        amendement(cx, "1", BTC_PREMIERE, uid="AM…B0325P0D1N000001",
+                   dispositif="Supprimer l’article.")
+        amendement(cx, "1", BTC_PREMIERE, uid="AM…B0325P0D2N000001",
+                   dispositif="Rédiger ainsi l’alinéa 3 : …", ordre=2)
+        lignes = cx.execute("SELECT * FROM amendement ORDER BY ordre").fetchall()
+        self.assertEqual(len(publier.sans_les_doublons(lignes)), 2)
+
+    def test_un_meme_numero_sur_deux_documents_reste_deux_amendements(self):
+        """Deux lectures numérotent pareil, et ce sont bien deux amendements."""
+        cx = base()
+        amendement(cx, "1", BTC_PREMIERE)
+        amendement(cx, "1", BTC_CMP)
+        lignes = cx.execute("SELECT * FROM amendement").fetchall()
+        self.assertEqual(len(publier.sans_les_doublons(lignes)), 2)
+
+    def test_la_liste_d_une_version_ne_le_montre_plus_deux_fois(self):
+        """On compte les lignes de l'index, **pas** les numéros distincts : le
+        raccourci `adoptes()` range par numéro et écraserait le doublon de
+        lui-même, si bien que le test passerait avec ou sans la règle."""
+        cx = base()
+        for uid in self.JUMEAUX:
+            amendement(cx, "59", BTC_PREMIERE, uid=uid)
+        index = publier.amendements_adoptes(cx, BTC_PREMIERE)
+        self.assertEqual(sum(len(liste) for liste in index.values()), 1)
+
+    def test_il_n_a_qu_une_fiche(self):
+        """Deux fiches identiques faisaient dire à l'écran « 2 amendements
+        adoptés de justesse » là où il n'y en avait qu'un."""
+        cx = base()
+        for uid in self.JUMEAUX:
+            amendement(cx, "59", BTC_PREMIERE, uid=uid)
+        fiches = publier.amendements_adoptes_en_entier(
+            cx, "D1", [{"ref": BTC_PREMIERE, "date": "2026-05-06"}], {}, {})
+        self.assertEqual([f["uid"] for f in fiches], [self.JUMEAUX[0]])
 
 
 if __name__ == "__main__":

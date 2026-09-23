@@ -181,6 +181,28 @@ a pas encore d'application, de base de données ni de dépendances.
   `debatsVusLe`, que la maquette affiche quand ce jour n'est pas celui de la
   publication : **la page ne doit jamais se donner pour plus fraîche qu'elle
   n'est.**
+- **La source publie 37 fois deux lignes pour un couple (document, numéro), et
+  les deux cas ne se traitent pas pareil** (mesuré le 2026-09-23, sur 12 738
+  amendements adoptés). **29 sont le même amendement publié deux fois** : deux
+  identifiants qui ne diffèrent que par leur segment de document
+  (`…B2755P0D1N000059` et `…BTC2755P0D1N000059`), même `texte_ref`, même texte
+  — 28 d'entre eux sur la seule loi montagne, qui passait de 87 à 59
+  amendements adoptés. **8 sont deux amendements réels**, de deux délibérations
+  successives (`D1`, `D2`), qui numérotent chacune à partir de 1. La clé qui
+  les sépare est donc le document, le numéro **et le dispositif**
+  (`publier.sans_les_doublons`), appliquée aux deux endroits qui énumèrent les
+  adoptés. Sans elle, l'écran annonçait « 2 amendements adoptés de justesse »
+  là où il n'y en avait qu'un.
+- **Un texte signale ses amendements adoptés de justesse, et le socle ne
+  tranche toujours rien** (2026-09-23). `textes.json` porte
+  `amendementsMesurables` : les amendements adoptés dont on connaît **et** le
+  scrutin **et** le nombre d'orateurs — 200 sur 30 textes. La carte du fil et
+  la fiche y appliquent les deux seuils, qui restent dans `maquette/feed.html`,
+  et le repère mène à `#/disputes/<uid>`, la liste de ces amendements, d'où
+  l'on ouvre la fiche de chacun. **4 textes sur 2 218** le portent. C'est pour
+  cette liste que les trois fichiers de listes s'écrivent **après** la boucle
+  de détail : le rapprochement d'un amendement avec son scrutin n'est résolu
+  que là.
 - **Un numéro d'amendement ne suffit pas à désigner un amendement dans un
   dossier :** deux lectures y portent les mêmes numéros. Ce qui les sépare est
   le **numéro de dépôt du document amendé** (`debat_amendement.texte_numero`,

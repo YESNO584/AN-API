@@ -570,6 +570,27 @@ l'écran, dans un bloc replié : consultables, mais hors du compte.
 la comparaison est un calcul mot à mot — la même bibliothèque standard que
 partout ailleurs dans ce projet.
 
+### Le repère d'un texte : « adoptés de justesse »
+
+Sur la carte du fil et en tête de fiche, un texte qui porte au moins un
+amendement **adopté de justesse après un long échange** l'affiche : `! 1
+amendement adopté de justesse ›`. Le chevron, et non le `ⓘ` des autres
+étiquettes, parce que ce repère **mène** quelque part au lieu de s'expliquer
+sur place : il ouvre `#/disputes/<uid>`, la liste de ces amendements, où
+chaque ligne mène à la fiche entière de l'amendement.
+
+Mesuré le 2026-09-23 : **4 textes sur 2 218** le portent, un amendement chacun.
+C'est peu, et c'est le résultat honnête — les deux conditions doivent être
+réunies, et 97 % des amendements adoptés le sont à main levée, sans qu'aucun
+décompte de voix existe.
+
+**Les deux seuils restent ici**, dans la maquette : le socle publie l'écart du
+scrutin et le nombre d'orateurs (`amendementsMesurables` dans `textes.json`) et
+ne tranche rien. Sans quoi le même choix d'affichage vivrait à deux endroits.
+
+L'écran ne demande aucun fichier : tout est déjà dans la liste chargée au
+démarrage. Seule la fiche d'un amendement se charge à la demande.
+
 ### La fiche d'un amendement
 
 Toucher un amendement, sous un article de la vue « Modifications », ouvre sa

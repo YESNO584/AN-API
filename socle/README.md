@@ -494,6 +494,46 @@ amendement de la comparaison du parcours porte **l'étape où il a été adopté
 que la forme du document donne — un texte de commission sort d'une commission,
 un texte adopté sort d'une séance.
 
+### Le même amendement publié deux fois
+
+Mesuré le 2026-09-23 : sur les 12 738 amendements adoptés qui portent un
+dispositif, **37 couples (document, numéro) sont portés par deux lignes**. Il
+faut les départager, car ils ne disent pas tous la même chose.
+
+**29 portent deux fois le même dispositif.** C'est le même amendement, publié
+sous deux identifiants qui ne diffèrent que par leur segment de document —
+`…B2755P0D1N000059` et `…BTC2755P0D1N000059` pointent le même `texte_ref`, le
+même article, la même date et le même texte. 28 des 29 sont sur un seul
+dossier, la loi montagne : elle passait ainsi de 87 à 59 amendements adoptés.
+
+**8 portent des dispositifs différents.** Ce sont deux amendements bien réels,
+de deux délibérations successives — `D1` et `D2` dans l'identifiant — qui
+numérotent chacune à partir de 1. Les fondre serait en perdre un.
+
+D'où la clé de `sans_les_doublons` : le document, le numéro **et le
+dispositif**. Elle sépare les deux cas sans rien interpréter, parce qu'elle ne
+compare que ce que la source écrit. Elle s'applique aux deux endroits qui
+énumèrent les amendements adoptés — la liste d'une version et la fiche de
+chacun — sans quoi le même amendement s'affichait deux fois de suite.
+
+### Ce qu'un texte porte d'amendements mesurables
+
+`textes.json` porte, pour chaque texte qui en a, `amendementsMesurables` : la
+liste des amendements adoptés dont on connaît **à la fois** le scrutin et le
+nombre d'orateurs. Mesuré le 2026-09-23 : **200 amendements sur 30 textes**, de
+quoi peser quelques dizaines de kilo-octets dans un fichier chargé d'un coup.
+
+**Le socle publie les deux chiffres, pas le verdict.** Les seuils qui décident
+du repère « Adopté de justesse, après un long échange » — moins de 10 % d'écart
+et au moins 8 orateurs — sont un choix d'affichage et vivent dans
+`maquette/feed.html`, à un seul endroit. Avec eux, **4 textes sur 2 218**
+portent le repère aujourd'hui, un amendement chacun.
+
+C'est pour cette liste que les trois fichiers de listes s'écrivent **après** la
+boucle de détail et non avant : le rapprochement d'un amendement avec son
+scrutin n'est résolu que là, par la fenêtre de dates qui sait quelle lecture a
+voté quel numéro.
+
 ### La fiche d'un amendement : un fichier par amendement
 
 L'onglet « Texte » relie chaque article changé aux amendements qui l'ont

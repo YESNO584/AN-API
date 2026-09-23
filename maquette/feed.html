@@ -545,6 +545,15 @@
   .etiq.dispute { color: var(--accent); background: var(--accent-doux);
                   border-color: currentColor; font-size: .72rem; }
   .etiq.dispute b { font-weight: 700; }
+  /* Et un troisième usage depuis le 2026-09-23 : sur la carte du fil et en
+     tête de fiche, où elle porte le compte et **mène** à la liste de ces
+     amendements. Elle ne s'explique donc pas sur place — d'où le chevron à la
+     place du ⓘ des autres étiquettes : deux gestes différents ne se signalent
+     pas du même signe. */
+  a.etiq.dispute { display: inline-flex; align-items: center; gap: .3rem;
+                   text-decoration: none; }
+  a.etiq.dispute::after { content: "›"; opacity: .7; font-size: 1.1em;
+                          line-height: 1; }
   .amdts .etiq.dispute { margin: .1rem 0 .25rem; }
   .amdts .etiq.dispute b { margin-right: .25rem; }
   .amdts .chiffres-amdt { display: block; font-size: .72rem; color: var(--gris);
@@ -1610,6 +1619,33 @@ function etiquetteGroupe(t) {
   return b;
 }
 
+/* Les amendements d'un texte que le socle a pu **mesurer** : ceux dont on
+   connaît à la fois le scrutin et le nombre d'orateurs. Ce sont les seuls sur
+   lesquels le repère peut se prononcer. Les deux seuils restent ici, dans la
+   maquette, parce que c'est un choix d'affichage : le socle publie les
+   chiffres et ne tranche rien. */
+const amendementsDisputes = (t) =>
+  (t.amendementsMesurables || []).filter(estDebattu);
+
+/* Le repère du texte entier : il dit qu'au moins un amendement y a été adopté
+   de justesse après un long échange, et il mène à la liste de ces
+   amendements-là. Un lien, et non un bouton d'explication : l'explication est
+   sur l'écran qu'il ouvre, au-dessus de la liste qu'elle décrit.
+
+   **Son absence ne dit rien**, et c'est pour ça qu'il n'a pas de contraire à
+   l'écran : 97 % des amendements adoptés le sont à main levée, sans qu'aucun
+   décompte de voix existe. */
+function repereDisputes(t) {
+  const disputes = amendementsDisputes(t);
+  if (!disputes.length) return null;
+  const a = el("a", "etiq dispute");
+  a.href = "#/disputes/" + t.uid;
+  a.append(el("b", null, "!"), document.createTextNode(
+    `${nb.format(disputes.length)} amendement${disputes.length > 1 ? "s" : ""} `
+    + `adopté${disputes.length > 1 ? "s" : ""} de justesse`));
+  return a;
+}
+
 function etiquette(classe, libelle, explication, valeur) {
   const b = el("button", "etiq " + (classe || ""), libelle);
   b.addEventListener("click", (ev) => {
@@ -1759,6 +1795,11 @@ function carte(t) {
       "prévu le " + dateCourte.format(enDate(t.prochaine_date)),
       EXPLICATIONS.prochaine, t.prochaine_quoi + ", le " + dateLongue.format(enDate(t.prochaine_date))));
   }
+  // Ce texte porte-t-il un amendement adopté de justesse après un long
+  // échange ? La question se pose devant la carte, pas seulement une fois le
+  // texte ouvert — et le repère y mène directement.
+  const dispute = repereDisputes(t);
+  if (dispute) l.append(dispute);
   c.append(l);
 
   if (t.etape === ARRETE && ISSUES[t.statut]) {
@@ -3493,6 +3534,11 @@ async function ouvrirFiche(uid) {
   // La procédure accélérée change le parcours entier, et le site de
   // l'Assemblée en fait une bannière : elle mérite mieux qu'une ligne au
   // milieu de trente-sept étapes.
+  // Le même repère que sur la carte du fil, et il mène au même écran. Il lit
+  // la ligne de la liste, pas la fiche : c'est `textes.json` qui porte les
+  // chiffres, parce que la carte en a besoin sans ouvrir le texte.
+  const dispute = repereDisputes(TEXTES.find((x) => x.uid === uid) || {});
+  if (dispute) l.append(dispute);
   if (d.procedureAcceleree) {
     l.append(etiquette("acceleree", "Procédure accélérée",
       EXPLICATIONS.procedureAcceleree,
@@ -4085,53 +4131,59 @@ function carteAmendementsDeLArticle(liste, uid) {
     `${nb.format(liste.length)} amendement${liste.length > 1 ? "s" : ""} `
     + `adopté${liste.length > 1 ? "s" : ""}`
     + (debattus ? ` — ${nb.format(debattus)} débattu${debattus > 1 ? "s" : ""}` : "")));
-  for (const a of classes) {
-    const ligne = el("div", "rang-amdt");
-    // **La ligne mène à la fiche de l'amendement, pas au site de
-    // l'Assemblée.** Le lien sortant y est, dans la fiche : un seul geste, une
-    // seule destination, et le texte de l'amendement s'ouvre sans quitter
-    // l'application.
-    const bouton = el("button", "vers-amdt");
-    bouton.type = "button";
-    const teinte = el("i");
-    if (a.couleur) teinte.style.background = a.couleur;
-    bouton.append(teinte, el("span", "num", "n° " + a.numero));
-    // Un amendement du Gouvernement n'a pas de député pour auteur : sa ligne
-    // dirait « n° 885 » et rien d'autre. La source nomme son type d'auteur,
-    // et c'est ce qu'on affiche à la place.
-    const qui = [a.nom, a.sigle].filter(Boolean).join(" · ")
-                || (a.typeAuteur === "Député" ? "" : a.typeAuteur || "");
-    if (qui) bouton.append(el("span", "qui", qui));
-    bouton.append(el("span", "chevron", "›"));
-    bouton.addEventListener("click", () => {
-      location.hash = `#/amendement/${uid}/${a.uid}`;
-    });
-    ligne.append(bouton);
-    // Où il a été adopté — en commission ou en séance. Il n'y a que dans la
-    // comparaison du parcours entier que la question se pose : une étape
-    // seule n'a qu'une réponse, déjà écrite au-dessus de la liste.
-    if (a.quand) ligne.append(el("span", "quand-amdt", "Adopté " + a.quand));
-    // Le repère est un bouton, posé **à côté** du lien et non dedans : un
-    // bouton dans un lien n'est pas du HTML valable, et le toucher ouvrirait
-    // le site de l'Assemblée au lieu de l'explication.
-    if (estDebattu(a)) {
-      const marque = etiquette("dispute", "", EXPLICATIONS.amendementDebattu,
-                               `n° ${a.numero}`);
-      marque.append(el("b", null, "!"),
-                    document.createTextNode("Adopté de justesse, après un long échange"));
-      ligne.append(marque);
-    }
-    // Les chiffres s'affichent dès qu'on en a un, repère ou pas : c'est ce
-    // qui permet de vérifier le repère, et de voir ce qui lui a manqué.
-    const chiffres = [];
-    if (a.vote) chiffres.push(`${nb.format(a.vote.pour)} pour, `
-                              + `${nb.format(a.vote.contre)} contre`);
-    if (a.debat) chiffres.push(`${nb.format(a.debat.orateurs)} orateur`
-                               + `${a.debat.orateurs > 1 ? "s" : ""}`);
-    if (chiffres.length) ligne.append(el("span", "chiffres-amdt", chiffres.join(" · ")));
-    boite.append(ligne);
-  }
+  for (const a of classes) boite.append(ligneAmendement(a, uid));
   return boite;
+}
+
+/* Une ligne d'amendement : son numéro, son auteur, son repère s'il en porte
+   un, et ses chiffres. **Un seul rendu pour tous les écrans qui en listent** —
+   l'onglet « Texte » et l'écran des amendements disputés — sans quoi la même
+   ligne se lirait de deux façons selon l'endroit d'où on l'ouvre. */
+function ligneAmendement(a, uid) {
+  const ligne = el("div", "rang-amdt");
+  // **La ligne mène à la fiche de l'amendement, pas au site de
+  // l'Assemblée.** Le lien sortant y est, dans la fiche : un seul geste, une
+  // seule destination, et le texte de l'amendement s'ouvre sans quitter
+  // l'application.
+  const bouton = el("button", "vers-amdt");
+  bouton.type = "button";
+  const teinte = el("i");
+  if (a.couleur) teinte.style.background = a.couleur;
+  bouton.append(teinte, el("span", "num", "n° " + a.numero));
+  // Un amendement du Gouvernement n'a pas de député pour auteur : sa ligne
+  // dirait « n° 885 » et rien d'autre. La source nomme son type d'auteur,
+  // et c'est ce qu'on affiche à la place.
+  const qui = [a.nom, a.sigle].filter(Boolean).join(" · ")
+              || (a.typeAuteur === "Député" ? "" : a.typeAuteur || "");
+  if (qui) bouton.append(el("span", "qui", qui));
+  bouton.append(el("span", "chevron", "›"));
+  bouton.addEventListener("click", () => {
+    location.hash = `#/amendement/${uid}/${a.uid}`;
+  });
+  ligne.append(bouton);
+  // Où il a été adopté — en commission ou en séance. Il n'y a que dans la
+  // comparaison du parcours entier que la question se pose : une étape
+  // seule n'a qu'une réponse, déjà écrite au-dessus de la liste.
+  if (a.quand) ligne.append(el("span", "quand-amdt", "Adopté " + a.quand));
+  // Le repère est un bouton, posé **à côté** du lien et non dedans : un
+  // bouton dans un lien n'est pas du HTML valable, et le toucher ouvrirait
+  // le site de l'Assemblée au lieu de l'explication.
+  if (estDebattu(a)) {
+    const marque = etiquette("dispute", "", EXPLICATIONS.amendementDebattu,
+                             `n° ${a.numero}`);
+    marque.append(el("b", null, "!"),
+                  document.createTextNode("Adopté de justesse, après un long échange"));
+    ligne.append(marque);
+  }
+  // Les chiffres s'affichent dès qu'on en a un, repère ou pas : c'est ce
+  // qui permet de vérifier le repère, et de voir ce qui lui a manqué.
+  const chiffres = [];
+  if (a.vote) chiffres.push(`${nb.format(a.vote.pour)} pour, `
+                            + `${nb.format(a.vote.contre)} contre`);
+  if (a.debat) chiffres.push(`${nb.format(a.debat.orateurs)} orateur`
+                             + `${a.debat.orateurs > 1 ? "s" : ""}`);
+  if (chiffres.length) ligne.append(el("span", "chiffres-amdt", chiffres.join(" · ")));
+  return ligne;
 }
 
 async function ouvrirVersion(uid, ref) {
@@ -4202,6 +4254,52 @@ async function ouvrirVersion(uid, ref) {
  * « Texte » relie à un article. Un amendement rejeté reste dans la liste de
  * l'onglet « Amendements », sans fiche à ouvrir.
  * ------------------------------------------------------------------ */
+
+/* Les amendements d'un texte adoptés de justesse après un long échange. Un
+   écran à part, et non une rubrique de plus dans la fiche : c'est une question
+   qu'on se pose depuis le fil, devant la carte, avant même d'ouvrir le texte.
+
+   Il ne demande aucun fichier — tout est déjà dans la liste chargée au
+   démarrage. Chaque ligne mène à la fiche entière de l'amendement, qui elle se
+   charge à la demande. */
+function ouvrirDisputes(uid) {
+  const f = ouvrirEcran();
+  f.append(boutonRetour("#/texte/" + uid, "Retour au texte"));
+
+  const t = TEXTES.find((x) => x.uid === uid) || {};
+  const disputes = amendementsDisputes(t);
+  f.append(el("h2", "fiche-titre", "Adoptés de justesse, après un long échange"));
+  if (t.titre) f.append(el("p", "fiche-sous", t.titre));
+
+  if (!disputes.length) {
+    // On n'y arrive normalement pas : le repère n'existe que s'il y en a. Mais
+    // une adresse se partage, et les données changent chaque matin.
+    f.append(el("div", "vide",
+      "Aucun amendement de ce texte ne porte ce repère aujourd'hui."));
+    return;
+  }
+
+  const b = bloc(`${nb.format(disputes.length)} amendement`
+                 + `${disputes.length > 1 ? "s" : ""}`, false, true);
+  b.append(el("p", "avertissement", EXPLICATIONS.amendementDebattu[1]));
+  const boite = el("div", "amdts");
+  // Le vote le plus serré en tête, puis le débat le plus fourni : deux
+  // conditions séparées, donc deux clés de tri, dans l'ordre où on les lit.
+  for (const a of disputes.slice().sort(
+        (x, y) => x.vote.ecart - y.vote.ecart
+                  || y.debat.orateurs - x.debat.orateurs)) {
+    const ligne = ligneAmendement(a, uid);
+    // Sur quel article il agit : ici, la liste traverse tout le texte, la
+    // question se pose donc à chaque ligne.
+    if (a.article) {
+      ligne.insertBefore(el("span", "quand-amdt", a.article),
+                         ligne.querySelector(".etiq.dispute"));
+    }
+    boite.append(ligne);
+  }
+  b.append(boite);
+  f.append(b);
+}
 
 async function ouvrirAmendement(uid, amdt) {
   const f = ouvrirEcran();
@@ -4901,6 +4999,8 @@ function router() {
   if (version) return ouvrirVersion(version[1], version[2]);
   const amendement = location.hash.match(/^#\/amendement\/([\w-]+)\/([\w-]+)$/);
   if (amendement) return ouvrirAmendement(amendement[1], amendement[2]);
+  const disputes = location.hash.match(/^#\/disputes\/([\w-]+)$/);
+  if (disputes) return ouvrirDisputes(disputes[1]);
   const texte = location.hash.match(/^#\/texte\/([\w-]+)$/);
   if (texte) return ouvrirFiche(texte[1]);
   fermerFiche();

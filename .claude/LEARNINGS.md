@@ -1012,3 +1012,36 @@ et aucun test ne la voit. La correction fait donc partie du même travail :
 `etat.json` publie la date du dernier téléchargement réussi de chaque archive
 facultative, et la page l'affiche quand elle diffère de celle de la
 publication.
+
+### Un test peut écraser le doublon qu'il prétend voir
+
+Trois tests écrits pour la règle « un même amendement publié deux fois n'en
+fait qu'un ». Deux la voyaient casser, **le troisième passait avec ou sans
+elle** : il comptait les entrées d'un dictionnaire rangé par numéro, et le
+doublon s'y écrasait tout seul. Le raccourci de test faisait le travail de la
+règle.
+
+Ce qui l'a attrapé : **défaire la règle et relancer** — trois lignes, dix
+secondes. C'est le même contrôle que `mutations_legi.py` applique au droit
+consolidé, fait à la main. À refaire pour toute règle qui déduplique, filtre
+ou départage : la structure de test choisie pour la lire peut faire la même
+chose qu'elle.
+
+### Un écran neuf révèle les défauts des données qu'il montre
+
+La liste des amendements « adoptés de justesse » annonçait 2 amendements et
+affichait deux fois le même. Le défaut ne venait pas de l'écran : la source
+publie 29 amendements en double, et deux fiches identiques existaient déjà
+sans que rien ne les montre côte à côte.
+
+**Un nouvel affichage est une mesure.** Avant de corriger l'écran, vérifier ce
+qu'il dit des données — ici il avait raison, et c'est le socle qu'il fallait
+reprendre.
+
+### Le fil a des colonnes fantômes, pas seulement la bande d'onglets
+
+`document.querySelector("a.etiq.dispute")` a rendu un élément posé à
+x = −2699 : le premier du DOM était dans une `.colonne.fantome`, et toute
+mesure faite dessus était fausse. La règle connue pour `.panneau` vaut aussi
+pour `.colonne` : **toujours `:not(.fantome)`**, et vérifier que l'élément
+mesuré est bien dans la zone visible avant de conclure.

@@ -220,6 +220,38 @@ def amendements_du_texte(cx: sqlite3.Connection, uid: str) -> dict:
             "amendements": amendements}
 
 
+def sans_les_doublons(lignes: list) -> list:
+    """Un même amendement publié deux fois par la source ne compte qu'une.
+
+    Mesuré le 2026-09-23 : sur les 12 738 amendements adoptés qui portent un
+    dispositif, **37 couples (document, numéro) sont portés par deux lignes**.
+    Il faut les départager, car ils ne disent pas tous la même chose :
+
+    - **29 portent deux fois le même dispositif.** C'est le même amendement,
+      publié sous deux identifiants qui ne diffèrent que par leur segment de
+      document — `…B2755P0D1N000059` et `…BTC2755P0D1N000059` pointent le même
+      `texte_ref`, le même article, la même date et le même texte. Le compter
+      deux fois faisait dire à l'écran « 2 amendements adoptés de justesse »
+      là où il n'y en avait qu'un.
+    - **8 portent des dispositifs différents.** Ce sont deux amendements bien
+      réels, de deux délibérations successives — `D1` et `D2` dans
+      l'identifiant — qui numérotent chacune à partir de 1. Les fondre serait
+      en perdre un.
+
+    D'où la clé : le document, le numéro **et le dispositif**. Elle sépare les
+    deux cas sans rien interpréter, parce qu'elle ne compare que ce que la
+    source écrit.
+    """
+    vus, gardees = set(), []
+    for l in lignes:
+        cle = (l["texte_ref"], l["numero"], l["dispositif"])
+        if cle in vus:
+            continue
+        vus.add(cle)
+        gardees.append(l)
+    return gardees
+
+
 def amendements_adoptes_en_entier(cx: sqlite3.Connection, dossier_uid: str,
                                   suite: list[dict], votes: dict[str, list[dict]],
                                   debats: dict[tuple, dict]) -> list[dict]:
@@ -253,6 +285,7 @@ def amendements_adoptes_en_entier(cx: sqlite3.Connection, dossier_uid: str,
         " LEFT JOIN groupe g ON g.ref = a.groupe_ref"
         " WHERE a.dossier_uid = ? AND a.sort = 'Adopté' AND a.dispositif != ''"
         " ORDER BY a.date_depot, a.ordre", (dossier_uid,)).fetchall()
+    lignes = sans_les_doublons(lignes)
 
     sortie = []
     for l in lignes:
@@ -568,14 +601,17 @@ def amendements_adoptes(cx: sqlite3.Connection, ref: str,
     votes = votes or {}
     debats = debats or {}
     document = numero_de_document(ref)
-    lignes = cx.execute(
+    lignes = sans_les_doublons(cx.execute(
+        # `texte_ref` et `dispositif` ne servent qu'à écarter les doublons de
+        # la source — voir `sans_les_doublons` — et ne sont pas publiés ici.
         "SELECT a.uid, a.numero, a.article, a.ou, a.division, a.type_auteur,"
+        " a.texte_ref, a.dispositif,"
         " ac.civilite, ac.prenom, ac.nom, g.sigle, g.couleur"
         " FROM amendement a"
         " LEFT JOIN acteur ac ON ac.ref = a.auteur_ref"
         " LEFT JOIN groupe g ON g.ref = a.groupe_ref"
         " WHERE a.texte_ref = ? AND a.sort = 'Adopté'"
-        " ORDER BY a.ordre", (ref,)).fetchall()
+        " ORDER BY a.ordre", (ref,)).fetchall())
 
     def chiffres(numero: str | None) -> dict:
         """Le scrutin et le débat de cet amendement, s'ils existent.
@@ -1192,55 +1228,17 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "promulguees": comptes.get(extraction.PROMULGUE, 0),
     })
 
-    for nom_fichier, statuts in (("textes.json", (extraction.EN_COURS,)),
-                                 ("promulgues.json", (extraction.PROMULGUE,)),
-                                 ("arretes.json", ARRETES)):
-        # Les plus avancés d'abord : un texte près d'être promulgué intéresse
-        # plus qu'une proposition déposée et jamais examinée — et celles-ci
-        # sont l'immense majorité.
-        trous = ",".join("?" * len(statuts))
-        lignes = cx.execute(
-            # Le groupe de l'auteur voyage avec le texte : la carte du fil le
-            # montre en couleur, et l'ouvrir pour le savoir serait absurde.
-            f"SELECT {', '.join('d.' + c for c in CHAMPS_LISTE)},"
-            " d.loi_numero, d.loi_date, d.loi_url_jo,"
-            " g.sigle auteur_sigle, g.nom auteur_groupe, g.couleur auteur_couleur"
-            " FROM dossier d"
-            " LEFT JOIN acteur a ON a.ref = d.auteur_ref"
-            " LEFT JOIN groupe g ON g.ref = a.groupe_ref"
-            f" WHERE d.statut IN ({trous}) AND d.est_loi = 1"
-            " ORDER BY d.etape DESC, d.date_dernier_mouvement DESC, d.uid",
-            statuts).fetchall()
-        textes = []
-        for l in lignes:
-            texte = {c: l[c] for c in CHAMPS_LISTE}
-            for c in ("auteur_sigle", "auteur_groupe", "auteur_couleur"):
-                if l[c]:
-                    texte[c] = l[c]
-            texte.update(votes.get(l["uid"], {"votes": 0, "votesEnsemble": 0,
-                                              "dernierVote": None, "voteEnsemble": None}))
-            texte["amendements"] = compte_amendements.get(l["uid"], 0)
-            texte["paroles"] = compte_paroles.get(l["uid"], 0)
-            if l["statut"] == extraction.PROMULGUE:
-                texte.update(loiNumero=l["loi_numero"], loiDate=l["loi_date"],
-                             loiUrlJO=l["loi_url_jo"])
-                # Ce que la loi change au droit, ce qu'elle y ajoute, et quand
-                # elle s'applique : la carte le dit sans qu'on ait à l'ouvrir.
-                # Une loi absente de `change` ne touche à rien et n'écrit aucun
-                # article — ce n'est pas une donnée manquante, c'est un fait, et
-                # la carte le dira.
-                if legi_cx is not None:
-                    texte["change"] = change.get(l["loi_numero"])
-            textes.append(texte)
-        tailles[nom_fichier] = ecrire(sortie / nom_fichier,
-                                      {"genereLe": genere_le, "total": len(textes),
-                                       "textes": textes})
 
     # Le détail, un fichier par texte. Seulement pour ceux que les listes
     # citent : publier les 708 dossiers qui ne font pas de loi n'aurait
     # aucun lecteur.
     details, amendements, paroles, versions_ecrites = 0, 0, 0, 0
     fiches_amdt = 0
+    # Par texte, les amendements adoptés dont on connaît **et** le scrutin
+    # **et** l'ampleur du débat. Ce sont les seuls que la maquette peut
+    # signaler ; les autres ne disent rien, ni dans un sens ni dans l'autre —
+    # 97 % des amendements adoptés le sont à main levée.
+    mesurables: dict[str, list[dict]] = {}
     textes_cx = ouvrir_textes()
     for l in cx.execute(
             "SELECT * FROM dossier WHERE est_loi = 1 AND statut != ?",
@@ -1277,6 +1275,24 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             # orateurs, rattaché ici une fois pour toutes.
             if a.get("vote") and a.get("debat"):
                 debat_du_scrutin[a["vote"]["uid"]] = a["debat"]
+                # Et la carte du fil en a besoin avant même qu'on ouvre le
+                # texte. **On publie les deux chiffres, pas le verdict** :
+                # les seuils qui décident de la pastille sont un choix
+                # d'affichage, ils vivent dans la maquette, à un seul endroit.
+                mesurables.setdefault(l["uid"], []).append({
+                    "uid": a["uid"], "numero": a["numero"],
+                    "article": a["article"], "ou": a["ou"],
+                    # De quoi écrire la ligne comme partout ailleurs : un
+                    # amendement s'y nomme par son auteur, pas par son numéro
+                    # seul. Un amendement du Gouvernement n'a pas de député
+                    # pour auteur, d'où `typeAuteur`.
+                    "nom": " ".join(x for x in (a["prenom"], a["nom"]) if x) or None,
+                    "sigle": a["sigle"], "couleur": a["couleur"],
+                    "typeAuteur": a["type_auteur"],
+                    "vote": {"ecart": a["vote"]["ecart"],
+                             "pour": a["vote"]["pour"],
+                             "contre": a["vote"]["contre"]},
+                    "debat": {"orateurs": a["debat"]["orateurs"]}})
         for comparaison in comparaisons:
             versions_ecrites += ecrire(
                 sortie / "versions" / l["uid"] / f'{comparaison["ref"]}.json',
@@ -1343,6 +1359,59 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         tailles["amendements/*.json"] = amendements
     if fiches_amdt:
         tailles["amendements/<texte>/<amendement>.json"] = fiches_amdt
+
+    # Les trois listes s'écrivent **après** le détail, et non avant : elles
+    # portent, pour chaque texte, les amendements dont on connaît à la fois le
+    # scrutin et le débat — et ce rapprochement-là n'est résolu que par la
+    # boucle ci-dessus, qui sait quelle lecture a voté quel numéro.
+    for nom_fichier, statuts in (("textes.json", (extraction.EN_COURS,)),
+                                 ("promulgues.json", (extraction.PROMULGUE,)),
+                                 ("arretes.json", ARRETES)):
+        # Les plus avancés d'abord : un texte près d'être promulgué intéresse
+        # plus qu'une proposition déposée et jamais examinée — et celles-ci
+        # sont l'immense majorité.
+        trous = ",".join("?" * len(statuts))
+        lignes = cx.execute(
+            # Le groupe de l'auteur voyage avec le texte : la carte du fil le
+            # montre en couleur, et l'ouvrir pour le savoir serait absurde.
+            f"SELECT {', '.join('d.' + c for c in CHAMPS_LISTE)},"
+            " d.loi_numero, d.loi_date, d.loi_url_jo,"
+            " g.sigle auteur_sigle, g.nom auteur_groupe, g.couleur auteur_couleur"
+            " FROM dossier d"
+            " LEFT JOIN acteur a ON a.ref = d.auteur_ref"
+            " LEFT JOIN groupe g ON g.ref = a.groupe_ref"
+            f" WHERE d.statut IN ({trous}) AND d.est_loi = 1"
+            " ORDER BY d.etape DESC, d.date_dernier_mouvement DESC, d.uid",
+            statuts).fetchall()
+        textes = []
+        for l in lignes:
+            texte = {c: l[c] for c in CHAMPS_LISTE}
+            for c in ("auteur_sigle", "auteur_groupe", "auteur_couleur"):
+                if l[c]:
+                    texte[c] = l[c]
+            texte.update(votes.get(l["uid"], {"votes": 0, "votesEnsemble": 0,
+                                              "dernierVote": None, "voteEnsemble": None}))
+            texte["amendements"] = compte_amendements.get(l["uid"], 0)
+            texte["paroles"] = compte_paroles.get(l["uid"], 0)
+            # Absent plutôt que vide : la grande majorité des textes n'a aucun
+            # amendement mesurable, et une liste vide par texte pèserait pour
+            # rien dans un fichier chargé d'un coup.
+            if l["uid"] in mesurables:
+                texte["amendementsMesurables"] = mesurables[l["uid"]]
+            if l["statut"] == extraction.PROMULGUE:
+                texte.update(loiNumero=l["loi_numero"], loiDate=l["loi_date"],
+                             loiUrlJO=l["loi_url_jo"])
+                # Ce que la loi change au droit, ce qu'elle y ajoute, et quand
+                # elle s'applique : la carte le dit sans qu'on ait à l'ouvrir.
+                # Une loi absente de `change` ne touche à rien et n'écrit aucun
+                # article — ce n'est pas une donnée manquante, c'est un fait, et
+                # la carte le dira.
+                if legi_cx is not None:
+                    texte["change"] = change.get(l["loi_numero"])
+            textes.append(texte)
+        tailles[nom_fichier] = ecrire(sortie / nom_fichier,
+                                      {"genereLe": genere_le, "total": len(textes),
+                                       "textes": textes})
     if paroles:
         tailles["paroles/*.json"] = paroles
 
