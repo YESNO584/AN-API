@@ -240,6 +240,24 @@ a pas encore d'application, de base de données ni de dépendances.
   retrouvent. Les votes du Sénat s'affichent dans le parcours, **à leur date et
   jamais mêlés à ceux de l'Assemblée** : pas de total commun, pas de
   comparaison.
+- **Les filtres valent dans les trois onglets, et chacun n'affiche que les
+  siens** (2026-10-04). Une vue déclare sa liste de filtres dans `VUES`, et un
+  filtre absent de cette liste n'est **ni dessiné, ni appliqué, ni compté**
+  dans le badge du bouton — les trois doivent dire la même chose, sinon le
+  badge annonce un filtre que le fil ignore. Trois écarts voulus : l'onglet du
+  Sénat filtre sur **les étapes du Sénat**, jamais sur celles de l'Assemblée ;
+  il n'a **pas de filtre « Votes »**, parce que les votes portés par la carte
+  sont ceux de l'Assemblée ; et « Travaux » n'a **pas de filtre « Sujet »** —
+  mesuré, **aucun des 721 travaux n'a de dossier au Sénat**, le filtre serait
+  vide à jamais. **Les comptes des puces se mesurent sur la liste de
+  l'onglet**, pas sur l'Assemblée entière, sans quoi une puce promet des
+  textes qu'elle n'ouvrira jamais.
+- **La recherche ignore les accents, la casse, les ligatures et la forme de
+  l'apostrophe** (`normaliser`, 2026-10-04). L'apostrophe est celle qui
+  comptait : la source écrit `’` dans **729 titres sur 2 218**, et aucun
+  clavier ne la donne au premier coup — chercher « l'effectivité » ne trouvait
+  rien. Les ligatures `œ` et `æ` se défont **avant** la décomposition Unicode,
+  qui ne les touche pas.
 - **Le sujet d'un texte vient du Sénat, et de lui seul** (2026-10-04).
   L'Assemblée ne classe pas ses dossiers par thème ; le Sénat le fait, dans la
   colonne `THEMES` de `dossiers-legislatifs.csv`. 30 sujets, **729 textes sur

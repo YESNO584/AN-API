@@ -37,8 +37,9 @@ Trois choses à savoir :
 La colonne « En séance publique » est presque toujours vide, et c'est juste :
 la séance s'achève le jour même par une décision.
 
-Comme pour « Travaux », **cet onglet n'a pas de filtres** : ils portent sur le
-parcours de l'Assemblée, et les garder ferait un fil vide sans raison visible.
+**Les filtres s'y appliquent**, mais pas les mêmes : l'étape filtrée est celle
+du Sénat, et il n'y a pas de filtre « Votes » — les votes portés par la carte
+sont ceux de l'Assemblée. Voir « Les filtres » plus bas.
 
 ### Les deux onglets d'origine
 
@@ -55,8 +56,9 @@ parcours. Côté travaux, une colonne est une **catégorie** : ces dossiers ne
 traversent rien, ils *sont* ce qu'ils sont. La frise du bas le reflète : elle
 n'y allume aucune étape « déjà passée », parce qu'il n'y en a pas.
 
-La recherche et les filtres ne s'affichent que sur l'onglet des textes : ils
-portent sur des étapes et des chambres, qui n'ont pas de sens ici.
+**La recherche et les filtres s'appliquent aux trois onglets**, chacun avec
+ceux qui ont un sens pour lui. « Travaux » n'a ni étape, ni vote, ni sujet :
+ces champs n'existent pas pour un dossier qui ne devient pas une loi.
 
 ## Le calendrier
 
@@ -221,6 +223,16 @@ l'Assemblée. C'est une absence réelle, pas une donnée manquante.
 
 ### Les filtres
 
+**Ils valent dans les trois onglets, et chacun n'affiche que les siens**
+(2026-10-04). Avant, le panneau et la barre de recherche ne servaient que
+l'onglet « Textes » : chercher « santé » au Sénat ne donnait rien, puisque la
+barre était cachée.
+
+Un filtre absent de la liste d'un onglet n'est **ni dessiné, ni appliqué, ni
+compté** dans le badge du bouton. Les trois doivent dire la même chose : un
+badge qui annonce « 1 » pendant que le fil ignore ce filtre est pire que pas
+de badge du tout.
+
 Les puces suivent **le même ordre que le fil et que la frise** : arrêté en
 chemin, les six étapes, la promulgation. Trois vues d'une même chose ne
 peuvent pas s'ordonner de trois façons.
@@ -229,20 +241,60 @@ Le bandeau du haut reste collé en haut de l'écran, à hauteur constante :
 mesuré, il partait avec le défilement et l'en-tête blanc venait prendre sa
 place — ce qui donnait l'impression qu'il rétrécissait.
 
-| Filtre | Ce qu'il permet |
-|---|---|
-| **Étape** | Les six étapes du parcours |
-| **Où le texte se trouve** | Assemblée, Sénat, ou les deux (commission mixte paritaire) |
-| **Nature du texte** | Proposition, projet, loi organique, constitutionnelle, budget, ratification… |
-| **Dernier mouvement** | Cette semaine, ce mois-ci, ces trois mois — ou à l'arrêt depuis plus d'un an |
-| **Issue** | En cours, promulguée, rejetée, non adoptée, retirée, caduque |
-| **Sujet** | Les 30 sujets dont le Sénat classe les dossiers — santé, logement, justice… |
-| **Votes** | A fait l'objet d'un vote, voté sur le texte entier, adopté, rejeté |
-| **Calendrier** | Les textes dont une séance est déjà programmée |
-| **Recherche** | Dans les titres |
+| Filtre | Ce qu'il permet | Textes | Sénat | Travaux |
+|---|---|:--:|:--:|:--:|
+| **Étape du parcours** | Les six étapes de l'Assemblée | ✓ | | |
+| **Étape au Sénat** | Les cinq moments que le Sénat nomme | | ✓ | |
+| **Issue** | En cours, promulguée, rejetée, non adoptée, retirée, caduque | ✓ | ✓ | ✓ |
+| **Sujet** | Les 30 sujets dont le Sénat classe les dossiers | ✓ | ✓ | |
+| **Où le texte se trouve** | Assemblée, Sénat, ou les deux | ✓ | ✓ | ✓ |
+| **Nature du texte** | Proposition, projet, loi organique, résolution, rapport… | ✓ | ✓ | ✓ |
+| **Dernier mouvement** | Cette semaine, ce mois-ci, ces trois mois — ou à l'arrêt | ✓ | ✓ | ✓ |
+| **Votes** | A fait l'objet d'un vote, voté sur l'ensemble, adopté, rejeté | ✓ | | |
+| **Calendrier** | Les textes dont une séance est déjà programmée | ✓ | | |
+| **Recherche** | Dans les titres | ✓ | ✓ | ✓ |
 
 Ils se combinent, chacun affiche son nombre de textes, ceux qui ne mèneraient
-à rien sont grisés, et un bouton efface tout.
+à rien sont grisés, et un bouton efface tout — **y compris les filtres des
+autres onglets**, puisqu'ils restent posés quand on change d'onglet.
+
+#### Pourquoi chaque onglet n'a pas les mêmes
+
+- **L'étape du parcours** range l'onglet « Textes ». L'onglet « Sénat » range
+  sur les étapes du Sénat : c'est donc sur celles-là qu'il filtre, et les deux
+  ne se mélangent pas.
+- **Les votes** portés par une carte sont ceux de l'Assemblée. Un filtre
+  « Adopté » dans l'onglet du Sénat les donnerait pour des votes du Sénat.
+- **Le sujet n'existe pas dans « Travaux »** : mesuré le 2026-10-04, **aucun
+  des 721 travaux n'a de dossier au Sénat**. Ce sont des résolutions, des
+  commissions d'enquête, des rapports — ils ne quittent jamais l'Assemblée. Un
+  filtre « Sujet » y serait vide à jamais, et un filtre qui ne trouve jamais
+  rien ne s'affiche pas.
+- Un travail n'a **ni étape du parcours, ni vote, ni séance programmée** : le
+  socle ne publie pas ces champs pour lui.
+
+#### Les comptes se mesurent sur l'onglet
+
+Dans « Sénat », « Rapport déposé 20 » veut dire 20 textes **passés au Sénat**.
+Une puce qui annoncerait le compte de toute l'Assemblée promettrait des textes
+qu'elle n'ouvrira jamais.
+
+La même règle vaut pour la note sous les sujets, **et sa raison change d'un
+onglet à l'autre** : dans « Textes », les 1 489 textes sans sujet ne sont
+jamais allés au Sénat ; dans « Sénat », les 2 qui en manquent y sont forcément
+allés — c'est le Sénat qui n'a rien classé. Dire la première phrase dans le
+second onglet serait faux.
+
+#### La recherche est souple
+
+« legitime » trouve « Légitime », « coeur » trouve « cœur », et « l'usage »
+trouve « l’usage ». Trois transformations, dans cet ordre : les ligatures
+(`œ`, `æ` — que la décomposition Unicode ne défait pas), puis les accents,
+puis les apostrophes.
+
+**L'apostrophe est celle qui comptait le plus** : la source écrit l'apostrophe
+typographique `’` dans **729 titres sur 2 218**, et aucun clavier ne la donne
+au premier coup. Avant, chercher « l'effectivité » ne trouvait rien.
 
 #### Le filtre « Sujet », et ce qu'il doit avouer
 

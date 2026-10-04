@@ -1407,8 +1407,8 @@ const EXPLICATIONS = {
 let TEXTES = [];
 let GROUPES = new Map();
 let ETAT = {};
-const filtres = { etapes: new Set(), chambres: new Set(), types: new Set(),
-                  themes: new Set(),
+const filtres = { etapes: new Set(), etapesSenat: new Set(),
+                  chambres: new Set(), types: new Set(), themes: new Set(),
                   activite: null, programme: false, vote: null, etat: null, mots: "" };
 
 const nb = new Intl.NumberFormat("fr-FR");
@@ -1452,6 +1452,19 @@ const FRISE_EN_ORDRE = [etapeDe(ARRETE), ...PARCOURS, etapeDe(PROMULGUEE)]
                        .filter(Boolean);
 const statutDe = (t) => t.statut || (t.etape === PROMULGUEE ? "promulgue" : "en_cours");
 
+/* **La recherche doit être souple, parce que le clavier l'est.** « legitime »
+   doit trouver « Légitime », « coeur » trouver « cœur », et « l'usage »
+   trouver « l’usage » — la source écrit l'apostrophe typographique, qu'aucun
+   clavier ne donne au premier coup. Trois transformations, dans cet ordre :
+   les ligatures (que la décomposition Unicode ne défait pas), puis les
+   accents, puis les apostrophes. */
+const LIGATURES = [[/œ/g, "oe"], [/æ/g, "ae"], [/[’‘‛´`]/g, "'"]];
+function normaliser(s) {
+  let t = (s || "").toLowerCase();
+  for (const [de, vers] of LIGATURES) t = t.replace(de, vers);
+  return t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 /* ---------- les deux onglets ---------- *
  * « Textes » : ce qui peut devenir une loi, rangé par étape du parcours.
  * « Travaux » : tout le reste — enquêtes, rapports, prises de position,
@@ -1465,7 +1478,6 @@ const statutDe = (t) => t.statut || (t.etape === PROMULGUEE ? "promulgue" : "en_
 let ONGLET = "textes";
 let SENAT = [];
 let THEMES = [];
-let THEMES_TOTAL = 0;      // combien de textes portent au moins un sujet
 let TRAVAUX = [];
 let CATEGORIES_TRAVAUX = [];
 
@@ -1474,8 +1486,13 @@ const VUES = {
   // chercher : le fil de l'Assemblée reste l'onglet par défaut.
   senat: {
     nom: "Sénat",
-    liste: () => SENAT,
+    base: () => SENAT,
+    liste: () => retenus("senat"),
     total: () => SENAT.length,
+    // Pas d'étape de l'Assemblée ici — l'onglet range sur celles du Sénat.
+    // Pas de « Votes » non plus : les votes portés par la carte sont ceux de
+    // l'Assemblée, et un filtre les donnerait pour des votes du Sénat.
+    filtres: ["etapesSenat", "etat", "themes", "chambres", "types", "activite"],
     categorieDe: (t) => t.senat.moment,
     ordre: () => ETAPES_SENAT,
     cleDe: (e) => e.cle,
@@ -1491,8 +1508,11 @@ const VUES = {
   textes: {
     nom: "Textes",
     parcours: true,
-    liste: () => retenus(),
+    base: () => TEXTES,
+    liste: () => retenus("textes"),
     total: () => TEXTES.length,
+    filtres: ["etapes", "etat", "themes", "chambres", "types", "activite",
+              "vote", "programme"],
     categorieDe: (t) => t.etape,
     ordre: () => FRISE_EN_ORDRE,
     cleDe: (e) => e.n,
@@ -1508,8 +1528,17 @@ const VUES = {
   travaux: {
     nom: "Travaux",
     parcours: false,
-    liste: () => TRAVAUX,
+    base: () => TRAVAUX,
+    liste: () => retenus("travaux"),
     total: () => TRAVAUX.length,
+    // **Un travail n'a ni étape du parcours, ni vote, ni séance programmée,
+    // ni sujet**, et le socle ne publie pas ces champs pour lui. Le sujet
+    // surtout : mesuré le 2026-10-04, **aucun des 721 travaux n'a de dossier
+    // au Sénat** — ce sont des résolutions, des commissions d'enquête, des
+    // rapports, qui ne quittent jamais l'Assemblée. Un filtre « Sujet » y
+    // serait vide à jamais. Un filtre qui ne trouve jamais rien ne s'affiche
+    // pas.
+    filtres: ["etat", "chambres", "types", "activite"],
     categorieDe: (t) => t.type,
     ordre: () => CATEGORIES_TRAVAUX,
     cleDe: (c) => c.nom,
@@ -1519,6 +1548,15 @@ const VUES = {
 };
 
 const vue = () => VUES[ONGLET];
+
+/* **Les filtres valent dans les trois onglets, et chacun n'affiche que les
+   siens** (2026-10-04). Avant, le panneau ne servait que l'onglet « Textes » :
+   chercher « santé » au Sénat ne donnait rien, puisque la recherche était
+   cachée. Un filtre absent de la liste `filtres` d'une vue n'est **ni
+   dessiné, ni appliqué, ni compté** dans le badge du bouton — les trois
+   doivent dire la même chose, sinon le badge annonce un filtre que le fil
+   ignore. */
+const aLeFiltre = (nom, v = ONGLET) => VUES[v].filtres.includes(nom);
 // La catégorie affichée, décrite : son nom, ce qu'elle est, son rang.
 function categorieDite(cle) {
   const liste = vue().ordre();
@@ -1561,37 +1599,56 @@ const ACTIVITE = {
   trimestre: ["3 derniers mois", 92], arret: ["À l'arrêt depuis 1 an", -365],
 };
 
-function retenus() {
-  const mots = filtres.mots.trim().toLowerCase();
-  return TEXTES.filter((t) => {
-    if (filtres.etat && statutDe(t) !== filtres.etat) return false;
-    if (filtres.etapes.size && !filtres.etapes.has(t.etape)) return false;
-    if (filtres.chambres.size && !filtres.chambres.has(t.chambre || "aucune")) return false;
-    if (filtres.types.size && !filtres.types.has(t.type)) return false;
+function retenus(v = ONGLET) {
+  const mots = normaliser(filtres.mots.trim());
+  const a = (nom) => aLeFiltre(nom, v);
+  return VUES[v].base().filter((t) => {
+    if (a("etat") && filtres.etat && statutDe(t) !== filtres.etat) return false;
+    if (a("etapes") && filtres.etapes.size && !filtres.etapes.has(t.etape)) return false;
+    // L'onglet du Sénat range sur les étapes du Sénat : c'est donc sur
+    // celles-là qu'il filtre, et jamais sur celles de l'Assemblée.
+    if (a("etapesSenat") && filtres.etapesSenat.size
+        && !filtres.etapesSenat.has((t.senat || {}).moment)) return false;
+    if (a("chambres") && filtres.chambres.size
+        && !filtres.chambres.has(t.chambre || "aucune")) return false;
+    if (a("types") && filtres.types.size && !filtres.types.has(t.type)) return false;
     // Un texte sans thème n'est pas « hors sujet » : il n'est jamais allé au
     // Sénat, qui est le seul à classer. Le filtre l'écarte, et le dit.
-    if (filtres.themes.size
+    if (a("themes") && filtres.themes.size
         && !(t.themes || []).some((x) => filtres.themes.has(x))) return false;
-    if (filtres.programme && !t.prochaine_date) return false;
-    if (filtres.vote === "tous" && !t.votes) return false;
-    if (filtres.vote === "ensemble" && !t.voteEnsemble) return false;
-    if (filtres.vote === "adopte" && !(t.voteEnsemble && t.voteEnsemble.sort === "adopté")) return false;
-    if (filtres.vote === "rejete" && !(t.voteEnsemble && t.voteEnsemble.sort !== "adopté")) return false;
-    if (filtres.activite) {
+    if (a("programme") && filtres.programme && !t.prochaine_date) return false;
+    if (a("vote") && filtres.vote) {
+      const v = filtres.vote;
+      if (v === "tous" && !t.votes) return false;
+      if (v === "ensemble" && !t.voteEnsemble) return false;
+      if (v === "adopte" && !(t.voteEnsemble && t.voteEnsemble.sort === "adopté")) return false;
+      if (v === "rejete" && !(t.voteEnsemble && t.voteEnsemble.sort !== "adopté")) return false;
+    }
+    if (a("activite") && filtres.activite) {
       const seuil = ACTIVITE[filtres.activite][1];
       const age = jours(t.date_dernier_mouvement);
       if (seuil > 0 ? age > seuil : age < -seuil) return false;
     }
-    if (mots && !t.titre.toLowerCase().includes(mots)) return false;
+    if (mots && !normaliser(t.titre).includes(mots)) return false;
     return true;
   });
 }
 
-function combienActifs() {
-  return filtres.etapes.size + filtres.chambres.size + filtres.types.size
-       + filtres.themes.size
-       + (filtres.activite ? 1 : 0) + (filtres.programme ? 1 : 0)
-       + (filtres.vote ? 1 : 0) + (filtres.etat ? 1 : 0);
+/* Le badge du bouton « Filtres » ne compte que ce que **cet onglet** applique.
+   Sans cette restriction, un filtre d'étape posé dans « Textes » comptait pour
+   un dans « Travaux », qui ne s'en sert pas : le badge annonçait un filtre que
+   le fil ignorait. */
+function combienActifs(v = ONGLET) {
+  const a = (nom) => aLeFiltre(nom, v);
+  return (a("etapes") ? filtres.etapes.size : 0)
+       + (a("etapesSenat") ? filtres.etapesSenat.size : 0)
+       + (a("chambres") ? filtres.chambres.size : 0)
+       + (a("types") ? filtres.types.size : 0)
+       + (a("themes") ? filtres.themes.size : 0)
+       + (a("activite") && filtres.activite ? 1 : 0)
+       + (a("programme") && filtres.programme ? 1 : 0)
+       + (a("vote") && filtres.vote ? 1 : 0)
+       + (a("etat") && filtres.etat ? 1 : 0);
 }
 
 /* ---------- panneau des filtres ---------- */
@@ -1636,118 +1693,160 @@ function bascule(ensemble, valeur) {
 function dessinerFiltres() {
   const boite = $("filtres");
   boite.textContent = "";
-  const base = retenus();
-  const compteur = (predicat) => TEXTES.filter(predicat).length;
+  const v = ONGLET;
+  const a = (nom) => aLeFiltre(nom, v);
+  // **Les comptes se mesurent sur l'onglet, pas sur l'Assemblée.** Dans
+  // l'onglet du Sénat, « Justice 40 » doit vouloir dire 40 textes passés au
+  // Sénat — afficher 67 ferait promettre à la puce des textes qu'elle
+  // n'ouvrira jamais.
+  const base = VUES[v].base();
+  const compteur = (predicat) => base.filter(predicat).length;
 
-  boite.append(groupe("Étape du parcours", FRISE_EN_ORDRE.map((e) =>
-    puce(e.nom, filtres.etapes.has(e.n), compteur((t) => t.etape === e.n),
-         () => bascule(filtres.etapes, e.n),
-         [e.nom, e.quoi, e.n === PROMULGUEE ? "Parcours terminé" : `Étape ${e.n} sur 6`]))));
+  if (a("etapes")) {
+    boite.append(groupe("Étape du parcours", FRISE_EN_ORDRE.map((e) =>
+      puce(e.nom, filtres.etapes.has(e.n), compteur((t) => t.etape === e.n),
+           () => bascule(filtres.etapes, e.n),
+           [e.nom, e.quoi, e.n === PROMULGUEE ? "Parcours terminé" : `Étape ${e.n} sur 6`]))));
+  }
 
-  const issues = [
-    ["en_cours", "En cours d'examen", ["Un texte encore en chemin",
-      "Il est quelque part entre son dépôt et sa promulgation. Rien ne dit " +
-      "qu'il ira au bout : la plupart s'arrêtent en route."]],
-    ["promulgue", "Promulguée",
-     [etapeDe(PROMULGUEE).nom, etapeDe(PROMULGUEE).quoi]],
-    ["rejete", "Rejeté", ISSUES.rejete],
-    ["non_adopte", "Non adopté", ISSUES.non_adopte],
-    ["retire", "Retiré", ISSUES.retire],
-    ["caduc", "Caduc", ISSUES.caduc],
-  ];
-  boite.append(groupe("Issue", issues.map(([cle, nom, aide]) =>
-    puce(nom, filtres.etat === cle, compteur((t) => statutDe(t) === cle),
-         () => { filtres.etat = filtres.etat === cle ? null : cle; dessiner(); },
-         aide))));
+  if (a("etapesSenat")) {
+    boite.append(groupe("Étape au Sénat", ETAPES_SENAT.map((e) =>
+      puce(e.nom, filtres.etapesSenat.has(e.cle),
+           compteur((t) => (t.senat || {}).moment === e.cle),
+           () => bascule(filtres.etapesSenat, e.cle),
+           [e.nom, e.quoi]))));
+  }
+
+  if (a("etat")) {
+    const issues = [
+      ["en_cours", "En cours d'examen", ["Un texte encore en chemin",
+        "Il est quelque part entre son dépôt et sa promulgation. Rien ne dit " +
+        "qu'il ira au bout : la plupart s'arrêtent en route."]],
+      ["promulgue", "Promulguée",
+       [etapeDe(PROMULGUEE).nom, etapeDe(PROMULGUEE).quoi]],
+      ["rejete", "Rejeté", ISSUES.rejete],
+      ["non_adopte", "Non adopté", ISSUES.non_adopte],
+      ["retire", "Retiré", ISSUES.retire],
+      ["caduc", "Caduc", ISSUES.caduc],
+    ];
+    boite.append(groupe("Issue", issues.map(([cle, nom, aide]) =>
+      puce(nom, filtres.etat === cle, compteur((t) => statutDe(t) === cle),
+           () => { filtres.etat = filtres.etat === cle ? null : cle; dessiner(); },
+           aide))));
+  }
 
   // **Le sujet d'un texte, et la seule chose que l'application ne savait pas
-  // dire.** Les thèmes viennent du Sénat, qui est le seul à classer : deux
-  // textes sur trois n'en portent aucun, et le groupe le dit sous les puces
-  // plutôt que de les faire disparaître sans raison.
-  if (THEMES.length) {
-    const sujets = groupe("Sujet", THEMES.map((x) =>
-      puce(x.nom, filtres.themes.has(x.nom),
-           compteur((t) => (t.themes || []).includes(x.nom)),
+  // dire.** Les thèmes viennent du Sénat, qui est le seul à classer : les
+  // textes qui n'y sont jamais allés n'en portent aucun, et le groupe le dit
+  // sous les puces plutôt que de les faire disparaître sans raison.
+  if (a("themes") && THEMES.length) {
+    const compte = new Map(THEMES.map((x) =>
+      [x.nom, compteur((t) => (t.themes || []).includes(x.nom))]));
+    const ranges = [...THEMES].sort((x, y) => compte.get(y.nom) - compte.get(x.nom)
+                                              || x.nom.localeCompare(y.nom, "fr"));
+    const sujets = groupe("Sujet", ranges.map((x) =>
+      puce(x.nom, filtres.themes.has(x.nom), compte.get(x.nom),
            () => bascule(filtres.themes, x.nom),
            ["Le sujet d'un texte",
             "Le classement est celui du Sénat, repris tel quel : c'est le seul " +
             "des deux à en publier un. Un texte peut porter plusieurs sujets."])));
-    const sans = TEXTES.length - THEMES_TOTAL;
+    // **La raison d'un sujet manquant n'est pas la même dans les deux
+    // onglets.** Dans « Textes », c'est que le texte n'est jamais allé au
+    // Sénat ; dans « Sénat », il y est forcément allé — c'est le Sénat qui
+    // n'a rien classé. Dire la première phrase ici serait faux.
+    const sans = base.filter((t) => !(t.themes || []).length).length;
     if (sans > 0) {
       sujets.append(el("p", "rien",
-        `${nb.format(sans)} textes sur ${nb.format(TEXTES.length)} n'ont aucun `
-        + "sujet : ils ne sont jamais allés au Sénat, et l'Assemblée n'en "
-        + "publie pas. Filtrer par sujet les écarte."));
+        `${nb.format(sans)} texte${sans > 1 ? "s" : ""} sur `
+        + `${nb.format(base.length)} n'${sans > 1 ? "ont" : "a"} aucun sujet : `
+        + (v === "senat"
+            ? "le Sénat n'en a publié aucun pour eux."
+            : "ils ne sont jamais allés au Sénat, et l'Assemblée n'en publie "
+              + "pas.")
+        + " Filtrer par sujet les écarte."));
     }
     boite.append(sujets);
   }
 
-  boite.append(groupe("Où le texte se trouve", ["assemblee", "senat", "aucune"].map((c) =>
-    puce(c === "aucune" ? "Les deux" : CHAMBRES[c][0],
-         filtres.chambres.has(c), compteur((t) => (t.chambre || "aucune") === c),
-         () => bascule(filtres.chambres, c),
-         c === "aucune" ? CHAMBRES[null] : CHAMBRES[c]))));
+  if (a("chambres")) {
+    boite.append(groupe("Où le texte se trouve", ["assemblee", "senat", "aucune"].map((c) =>
+      puce(c === "aucune" ? "Les deux" : CHAMBRES[c][0],
+           filtres.chambres.has(c), compteur((t) => (t.chambre || "aucune") === c),
+           () => bascule(filtres.chambres, c),
+           c === "aucune" ? CHAMBRES[null] : CHAMBRES[c]))));
+  }
 
-  const typesPresents = [...new Set(TEXTES.map((t) => t.type))]
-    .sort((a, b) => compteur((t) => t.type === b) - compteur((t) => t.type === a));
-  boite.append(groupe("Nature du texte", typesPresents.map((ty) =>
-    puce(typeCourt(ty), filtres.types.has(ty), compteur((t) => t.type === ty),
-         () => bascule(filtres.types, ty),
-         TYPES[ty] || [ty, "Une catégorie de texte que le Parlement distingue."]))));
+  if (a("types")) {
+    const compte = new Map();
+    for (const t of base) compte.set(t.type, (compte.get(t.type) || 0) + 1);
+    const presents = [...compte.keys()].sort((x, y) => compte.get(y) - compte.get(x));
+    boite.append(groupe("Nature du texte", presents.map((ty) =>
+      puce(typeCourt(ty), filtres.types.has(ty), compte.get(ty),
+           () => bascule(filtres.types, ty),
+           TYPES[ty] || [ty, "Une catégorie de texte que le Parlement distingue."]))));
+  }
 
-  boite.append(groupe("Dernier mouvement", Object.entries(ACTIVITE).map(([cle, [nom, seuil]]) =>
-    puce(nom, filtres.activite === cle,
-         compteur((t) => { const a = jours(t.date_dernier_mouvement);
-                           return seuil > 0 ? a <= seuil : a >= -seuil; }),
-         () => { filtres.activite = filtres.activite === cle ? null : cle; dessiner(); },
-         seuil > 0
-           ? ["Textes qui ont bougé récemment",
-              "Un événement — dépôt, réunion, débat, vote — a eu lieu sur ce texte " +
-              "pendant la période choisie. C'est la façon la plus simple de voir ce " +
-              "sur quoi le Parlement travaille en ce moment.", nom]
-           : EXPLICATIONS.dormant))));
+  if (a("activite")) {
+    boite.append(groupe("Dernier mouvement", Object.entries(ACTIVITE).map(([cle, [nom, seuil]]) =>
+      puce(nom, filtres.activite === cle,
+           compteur((t) => { const x = jours(t.date_dernier_mouvement);
+                             return seuil > 0 ? x <= seuil : x >= -seuil; }),
+           () => { filtres.activite = filtres.activite === cle ? null : cle; dessiner(); },
+           seuil > 0
+             ? ["Textes qui ont bougé récemment",
+                "Un événement — dépôt, réunion, débat, vote — a eu lieu sur ce texte " +
+                "pendant la période choisie. C'est la façon la plus simple de voir ce " +
+                "sur quoi le Parlement travaille en ce moment.", nom]
+             : EXPLICATIONS.dormant))));
+  }
 
-  boite.append(groupe("Votes", [
-    puce("A fait l'objet d'un vote", filtres.vote === "tous",
-         compteur((t) => t.votes > 0),
-         () => { filtres.vote = filtres.vote === "tous" ? null : "tous"; dessiner(); },
-         EXPLICATIONS.vote),
-    puce("Voté sur le texte entier", filtres.vote === "ensemble",
-         compteur((t) => !!t.voteEnsemble),
-         () => { filtres.vote = filtres.vote === "ensemble" ? null : "ensemble"; dessiner(); },
-         EXPLICATIONS.voteEnsemble),
-    puce("Adopté", filtres.vote === "adopte",
-         compteur((t) => t.voteEnsemble && t.voteEnsemble.sort === "adopté"),
-         () => { filtres.vote = filtres.vote === "adopte" ? null : "adopte"; dessiner(); },
-         ["Adopté sur l'ensemble",
-          "La chambre a voté pour le texte entier. Il poursuit son parcours — " +
-          "cela ne veut pas dire qu'il est devenu une loi."]),
-    puce("Rejeté", filtres.vote === "rejete",
-         compteur((t) => t.voteEnsemble && t.voteEnsemble.sort !== "adopté"),
-         () => { filtres.vote = filtres.vote === "rejete" ? null : "rejete"; dessiner(); },
-         ["Rejeté sur l'ensemble",
-          "La chambre a voté contre le texte entier."]),
-  ]));
+  if (a("vote")) {
+    boite.append(groupe("Votes", [
+      puce("A fait l'objet d'un vote", filtres.vote === "tous",
+           compteur((t) => t.votes > 0),
+           () => { filtres.vote = filtres.vote === "tous" ? null : "tous"; dessiner(); },
+           EXPLICATIONS.vote),
+      puce("Voté sur le texte entier", filtres.vote === "ensemble",
+           compteur((t) => !!t.voteEnsemble),
+           () => { filtres.vote = filtres.vote === "ensemble" ? null : "ensemble"; dessiner(); },
+           EXPLICATIONS.voteEnsemble),
+      puce("Adopté", filtres.vote === "adopte",
+           compteur((t) => t.voteEnsemble && t.voteEnsemble.sort === "adopté"),
+           () => { filtres.vote = filtres.vote === "adopte" ? null : "adopte"; dessiner(); },
+           ["Adopté sur l'ensemble",
+            "La chambre a voté pour le texte entier. Il poursuit son parcours — " +
+            "cela ne veut pas dire qu'il est devenu une loi."]),
+      puce("Rejeté", filtres.vote === "rejete",
+           compteur((t) => t.voteEnsemble && t.voteEnsemble.sort !== "adopté"),
+           () => { filtres.vote = filtres.vote === "rejete" ? null : "rejete"; dessiner(); },
+           ["Rejeté sur l'ensemble",
+            "La chambre a voté contre le texte entier."]),
+    ]));
+  }
 
-  boite.append(groupe("Calendrier", [
-    puce("Séance déjà programmée", filtres.programme,
-         compteur((t) => !!t.prochaine_date),
-         () => { filtres.programme = !filtres.programme; dessiner(); },
-         EXPLICATIONS.prochaine),
-    puce("Vote annoncé", false, 0, () => {},
-         EXPLICATIONS.aucunVote)]));
+  if (a("programme")) {
+    boite.append(groupe("Calendrier", [
+      puce("Séance déjà programmée", filtres.programme,
+           compteur((t) => !!t.prochaine_date),
+           () => { filtres.programme = !filtres.programme; dessiner(); },
+           EXPLICATIONS.prochaine),
+      puce("Vote annoncé", false, 0, () => {},
+           EXPLICATIONS.aucunVote)]));
+  }
 
   const effacer = el("button", "effacer", "Tout effacer");
   effacer.disabled = combienActifs() === 0 && !filtres.mots;
+  // « Tout » veut dire tout, y compris les filtres des autres onglets : ils
+  // restent posés quand on change d'onglet, et ce bouton est le seul endroit
+  // d'où les défaire.
   effacer.addEventListener("click", () => {
-    filtres.etapes.clear(); filtres.chambres.clear(); filtres.types.clear();
-    filtres.themes.clear();
+    filtres.etapes.clear(); filtres.etapesSenat.clear();
+    filtres.chambres.clear(); filtres.types.clear(); filtres.themes.clear();
     filtres.activite = null; filtres.programme = false; filtres.vote = null;
     filtres.etat = null; filtres.mots = "";
     $("recherche").value = ""; dessiner();
   });
   boite.append(effacer);
-  void base;
 }
 
 /* ---------- une carte ---------- */
@@ -2173,13 +2272,12 @@ function carteTravail(t) {
 }
 
 /* ---------- affichage ---------- */
-// Changer d'onglet remet tout à zéro : la recherche et les filtres portent sur
-// les textes, pas sur les travaux, et les garder ferait un fil vide sans raison
-// visible.
+/* Changer d'onglet **garde** les filtres et la recherche : ils valent
+   maintenant dans les trois onglets, et chacun n'applique que les siens. Le
+   panneau se referme, parce qu'il ne montre plus les mêmes groupes. */
 function changerDOnglet(cle) {
   if (cle === ONGLET) return;
   ONGLET = cle;
-  document.querySelector(".barre").hidden = cle !== "textes";
   nommerLesBoutons();
   if (!$("filtres").hidden) {
     $("filtres").hidden = true;
@@ -2188,20 +2286,33 @@ function changerDOnglet(cle) {
   dessiner();
 }
 
-function dessiner(garderPosition = false) {
-  if (ONGLET === "travaux") return dessinerTravaux(garderPosition);
-  if (ONGLET === "senat") return dessinerSenat(garderPosition);
-  const liste = retenus();
-  const y = garderPosition ? window.scrollY : 0;
+/* Le compteur dit ce qu'il compte, et chaque onglet compte autre chose. */
+function compteDe(liste) {
+  const z = $("compte");
+  z.innerHTML = "";
+  z.append(el("b", null, nb.format(liste.length)));
+  const total = VUES[ONGLET].total();
+  const sur = liste.length !== total ? ` sur ${nb.format(total)}` : "";
 
-  $("compte").innerHTML = "";
-  $("compte").append(el("b", null, nb.format(liste.length)));
-  // Le compteur doit dire ce qu'il compte. « 22 textes en cours d'examen »
-  // serait faux pour 22 textes non adoptés.
+  if (ONGLET === "senat") {
+    // Ce que l'onglet ne compte pas vaut ce qu'il compte : deux textes sur
+    // trois ne sont jamais allés au Sénat.
+    const pl = liste.length > 1 ? "s" : "";
+    z.append(document.createTextNode(
+      ` texte${pl} passé${pl} au Sénat${sur || ` sur ${nb.format(TEXTES.length)}`}`));
+    return;
+  }
+  if (ONGLET === "travaux") {
+    z.append(document.createTextNode(
+      ` dossier${liste.length > 1 ? "s" : ""}${sur}`
+      + " de l'Assemblée qui n'aboutissent à aucune loi"));
+    return;
+  }
+  // « 22 textes en cours d'examen » serait faux pour 22 textes non adoptés :
+  // le compteur ne nomme une issue que s'il n'y en a qu'une.
   const issues = new Set(liste.map(statutDe));
   const finies = liste.filter((t) => t.etape === PROMULGUEE).length;
-  let suite = liste.length > 1 ? " textes" : " texte";
-  if (liste.length !== TEXTES.length) suite += ` sur ${nb.format(TEXTES.length)}`;
+  let suite = (liste.length > 1 ? " textes" : " texte") + sur;
   if (issues.size === 1) {
     const seule = [...issues][0];
     if (seule === "promulgue") suite += liste.length > 1 ? ", devenus des lois" : ", devenu une loi";
@@ -2210,21 +2321,43 @@ function dessiner(garderPosition = false) {
   } else if (finies) {
     suite += `, dont ${nb.format(finies)} devenus des lois`;
   }
-  $("compte").append(document.createTextNode(suite));
+  z.append(document.createTextNode(suite));
+}
 
+/* Un fil vide a deux causes, et il faut les distinguer : les filtres n'ont
+   rien laissé passer, ou l'onglet n'a rien reçu du socle. Dire « enlevez un
+   filtre » quand il n'y en a aucun enverrait chercher ce qui n'existe pas. */
+function filVide() {
+  if (combienActifs() || filtres.mots.trim()) {
+    const quoi = ONGLET === "travaux" ? "dossier" : "texte";
+    return `Aucun ${quoi} ne correspond. Essayez d'enlever un filtre.`;
+  }
+  if (ONGLET === "senat") {
+    return "Aucun texte au Sénat. La publication du jour ne porte pas encore "
+         + "ses étapes.";
+  }
+  if (ONGLET === "travaux") return "Aucun travail à afficher.";
+  return "Aucun texte à afficher.";
+}
 
-  const actifs = combienActifs();
+/* Les trois onglets se dessinent pareil : la même liste filtrée, le même
+   compteur, le même badge, les mêmes colonnes. Seul ce que chacun déclare dans
+   `VUES` les sépare. */
+function dessiner(garderPosition = false) {
+  const y = garderPosition ? window.scrollY : 0;
+  const liste = VUES[ONGLET].liste();
+  compteDe(liste);
+
   const b = $("bascule");
   b.textContent = "Filtres";
+  const actifs = combienActifs();
   if (actifs) b.append(el("span", "n", String(actifs)));
-
   if (!$("filtres").hidden) dessinerFiltres();
 
   const fil = $("fil");
   fil.textContent = "";
   if (!liste.length) {
-    fil.append(el("div", "vide",
-      "Aucun texte ne correspond. Essayez d'enlever un filtre."));
+    fil.append(el("div", "vide", filVide()));
     CATEGORIES = [];
     // La barre du bas reste : c'est par ses onglets qu'on repart.
     dessinerFriseBas(null);
@@ -2232,54 +2365,6 @@ function dessiner(garderPosition = false) {
   }
 
   dessinerColonnes(liste);
-  if (!garderPosition) window.scrollTo(0, 0); else window.scrollTo(0, y);
-}
-
-/* L'onglet du Sénat : les mêmes textes et les mêmes cartes, rangés selon les
-   étapes que le Sénat nomme lui-même. Pas de filtres — ils portent sur le
-   parcours de l'Assemblée, et les garder ici ferait un fil vide sans raison
-   visible. */
-function dessinerSenat(garderPosition = false) {
-  const y = garderPosition ? window.scrollY : 0;
-  $("compte").innerHTML = "";
-  $("compte").append(el("b", null, nb.format(SENAT.length)));
-  // Le compteur dit ce qu'il compte, et surtout ce qu'il ne compte pas : deux
-  // textes sur trois ne sont jamais allés au Sénat.
-  $("compte").append(document.createTextNode(
-    ` texte${SENAT.length > 1 ? "s" : ""} passé${SENAT.length > 1 ? "s" : ""} `
-    + `au Sénat, sur ${nb.format(TEXTES.length)}`));
-
-  const fil = $("fil");
-  fil.textContent = "";
-  if (!SENAT.length) {
-    fil.append(el("div", "vide",
-      "Aucun texte au Sénat. La publication du jour ne porte pas encore ses "
-      + "étapes."));
-    CATEGORIES = [];
-    dessinerFriseBas(null);
-    return;
-  }
-  dessinerColonnes(SENAT);
-  window.scrollTo(0, garderPosition ? y : 0);
-}
-
-// L'onglet des travaux : mêmes colonnes, même frise, pas de filtres.
-function dessinerTravaux(garderPosition = false) {
-  const y = garderPosition ? window.scrollY : 0;
-  $("compte").innerHTML = "";
-  $("compte").append(el("b", null, nb.format(TRAVAUX.length)));
-  $("compte").append(document.createTextNode(
-    " dossiers de l'Assemblée qui n'aboutissent à aucune loi"));
-
-  const fil = $("fil");
-  fil.textContent = "";
-  if (!TRAVAUX.length) {
-    fil.append(el("div", "vide", "Aucun travail à afficher."));
-    CATEGORIES = [];
-    dessinerFriseBas(null);
-    return;
-  }
-  dessinerColonnes(TRAVAUX);
   window.scrollTo(0, garderPosition ? y : 0);
 }
 
@@ -5399,8 +5484,9 @@ function fermerFiche() {
   $("fiche").textContent = "";
   $("fil").hidden = false;
   $("compte").hidden = false;
-  // La recherche et les filtres ne portent que sur les textes.
-  document.querySelector(".barre").hidden = ONGLET !== "textes";
+  // La recherche et les filtres valent dans les trois onglets : la barre
+  // revient quel que soit celui d'où l'on vient.
+  document.querySelector(".barre").hidden = false;
 }
 
 function router() {
@@ -5528,7 +5614,6 @@ async function charger() {
     // Les sujets que le Sénat publie. L'application n'en avait aucun avant
     // lui : on filtrait par étape, par chambre, par type, jamais par « santé ».
     THEMES = (etapes?.themes) || [];
-    THEMES_TOTAL = (etapes?.textesAvecTheme) || 0;
     TRAVAUX = travaux?.travaux || [];
     CATEGORIES_TRAVAUX = travaux?.categories || [];
     ETAT = etat || {};

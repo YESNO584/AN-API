@@ -1143,3 +1143,28 @@ La leçon, qui vaut au-delà de SQLite : **un décor de test rangé comme la rè
 le rangerait ne prouve rien.** Et le réflexe qui l'attrape est toujours le
 même — défaire la règle, et exiger qu'un test nommé le voie. C'est la troisième
 fois qu'un test aveugle est trouvé de cette façon dans ce projet.
+
+### Un défaut par défaut : le filtre que les données ne peuvent pas remplir
+
+Il était prévu d'ajouter le sujet aux travaux de l'Assemblée, pour que les
+trois onglets se ressemblent. La mesure a dit non : **aucun des 721 travaux
+n'a de dossier au Sénat** — ce sont des résolutions, des commissions
+d'enquête, des rapports, qui ne quittent jamais l'Assemblée. Le sujet venant
+du Sénat, le filtre aurait été vide à jamais.
+
+Le code a été écrit, mesuré à zéro, puis défait. C'est le bon ordre : **la
+symétrie entre deux écrans n'est pas une raison de poser un filtre que les
+données ne peuvent pas remplir.** Quinze lignes de mesure avant d'y croire,
+plutôt qu'un filtre mort découvert par un utilisateur.
+
+### Trois endroits doivent dire la même chose d'un filtre
+
+Un filtre a trois présences : la puce qu'on dessine, le test qui écarte une
+ligne, et le compteur du bouton. Quand les filtres sont devenus propres à
+chaque onglet, les trois pouvaient diverger — un filtre posé dans un onglet
+restait compté dans un autre qui ne s'en sert pas, et le badge annonçait « 1 »
+pendant que le fil n'en tenait aucun compte.
+
+La parade est de faire lire aux trois **la même déclaration** (`VUES[v].filtres`,
+via `aLeFiltre`), et non de répéter la condition à trois endroits. Un badge
+qui ment sur ce que le fil applique est pire que pas de badge.
