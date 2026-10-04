@@ -1104,3 +1104,25 @@ Elles passaient toutes en local, donc rien ne l'a jamais signalé.
 **Un fichier de tests qui existe n'est pas un fichier de tests qui tourne.** À
 vérifier en ajoutant une suite : ouvrir le workflow et l'y inscrire, dans le
 même commit.
+
+### Le hook de portée bloque la commande entière, pas la partie fautive
+
+Un `python3 … && cp … && node …` a été refusé par le hook de portée, qui n'a
+vu que le `node`. **Rien n'a tourné** — et j'ai cru pendant trois tours que mon
+correctif de CSS était posé, alors que le fichier n'avait jamais changé. La
+vérification en navigateur redonnait le même défaut, ce qui ressemblait à un
+correctif qui ne marche pas.
+
+La leçon : **après un refus du hook, vérifier que l'édition a bien eu lieu**,
+et ne pas enchaîner une édition de fichier avec une commande susceptible d'être
+refusée. Une édition seule, puis le reste.
+
+### Une colonne peut porter l'identifiant d'une autre table
+
+`date_seance.lecidt` ne porte pas un `lecidt` mais un `lecassidt`. La jointure
+sur le nom rendait **zéro séance à venir sur dix-neuf**, sans erreur : juste un
+calendrier vide, qui ressemblait à « le Sénat n'a rien de prévu ».
+
+Ce qui l'a attrapé : s'étonner d'un zéro, et remonter la jointure clé par clé
+au lieu de conclure que la donnée manquait. **Un résultat vide se vérifie comme
+un résultat faux.**

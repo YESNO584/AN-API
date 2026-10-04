@@ -232,6 +232,41 @@ a pas encore d'application, de base de données ni de dépendances.
   celles des sénateurs ne sont pas libres, et celles des députés viennent elles
   aussi du site de l'Assemblée et non de l'open data. Détail dans
   `docs/sources/senat-scrutins.md`.
+- **Les données du Sénat vivent dans `senat.db`, à part, et le pont est la
+  colonne `signet`** (2026-10-04). 4,5 Mo, construite par `recuperer_senat.py`
+  selon les règles de `senat.py`, facultative, avec **sa propre clé de cache**.
+  Elle porte les scrutins, qui a voté quoi groupe par groupe, les 348
+  sénateurs et les séances à venir. 730 de nos 731 textes passés au Sénat s'y
+  retrouvent. Les votes du Sénat s'affichent dans le parcours, **à leur date et
+  jamais mêlés à ceux de l'Assemblée** : pas de total commun, pas de
+  comparaison.
+- **Le lien entre un scrutin du Sénat et un texte vient d'une page web, et de
+  rien d'autre.** Aucun fichier d'open data ne le publie : par le numéro
+  d'amendement 21 % des scrutins tombent sur un seul texte, 43 % avec une
+  fenêtre de dates, et la table des séances de la base contient 13 lignes. Les
+  pages `senat.fr/scrutin-public/scr<année>.html` le portent en clair, pour 97
+  à 100 % des scrutins. **La lecture ne doit s'appuyer sur aucune mise en
+  page** — seulement sur les deux formes d'adresse du Sénat — et
+  `senat.page_lisible` transforme une page refaite en source absente plutôt
+  qu'en « zéro vote ».
+- **Trois pièges des sources du Sénat, mesurés, à ne pas redécouvrir.**
+  `date_seance.lecidt` porte en réalité un `lecassidt` — croire au nom de la
+  colonne rendait zéro séance à venir sur dix-neuf. Les deux fichiers de
+  sénateurs **ne nomment pas les groupes pareil** et ne se rejoignent que par
+  le matricule : la clé est le code, périmé mais stable (`UMP` = Les
+  Républicains), et ranger par nom laissait tous les rangs vides. Et **le
+  séparateur des CSV change d'un fichier à l'autre du même éditeur** —
+  virgule pour les sénateurs, point-virgule pour les dossiers — sans erreur
+  quand on se trompe, juste une colonne unique portant toute la ligne.
+- **L'ordre des groupes du Sénat est mesuré sur les votes, pas sur les
+  sièges — et son sens est une convention.** La méthode de l'Assemblée échoue
+  ici : la numérotation tourne rang par rang, le groupe change 152 fois quand
+  on suit les sièges (contre 9 pour un hémicycle rangé), et aucun plan de
+  salle n'est publié. On range donc sur la façon de voter, ce qui sépare la
+  gauche, le centre et la droite sans départager l'intérieur des blocs. **La
+  mesure donne une ligne, pas un sens** : `senat.GROUPE_LE_PLUS_A_GAUCHE`
+  l'oriente, et l'écran dit que c'est une convention. **Et pas de photos de
+  sénateurs** : les mentions légales les couvrent par le droit d'auteur.
 - **Un numéro d'amendement ne suffit pas à désigner un amendement dans un
   dossier :** deux lectures y portent les mêmes numéros. Ce qui les sépare est
   le **numéro de dépôt du document amendé** (`debat_amendement.texte_numero`,

@@ -29,5 +29,12 @@ socle/archives_legi/
 # Parlement, elle n'est jamais versionnée.
 socle/textes.db
 socle/textes.db-*
+# Le Sénat : scrutins, votes nominatifs, sénateurs et séances à venir.
+# Elle se garde d'un jour sur l'autre et se reconstruit avec
+# recuperer_senat.py. Comme tout ce qui vient du Parlement, elle
+# n'est jamais versionnée.
+socle/senat.db
+socle/senat.db-*
+
 socle/*.log
 socle/public/

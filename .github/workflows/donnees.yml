@@ -59,6 +59,8 @@ jobs:
           python test_textes.py
           python test_publier.py
           python test_recuperer.py
+          python test_senat.py
+          python test_recuperer_senat.py
 
   publier:
     name: Récupérer et publier
@@ -162,6 +164,35 @@ jobs:
           print(f"Données récupérées le {ligne['fin']} ({ligne['statut']})"
                 if ligne else "Aucun chargement enregistré")
           PY
+
+      # La base du Sénat, séparée de celle de l'Assemblée — et c'est voulu.
+      # Les deux ne se remplissent pas aux mêmes heures, ne cassent pas pour
+      # les mêmes raisons, et n'ont pas les mêmes règles. **Sa clé n'empreinte
+      # que ses propres fichiers** : une modification des règles de l'Assemblée
+      # ne la jette plus, et l'inverse non plus.
+      - name: Retrouver la base du Sénat de la veille
+        uses: actions/cache@v4
+        env:
+          REGLES: ${{ hashFiles('socle/senat.py', 'socle/recuperer_senat.py',
+                                'socle/schema_senat.sql') }}
+        with:
+          path: socle/senat.db
+          key: senat-${{ env.REGLES }}-${{ github.run_id }}
+          restore-keys: senat-${{ env.REGLES }}-
+
+      # Facultative, comme le droit consolidé : sans elle, tout le reste se
+      # publie et l'application n'affiche simplement ni les votes du Sénat, ni
+      # sa composition, ni son calendrier.
+      #
+      # Elle lit **une page web** pour une seule chose : relier un scrutin à un
+      # texte, qu'aucun fichier d'open data ne publie. Une page se refait, donc
+      # `senat.page_lisible` veille — une page qui a changé de forme devient
+      # une source absente, et non « zéro vote au Sénat ».
+      - name: Récupérer les votes et la composition du Sénat
+        working-directory: socle
+        continue-on-error: true
+        timeout-minutes: 20
+        run: python recuperer_senat.py
 
       # Le droit consolidé se garde d'un jour sur l'autre. La première passe lit
       # un socle de 1,1 Go — quinze minutes, mesurées — et n'a pas à être

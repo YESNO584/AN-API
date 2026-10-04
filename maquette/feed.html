@@ -533,6 +533,12 @@
                       text-align: left; color: inherit; background: none;
                       border: 0; cursor: pointer; }
   .amdts .vers-amdt:active .num { color: var(--accent); }
+  /* Une ligne qui porte un **titre** et non un numéro : sans cela, un titre de
+     loi sortait de l'écran de 1 349 px (constaté le 2026-10-04). */
+  .amdts .vers-amdt.titre { align-items: flex-start; }
+  .amdts .vers-amdt.titre .num { flex: 1 1 auto; min-width: 0;
+                                 white-space: normal; line-height: 1.35; }
+  .amdts .vers-amdt.titre .chevron { flex: 0 0 auto; margin-top: .1rem; }
   .amdts .vers-amdt .chevron { margin-left: auto; color: var(--faible);
                                font-size: 1.1rem; line-height: 1; }
   .amdts .rien { font-size: .78rem; color: var(--faible); line-height: 1.4; }
@@ -560,6 +566,21 @@
                           padding-left: .7rem; margin-bottom: .2rem; }
   .amdts .quand-amdt { display: block; font-size: .72rem; color: var(--faible);
                        padding-left: .7rem; }
+
+  /* Les trois écrans du Sénat. La ligne de scrutin se distingue de celle de
+     l'Assemblée par un trait de couleur : les deux ne s'additionnent pas, et
+     l'œil ne doit pas pouvoir les confondre. */
+  .vote-senat { border-left: 3px solid var(--senat); padding-left: .55rem; }
+  .vote-senat .objet-vote { font-size: .8rem; color: var(--gris);
+                            margin: .15rem 0 .35rem; }
+  .groupes-senat { margin: .3rem 0 .2rem; }
+  .grp-senat { display: flex; justify-content: space-between; gap: .6rem;
+               font-size: .78rem; padding: .18rem 0;
+               border-bottom: 1px solid var(--trait); }
+  .grp-senat:last-child { border-bottom: none; }
+  .grp-senat .qui { color: var(--texte); }
+  .membres-senat { padding: .2rem 0 .5rem .7rem; }
+  .membres-senat .disp { font-size: .8rem; color: var(--gris); margin: .12rem 0; }
 
   .resume-change { display: flex; gap: .45rem; margin: 0 0 1rem; }
   .resume-change .tuile {
@@ -1286,6 +1307,23 @@ const EXPLICATIONS = {
     "Elle ne dit rien de ce qui se passe à l'Assemblée au même moment : les " +
     "deux chambres avancent chacune de son côté, et la fiche du texte montre " +
     "le parcours entier."],
+  voteSenat: ["Un scrutin public au Sénat",
+    "Le Sénat vote, lui aussi, et publie qui a voté quoi. Ces chiffres sont " +
+    "les siens : ils ne s'additionnent pas à ceux de l'Assemblée et ne se " +
+    "comparent pas à eux — les deux chambres ne votent ni sur le même texte, " +
+    "ni au même moment, ni avec le même nombre de sièges. Le rattachement du " +
+    "scrutin à ce texte vient du Sénat lui-même, qui le publie sur ses pages " +
+    "de scrutins publics."],
+  compositionSenat: ["L'ordre des groupes du Sénat",
+    "Il est mesuré, mais pas comme à l'Assemblée. Là-bas, les numéros de " +
+    "sièges rangent les groupes de la gauche à la droite. Au Sénat, ils ne le " +
+    "font pas : la numérotation tourne rang par rang, un groupe occupe des " +
+    "sièges d'un bout à l'autre de la salle, et aucun plan n'est publié. " +
+    "L'ordre affiché est donc mesuré sur autre chose : la façon dont les " +
+    "groupes votent, sur les scrutins où ils se séparent. Il distingue " +
+    "nettement la gauche, le centre et la droite. Il ne départage pas les " +
+    "groupes d'un même bloc, et le sens — quel bout est la gauche — est une " +
+    "convention assumée, comme les couleurs."],
   friseSenat: ["Le parcours au Sénat",
     "Ces colonnes sont les étapes que le Sénat nomme lui-même, et elles ne " +
     "correspondent pas une à une à celles de l'Assemblée : les deux chambres " +
@@ -2095,6 +2133,7 @@ function changerDOnglet(cle) {
   if (cle === ONGLET) return;
   ONGLET = cle;
   document.querySelector(".barre").hidden = cle !== "textes";
+  nommerLesBoutons();
   if (!$("filtres").hidden) {
     $("filtres").hidden = true;
     $("bascule").setAttribute("aria-expanded", "false");
@@ -2727,9 +2766,54 @@ function filDuParcours(d) {
   const items = [];
   (d.parcours || []).forEach((e, i) => items.push({ date: e.date, rang: [0, i], e }));
   (d.votes || []).forEach((v, i) => items.push({ date: v.date, rang: [1, i], v }));
+  // Les scrutins du Sénat, à leur date, **à côté de ceux de l'Assemblée et
+  // jamais mêlés à eux** : chaque ligne dit sa chambre, et rien n'additionne
+  // ni ne compare les deux. Les chiffres viennent de l'open data du Sénat, le
+  // lien avec le texte de ses pages de scrutins publics.
+  (d.votesSenat || []).forEach((v, i) => items.push({ date: v.date, rang: [2, i], s: v }));
   items.sort((a, b) => a.date.localeCompare(b.date) ||
                        a.rang[0] - b.rang[0] || a.rang[1] - b.rang[1]);
   return items;
+}
+
+/* Une ligne de scrutin du Sénat dans le parcours. Elle ne réemploie pas celle
+   de l'Assemblée : les deux ne portent pas les mêmes chiffres — le Sénat ne
+   publie pas les abstentions au niveau du scrutin — et les faire se ressembler
+   au point de s'additionner serait le piège à éviter. */
+function ligneVoteSenat(v) {
+  const li = el("li", "vote-senat");
+  const l = el("div", "lignes");
+  l.append(etiquette("chambre-senat", "Sénat", CHAMBRES.senat,
+                     dateCourte.format(enDate(v.date))));
+  const exprimes = (v.pour || 0) + (v.contre || 0);
+  const adopte = exprimes && v.pour > v.contre;
+  l.append(etiquette(adopte ? "promulguee" : "arrete",
+                     adopte ? "Adopté" : "Rejeté", EXPLICATIONS.voteSenat,
+                     v.objet || null));
+  l.append(etiquette("", `${nb.format(v.pour || 0)} / ${nb.format(v.contre || 0)}`,
+                     EXPLICATIONS.voteSenat, "pour / contre"));
+  li.append(l);
+  li.append(el("p", "objet-vote", v.objet || "Scrutin public au Sénat"));
+  if (v.groupes && v.groupes.length) {
+    const bouton = el("button", "charger", "Qui a voté quoi");
+    bouton.addEventListener("click", () => {
+      bouton.remove();
+      const t = el("div", "groupes-senat");
+      for (const g of v.groupes) {
+        const ligne = el("div", "grp-senat");
+        ligne.append(el("span", "qui", g.nom || g.sigle));
+        const chiffres = [];
+        if (g.pour) chiffres.push(`${g.pour} pour`);
+        if (g.contre) chiffres.push(`${g.contre} contre`);
+        if (g.abstentions) chiffres.push(`${g.abstentions} abst.`);
+        ligne.append(el("span", "chiffres-amdt", chiffres.join(" · ") || "—"));
+        t.append(ligne);
+      }
+      li.append(t);
+    });
+    li.append(bouton);
+  }
+  return li;
 }
 
 const PORTEES = {
@@ -3785,7 +3869,8 @@ async function ouvrirFiche(uid) {
   }
   const ul = el("ul", "parcours");
   for (const x of items) {
-    ul.append(x.e ? ligneParcours(x.e) : ligneVoteParcours(x.v));
+    ul.append(x.e ? ligneParcours(x.e)
+              : x.s ? ligneVoteSenat(x.s) : ligneVoteParcours(x.v));
     // La version que cette étape a produite, s'il y en a une. Elle se pose
     // sous l'étape parce que c'est l'étape qui l'explique : un texte de
     // commission n'existe qu'à cause de la réunion qui l'a adopté.
@@ -4409,6 +4494,137 @@ async function ouvrirVersion(uid, ref) {
    Il ne demande aucun fichier — tout est déjà dans la liste chargée au
    démarrage. Chaque ligne mène à la fiche entière de l'amendement, qui elle se
    charge à la demande. */
+/* ---------- les deux écrans du Sénat ---------- *
+ * La composition et le calendrier, au même endroit que ceux de l'Assemblée :
+ * les deux boutons ronds du haut, qui suivent l'onglet ouvert.
+ * ------------------------------------------------------------------ */
+
+async function ouvrirCompositionSenat() {
+  const f = ouvrirEcran();
+  f.append(boutonRetour("", "Retour au fil"));
+  f.append(el("h2", "fiche-titre", "Le Sénat"));
+  f.append(el("p", "avertissement", "Chargement…"));
+
+  const d = await lire("senat/composition.json");
+  f.textContent = "";
+  f.append(boutonRetour("", "Retour au fil"));
+  f.append(el("h2", "fiche-titre", "Le Sénat"));
+  if (!d) {
+    f.append(el("div", "vide",
+      "La composition du Sénat n'est pas publiée aujourd'hui. Les données du "
+      + "Sénat sont une source facultative : le reste du site est à jour."));
+    return;
+  }
+
+  const sous = el("p", "fiche-sous",
+    `${nb.format(d.effectif)} sénateurs, ${d.groupes.length} groupes.`);
+  const aide = el("button", "aide", "ⓘ");
+  aide.setAttribute("aria-label", "Ce que ce classement montre, et ce qu'il ne montre pas");
+  aide.addEventListener("click", () => expliquer(...EXPLICATIONS.compositionSenat,
+                                                 "Ordre mesuré, sens convenu"));
+  sous.append(aide);
+  f.append(sous);
+
+  // **Ce que l'écran doit dire au lieu de le cacher.** Un hémicycle à moitié
+  // gris sans explication laisserait croire à 179 non-inscrits.
+  if (d.sansGroupe) {
+    f.append(el("p", "avertissement",
+      `${nb.format(d.sansGroupe)} sénateurs sur ${nb.format(d.effectif)} `
+      + "n'ont pas de groupe aujourd'hui. Ce n'est pas qu'ils sont non "
+      + "inscrits : après le renouvellement du 27 septembre 2026, les groupes "
+      + "ont été clos et ne se sont pas encore reformés. La page se remplira "
+      + "d'elle-même."));
+  }
+
+  const b = bloc("Les groupes, de la gauche à la droite", false, true);
+  b.append(el("p", "avertissement",
+    "L'ordre est mesuré sur la façon de voter des groupes, et non sur leurs "
+    + "sièges : la numérotation du Sénat tourne rang par rang, et aucun plan "
+    + "de salle n'est publié. Il sépare nettement la gauche, le centre et la "
+    + "droite ; à l'intérieur de ces blocs il ne départage pas, et le sens — "
+    + "quel bout est la gauche — est une convention assumée."));
+  const liste = el("div", "amdts");
+  for (const g of d.groupes) {
+    const ligne = el("div", "rang-amdt");
+    const bouton = el("button", "vers-amdt titre");
+    bouton.type = "button";
+    bouton.append(el("span", "num", g.nom || g.sigle));
+    bouton.append(el("span", "qui",
+      `${nb.format(g.effectif)} sénateur${g.effectif > 1 ? "s" : ""}`));
+    bouton.append(el("span", "chevron", "›"));
+    bouton.addEventListener("click", () => {
+      const ouvert = ligne.nextSibling && ligne.nextSibling.classList
+                     && ligne.nextSibling.classList.contains("membres-senat");
+      if (ouvert) { ligne.nextSibling.remove(); return; }
+      const membres = el("div", "membres-senat");
+      for (const x of d.senateurs.filter((s) => s.groupe === g.sigle)) {
+        membres.append(el("p", "disp",
+          `${x.civilite || ""} ${x.prenom} ${x.nom}`.trim()
+          + (x.circonscription ? ` · ${x.circonscription}` : "")));
+      }
+      ligne.after(membres);
+    });
+    ligne.append(bouton);
+    liste.append(ligne);
+  }
+  b.append(liste);
+  f.append(b);
+
+  // Pas de photos, et il vaut mieux le dire que laisser chercher.
+  f.append(el("p", "avertissement",
+    "Les photographies des sénateurs ne sont pas reprises : les mentions "
+    + "légales du Sénat les couvrent par le droit d'auteur, contrairement aux "
+    + "travaux parlementaires, qui sont libres."));
+}
+
+async function ouvrirCalendrierSenat() {
+  const f = ouvrirEcran();
+  f.append(boutonRetour("", "Retour au fil"));
+  f.append(el("h2", "fiche-titre", "Les séances à venir au Sénat"));
+  f.append(el("p", "avertissement", "Chargement…"));
+
+  const d = await lire("senat/calendrier.json");
+  f.textContent = "";
+  f.append(boutonRetour("", "Retour au fil"));
+  f.append(el("h2", "fiche-titre", "Les séances à venir au Sénat"));
+  const jours = (d && d.jours) || [];
+  if (!jours.length) {
+    f.append(el("div", "vide",
+      "Aucune séance annoncée. Le Sénat ne publie une séance qu'une fois "
+      + "inscrite à son ordre du jour, et le calendrier se vide pendant les "
+      + "vacances parlementaires."));
+    return;
+  }
+  f.append(el("p", "fiche-sous",
+    `${nb.format(jours.reduce((n, j) => n + j.textes.length, 0))} séances `
+    + `annoncées, sur ${nb.format(jours.length)} jours.`));
+
+  for (const j of jours) {
+    const b = bloc(dateLongue.format(enDate(j.date)), false, true);
+    const liste = el("div", "amdts");
+    for (const t of j.textes) {
+      const ligne = el("div", "rang-amdt");
+      if (t.uid && t.titre) {
+        const bouton = el("button", "vers-amdt titre");
+        bouton.type = "button";
+        bouton.append(el("span", "num", t.titre));
+        bouton.append(el("span", "chevron", "›"));
+        bouton.addEventListener("click", () => {
+          location.hash = "#/texte/" + t.uid;
+        });
+        ligne.append(bouton);
+      } else {
+        // Un texte que nous ne suivons pas : on le dit plutôt que de le taire.
+        ligne.append(el("span", "quand-amdt",
+          "Un texte du Sénat que nous ne suivons pas encore"));
+      }
+      liste.append(ligne);
+    }
+    b.append(liste);
+    f.append(b);
+  }
+}
+
 function ouvrirDisputes(uid) {
   const f = ouvrirEcran();
   f.append(boutonRetour("#/texte/" + uid, "Retour au texte"));
@@ -5148,6 +5364,8 @@ function router() {
   if (amendement) return ouvrirAmendement(amendement[1], amendement[2]);
   const disputes = location.hash.match(/^#\/disputes\/([\w-]+)$/);
   if (disputes) return ouvrirDisputes(disputes[1]);
+  if (location.hash === "#/senat/composition") return ouvrirCompositionSenat();
+  if (location.hash === "#/senat/calendrier") return ouvrirCalendrierSenat();
   const texte = location.hash.match(/^#\/texte\/([\w-]+)$/);
   if (texte) return ouvrirFiche(texte[1]);
   fermerFiche();
@@ -5179,13 +5397,28 @@ window.addEventListener("resize", mesurerLePied, { passive: true });
 // chaque filtre, l'écouteur ne doit pas l'être avec elles.
 surveillerLeTour($("fil"));
 
+/* Les deux boutons du haut suivent l'onglet ouvert : dans « Sénat », ils
+   mènent au calendrier et à la composition du Sénat. Même geste, même place,
+   l'autre chambre. */
 $("bouton-agenda").addEventListener("click", () => {
-  location.hash = "#/calendrier";
+  location.hash = ONGLET === "senat" ? "#/senat/calendrier" : "#/calendrier";
 });
 
 $("bouton-hemicycle").addEventListener("click", () => {
-  location.hash = "#/hemicycle";
+  location.hash = ONGLET === "senat" ? "#/senat/composition" : "#/hemicycle";
 });
+
+/* Ce que les deux boutons promettent change avec l'onglet : une étiquette qui
+   dirait « Assemblée » dans l'onglet du Sénat tromperait un lecteur qui
+   n'entend que ça. */
+function nommerLesBoutons() {
+  const senat = ONGLET === "senat";
+  $("bouton-agenda").setAttribute("aria-label", senat
+    ? "Les séances à venir au Sénat" : "Calendrier des séances et des votes");
+  $("bouton-hemicycle").setAttribute("aria-label", senat
+    ? "La composition du Sénat" : "La composition de l'Assemblée");
+}
+nommerLesBoutons();
 
 $("bascule").addEventListener("click", () => {
   const boite = $("filtres");

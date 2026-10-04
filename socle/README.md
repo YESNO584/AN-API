@@ -389,6 +389,64 @@ Après : **2 147 textes sur 2 151 ont un nom d'auteur**, et **plus aucun
 cosignataire anonyme**. Les 4 restants n'ont pas d'auteur dans la source, ou
 un identifiant qu'aucune des deux archives ne connaît.
 
+### La base du Sénat, et pourquoi elle est à part
+
+`senat.db` — **4,5 Mo**, construite par `recuperer_senat.py` selon les règles de
+`senat.py`. Elle porte les scrutins du Sénat, qui a voté quoi groupe par
+groupe, les 348 sénateurs, et les séances à venir.
+
+**Le pont avec `parlement.db` est une seule colonne : `signet`.** Le Sénat
+appelle ainsi l'adresse courte d'un dossier (`pjl25-689`) ; l'Assemblée publie
+la même pour chacun de ses textes. 730 de nos 731 textes passés au Sénat s'y
+retrouvent.
+
+Elle est **facultative** et a **sa propre clé de cache** : une modification des
+règles de l'Assemblée ne la jette plus, et l'inverse non plus.
+
+#### Le lien scrutin → texte vient d'une page web, et de rien d'autre
+
+**Aucun fichier d'open data ne relie un scrutin du Sénat à un texte.** Trois
+chemins ont été essayés : par le numéro d'amendement, 21 % des scrutins tombent
+sur un seul texte ; avec une fenêtre de dates, 43 % ; et le calendrier des
+séances de la base est vide (13 lignes). Les **pages de scrutins publics du
+site**, elles, portent le lien en clair — 97 à 100 % des scrutins sur
+20 sessions, et les 4 736 ainsi rattachés se retrouvent tous dans le fichier
+des scrutins.
+
+**La lecture ne s'appuie sur aucune mise en page** : ni balise, ni classe, ni
+formulation, seulement sur les deux formes d'adresse du Sénat. Et
+`senat.page_lisible` veille : une page refaite arrive, pèse son poids, et la
+lecture en tire zéro — sans garde-fou on publierait « aucun vote au Sénat »
+partout. Détail dans `../docs/sources/senat-scrutins.md`.
+
+#### Trois pièges mesurés le 2026-10-04
+
+1. **`date_seance.lecidt` ne porte pas un `lecidt`** mais un `lecassidt`.
+   Croire au nom de la colonne rendait zéro séance à venir sur dix-neuf.
+2. **Les deux fichiers de sénateurs ne nomment pas les groupes pareil** et ne
+   se rejoignent que par le matricule. Ranger les votes par nom laissait tous
+   les rangs vides. La clé est le **code**, périmé mais stable (`UMP` désigne
+   Les Républicains).
+3. **Le séparateur des CSV change d'un fichier à l'autre du même éditeur** :
+   virgule pour les sénateurs, point-virgule pour les dossiers. Le forcer
+   rendait une seule colonne portant toute la ligne, et aucune erreur.
+
+#### L'ordre des groupes est mesuré, son sens est convenu
+
+À l'Assemblée, la médiane des numéros de siège range les groupes de la gauche à
+la droite. **Au Sénat, cette méthode échoue** : la numérotation tourne rang par
+rang, le groupe change 152 fois quand on suit les sièges — contre 9 pour un
+hémicycle rangé par blocs — et aucun plan de salle n'est publié.
+
+L'ordre est donc mesuré sur la **façon de voter** : la première composante des
+profils de vote par groupe. Elle sépare nettement la gauche, le centre et la
+droite, et ne départage pas les groupes d'un même bloc.
+
+**Elle donne une ligne, pas un sens** : mathématiquement, l'axe et son opposé
+décrivent aussi bien les données. Le sens est une **convention assumée**
+(`senat.GROUPE_LE_PLUS_A_GAUCHE`), au même titre que les couleurs, et l'écran
+le dit.
+
 ### Où un texte en est au Sénat
 
 `textes.json` porte, pour chaque texte qui y est passé, un objet `senat` : le

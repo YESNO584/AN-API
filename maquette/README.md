@@ -600,6 +600,40 @@ l'écran, dans un bloc replié : consultables, mais hors du compte.
 la comparaison est un calcul mot à mot — la même bibliothèque standard que
 partout ailleurs dans ce projet.
 
+### Les trois écrans du Sénat
+
+**Les votes du Sénat sont dans le parcours**, à leur date, à côté de ceux de
+l'Assemblée. Chaque ligne porte un trait de la couleur du Sénat et dit sa
+chambre. **Rien ne les mêle** : pas de total commun, pas de comparaison — les
+deux chambres ne votent ni sur le même texte, ni au même moment, ni avec le
+même nombre de sièges. Toucher « Qui a voté quoi » déplie le détail par groupe.
+145 textes en portent, pour 592 scrutins.
+
+**Les deux boutons ronds du haut suivent l'onglet ouvert.** Dans « Sénat », ils
+mènent à la composition du Sénat et à ses séances à venir ; ailleurs, à
+l'hémicycle et au calendrier de l'Assemblée. Même geste, même place, l'autre
+chambre — et leur étiquette change avec eux.
+
+#### La composition : ce que l'écran dit au lieu de le cacher
+
+- **179 sénateurs sur 348 n'ont pas de groupe.** Après le renouvellement du
+  27 septembre 2026, les groupes ont été clos et ne se sont pas reformés. La
+  page le dit en toutes lettres : ce ne sont pas des non-inscrits.
+- **L'ordre des groupes est mesuré sur leur façon de voter**, pas sur les
+  sièges — au Sénat la numérotation tourne rang par rang et aucun plan de
+  salle n'est publié. Il sépare la gauche, le centre et la droite, ne
+  départage pas l'intérieur des blocs, et **son sens est une convention
+  assumée**. L'explication au toucher le dit.
+- **Pas de photographies** : les mentions légales du Sénat les couvrent par le
+  droit d'auteur, contrairement aux travaux parlementaires.
+
+#### Le calendrier : mieux fourni que celui de l'Assemblée
+
+19 séances annoncées sur 9 jours, dont 18 nomment un texte qu'on suit — là où
+l'agenda de l'Assemblée compte une seule réunion à venir qui nomme un texte sur
+35. Un texte du Sénat qu'on ne suit pas encore est annoncé comme tel, plutôt
+que tu.
+
 ### Le repère d'un texte : « adoptés de justesse »
 
 Sur la carte du fil et en tête de fiche, un texte qui porte au moins un

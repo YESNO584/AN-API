@@ -35,6 +35,7 @@ import unicodedata
 
 import affichage
 import extraction
+import senat as senat_mod
 import legi
 import recuperer_textes
 import textes as textes_mod
@@ -1074,6 +1075,106 @@ def sans_accent(mot: str | None) -> str:
     return "".join(c for c in decompose if not unicodedata.combining(c)).casefold()
 
 
+BASE_SENAT = pathlib.Path(__file__).resolve().parent / "senat.db"
+
+
+def ouvrir_senat() -> sqlite3.Connection | None:
+    """La base du Sénat, si elle existe.
+
+    **Elle est facultative**, comme celle du droit consolidé : sans elle, tout
+    le reste se publie et l'application n'affiche simplement ni les votes du
+    Sénat, ni sa composition, ni son calendrier.
+    """
+    if not BASE_SENAT.exists():
+        return None
+    cx = sqlite3.connect(f"file:{BASE_SENAT}?mode=ro", uri=True)
+    cx.row_factory = sqlite3.Row
+    return cx
+
+
+def votes_du_senat(senat_cx: sqlite3.Connection | None,
+                   signets: dict[str, str]) -> dict[str, list[dict]]:
+    """Les scrutins du Sénat, rangés par texte de chez nous.
+
+    **Rien n'est mélangé avec les votes de l'Assemblée** : ni total commun, ni
+    comparaison. Chaque scrutin dit sa chambre, sa date et ce que chaque groupe
+    a fait, et c'est tout.
+    """
+    if senat_cx is None:
+        return {}
+    par_texte: dict[str, list[dict]] = {}
+    groupes = {l["sigle"]: dict(l) for l in senat_cx.execute(
+        "SELECT sigle, nom, rang FROM groupe_senat")}
+    detail: dict[tuple, list[dict]] = {}
+    for l in senat_cx.execute("SELECT * FROM vote_groupe_senat"):
+        g = groupes.get(l["groupe"], {})
+        detail.setdefault((l["session"], l["numero"]), []).append({
+            "sigle": l["groupe"], "nom": g.get("nom") or l["groupe"],
+            "rang": g.get("rang"), "pour": l["pour"], "contre": l["contre"],
+            "abstentions": l["abstentions"], "nonVotants": l["non_votants"]})
+    for l in senat_cx.execute(
+            "SELECT * FROM scrutin_senat WHERE signet IS NOT NULL"
+            " ORDER BY date, numero"):
+        uid = signets.get(l["signet"])
+        if not uid:
+            continue
+        v = {"session": l["session"], "numero": l["numero"], "date": l["date"],
+             "objet": l["objet"], "pour": l["pour"], "contre": l["contre"]}
+        groupes_du = sorted(detail.get((l["session"], l["numero"]), []),
+                            key=lambda g: (g["rang"] is None, g["rang"]))
+        if groupes_du:
+            v["groupes"] = groupes_du
+        par_texte.setdefault(uid, []).append(v)
+    return par_texte
+
+
+def composition_du_senat(senat_cx: sqlite3.Connection | None) -> dict | None:
+    """Qui siège au Sénat, et dans quel groupe.
+
+    **Trois choses que cet écran doit dire au lieu de les cacher** : que 179
+    sénateurs sur 348 n'ont plus de groupe depuis le renouvellement du
+    2026-09-27 ; que l'ordre des groupes est mesuré sur leur façon de voter et
+    non sur les sièges, faute de plan de salle ; et qu'il n'y a pas de photos,
+    parce qu'elles ne sont pas libres.
+    """
+    if senat_cx is None:
+        return None
+    senateurs = [dict(l) for l in senat_cx.execute(
+        "SELECT matricule, civilite, prenom, nom, groupe, circonscription"
+        " FROM senateur ORDER BY nom, prenom")]
+    if not senateurs:
+        return None
+    return {
+        "effectif": len(senateurs),
+        "sansGroupe": sum(1 for s in senateurs if not s["groupe"]),
+        "groupes": [dict(l) for l in senat_cx.execute(
+            "SELECT sigle, nom, effectif, rang FROM groupe_senat"
+            " ORDER BY rang IS NULL, rang")],
+        "senateurs": senateurs,
+    }
+
+
+def calendrier_du_senat(senat_cx: sqlite3.Connection | None,
+                        signets: dict[str, str],
+                        titres: dict[str, str]) -> list[dict] | None:
+    """Les séances à venir au Sénat, et le texte que chacune examine.
+
+    Mesuré le 2026-10-04 : 18 des 19 séances annoncées nomment un texte que
+    nous suivons — nettement mieux que l'agenda de l'Assemblée, où une seule
+    réunion à venir sur 35 nomme un texte.
+    """
+    if senat_cx is None:
+        return None
+    jours: dict[str, list[dict]] = {}
+    for l in senat_cx.execute("SELECT date, signet FROM seance_senat"
+                              " ORDER BY date, signet"):
+        uid = signets.get(l["signet"])
+        jours.setdefault(l["date"], []).append(
+            {"uid": uid, "titre": titres.get(uid) if uid else None,
+             "signet": l["signet"]})
+    return [{"date": d, "textes": t} for d, t in sorted(jours.items())]
+
+
 def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     # On repart d'un dossier vide : un texte promulgué hier ne doit pas rester
     # dans la liste des textes en cours d'avant-hier.
@@ -1095,6 +1196,18 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     # nomme lui-même. C'est ce qui range le fil de l'onglet « Sénat ». On
     # garde la **dernière** étape, celle qui dit où le texte en est — et sa
     # lecture, qui s'affiche à part parce qu'elle ne fait pas une colonne.
+    # Le pont avec la base du Sénat : une seule colonne, publiée des deux
+    # côtés. 730 de nos 731 textes passés au Sénat s'y retrouvent.
+    senat_cx = ouvrir_senat()
+    signets, titres = {}, {}
+    for l in cx.execute("SELECT uid, titre, url_senat FROM dossier"
+                        " WHERE est_loi = 1 AND url_senat IS NOT NULL"):
+        sig = senat_mod.signet_de(l["url_senat"])
+        if sig:
+            signets[sig] = l["uid"]
+            titres[l["uid"]] = l["titre"]
+    votes_senat = votes_du_senat(senat_cx, signets)
+
     etape_senat = {}
     en_cours_au_senat = {l["uid"] for l in cx.execute(
         "SELECT uid FROM dossier WHERE est_loi = 1 AND statut = ?",
@@ -1174,6 +1287,12 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "debatsIndisponibles":
             cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"] == 0,
         "debatsVusLe": vu_le(cx, extraction.URL_DEBATS),
+        # Le Sénat est une source facultative, comme le droit consolidé : sans
+        # elle, tout le reste se publie et l'application n'affiche ni ses
+        # votes, ni sa composition, ni son calendrier.
+        "senatIndisponible": senat_cx is None,
+        "senatTextesAvecVote": len(votes_senat),
+        "senatScrutins": sum(len(v) for v in votes_senat.values()),
         "paroles": cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"],
         "descriptions": len(descriptions),
         "resumesDebats": len(resumes_debats),
@@ -1246,6 +1365,18 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     for uid, e in etape_senat.items():
         if uid in en_cours_au_senat:
             par_moment[e["moment"]] = par_moment.get(e["moment"], 0) + 1
+    # La composition du Sénat et son calendrier : deux écrans, deux fichiers,
+    # demandés seulement quand on les ouvre.
+    compo = composition_du_senat(senat_cx)
+    if compo:
+        tailles["senat/composition.json"] = ecrire(
+            sortie / "senat" / "composition.json", {"genereLe": genere_le, **compo})
+    agenda_senat = calendrier_du_senat(senat_cx, signets, titres)
+    if agenda_senat:
+        tailles["senat/calendrier.json"] = ecrire(
+            sortie / "senat" / "calendrier.json",
+            {"genereLe": genere_le, "jours": agenda_senat})
+
     tailles["etapes.json"] = ecrire(sortie / "etapes.json", {
         "genereLe": genere_le,
         "etapes": [{"n": n, "nom": nom, "quoi": quoi, "textesEnCours": par_etape.get(n, 0)}
@@ -1346,6 +1477,11 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         ligne = {k: v for k, v in dict(l).items() if k != "description"}
         details += ecrire(sortie / "textes" / f'{l["uid"]}.json', {
             **ligne,
+            # Les scrutins du Sénat, à côté de ceux de l'Assemblée et jamais
+            # mêlés à eux : le parcours les affiche à leur date, chambre
+            # marquée. Absents quand il n'y en a pas.
+            **({"votesSenat": votes_senat[l["uid"]]}
+               if l["uid"] in votes_senat else {}),
             "cosignataires": signataires(cx, cosign[:40]),
             "cosignatairesTotal": len(cosign),
             "auteur": (signataires(cx, [l["auteur_ref"]]) or [None])[0],
