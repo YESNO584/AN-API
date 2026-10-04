@@ -180,6 +180,12 @@ groupe par groupe :
 ici : le groupe serait à prendre **à la date du scrutin**, dans le fichier
 d'historique des groupes, où il se retrouve à 100 %.)
 
+> **Comment la collecter tous les jours, ce qu'elle coûte et ce qui se passe
+> quand la page change** : voir
+> [`sources/senat-scrutins.md`](sources/senat-scrutins.md). En bref, 29 Ko et
+> moins d'une seconde par jour, et une lecture qui ne dépend d'aucune mise en
+> page.
+
 ### Les trois réserves, et elles sont réelles
 
 1. **La clé vient d'une page web, pas d'un fichier publié.** C'est une

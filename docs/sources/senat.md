@@ -181,7 +181,9 @@ d'éviter. **Ce n'est donc pas fait.**
 > réserves dans
 > [`../CE-QUE-LE-SENAT-APPORTERAIT.md`](../CE-QUE-LE-SENAT-APPORTERAIT.md),
 > § 4. **L'absence d'un lien dans un fichier ne prouve pas son absence chez
-> l'éditeur.**
+> l'éditeur.** Le plan de collecte, son coût et le garde-fou contre un
+> changement de la page sont dans
+> [`senat-scrutins.md`](senat-scrutins.md).
 
 **Ce qui est repris, et qui suffit pour l'essentiel :** l'« État du dossier »
 dit `adopté` ou `non adopté` **par texte**, sans aucune devinette. C'est le

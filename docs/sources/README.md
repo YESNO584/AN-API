@@ -50,7 +50,7 @@ résumés n'est pas le facteur limitant du projet.**
 | Source | État | Fraîcheur | Fiche |
 |---|---|---|---|
 | Assemblée nationale | **À retenir — source principale** | Mise à jour quotidienne (dernière : le jour même du test) | [`assemblee-nationale.md`](assemblee-nationale.md) |
-| Sénat | **À retenir — source de complément** | Mise à jour quotidienne | [`senat.md`](senat.md), et ce qu'on pourrait en montrer : [`../CE-QUE-LE-SENAT-APPORTERAIT.md`](../CE-QUE-LE-SENAT-APPORTERAIT.md) |
+| Sénat | **À retenir — source de complément** | Mise à jour quotidienne | [`senat.md`](senat.md), ce qu'on pourrait en montrer : [`../CE-QUE-LE-SENAT-APPORTERAIT.md`](../CE-QUE-LE-SENAT-APPORTERAIT.md), et la collecte des scrutins : [`senat-scrutins.md`](senat-scrutins.md) |
 | Monalisa (texte des lois, Sénat) | **Piste ouverte** — texte structuré, mais côté Sénat seulement (203 de nos 2 859 dossiers) | Mise à jour quotidienne | [`monalisa.md`](monalisa.md) |
 | Textes de l'Assemblée, en HTML structuré | **À retenir** — le texte de chaque version, articles délimités et tableaux conservés ; **249 textes comparables**, aucune dépendance nouvelle (mesuré le 2026-09-18) | Publiés au fil des séances | [`textes-assemblee-html.md`](textes-assemblee-html.md) |
 | Textes de l'Assemblée en PDF | **Remplacée** par la fiche ci-dessus — même besoin, lecture plus fragile (86 % des articles mot pour mot, tableaux aplatis, 50 Mo de dépendance) | Publiés au fil des séances | [`textes-pdf-assemblee.md`](textes-pdf-assemblee.md) |
