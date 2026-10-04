@@ -124,6 +124,50 @@ afficher.
 Les deux sources avancent aussi au même rythme : le dernier scrutin de la page
 et celui du fichier sont tous deux du 21 juillet 2026.
 
+## Une seconde page du site : les groupes politiques
+
+**Lue le 2026-10-04**, et c'est la **seule** source qui donne la couleur et le
+nom complet d'un groupe du Sénat. `ODSEN_GENERAL.csv` ne porte que des codes,
+et le dump n'a pas de table de groupes.
+
+| | |
+|---|---|
+| **Adresse** | `https://www.senat.fr/vos-senateurs/groupes-politiques.html` |
+| **Poids** | 163 Ko, une fois par jour — 0,2 % du coût quotidien du projet |
+| **Où** | L'attribut `groups` d'un élément `<hemicycle-groups>` |
+| **Forme** | Du JSON échappé **deux fois** : entités HTML (`&quot;`) puis séquences `\u00e9` |
+| **Ce qu'il porte** | Par groupe : l'identifiant, le nom entier, **la liste des sièges**, la couleur |
+
+**C'est de la donnée, pas de la mise en page** — la règle du projet tient : on
+lit l'attribut, jamais le dessin qu'il sert à faire. Le contrôle est celui des
+pages de scrutins : une page refaite rend **rien**, pas une moitié.
+
+### Contrôle croisé
+
+Les **neuf** sigles de la page sont les nôtres, et **les neuf effectifs
+correspondent un pour un** à ceux de notre base. C'est la meilleure preuve que
+la lecture est juste : deux chemins indépendants — un CSV d'open data et une
+page web — donnent le même décompte.
+
+### Le plan de salle existe, et il confirme qu'on ne peut pas s'en servir
+
+La page publie le siège de chaque sénateur : **348 numéros**, dont 169 pour les
+sénateurs qui ont un groupe (les 179 fraîchement élus portent tous le siège 0,
+c'est-à-dire aucun).
+
+Le projet avait écrit qu'aucun plan n'était publié. C'était faux, et la mesure
+sur le vrai plan donne la **même conclusion** :
+
+| | Sénat | Assemblée |
+|---|---:|---:|
+| Changements de groupe en suivant les numéros | **152** | 9 |
+| Groupes différents par tranche de 40 numéros | 6 à 8 | 1 à 2 |
+
+**Un numéro de siège au Sénat n'est pas une position.** La numérotation tourne
+rang par rang. Placer les sénateurs à leur numéro éparpillerait chaque groupe
+sur tout l'arc — c'est pourquoi l'écran du Sénat n'a pas le bouton « par
+siège » de l'Assemblée.
+
 ## Quand ça casse — et ça cassera
 
 Le Sénat refera sa page un jour. **L'application ne doit pas s'en apercevoir

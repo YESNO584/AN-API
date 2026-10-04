@@ -16,7 +16,9 @@ dans `extraction.py`. `socle/test_senat.py` les tient.
 from __future__ import annotations
 
 import csv
+import html
 import io
+import json
 import pathlib
 import re
 import zipfile
@@ -29,6 +31,10 @@ URL_SENATEURS = DONNEES + "senateurs/ODSEN_GENERAL.csv"
 URL_HISTOGROUPES = DONNEES + "senateurs/ODSEN_HISTOGROUPES.csv"
 # Une page par session parlementaire. Seule celle de la session en cours change.
 URL_SCRUTINS = "https://www.senat.fr/scrutin-public/scr{annee}.html"
+# La seule source qui donne la **couleur** et le **nom complet** d'un groupe du
+# Sénat. Aucun fichier d'open data ne les publie : `ODSEN_GENERAL.csv` ne porte
+# que des codes, et le dump n'a pas de table de groupes.
+URL_GROUPES = "https://www.senat.fr/vos-senateurs/groupes-politiques.html"
 
 # ------------------------------------------------- lire un dump PostgreSQL
 
@@ -156,6 +162,74 @@ def page_lisible(trouves: dict, attendus: int | None = None) -> str | None:
                 f" ({part:.0%}, moins de {PART_MINIMALE_AVEC_DOSSIER:.0%})")
     if attendus is not None and len(trouves) < attendus:
         return f"{len(trouves)} scrutins lus, contre {attendus} la fois d'avant"
+    return None
+
+
+# ------------------------------------- la couleur et le nom complet d'un groupe
+
+# La page porte un élément `<hemicycle-groups groups="…">` dont l'attribut est
+# du JSON échappé en entités HTML. **C'est de la donnée, pas de la mise en
+# page** : les groupes y sont nommés et teintés, un par un. On ne lit que cet
+# attribut — ni le dessin qu'il sert à faire, ni le reste de la page.
+GROUPES_DE_L_HEMICYCLE = re.compile(
+    r"<hemicycle-groups\s[^>]*?groups=\"([^\"]+)\"", re.S)
+# Les sénateurs qui viennent d'être élus et n'ont pas encore de groupe y
+# figurent sous ce code. Ce n'est pas un groupe : il n'a ni nom ni couleur à
+# reprendre, et notre base les compte déjà comme « sans groupe ».
+PAS_UN_VRAI_GROUPE = frozenset({"AUCUN", "NI"})
+
+
+def groupes_de_la_page(texte: str) -> dict[str, dict]:
+    """La couleur et le nom complet de chaque groupe, lus sur la page.
+
+    Rend `{sigle: {"nom": …, "couleur": "#rrggbb"}}`. Un attribut absent ou
+    illisible rend un dictionnaire vide — **jamais une moitié de table** : la
+    publication doit pouvoir dire « la page a changé » plutôt que teindre la
+    moitié de l'hémicycle.
+
+    Le sigle est celui de la page, et c'est le même que le nôtre : les dix
+    codes relevés le 2026-10-04 (`UMP`, `SOC`, `UC`, `RTLI`, `LREM`, `CRC`,
+    `RDSE`, `GEST`, `NI`, `AUCUN`) correspondent un pour un à ceux de
+    `groupe_senat`, effectifs compris.
+    """
+    trouve = GROUPES_DE_L_HEMICYCLE.search(texte or "")
+    if not trouve:
+        return {}
+    try:
+        brut = json.loads(html.unescape(trouve.group(1)))
+    except (ValueError, TypeError):
+        return {}
+    if not isinstance(brut, list):
+        return {}
+    groupes = {}
+    for g in brut:
+        if not isinstance(g, dict):
+            continue
+        sigle = net(g.get("id"))
+        couleur = net(g.get("color"))
+        if not sigle or sigle in PAS_UN_VRAI_GROUPE:
+            continue
+        if not couleur or not COULEUR.fullmatch(couleur):
+            continue
+        groupes[sigle] = {"nom": net(g.get("name")), "couleur": couleur.upper()}
+    return groupes
+
+
+COULEUR = re.compile(r"#[0-9a-fA-F]{6}")
+
+# Au-dessous, la page est considérée comme refaite plutôt que comme un Sénat
+# qui n'aurait plus de groupes. Huit groupes au 2026-10-04, hors « AUCUN » et
+# « NI » ; le seuil laisse de la place à une fusion sans crier à la panne.
+GROUPES_ATTENDUS = 5
+
+
+def groupes_lisibles(groupes: dict[str, dict]) -> str | None:
+    """Ce qui cloche dans la lecture de la page, ou rien si elle va bien."""
+    if not groupes:
+        return "aucun groupe lu sur la page des groupes politiques"
+    if len(groupes) < GROUPES_ATTENDUS:
+        return (f"{len(groupes)} groupes lus, moins que les "
+                f"{GROUPES_ATTENDUS} attendus")
     return None
 
 

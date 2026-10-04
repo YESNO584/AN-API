@@ -79,14 +79,21 @@ CREATE TABLE IF NOT EXISTS senateur (
 
 -- Les groupes politiques du Sénat, et leur rang de la gauche à la droite.
 -- **Ce rang n'est pas mesuré sur les sièges**, contrairement à l'Assemblée :
--- la numérotation du Sénat tourne rang par rang, le groupe change 152 fois en
--- la suivant, et aucun plan de salle n'est publié. Il est mesuré sur la façon
--- de voter — voir `senat.rang_par_les_votes`.
+-- la numérotation du Sénat tourne rang par rang, et le groupe change 152 fois
+-- en la suivant — mesuré sur le plan de salle que le site publie pourtant. Il
+-- est mesuré sur la façon de voter — voir `senat.rang_par_les_votes`.
+--
+-- `nom` est l'abrégé courant que donne l'open data (« SER », « CRCE-K ») ;
+-- `nom_complet` et `couleur` viennent de la page des groupes politiques du
+-- site, **seule source qui les publie**. Les deux peuvent manquer : la page
+-- peut être refaite, et l'écran s'en passe alors sans rien inventer.
 CREATE TABLE IF NOT EXISTS groupe_senat (
-    sigle    TEXT PRIMARY KEY,
-    nom      TEXT,
-    effectif INTEGER NOT NULL DEFAULT 0,
-    rang     INTEGER
+    sigle       TEXT PRIMARY KEY,
+    nom         TEXT,
+    nom_complet TEXT,
+    couleur     TEXT,
+    effectif    INTEGER NOT NULL DEFAULT 0,
+    rang        INTEGER
 );
 
 -- Le sujet d'un texte, tel que le Sénat le classe. **L'application n'en avait

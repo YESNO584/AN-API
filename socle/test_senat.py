@@ -231,5 +231,88 @@ class LOrdreDesGroupes(unittest.TestCase):
         self.assertEqual(senat.rang_par_les_votes({}), [])
 
 
+PAGE_DES_GROUPES = (
+    '<h2>Répartition des groupes politiques</h2>\n'
+    '<hemicycle-groups\n    groups="[{&quot;id&quot;:&quot;UMP&quot;,'
+    '&quot;name&quot;:&quot;Groupe Les R\\u00e9publicains&quot;,'
+    '&quot;seats&quot;:[8,9,10],&quot;color&quot;:&quot;#2455A2&quot;},'
+    '{&quot;id&quot;:&quot;SOC&quot;,&quot;name&quot;:&quot;Groupe Socialiste'
+    '&quot;,&quot;seats&quot;:[76],&quot;color&quot;:&quot;#b84592&quot;},'
+    '{&quot;id&quot;:&quot;CRC&quot;,&quot;name&quot;:&quot;Groupe Communiste'
+    '&quot;,&quot;seats&quot;:[38],&quot;color&quot;:&quot;#D90001&quot;},'
+    '{&quot;id&quot;:&quot;GEST&quot;,&quot;name&quot;:&quot;Groupe '
+    '\\u00c9cologiste&quot;,&quot;seats&quot;:[248],'
+    '&quot;color&quot;:&quot;#5CB88D&quot;},'
+    '{&quot;id&quot;:&quot;RDSE&quot;,&quot;name&quot;:&quot;Groupe du RDSE'
+    '&quot;,&quot;seats&quot;:[81],&quot;color&quot;:&quot;#814A97&quot;},'
+    '{&quot;id&quot;:&quot;NI&quot;,&quot;name&quot;:&quot;R\\u00e9union '
+    'administrative&quot;,&quot;seats&quot;:[5],'
+    '&quot;color&quot;:&quot;#000000&quot;},'
+    '{&quot;id&quot;:&quot;AUCUN&quot;,&quot;name&quot;:&quot;Nouveaux '
+    'S\\u00e9nateurs&quot;,&quot;seats&quot;:[0,0],'
+    '&quot;color&quot;:&quot;#000000&quot;}]"\n></hemicycle-groups>')
+
+
+class LaCouleurDesGroupesDuSenat(unittest.TestCase):
+    """La seule source qui teinte et nomme un groupe du Sénat est une page web.
+
+    Le décor reprend la vraie page, entités HTML et échappements `\\u` compris :
+    l'attribut n'est pas du JSON posé tel quel, et le lire sans le déséchapper
+    ne rend rien.
+    """
+
+    def lire(self):
+        return senat.groupes_de_la_page(PAGE_DES_GROUPES)
+
+    def test_la_couleur_et_le_nom_complet_sont_lus(self):
+        g = self.lire()
+        self.assertEqual(g["UMP"]["couleur"], "#2455A2")
+        self.assertEqual(g["UMP"]["nom"], "Groupe Les Républicains")
+
+    def test_l_accent_echappe_est_rendu(self):
+        # « \u00c9cologiste » doit redevenir « Écologiste », sinon le nom
+        # s'afficherait à l'écran avec sa séquence d'échappement.
+        self.assertEqual(self.lire()["GEST"]["nom"], "Groupe Écologiste")
+
+    def test_la_couleur_est_toujours_en_majuscules(self):
+        # La page écrit « #b84592 » pour un groupe et « #D90001 » pour un
+        # autre. Deux écritures de la même couleur feraient deux valeurs
+        # différentes en base.
+        self.assertEqual(self.lire()["SOC"]["couleur"], "#B84592")
+
+    def test_les_sans_groupe_ne_sont_pas_un_groupe(self):
+        # « AUCUN » rassemble les sénateurs fraîchement élus, « NI » ceux qui
+        # ne s'inscrivent nulle part : ni l'un ni l'autre n'a de couleur à
+        # reprendre — la page les met tous les deux en noir.
+        g = self.lire()
+        self.assertNotIn("AUCUN", g)
+        self.assertNotIn("NI", g)
+
+    def test_une_page_refaite_ne_rend_rien_plutot_qu_une_moitie(self):
+        for page in ("<html><body>Page refaite</body></html>", "", None):
+            self.assertEqual(senat.groupes_de_la_page(page), {})
+
+    def test_un_attribut_illisible_ne_rend_rien(self):
+        casse = '<hemicycle-groups groups="[{&quot;id&quot;:&quot;UMP"></hemicycle-groups>'
+        self.assertEqual(senat.groupes_de_la_page(casse), {})
+
+    def test_une_couleur_qui_n_en_est_pas_une_est_ecartee(self):
+        # Un groupe sans couleur utilisable ne doit pas entrer en base avec
+        # une valeur que le navigateur interprétera comme il veut.
+        faux = ('<hemicycle-groups groups="[{&quot;id&quot;:&quot;X&quot;,'
+                '&quot;name&quot;:&quot;X&quot;,&quot;color&quot;:&quot;rouge&quot;}]">'
+                '</hemicycle-groups>')
+        self.assertEqual(senat.groupes_de_la_page(faux), {})
+
+    def test_la_page_lue_est_declaree_lisible(self):
+        self.assertIsNone(senat.groupes_lisibles(self.lire()))
+
+    def test_une_page_vide_est_declaree_illisible(self):
+        self.assertIsNotNone(senat.groupes_lisibles({}))
+
+    def test_trop_peu_de_groupes_est_une_panne_pas_un_senat_sans_groupes(self):
+        self.assertIsNotNone(senat.groupes_lisibles({"UMP": {}, "SOC": {}}))
+
+
 if __name__ == "__main__":
     sys.exit(0 if unittest.main(exit=False, verbosity=2).result.wasSuccessful() else 1)

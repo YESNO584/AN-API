@@ -290,7 +290,9 @@ leurs votes, on obtient un classement qui porte 64 % de ce qui les sépare :
 
 Il sépare nettement la gauche, le centre et la droite. **Il ne départage pas
 les trois groupes de gauche entre eux**, ni UC et Indépendants : à l'intérieur
-de ces blocs, l'ordre resterait une convention assumée, comme les couleurs.
+de ces blocs, l'ordre resterait une convention assumée. **Les couleurs, en
+revanche, ne le sont pas** : depuis le 2026-10-04 elles sont celles que le
+Sénat donne à ses groupes, lues sur la page des groupes politiques du site.
 
 ### Ce qui manque
 

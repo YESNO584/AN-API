@@ -294,13 +294,36 @@ a pas encore d'application, de base de données ni de dépendances.
   quand on se trompe, juste une colonne unique portant toute la ligne.
 - **L'ordre des groupes du Sénat est mesuré sur les votes, pas sur les
   sièges — et son sens est une convention.** La méthode de l'Assemblée échoue
-  ici : la numérotation tourne rang par rang, le groupe change 152 fois quand
-  on suit les sièges (contre 9 pour un hémicycle rangé), et aucun plan de
-  salle n'est publié. On range donc sur la façon de voter, ce qui sépare la
-  gauche, le centre et la droite sans départager l'intérieur des blocs. **La
-  mesure donne une ligne, pas un sens** : `senat.GROUPE_LE_PLUS_A_GAUCHE`
-  l'oriente, et l'écran dit que c'est une convention. **Et pas de photos de
+  ici, et on le sait **sur le plan de salle du Sénat lui-même** : la page de
+  ses groupes politiques le publie, mais ses numéros ne sont pas des positions
+  — le groupe y change 152 fois quand on suit les numéros (contre 9 pour un
+  hémicycle rangé), et chaque tranche de 40 numéros porte 6 à 8 groupes. On
+  range donc sur la façon de voter, ce qui sépare la gauche, le centre et la
+  droite sans départager l'intérieur des blocs. **La mesure donne une ligne,
+  pas un sens** : `senat.GROUPE_LE_PLUS_A_GAUCHE` l'oriente, et l'écran dit
+  que c'est une convention. **C'est aussi ce qui interdit le dessin « par
+  siège »** de l'Assemblée — ne pas le réessayer. **Et pas de photos de
   sénateurs** : les mentions légales les couvrent par le droit d'auteur.
+- **La couleur et le nom complet d'un groupe du Sénat viennent d'une page web,
+  et ne sont pas une convention** (2026-10-04). Aucun fichier d'open data ne
+  les publie ; seule `senat.fr/vos-senateurs/groupes-politiques.html` les
+  donne, dans l'attribut `groups` d'un `<hemicycle-groups>` — du JSON échappé
+  **deux fois**, entités HTML puis séquences `\u`. `senat.groupes_de_la_page`
+  ne lit que cet attribut, jamais la mise en page, et une page refaite rend un
+  dictionnaire **vide** plutôt qu'une moitié de table. Trois pièges tenus par
+  les tests : **la casse des couleurs change d'un groupe à l'autre** (`#b84592`
+  et `#D90001` sur la même page) ; **`AUCUN` et `NI` ne sont pas des groupes**
+  — le premier est le lot des sénateurs fraîchement élus, et le reprendre
+  créait un groupe « Nouveaux Sénateurs » de 179 membres ; et une couleur
+  illisible s'écarte au lieu d'entrer en base. Contrôle croisé : les neuf
+  sigles **et les neuf effectifs** de la page correspondent un pour un aux
+  nôtres.
+- **Les écrans du Sénat sont ceux de l'Assemblée, pas des copies** (2026-10-04).
+  L'hémicycle, la liste des groupes, la barre des mois, la grille des jours et
+  la liste du jour sont **les mêmes fonctions**, à qui l'on passe la chambre.
+  **Les deux calendriers partagent `MOIS_VU` et `JOUR_VU`** : le jour retenu
+  doit porter quelque chose **dans le calendrier qu'on dessine**, sans quoi
+  revenir de l'un à l'autre donne une liste vide sous une grille pleine.
 - **Un numéro d'amendement ne suffit pas à désigner un amendement dans un
   dossier :** deux lectures y portent les mêmes numéros. Ce qui les sépare est
   le **numéro de dépôt du document amendé** (`debat_amendement.texte_numero`,

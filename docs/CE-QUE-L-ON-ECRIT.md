@@ -418,6 +418,24 @@ le dessin invente. Les proportions et l'ordre, eux, sont justes.
 | « 220 F / 357 H », et le compte de chaque groupe | **C** — compté **à l'affichage** sur la civilité (« Mme » / « M. ») que la source imprime devant chaque nom. Rien d'autre n'est publié là-dessus, et rien n'est ajouté. Un député sans civilité n'est compté d'aucun côté |
 | « Ce dessin est une convention » (au toucher du ⓘ) | **N** — l'écran dit lui-même ce qui est mesuré et ce qui est dessiné |
 
+### Le même écran, pour le Sénat
+
+Le dessin est **le même code**, et donc les mêmes conventions. Ce qui change,
+c'est la provenance de deux choses — et elle va dans l'autre sens qu'à
+l'Assemblée.
+
+| | |
+|---|---|
+| **La couleur de chaque groupe** | **S** — celles du Sénat, lues sur `senat.fr/vos-senateurs/groupes-politiques.html`. **À l'inverse de l'Assemblée**, qui n'en publie aucune et pour qui la couleur est notre convention |
+| **Le nom complet de chaque groupe** | **S** — même page, mot pour mot (« Groupe Socialiste, Écologiste et Républicain ») |
+| L'abrégé sur la pastille (« SER », « CRCE-K ») | **S** — celui de l'open data |
+| L'ordre des groupes, de la gauche à la droite | **C** — **mesuré** sur la façon de voter, faute de pouvoir l'être sur les sièges |
+| Le sens de cet ordre — quel bout est la gauche | **N** — une convention assumée, et l'écran le dit |
+| « 169 sénateurs dans un groupe. Les 179 autres… » | **C** (les chiffres) + **N** (les mots) |
+| Un groupe sans couleur (`NI`) dessiné en gris | **N** — la page du Sénat le met en noir, qui ne se lit pas sur un fond sombre. Le gris dit « pas de couleur », il n'en invente pas une |
+| L'absence du dessin « par siège » | — le Sénat publie bien un plan, mais ses numéros ne sont pas des positions : **152 changements de groupe** en les suivant. Rien n'est affiché plutôt qu'un dessin faux |
+| L'absence de photographies | — les mentions légales du Sénat les couvrent par le droit d'auteur |
+
 ### Les députés d'un groupe
 
 Toucher un groupe, sous le dessin, ouvre la liste de ses députés.

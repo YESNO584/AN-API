@@ -1326,13 +1326,15 @@ const EXPLICATIONS = {
   compositionSenat: ["L'ordre des groupes du Sénat",
     "Il est mesuré, mais pas comme à l'Assemblée. Là-bas, les numéros de " +
     "sièges rangent les groupes de la gauche à la droite. Au Sénat, ils ne le " +
-    "font pas : la numérotation tourne rang par rang, un groupe occupe des " +
-    "sièges d'un bout à l'autre de la salle, et aucun plan n'est publié. " +
-    "L'ordre affiché est donc mesuré sur autre chose : la façon dont les " +
-    "groupes votent, sur les scrutins où ils se séparent. Il distingue " +
+    "font pas : la numérotation tourne rang par rang. Le Sénat publie pourtant " +
+    "le siège de chacun — et en le suivant, le groupe change 152 fois, contre " +
+    "9 à l'Assemblée : un groupe occupe des sièges d'un bout à l'autre de la " +
+    "salle. L'ordre affiché est donc mesuré sur autre chose : la façon dont " +
+    "les groupes votent, sur les scrutins où ils se séparent. Il distingue " +
     "nettement la gauche, le centre et la droite. Il ne départage pas les " +
     "groupes d'un même bloc, et le sens — quel bout est la gauche — est une " +
-    "convention assumée, comme les couleurs."],
+    "convention assumée. Les couleurs, elles, ne sont pas de nous : ce sont " +
+    "celles que le Sénat donne à ses groupes."],
   friseSenat: ["Le parcours au Sénat",
     "Ces colonnes sont les étapes que le Sénat nomme lui-même, et elles ne " +
     "correspondent pas une à une à celles de l'Assemblée : les deux chambres " +
@@ -1380,6 +1382,12 @@ const EXPLICATIONS = {
     "de nous, et elles ne portent que sur la forme : le classement par nom " +
     "— la source ne classe pas — et l'écriture « 1re circonscription », que " +
     "la source donne comme un simple numéro."],
+  senateurs: ["Les sénateurs du groupe",
+    "Civilité, prénom, nom et département sont recopiés de l'open data du " +
+    "Sénat, mot pour mot. Le classement par nom est de nous — la source ne " +
+    "classe pas. **Il n'y a pas de photographies** : les mentions légales du " +
+    "Sénat les couvrent par le droit d'auteur, contrairement aux travaux " +
+    "parlementaires, qui sont libres."],
   procedureAcceleree: ["La procédure accélérée",
     "Le gouvernement a engagé la procédure accélérée sur ce texte. Concrètement, " +
     "le texte ne fait qu'une lecture dans chaque chambre avant qu'une commission " +
@@ -4638,7 +4646,28 @@ async function ouvrirVersion(uid, ref) {
  * les deux boutons ronds du haut, qui suivent l'onglet ouvert.
  * ------------------------------------------------------------------ */
 
-async function ouvrirCompositionSenat() {
+/* **Le même écran que celui de l'Assemblée, et les mêmes fonctions.** Le
+   dessin, la liste des groupes, l'ouverture d'un groupe : tout vient de
+   `dessinerHemicycle` et de `.hemi-liste`. Deux versions d'un même dessin
+   divergeraient.
+
+   Trois différences, et chacune tient à ce que la source donne ou ne donne
+   pas — jamais à un choix d'écran :
+
+   - **Pas de bouton « par siège ».** Il faut un plan de salle. Le Sénat en
+     publie un (`senat.fr/vos-senateurs/groupes-politiques.html`), mais ses
+     numéros ne sont pas des positions : mesuré le 2026-10-04 sur ce plan,
+     le groupe change **152 fois** quand on suit les numéros, contre 9 à
+     l'Assemblée. Les placer ainsi éparpillerait chaque groupe sur tout
+     l'arc.
+   - **Pas de photos** : les mentions légales du Sénat les couvrent par le
+     droit d'auteur.
+   - **Pas de compte femmes / hommes** : la civilité est publiée, mais elle
+     sert déjà à nommer, et rien d'autre ne l'appuie.
+
+   Les couleurs, elles, viennent du site et **ne sont pas de nous** —
+   contrairement à celles de l'Assemblée, qui sont une convention. */
+async function ouvrirCompositionSenat(sigle = null) {
   const f = ouvrirEcran();
   f.append(boutonRetour("", "Retour au fil"));
   f.append(el("h2", "fiche-titre", "Le Sénat"));
@@ -4648,74 +4677,119 @@ async function ouvrirCompositionSenat() {
   f.textContent = "";
   f.append(boutonRetour("", "Retour au fil"));
   f.append(el("h2", "fiche-titre", "Le Sénat"));
-  if (!d) {
+  if (!d || !(d.groupes || []).length) {
     f.append(el("div", "vide",
       "La composition du Sénat n'est pas publiée aujourd'hui. Les données du "
       + "Sénat sont une source facultative : le reste du site est à jour."));
     return;
   }
 
+  const groupes = d.groupes.filter((g) => g.effectif > 0);
+  const choisi = groupes.find((g) => g.sigle === sigle) || null;
+  // Le dessin montre les sénateurs **qui ont un groupe**. Les 179 qui n'en ont
+  // pas encore ne sont pas des non-inscrits : les faire figurer en gris les
+  // donnerait pour tels.
+  const places = groupes.reduce((n, g) => n + g.effectif, 0);
+
   const sous = el("p", "fiche-sous",
-    `${nb.format(d.effectif)} sénateurs, ${d.groupes.length} groupes.`);
+    `${nb.format(d.effectif)} sénateurs, ${groupes.length} groupes, `
+    + "de la gauche à la droite de l'hémicycle. ");
   const aide = el("button", "aide", "ⓘ");
-  aide.setAttribute("aria-label", "Ce que ce classement montre, et ce qu'il ne montre pas");
+  aide.setAttribute("aria-label", "Ce que ce dessin montre, et ce qu'il ne montre pas");
   aide.addEventListener("click", () => expliquer(...EXPLICATIONS.compositionSenat,
                                                  "Ordre mesuré, sens convenu"));
   sous.append(aide);
   f.append(sous);
 
-  // **Ce que l'écran doit dire au lieu de le cacher.** Un hémicycle à moitié
-  // gris sans explication laisserait croire à 179 non-inscrits.
+  const zone = el("div", "hemicycle");
+  f.append(zone);
+  const svg = dessinerHemicycle(groupes, places);
+  svg.setAttribute("aria-label",
+    `${nb.format(places)} sièges coloriés par groupe, de la gauche à la droite`);
+  zone.append(svg);
+  svg.classList.toggle("un-seul", !!choisi);
+  svg.querySelectorAll("g").forEach(
+    (n) => n.classList.toggle("vu", !!choisi && n.dataset.sigle === choisi.sigle));
+  svg.addEventListener("click", (ev) => {
+    const part = ev.target.closest("g");
+    const vise = part && part.dataset.sigle;
+    if (vise) location.hash = vise === sigle
+      ? "#/senat/composition" : "#/senat/composition/" + encodeURIComponent(vise);
+  });
+
+  // **Ce que l'écran doit dire au lieu de le cacher.** Un hémicycle de 169
+  // sièges sans explication laisserait croire à un Sénat à moitié vide.
   if (d.sansGroupe) {
-    f.append(el("p", "avertissement",
-      `${nb.format(d.sansGroupe)} sénateurs sur ${nb.format(d.effectif)} `
-      + "n'ont pas de groupe aujourd'hui. Ce n'est pas qu'ils sont non "
-      + "inscrits : après le renouvellement du 27 septembre 2026, les groupes "
-      + "ont été clos et ne se sont pas encore reformés. La page se remplira "
-      + "d'elle-même."));
+    zone.append(el("p", "sous-dessin",
+      `${nb.format(places)} sénateurs dans un groupe. Les `
+      + `${nb.format(d.sansGroupe)} autres ne sont pas des non-inscrits : `
+      + "après le renouvellement du 27 septembre 2026, les groupes ont été "
+      + "clos et ne se sont pas encore reformés. Le dessin se remplira de "
+      + "lui-même."));
   }
 
-  const b = bloc("Les groupes, de la gauche à la droite", false, true);
-  b.append(el("p", "avertissement",
-    "L'ordre est mesuré sur la façon de voter des groupes, et non sur leurs "
-    + "sièges : la numérotation du Sénat tourne rang par rang, et aucun plan "
-    + "de salle n'est publié. Il sépare nettement la gauche, le centre et la "
-    + "droite ; à l'intérieur de ces blocs il ne départage pas, et le sens — "
-    + "quel bout est la gauche — est une convention assumée."));
-  const liste = el("div", "amdts");
-  for (const g of d.groupes) {
-    const ligne = el("div", "rang-amdt");
-    const bouton = el("button", "vers-amdt titre");
-    bouton.type = "button";
-    bouton.append(el("span", "num", g.nom || g.sigle));
-    bouton.append(el("span", "qui",
-      `${nb.format(g.effectif)} sénateur${g.effectif > 1 ? "s" : ""}`));
-    bouton.append(el("span", "chevron", "›"));
-    bouton.addEventListener("click", () => {
-      const ouvert = ligne.nextSibling && ligne.nextSibling.classList
-                     && ligne.nextSibling.classList.contains("membres-senat");
-      if (ouvert) { ligne.nextSibling.remove(); return; }
-      const membres = el("div", "membres-senat");
-      for (const x of d.senateurs.filter((s) => s.groupe === g.sigle)) {
-        membres.append(el("p", "disp",
-          `${x.civilite || ""} ${x.prenom} ${x.nom}`.trim()
-          + (x.circonscription ? ` · ${x.circonscription}` : "")));
-      }
-      ligne.after(membres);
+  const liste = el("div", "hemi-liste");
+  f.append(liste);
+  for (const g of (choisi ? [choisi] : groupes)) {
+    const ligne = el("button", "hemi-groupe");
+    ligne.setAttribute("aria-expanded", String(g === choisi));
+    const teinte = el("i");
+    if (g.couleur) teinte.style.background = g.couleur;
+    ligne.append(teinte);
+    ligne.append(el("span", "sigle", g.nom || g.sigle));
+    ligne.append(el("span", "nom", g.nomComplet || ""));
+    const compte = el("span", "n", nb.format(g.effectif));
+    compte.append(el("span", null, " sén."));
+    ligne.append(compte);
+    ligne.append(el("span", "chevron", g === choisi ? "‹" : "›"));
+    ligne.addEventListener("click", () => {
+      location.hash = g === choisi
+        ? "#/senat/composition" : "#/senat/composition/" + encodeURIComponent(g.sigle);
     });
-    ligne.append(bouton);
     liste.append(ligne);
   }
-  b.append(liste);
-  f.append(b);
 
-  // Pas de photos, et il vaut mieux le dire que laisser chercher.
   f.append(el("p", "avertissement",
-    "Les photographies des sénateurs ne sont pas reprises : les mentions "
-    + "légales du Sénat les couvrent par le droit d'auteur, contrairement aux "
-    + "travaux parlementaires, qui sont libres."));
+    "L'ordre des groupes est mesuré sur leur façon de voter, et non sur leurs "
+    + "sièges : la numérotation du Sénat tourne rang par rang, et le groupe y "
+    + "change 152 fois quand on suit les numéros. Il sépare nettement la "
+    + "gauche, le centre et la droite ; à l'intérieur de ces blocs il ne "
+    + "départage pas, et le sens — quel bout est la gauche — est une "
+    + "convention assumée. Les couleurs, elles, sont celles du Sénat."));
+
+  if (!choisi) return;
+
+  const membres = (d.senateurs || []).filter((x) => x.groupe === choisi.sigle);
+  const detail = el("p", "fiche-sous",
+    `${nb.format(membres.length)} sénateurs, classés par nom. `);
+  const aideNoms = el("button", "aide", "ⓘ");
+  aideNoms.setAttribute("aria-label", "D'où viennent ces noms");
+  aideNoms.addEventListener("click",
+    () => expliquer(...EXPLICATIONS.senateurs, choisi.nom || choisi.sigle));
+  detail.append(aideNoms);
+  f.append(detail);
+
+  // La même ligne qu'un député, sans la photo : les mentions légales du Sénat
+  // couvrent les photographies par le droit d'auteur.
+  const lignes = el("div", "deputes");
+  for (const x of membres) lignes.append(ligneSenateur(x));
+  f.append(lignes);
 }
 
+function ligneSenateur(x) {
+  const ligne = el("div", "depute");
+  ligne.append(el("div", "sans-photo", "—"));
+  const corps = el("div", "corps");
+  corps.append(el("b", null, [x.civilite, x.prenom, x.nom].filter(Boolean).join(" ")));
+  if (x.circonscription) corps.append(el("span", "ou", x.circonscription));
+  ligne.append(corps);
+  return ligne;
+}
+
+/* **La même grille que celle de l'Assemblée**, remplie des séances à venir au
+   Sénat. Il n'y en a que quelques-unes, et c'est normal : le Sénat ne publie
+   une séance qu'une fois inscrite à son ordre du jour. Le mois s'ouvre donc
+   sur celui qui en porte, pas sur le mois en cours s'il est vide. */
 async function ouvrirCalendrierSenat() {
   const f = ouvrirEcran();
   f.append(boutonRetour("", "Retour au fil"));
@@ -4734,35 +4808,60 @@ async function ouvrirCalendrierSenat() {
       + "vacances parlementaires."));
     return;
   }
-  f.append(el("p", "fiche-sous",
-    `${nb.format(jours.reduce((n, j) => n + j.textes.length, 0))} séances `
-    + `annoncées, sur ${nb.format(jours.length)} jours.`));
 
+  // Un événement par texte inscrit, à plat : c'est la forme que la grille
+  // attend, et elle n'a pas à connaître celle du fichier du Sénat.
+  const evenements = [];
   for (const j of jours) {
-    const b = bloc(dateLongue.format(enDate(j.date)), false, true);
-    const liste = el("div", "amdts");
-    for (const t of j.textes) {
-      const ligne = el("div", "rang-amdt");
-      if (t.uid && t.titre) {
-        const bouton = el("button", "vers-amdt titre");
-        bouton.type = "button";
-        bouton.append(el("span", "num", t.titre));
-        bouton.append(el("span", "chevron", "›"));
-        bouton.addEventListener("click", () => {
-          location.hash = "#/texte/" + t.uid;
-        });
-        ligne.append(bouton);
-      } else {
-        // Un texte que nous ne suivons pas : on le dit plutôt que de le taire.
-        ligne.append(el("span", "quand-amdt",
-          "Un texte du Sénat que nous ne suivons pas encore"));
-      }
-      liste.append(ligne);
-    }
-    b.append(liste);
-    f.append(b);
+    for (const t of j.textes) evenements.push({ ...t, date: j.date });
   }
+  const mois = [...new Set(evenements.map((e) => moisDe(e.date)))].sort();
+
+  f.append(el("p", "fiche-sous",
+    `${nb.format(evenements.length)} séance${evenements.length > 1 ? "s" : ""} `
+    + `annoncée${evenements.length > 1 ? "s" : ""}, sur `
+    + `${nb.format(jours.length)} jour${jours.length > 1 ? "s" : ""}.`));
+
+  const source = {
+    mois: () => mois,
+    charger: (m) => evenements.filter((e) => moisDe(e.date) === m),
+    ligne: (e) => ligneSeanceSenat(e),
+    vide: "Aucune séance ce mois-ci. Le Sénat ne publie une séance qu'une "
+        + "fois inscrite à son ordre du jour.",
+  };
+
+  // Le mois en cours s'il porte quelque chose, sinon le premier qui en porte :
+  // une grille vide au premier regard ne dit pas où aller.
+  MOIS_VU = mois.includes(moisDe(aujourdhui())) ? moisDe(aujourdhui()) : mois[0];
+  JOUR_VU = null;
+  const zone = el("div");
+  f.append(zone);
+  await dessinerMois(zone, source);
 }
+
+/* La ligne d'une séance du Sénat, bâtie comme celle d'un événement de
+   l'Assemblée. Pas d'heure — le Sénat ne la publie pas — et pas de genre : ce
+   sont toutes des séances publiques. */
+function ligneSeanceSenat(e) {
+  const b = el("button", "evt");
+  b.append(el("div", "quand", "—"));
+  const corps = el("div", "corps");
+  // Un texte que nous ne suivons pas : on le dit plutôt que de le taire.
+  corps.append(el("h4", null, e.titre || "Un texte du Sénat que nous ne suivons pas encore"));
+  const l = el("div", "lignes");
+  l.append(etiquette("chambre-senat", CHAMBRES.senat[0], CHAMBRES.senat));
+  l.append(etiquette("", "Séance publique", EXPLICATIONS.friseSenat));
+  corps.append(l);
+  b.append(corps);
+  if (e.uid && e.titre) {
+    b.addEventListener("click", () => { location.hash = "#/texte/" + e.uid; });
+  } else {
+    b.disabled = true;
+    b.style.cursor = "default";
+  }
+  return b;
+}
+
 
 function ouvrirDisputes(uid) {
   const f = ouvrirEcran();
@@ -4978,12 +5077,12 @@ async function ouvrirAgenda() {
   }
   const zone = el("div");
   f.append(zone);
-  await dessinerMois(zone);
+  await dessinerMois(zone, CALENDRIER_AN);
 }
 
-async function dessinerMois(zone) {
-  const evenements = await moisCharge(MOIS_VU);
-  const connus = (AGENDA.mois || []).map((m) => m.mois);
+async function dessinerMois(zone, source) {
+  const evenements = await source.charger(MOIS_VU);
+  const connus = source.mois();
   zone.textContent = "";
 
   const barre = el("div", "mois-barre");
@@ -4994,7 +5093,7 @@ async function dessinerMois(zone) {
     b.addEventListener("click", async () => {
       MOIS_VU = moisVoisin(MOIS_VU, pas);
       JOUR_VU = null;
-      await dessinerMois(zone);
+      await dessinerMois(zone, source);
     });
     return b;
   };
@@ -5012,23 +5111,39 @@ async function dessinerMois(zone) {
   // Le jour choisi se décide **avant** de dessiner la grille : sinon la case
   // du jour ne serait pas marquée, la grille ayant été construite avant de
   // savoir lequel montrer.
-  if (evenements.length && (!JOUR_VU || moisDe(JOUR_VU) !== MOIS_VU)) {
+  //
+  // **Et il doit porter quelque chose dans *ce* calendrier.** Les deux
+  // chambres partagent `JOUR_VU` : passer du calendrier du Sénat à celui de
+  // l'Assemblée gardait un jour chargé au Sénat et vide à l'Assemblée, qui
+  // rendait une liste vide sous une grille pleine.
+  if (evenements.length
+      && (!JOUR_VU || moisDe(JOUR_VU) !== MOIS_VU || !parJour.has(JOUR_VU))) {
     // Aujourd'hui s'il porte quelque chose, sinon le premier jour du mois qui
     // en porte.
     JOUR_VU = parJour.has(aujourdhui()) ? aujourdhui() : [...parJour.keys()].sort()[0];
   }
-  zone.append(grilleDuMois(parJour, zone));
+  zone.append(grilleDuMois(parJour, zone, source));
 
   if (!evenements.length) {
-    zone.append(el("div", "vide",
-      "Aucune séance ni aucun vote ce mois-ci. Le Parlement ne siège pas toute "
-      + "l'année : les mois d'été et de fin d'année sont creux."));
+    zone.append(el("div", "vide", source.vide));
     return;
   }
-  zone.append(listeDuJour(parJour.get(JOUR_VU) || []));
+  zone.append(listeDuJour(parJour.get(JOUR_VU) || [], source));
 }
 
-function grilleDuMois(parJour, zone) {
+/* **Une seule mécanique de calendrier, deux chambres.** La barre des mois, la
+   grille, le jour choisi et sa liste sont les mêmes ; une source dit seulement
+   quels mois existent, comment charger l'un d'eux, et comment dessiner la
+   ligne d'un événement. Deux calendriers séparés divergeraient. */
+const CALENDRIER_AN = {
+  mois: () => (AGENDA.mois || []).map((m) => m.mois),
+  charger: (mois) => moisCharge(mois),
+  ligne: (e) => ligneEvenement(e),
+  vide: "Aucune séance ni aucun vote ce mois-ci. Le Parlement ne siège pas "
+      + "toute l'année : les mois d'été et de fin d'année sont creux.",
+};
+
+function grilleDuMois(parJour, zone, source) {
   const grille = el("div", "grille");
   for (const j of JOURS) grille.append(el("div", "jour-nom", j));
 
@@ -5052,7 +5167,7 @@ function grilleDuMois(parJour, zone) {
     if (dessus.length) {
       b.setAttribute("aria-label",
         `${n} : ${dessus.length} événement${dessus.length > 1 ? "s" : ""}`);
-      b.addEventListener("click", async () => { JOUR_VU = iso; await dessinerMois(zone); });
+      b.addEventListener("click", async () => { JOUR_VU = iso; await dessinerMois(zone, source); });
     } else {
       b.disabled = true;
     }
@@ -5061,10 +5176,10 @@ function grilleDuMois(parJour, zone) {
   return grille;
 }
 
-function listeDuJour(evenements) {
+function listeDuJour(evenements, source) {
   const zone = el("div");
   zone.append(el("h3", "jour-titre", jourLong.format(enDate(JOUR_VU))));
-  for (const e of evenements) zone.append(ligneEvenement(e));
+  for (const e of evenements) zone.append(source.ligne(e));
   return zone;
 }
 
@@ -5505,6 +5620,8 @@ function router() {
   const disputes = location.hash.match(/^#\/disputes\/([\w-]+)$/);
   if (disputes) return ouvrirDisputes(disputes[1]);
   if (location.hash === "#/senat/composition") return ouvrirCompositionSenat();
+  const grpSenat = location.hash.match(/^#\/senat\/composition\/([\w-]+)$/);
+  if (grpSenat) return ouvrirCompositionSenat(decodeURIComponent(grpSenat[1]));
   if (location.hash === "#/senat/calendrier") return ouvrirCalendrierSenat();
   const texte = location.hash.match(/^#\/texte\/([\w-]+)$/);
   if (texte) return ouvrirFiche(texte[1]);

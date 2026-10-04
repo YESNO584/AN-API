@@ -1168,3 +1168,38 @@ pendant que le fil n'en tenait aucun compte.
 La parade est de faire lire aux trois **la même déclaration** (`VUES[v].filtres`,
 via `aLeFiltre`), et non de répéter la condition à trois endroits. Un badge
 qui ment sur ce que le fil applique est pire que pas de badge.
+
+### Une limite annoncée peut tomber dès qu'on lit la source
+
+Deux choses avaient été annoncées comme impossibles au Sénat : les noms
+complets des groupes et leurs couleurs. La page que l'utilisateur a indiquée
+portait les deux — plus un plan de salle que le projet croyait inexistant,
+mesuré et documenté comme tel.
+
+Deux leçons, et la seconde compte plus :
+
+- **Une absence constatée dans les fichiers d'open data n'est pas une absence
+  tout court.** Le projet le savait déjà pour les scrutins du Sénat ; il l'a
+  réappris pour les couleurs. La page web du producteur est une source, pas un
+  pis-aller.
+- **Une limite qui tombe laisse des phrases fausses derrière elle.** « Aucun
+  plan de salle n'est publié » était écrit à quatre endroits — l'écran, le
+  schéma, deux documents. Les corriger faisait partie du travail, pas de la
+  finition : une note périmée est pire qu'une note absente, parce qu'on s'y
+  fie.
+
+À noter : le plan de salle, une fois lu, **confirme** la règle qu'il semblait
+démentir. Le groupe y change 152 fois quand on suit les numéros, contre 9 à
+l'Assemblée. La conclusion n'a pas changé ; sa preuve est devenue directe.
+
+### Deux écrans qui partagent un état partagent ses bugs
+
+Le calendrier du Sénat a été bâti sur celui de l'Assemblée, qui garde le mois
+et le jour choisis dans deux variables globales. Passer de l'un à l'autre
+gardait un jour chargé au Sénat et vide à l'Assemblée : une liste vide sous
+une grille pleine, sans erreur ni message.
+
+La parade n'était pas de dédoubler l'état — ce qui aurait dédoublé le code —
+mais d'exiger que le jour retenu **porte quelque chose dans ce qu'on dessine**.
+La règle vaut au-delà : un état partagé entre deux vues doit être revalidé
+contre la vue courante, pas seulement contre lui-même.

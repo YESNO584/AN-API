@@ -1157,6 +1157,12 @@ def composition_du_senat(senat_cx: sqlite3.Connection | None) -> dict | None:
     2026-09-27 ; que l'ordre des groupes est mesuré sur leur façon de voter et
     non sur les sièges, faute de plan de salle ; et qu'il n'y a pas de photos,
     parce qu'elles ne sont pas libres.
+
+    La **couleur** et le **nom complet** d'un groupe viennent de la page des
+    groupes politiques du site, et ne sont pas de nous — contrairement à celles
+    de l'Assemblée, qui sont une convention d'affichage. Les deux peuvent
+    manquer : un groupe sans couleur se dessine en gris plutôt qu'en une
+    teinte inventée.
     """
     if senat_cx is None:
         return None
@@ -1168,9 +1174,15 @@ def composition_du_senat(senat_cx: sqlite3.Connection | None) -> dict | None:
     return {
         "effectif": len(senateurs),
         "sansGroupe": sum(1 for s in senateurs if not s["groupe"]),
-        "groupes": [dict(l) for l in senat_cx.execute(
-            "SELECT sigle, nom, effectif, rang FROM groupe_senat"
-            " ORDER BY rang IS NULL, rang")],
+        # `nom` reste l'abrégé courant — « SER », « CRCE-K » — qui tient
+        # sur une pastille ; `nomComplet` est la phrase entière, pour la
+        # ligne. L'Assemblée publie les deux de la même façon.
+        "groupes": [{"sigle": l["sigle"], "nom": l["nom"],
+                     "nomComplet": l["nom_complet"], "couleur": l["couleur"],
+                     "effectif": l["effectif"], "rang": l["rang"]}
+                    for l in senat_cx.execute(
+            "SELECT sigle, nom, nom_complet, couleur, effectif, rang"
+            " FROM groupe_senat ORDER BY rang IS NULL, rang")],
         "senateurs": senateurs,
     }
 

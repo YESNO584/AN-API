@@ -434,9 +434,18 @@ partout. Détail dans `../docs/sources/senat-scrutins.md`.
 #### L'ordre des groupes est mesuré, son sens est convenu
 
 À l'Assemblée, la médiane des numéros de siège range les groupes de la gauche à
-la droite. **Au Sénat, cette méthode échoue** : la numérotation tourne rang par
-rang, le groupe change 152 fois quand on suit les sièges — contre 9 pour un
-hémicycle rangé par blocs — et aucun plan de salle n'est publié.
+la droite. **Au Sénat, cette méthode échoue**, et on le sait maintenant sur son
+propre plan de salle. Celui-ci existe — la page des groupes politiques du site
+donne le siège de chaque sénateur — mais **ses numéros ne sont pas des
+positions** : mesuré le 2026-10-04 dessus, le groupe change **152 fois** quand
+on suit les numéros, contre 9 pour un hémicycle rangé par blocs, et chaque
+tranche de 40 numéros porte 6 à 8 groupes différents. La numérotation tourne
+rang par rang.
+
+**C'est ce qui ferme la porte au dessin « par siège »** de l'Assemblée : placer
+les sénateurs à leur numéro éparpillerait chaque groupe sur tout l'arc. L'écran
+du Sénat n'a donc que le dessin par groupe, et pas le bouton qui bascule entre
+les deux.
 
 L'ordre est donc mesuré sur la **façon de voter** : la première composante des
 profils de vote par groupe. Elle sépare nettement la gauche, le centre et la
@@ -444,8 +453,40 @@ droite, et ne départage pas les groupes d'un même bloc.
 
 **Elle donne une ligne, pas un sens** : mathématiquement, l'axe et son opposé
 décrivent aussi bien les données. Le sens est une **convention assumée**
-(`senat.GROUPE_LE_PLUS_A_GAUCHE`), au même titre que les couleurs, et l'écran
-le dit.
+(`senat.GROUPE_LE_PLUS_A_GAUCHE`), et l'écran le dit.
+
+#### La couleur et le nom complet d'un groupe viennent du site
+
+**Aucun fichier d'open data ne les publie** : `ODSEN_GENERAL.csv` ne porte que
+des codes, et le dump n'a pas de table de groupes. Une seule page les donne,
+`senat.fr/vos-senateurs/groupes-politiques.html`, dans l'attribut `groups`
+d'un élément `<hemicycle-groups>` : du JSON échappé en entités HTML, un objet
+par groupe, avec son identifiant, son nom entier, ses sièges et sa couleur.
+
+**C'est de la donnée, pas de la mise en page** : `senat.groupes_de_la_page` ne
+lit que cet attribut, jamais le dessin qu'il sert à faire ni le reste de la
+page. Le contrôle est le même que pour les scrutins : une page refaite rend un
+dictionnaire **vide** — jamais une moitié de table — et la publication le
+signale comme une alerte au lieu de teindre la moitié de l'hémicycle.
+
+Quatre pièges, et les tests les tiennent :
+
+- **L'attribut est échappé deux fois** : entités HTML (`&quot;`) puis
+  séquences JSON (`\u00e9`). Le lire sans déséchapper ne rend rien ; sans la
+  seconde passe, « Groupe Écologiste » s'affiche avec sa séquence.
+- **La casse des couleurs change d'un groupe à l'autre** : la page écrit
+  `#b84592` pour l'un et `#D90001` pour l'autre. Deux écritures de la même
+  couleur feraient deux valeurs en base.
+- **`AUCUN` et `NI` ne sont pas des groupes.** Le premier rassemble les
+  sénateurs fraîchement élus, le second ceux qui ne s'inscrivent nulle part ;
+  la page les met tous les deux en noir. Les reprendre donnerait un groupe
+  « Nouveaux Sénateurs » de 179 membres.
+- **Une couleur qui n'en est pas une est écartée**, plutôt que posée en base
+  pour que le navigateur en fasse ce qu'il veut.
+
+Contrôle croisé du 2026-10-04 : les **neuf** sigles de la page sont les nôtres,
+**et les neuf effectifs correspondent un pour un** à ceux de `groupe_senat`.
+Huit groupes sont teintés ; `NI` ne l'est pas, et se dessine en gris.
 
 ### Où un texte en est au Sénat
 

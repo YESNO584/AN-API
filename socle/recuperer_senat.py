@@ -61,10 +61,10 @@ def session_en_cours(aujourdhui: dt.date | None = None) -> int:
     return j.year if j.month >= 10 else j.year - 1
 
 
-def lire_page(annee: int) -> str:
-    """Une page de scrutins, compressée : 285 Ko en clair, 29 Ko sur le fil."""
+def lire_url(url: str) -> str:
+    """Une page du site du Sénat, compressée quand le serveur le veut bien."""
     requete = urllib.request.Request(
-        senat.URL_SCRUTINS.format(annee=annee),
+        url,
         headers={"Accept-Encoding": "gzip",
                  "User-Agent": "qui-vote-quoi (github.com/yesno584/AN-API)"})
     with urllib.request.urlopen(requete, timeout=120) as r:
@@ -73,6 +73,11 @@ def lire_page(annee: int) -> str:
             import gzip
             brut = gzip.decompress(brut)
     return brut.decode("utf-8", "replace")
+
+
+def lire_page(annee: int) -> str:
+    """Une page de scrutins : 285 Ko en clair, 29 Ko sur le fil."""
+    return lire_url(senat.URL_SCRUTINS.format(annee=annee))
 
 
 def ranger_scrutins(cx: sqlite3.Connection, archive: pathlib.Path,
@@ -255,12 +260,28 @@ def ranger_senateurs(cx: sqlite3.Connection, actifs: list[dict],
     return len(actifs)
 
 
-def ranger_groupes(cx: sqlite3.Connection, depuis: str,
-                   noms: dict[str, str]) -> int:
-    """Les groupes, leur effectif, et leur rang de la gauche à la droite.
+def couleurs_des_groupes() -> tuple[dict[str, dict], str | None]:
+    """La couleur et le nom complet de chaque groupe, lus sur le site.
+
+    **Source facultative, et qui doit le rester** : c'est une page web, elle
+    peut être refaite du jour au lendemain. Un échec rend un dictionnaire vide
+    et une alerte — la base garde alors ce qu'elle avait, et l'écran se passe
+    des couleurs plutôt que d'en inventer.
+    """
+    try:
+        groupes = senat.groupes_de_la_page(lire_url(senat.URL_GROUPES))
+    except Exception as erreur:                      # réseau, délai, serveur
+        return {}, f"page des groupes illisible : {erreur}"
+    return groupes, senat.groupes_lisibles(groupes)
+
+
+def ranger_groupes(cx: sqlite3.Connection, depuis: str, noms: dict[str, str],
+                   habits: dict[str, dict] | None = None) -> int:
+    """Les groupes, leur effectif, leur rang, leur nom complet et leur couleur.
 
     Le rang est **mesuré sur la façon de voter**, faute de pouvoir l'être sur
-    les sièges — voir `senat.rang_par_les_votes`.
+    les sièges — voir `senat.rang_par_les_votes`. La couleur et le nom complet,
+    eux, sont recopiés du site : nous n'en inventons aucun.
     """
     effectifs = {l["groupe"]: l["n"] for l in cx.execute(
         "SELECT groupe, COUNT(*) n FROM senateur WHERE groupe IS NOT NULL"
@@ -278,10 +299,15 @@ def ranger_groupes(cx: sqlite3.Connection, depuis: str,
                 l["pour"] / exprimes
     rang = {g: i for i, g in enumerate(senat.rang_par_les_votes(
         dict(positions), senat.GROUPE_LE_PLUS_A_GAUCHE))}
+    habits = habits or {}
     cx.execute("DELETE FROM groupe_senat")
-    cx.executemany("INSERT INTO groupe_senat VALUES (?,?,?,?)",
-                   [(g, noms.get(g, g), n, rang.get(g))
-                    for g, n in effectifs.items()])
+    cx.executemany(
+        "INSERT INTO groupe_senat"
+        " (sigle, nom, nom_complet, couleur, effectif, rang)"
+        " VALUES (?,?,?,?,?,?)",
+        [(g, noms.get(g, g), habits.get(g, {}).get("nom"),
+          habits.get(g, {}).get("couleur"), n, rang.get(g))
+         for g, n in effectifs.items()])
     return len(effectifs)
 
 
@@ -381,13 +407,17 @@ def main() -> int:
                 sessions = sessions[-options.sessions:]
             n_scr, alertes = ranger_scrutins(cx, archive, sessions)
             n_vot = ranger_votes(cx, archive, historique, options.depuis)
-            n_grp = ranger_groupes(cx, options.depuis, noms)
+            habits, alerte_couleurs = couleurs_des_groupes()
+            if alerte_couleurs:
+                alertes.append(alerte_couleurs)
+            n_grp = ranger_groupes(cx, options.depuis, noms, habits)
             n_sea = ranger_seances(cx, archive, dt.date.today().isoformat())
             n_the = ranger_themes(cx, dossier / "dossiers.csv")
 
     print(f"  {n_dos:>7,} dossiers · {n_scr:>6,} scrutins ({len(sessions)} sessions"
           f" relues) · {n_vot:>6,} lignes de vote par groupe", file=sys.stderr)
-    print(f"  {n_sen:>7,} sénateurs · {n_grp} groupes · {n_sea} séances à venir"
+    print(f"  {n_sen:>7,} sénateurs · {n_grp} groupes ({len(habits)} teintés)"
+          f" · {n_sea} séances à venir"
           f" · {n_the:,} rattachements de thème", file=sys.stderr)
     for x in alertes:
         print(f"  ALERTE {x}", file=sys.stderr)

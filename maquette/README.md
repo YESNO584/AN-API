@@ -684,25 +684,53 @@ mènent à la composition du Sénat et à ses séances à venir ; ailleurs, à
 l'hémicycle et au calendrier de l'Assemblée. Même geste, même place, l'autre
 chambre — et leur étiquette change avec eux.
 
-#### La composition : ce que l'écran dit au lieu de le cacher
+**Les deux écrans sont ceux de l'Assemblée**, pas des écrans qui leur
+ressemblent (2026-10-04). Le dessin en hémicycle, la liste des groupes, la
+barre des mois, la grille des jours et la liste du jour choisi sont **les mêmes
+fonctions**, auxquelles on passe la chambre à dessiner. Deux versions d'un même
+dessin divergeraient au premier changement.
 
-- **179 sénateurs sur 348 n'ont pas de groupe.** Après le renouvellement du
-  27 septembre 2026, les groupes ont été clos et ne se sont pas reformés. La
-  page le dit en toutes lettres : ce ne sont pas des non-inscrits.
+#### La composition : le même hémicycle, aux couleurs du Sénat
+
+Les couleurs sont **celles du Sénat**, lues sur la page de ses groupes
+politiques — contrairement à celles de l'Assemblée, qui sont une convention
+d'affichage. Les noms complets viennent de la même page ; la pastille garde
+l'abrégé courant (« SER », « CRCE-K ») qui tient dans la place.
+
+Ce que l'écran dit au lieu de le cacher :
+
+- **169 sénateurs sont dessinés, pas 348.** Les 179 autres n'ont pas de
+  groupe : après le renouvellement du 27 septembre 2026, les groupes ont été
+  clos et ne se sont pas reformés. L'écran le dit sous le dessin — ce ne sont
+  pas des non-inscrits, et les peindre en gris les donnerait pour tels.
 - **L'ordre des groupes est mesuré sur leur façon de voter**, pas sur les
-  sièges — au Sénat la numérotation tourne rang par rang et aucun plan de
-  salle n'est publié. Il sépare la gauche, le centre et la droite, ne
-  départage pas l'intérieur des blocs, et **son sens est une convention
-  assumée**. L'explication au toucher le dit.
+  sièges, et **son sens est une convention assumée**.
 - **Pas de photographies** : les mentions légales du Sénat les couvrent par le
   droit d'auteur, contrairement aux travaux parlementaires.
 
-#### Le calendrier : mieux fourni que celui de l'Assemblée
+**Pas de bouton « par siège », et c'est mesuré sur le plan du Sénat lui-même.**
+Le site publie bien le siège de chaque sénateur. Mais ses numéros ne sont pas
+des positions : en les suivant, le groupe change **152 fois**, contre 9 à
+l'Assemblée, et chaque tranche de 40 numéros porte 6 à 8 groupes. Les placer
+ainsi éparpillerait chaque groupe sur tout l'arc. Un bouton qui ne peut pas
+tenir sa promesse ne s'affiche pas.
+
+#### Le calendrier : la même grille, mieux fournie que celle de l'Assemblée
 
 19 séances annoncées sur 9 jours, dont 18 nomment un texte qu'on suit — là où
 l'agenda de l'Assemblée compte une seule réunion à venir qui nomme un texte sur
 35. Un texte du Sénat qu'on ne suit pas encore est annoncé comme tel, plutôt
 que tu.
+
+Le mois s'ouvre sur celui qui porte quelque chose, pas sur le mois en cours
+s'il est vide : une grille vide au premier regard ne dit pas où aller. Pas
+d'heure sur les lignes — le Sénat ne la publie pas.
+
+**Les deux calendriers partagent le mois et le jour choisis**, et c'est un
+piège qui s'est refermé une fois : revenir au calendrier de l'Assemblée après
+celui du Sénat gardait un jour chargé au Sénat et vide à l'Assemblée, ce qui
+donnait une liste vide sous une grille pleine. Le jour retenu doit porter
+quelque chose **dans le calendrier qu'on dessine**.
 
 ### Le repère d'un texte : « adoptés de justesse »
 
