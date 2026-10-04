@@ -71,42 +71,50 @@ SOURCES = {
 # donc facultatifs au même titre, et leur absence est publiée, pas dissimulée.
 FACULTATIVES = frozenset({"amendements", "debats"})
 
-# Combien de fois redemander une source facultative avant de la déclarer
-# absente, et combien de temps attendre entre deux essais.
+# Combien de fois redemander une source avant de renoncer, et combien de temps
+# attendre entre deux essais.
 #
 # **La panne est passagère, et elle vient de chez eux.** Mesuré le 2026-09-23 :
 # l'archive des amendements a répondu `HTTP Error 504: Gateway Time-out` après
 # 50 secondes d'attente — le serveur de l'Assemblée n'a pas fini de préparer
 # son plus gros fichier à temps. Le même fichier s'est téléchargé sans
-# difficulté vingt minutes plus tard, 300 Mo en 103 secondes. Un seul essai
-# faisait donc perdre les amendements de toute la journée pour une minute
-# d'indisponibilité chez eux.
+# difficulté vingt minutes plus tard, 300 Mo en 103 secondes.
 #
 # Une reprise existait bien dans la publication — trois essais du programme
 # entier — mais elle ne pouvait pas se déclencher : une exécution où une source
 # facultative manque **réussit**, par construction. Elle doit donc se jouer
-# ici, sur la source elle-même, et non dehors : redemander 300 Mo coûte moins
-# cher que de retélécharger les 412 Mo de l'ensemble.
-ESSAIS_FACULTATIVE = 3
+# ici, sur la source elle-même, et non dehors.
+#
+# **Elle vaut pour toutes les sources depuis le 2026-10-04, et pas seulement
+# pour les facultatives.** Le raisonnement d'avant disait : « sans une source
+# obligatoire il n'y a rien à publier, insister ne ferait que retarder
+# l'erreur. » La publication n° 114 l'a démenti. Trois essais, trois `504`,
+# chaque fois sur une source obligatoire — l'agenda deux fois, les acteurs une
+# fois — et chaque essai avait retéléchargé les 310 Mo d'amendements avant d'y
+# arriver. Un gigaoctet et neuf minutes dépensés pour éviter de redemander un
+# fichier de 2,6 Mo. Le fichier des acteurs mettait alors 84 secondes pour ces
+# 2,6 Mo : c'est la lenteur du serveur, pas l'absence du fichier.
+#
+# Une source obligatoire qui échoue **trois fois** fait toujours échouer la
+# publication. Elle ne la fait plus échouer une seule fois.
+ESSAIS = 3
 PAUSE_ENTRE_ESSAIS = 20         # secondes
 def telecharger_en_insistant(nom: str, chemin: pathlib.Path,
                              entetes: dict[str, str], url: str,
                              dormir=time.sleep) -> dict:
-    """Télécharge, en redemandant si la source est facultative.
+    """Télécharge, en redemandant jusqu'à `ESSAIS` fois.
 
-    Une source obligatoire échoue tout de suite : sans elle il n'y a rien à
-    publier, et insister ne ferait que retarder l'erreur. Une source
-    facultative, elle, mérite qu'on insiste — voir `ESSAIS_FACULTATIVE`.
+    Ce qui distingue une source facultative d'une obligatoire n'est pas le
+    nombre d'essais — c'est ce qui arrive **après** le dernier : l'appelant
+    passe outre pour une facultative, et renonce pour une obligatoire.
     """
-    if nom not in FACULTATIVES:
-        return extraction.telecharger(chemin, entetes, url)
-    for essai in range(1, ESSAIS_FACULTATIVE + 1):
+    for essai in range(1, ESSAIS + 1):
         try:
             return extraction.telecharger(chemin, entetes, url)
         except Exception as erreur:
-            if essai == ESSAIS_FACULTATIVE:
+            if essai == ESSAIS:
                 raise
-            print(f"  {nom:<10} essai {essai} sur {ESSAIS_FACULTATIVE} :"
+            print(f"  {nom:<10} essai {essai} sur {ESSAIS} :"
                   f" {erreur} — on réessaie", file=sys.stderr)
             dormir(PAUSE_ENTRE_ESSAIS)
     raise AssertionError("inatteignable")            # pragma: no cover

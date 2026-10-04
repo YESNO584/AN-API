@@ -29,6 +29,15 @@ a pas encore d'application, de base de données ni de dépendances.
 - **Les règles de lecture des dossiers vivent dans `socle/extraction.py`, à
   un seul endroit.** Ne pas les recopier ailleurs : la maquette les importe.
   Toute modification doit passer par `socle/test_extraction.py`.
+- **Et les règles d'affichage vivent dans `socle/affichage.py`, séparées
+  exprès** (2026-10-04). La frontière : une règle qui décide de ce qui **entre
+  en base** va dans `extraction.py` ; une règle qui décide de ce qui **sort à
+  l'écran** va dans `affichage.py`. La raison n'est pas esthétique : la clé du
+  cache de `parlement.db` empreinte `extraction.py` en entier, si bien qu'une
+  formulation d'écran y faisait retélécharger 412 Mo. Mesuré : sur 127 commits,
+  19 ont jeté ce cache et **2 l'ont fait pour rien**, dont celui qui a cassé la
+  publication n° 114. **Ne pas ajouter `affichage.py` à la clé du cache**, et
+  `affichage.py` peut importer `extraction`, jamais l'inverse.
 - **Aucune donnée du Parlement n'est versionnée.** Les bases
   `socle/parlement.db` et `socle/legi.db`, le dossier `socle/public/` et les
   archives téléchargées sont ignorés par git — ils se reconstruisent avec

@@ -33,6 +33,7 @@ import sqlite3
 import sys
 import unicodedata
 
+import affichage
 import extraction
 import legi
 import recuperer_textes
@@ -387,11 +388,11 @@ def calendrier(cx: sqlite3.Connection) -> dict[str, list[dict]]:
     # Les votes qui décident, indexés par (texte, date) : une décision les
     # récupère pour afficher le résultat chiffré sur la même ligne.
     votes: dict[tuple[str, str], dict] = {}
-    trous = ",".join("?" * len(extraction.VOTES_AU_CALENDRIER))
+    trous = ",".join("?" * len(affichage.VOTES_AU_CALENDRIER))
     for l in cx.execute(
             f"SELECT dossier_uid, date, sort, pour, contre, abstentions, portee, objet"
             f" FROM vote WHERE dossier_uid IS NOT NULL AND portee IN ({trous})"
-            " ORDER BY date", tuple(extraction.VOTES_AU_CALENDRIER)):
+            " ORDER BY date", tuple(affichage.VOTES_AU_CALENDRIER)):
         votes[(l["dossier_uid"], l["date"])] = {
             "sort": l["sort"], "pour": l["pour"], "contre": l["contre"],
             "abstentions": l["abstentions"], "portee": l["portee"],
@@ -404,7 +405,7 @@ def calendrier(cx: sqlite3.Connection) -> dict[str, list[dict]]:
             " FROM etape e JOIN dossier d ON d.uid = e.dossier_uid"
             " WHERE d.est_loi = 1 AND e.date IS NOT NULL AND e.date != ''"
             " ORDER BY e.date, e.rang"):
-        genre = extraction.genre_d_evenement(l["code"])
+        genre = affichage.genre_d_evenement(l["code"])
         if not genre:
             continue
         # Deux actes du même jour, au même endroit, pour le même texte, ne font
@@ -1101,7 +1102,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     for l in cx.execute(
             "SELECT dossier_uid, code, libelle, lecture, date, conclusion"
             " FROM etape WHERE chambre = 'senat' ORDER BY date, rang"):
-        moment = extraction.moment_au_senat(l["code"])
+        moment = affichage.moment_au_senat(l["code"])
         if not moment:
             continue
         etape_senat[l["dossier_uid"]] = {
@@ -1179,7 +1180,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         "textesAvecParoles": cx.execute(
             "SELECT COUNT(DISTINCT dossier_uid) n FROM parole").fetchone()["n"],
         "issues": {cle: {"nom": nom, "quoi": quoi, "textes": comptes.get(cle, 0)}
-                   for cle, (nom, quoi) in extraction.FINS.items()},
+                   for cle, (nom, quoi) in affichage.FINS.items()},
         "fichiers": ["etapes.json", "groupes.json", "textes.json", "promulgues.json",
                      "arretes.json", "travaux.json", "textes/<uid>.json",
                      "amendements/<uid>.json", "paroles/<uid>.json",
@@ -1251,10 +1252,10 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
                    for n, nom, quoi in extraction.ETAPES],
         # **Les étapes du Sénat ne sont pas celles de l'Assemblée**, et on ne
         # les aligne pas : les deux chambres ne découpent pas le parcours
-        # pareil. Voir `extraction.ETAPES_SENAT`.
+        # pareil. Voir `affichage.ETAPES_SENAT`.
         "etapesSenat": [{"cle": cle, "nom": nom, "quoi": quoi,
                          "textesEnCours": par_moment.get(cle, 0)}
-                        for cle, nom, quoi in extraction.ETAPES_SENAT],
+                        for cle, nom, quoi in affichage.ETAPES_SENAT],
         "textesAuSenat": len(etape_senat),
         # Les lois promulguées ne sont pas une septième étape : c'est l'après.
         # Mais un lecteur qui compte les textes doit les retrouver quelque part.

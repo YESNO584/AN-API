@@ -46,12 +46,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # Les six suites, et pas trois : `test_publier.py`, `test_recuperer.py`
+      # et `test_affichage.py` n'étaient pas lancées ici (constaté le
+      # 2026-10-04). Une règle qui casse doit se voir avant la publication, pas
+      # après.
       - name: Tests
         working-directory: socle
         run: |
           python test_extraction.py
+          python test_affichage.py
           python test_legi.py
           python test_textes.py
+          python test_publier.py
+          python test_recuperer.py
 
   publier:
     name: Récupérer et publier
@@ -77,6 +84,14 @@ jobs:
       # ne correspond, et la récupération complète se refait d'elle-même :
       # sinon on publierait une base remplie selon les anciennes règles. Même
       # raisonnement que pour le droit consolidé, où le cas s'est produit.
+      #
+      # **`socle/affichage.py` est absent de cette clé, et c'est voulu.** Il
+      # ne porte que des règles de sortie à l'écran : aucune ne décide de ce
+      # qui entre en base, donc aucune n'a de raison de la faire refaire. Les y
+      # laisser avait un prix mesuré le 2026-10-04 : sur 127 commits, 19 ont
+      # jeté ce cache et **2 l'ont fait pour rien**, dont celui qui a cassé la
+      # publication n° 114 — 412 Mo redemandés pour une colonne d'écran, tombés
+      # sur un serveur lent. Ne pas ajouter `affichage.py` ici.
       #
       # La base pèse 354 Mo, 90 Mo compressée : à cette taille, la réécrire à
       # chaque publication coûterait une partie du temps qu'on vient de gagner.

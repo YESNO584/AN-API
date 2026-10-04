@@ -19,6 +19,8 @@ lire aucune donnée.
 | `legi.py` | Lit le droit consolidé et compare deux rédactions d'un article. **Ne télécharge rien, n'écrit nulle part.** |
 | `recuperer_legi.py` | Va chercher, dans le droit consolidé, ce que nos lois y ont changé. Écrit dans `legi.db` |
 | `test_legi.py` | 86 tests sur ces règles-là |
+| `affichage.py` | Les règles qui décident de ce qui **sort à l'écran**, jamais de ce qui entre en base. Séparées pour que le cache de `parlement.db` cesse de se jeter quand une formulation change |
+| `test_affichage.py` | 11 tests sur ces règles-là |
 
 ### Pourquoi deux bases
 

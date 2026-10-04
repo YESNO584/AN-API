@@ -1094,3 +1094,13 @@ qui est stocké.** Ici la réponse était non, et elle aurait coûté dix second
 
 La correction durable est de couper le fichier selon ses deux métiers — ce que
 le projet a déjà fait pour `legi.py` et `textes.py`.
+
+### Le contrôle de CI ne lançait que la moitié des tests
+
+Six suites existent dans `socle/`, trois étaient lancées par la publication :
+`test_publier.py`, `test_recuperer.py` et `test_affichage.py` ne l'étaient pas.
+Elles passaient toutes en local, donc rien ne l'a jamais signalé.
+
+**Un fichier de tests qui existe n'est pas un fichier de tests qui tourne.** À
+vérifier en ajoutant une suite : ouvrir le workflow et l'y inscrire, dans le
+même commit.

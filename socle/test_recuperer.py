@@ -80,11 +80,14 @@ class RedemanderUneSourceFacultative(unittest.TestCase):
         finally:
             recuperer.extraction.telecharger = vrai
 
-    def test_une_source_obligatoire_echoue_tout_de_suite(self):
-        """Sans elle il n'y a rien à publier : insister ne ferait que retarder
-        l'erreur."""
-        with self.assertRaises(OSError):
-            self.insister("dossiers", [OSError("504")])
+    def test_une_source_obligatoire_est_redemandee_elle_aussi(self):
+        """La publication n° 114 a échoué trois fois sur un « 504 » touchant une
+        source obligatoire, en retéléchargeant 310 Mo d'amendements avant
+        chaque échec. Un gigaoctet pour éviter de redemander 2,6 Mo."""
+        (reponse, essais, dodos) = self.insister(
+            "agenda", [OSError("504"), {"statut": 200}])
+        self.assertEqual(reponse, {"statut": 200})
+        self.assertEqual(len(essais), 2)
 
     def test_une_source_facultative_est_redemandee(self):
         (reponse, essais, dodos) = self.insister(
@@ -93,9 +96,12 @@ class RedemanderUneSourceFacultative(unittest.TestCase):
         self.assertEqual(len(essais), 2)
         self.assertEqual(dodos, [recuperer.PAUSE_ENTRE_ESSAIS])
 
-    def test_elle_n_est_pas_redemandee_indefiniment(self):
-        with self.assertRaises(OSError):
-            self.insister("debats", [OSError("504")] * recuperer.ESSAIS_FACULTATIVE)
+    def test_aucune_n_est_redemandee_indefiniment(self):
+        """Obligatoire ou non : trois essais, puis l'erreur remonte. Ce qui les
+        sépare est ce que l'appelant en fait ensuite, pas le nombre d'essais."""
+        for nom in ("debats", "dossiers"):
+            with self.assertRaises(OSError):
+                self.insister(nom, [OSError("504")] * recuperer.ESSAIS)
 
     def test_le_premier_essai_reussi_est_le_dernier(self):
         """Ce qui marche du premier coup ne se redemande pas."""
