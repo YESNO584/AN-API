@@ -1045,3 +1045,20 @@ x = −2699 : le premier du DOM était dans une `.colonne.fantome`, et toute
 mesure faite dessus était fausse. La règle connue pour `.panneau` vaut aussi
 pour `.colonne` : **toujours `:not(.fantome)`**, et vérifier que l'élément
 mesuré est bien dans la zone visible avant de conclure.
+
+### « La source ne publie pas ce lien » se vérifie ailleurs que dans ses fichiers
+
+J'ai conclu que rien ne reliait un scrutin du Sénat à un texte. C'était exact
+des fichiers d'open data — 53 tables lues, trois chemins essayés, chiffrés — et
+faux de la source. **Le site du Sénat publie ce lien en clair**, sur ses pages
+de scrutins publics, pour 97 à 99 % des scrutins. Il a fallu que l'utilisateur
+m'envoie l'adresse.
+
+L'erreur n'est pas dans la mesure, elle est dans sa portée : j'ai écrit « rien
+ne les relie » là où j'avais seulement montré « rien ne les relie **dans les
+fichiers que j'ai lus** ». Une conclusion négative ne vaut que pour ce qui a
+été regardé, et il faut le dire dans la phrase elle-même.
+
+Ce qui l'aurait attrapé : avant de déclarer une donnée absente, **ouvrir la
+page du site qui l'afficherait si elle existait**. Un éditeur qui montre
+quelque chose à l'écran le sait quelque part.

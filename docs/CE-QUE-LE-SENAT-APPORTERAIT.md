@@ -17,7 +17,7 @@ pour combien de textes ?**
 | Un lien vers **« La loi en clair »**, écrite par le Sénat | 119 | Un lien d'une ligne |
 | Les **sénateurs** : nommer, et leur photo | 348 sénateurs | Faisable, mais le Sénat est en recomposition et l'hémicycle ne se range pas |
 | **Ce que les groupes ont dit** au Sénat | 205 textes, dont **108 qui n'ont rien aujourd'hui** | Faisable, mais **545 Mo par jour** à récupérer |
-| **Qui a voté quoi au Sénat** (1,66 million de votes nominatifs) | — | **Fermé.** Rien ne relie un scrutin à un texte |
+| **Qui a voté quoi au Sénat** (1,66 million de votes nominatifs) | 145 textes sur 5 sessions | **Possible**, mais la clé est sur une page web, pas dans l'open data |
 
 **Le chiffre à retenir : 730 de nos 731 textes passés au Sénat y sont
 retrouvés, et les 107 lois promulguées aussi.** La couverture n'est pas un
@@ -122,52 +122,87 @@ C'est peu de travail et ça mène à une explication écrite par des humains, ce
 que l'application ne peut offrir nulle part ailleurs — ses propres descriptions
 sont écrites par une IA et le disent.
 
-## 4. Qui a voté quoi au Sénat — la réponse est non, et voici pourquoi
+## 4. Qui a voté quoi au Sénat — possible, mais par la page web
 
-C'est ce qui manquerait le plus : la fiche d'une loi montre le vote de chaque
-groupe à l'Assemblée, et **rien** pour le Sénat. Les données existent
-pourtant : **4 764 scrutins et 1 657 344 votes nominatifs** de sénateurs.
+**Corrigé le 2026-10-04**, après une première conclusion fausse. L'étape 0
+avait conclu que rien ne reliait un scrutin du Sénat à un texte, et j'avais
+re-vérifié cette conclusion **dans les seuls fichiers d'open data**, où elle
+est exacte. Elle est fausse en général : **le site du Sénat publie le lien, en
+clair, sur ses pages de scrutins publics.**
 
-**Rien ne les relie à un texte.** L'étape 0 l'avait dit le 2026-08-31 ; je l'ai
-re-vérifié en cherchant un chemin, et en le chiffrant.
+Chaque scrutin y est une ligne qui porte deux liens — le scrutin, et son
+dossier :
 
-Il existe bien une table qui relie un scrutin à un amendement. Mais elle ne
-donne que le **numéro** de l'amendement et l'année de session — et un numéro ne
-désigne pas un amendement à lui seul, puisque chaque texte numérote les siens à
-partir de 1 :
+> **Scrutin N°340** : sur l'ensemble du projet de loi d'urgence pour la
+> protection et la souveraineté agricoles — *consulter le dossier législatif*.
+> `Adoption`
 
-| Ce qu'on essaie | Scrutins rattachés à un seul texte |
-|---|---:|
-| Le numéro d'amendement et l'année de session | 990 sur 4 663 — **21 %** |
-| En ajoutant une fenêtre de dates de 30 jours | 2 027 — **43 %** |
-| En ajoutant le calendrier des séances du Sénat | **impossible : le calendrier est vide** |
+Ce n'est pas un rapprochement par titre : c'est un lien hypertexte écrit par le
+Sénat.
 
-La table des séances du Sénat contient **13 lignes**. Celle des dates de
-lecture n'en couvre que 421 jours. Aucune des deux ne permet de dire quel texte
-était examiné le jour d'un scrutin — alors que c'est exactement la règle qui
-marche pour l'Assemblée.
+### Ce que ça donne, mesuré sur cinq sessions
 
-Le seul rattachement qui resterait passe par **l'intitulé du scrutin** :
+| Session | Scrutins | Avec un lien vers le dossier |
+|---|---:|---:|
+| 2025-2026 | 340 | 337 (99 %) |
+| 2024-2025 | 367 | 359 (98 %) |
+| 2023-2024 | 215 | 213 (99 %) |
+| 2022-2023 | 333 | 331 (99 %) |
+| 2020-2021 | 190 | 184 (97 %) |
 
-> sur l'amendement n° I-1334, présenté par M. Claude Raynal, à l'article 15 du
-> projet de loi
+Les quelques scrutins sans lien ne portent pas sur un texte : ce sont des
+déclarations du Gouvernement.
 
-C'est-à-dire un rapprochement par titre — ce que le projet refuse, et ce que
-son propre plan qualifie de « coûteux, fragile, jamais fiable à 100 % ».
+**Et la clé se recoupe parfaitement avec l'open data :** les **1 424** scrutins
+ainsi rattachés se retrouvent **tous** dans le fichier des scrutins, par leur
+session et leur numéro. Zéro manquant. **592 d'entre eux mènent à l'un de nos
+textes**, sur **145 textes distincts**.
 
-**Conclusion : on n'affichera pas les votes du Sénat.** Ce n'est pas un choix
-de confort : la donnée est là, mais rien ne dit à quel texte elle appartient.
-Mieux vaut ne rien montrer que de se tromper de texte.
+### Vérifié de bout en bout
 
-## Deux pièges techniques, mesurés
+Sur le projet de loi d'urgence pour la protection et la souveraineté agricoles,
+scrutin n° 340 du 21 juillet 2026, 214 pour et 111 contre — le détail sort
+groupe par groupe :
 
-1. **Les deux dumps du Sénat n'ont pas le même encodage.** Celui des
-   amendements déclare `LATIN1`, celui des dossiers `UTF8` — dans des fichiers
-   publiés par le même service, le même jour. Lu en UTF-8, le premier affiche
-   `Rejet?` au lieu de `Rejeté`.
-2. **Le texte des amendements est du HTML avec des entités** (`&#233;` pour
-   « é »), pas du texte brut. Il faut le nettoyer avant de l'afficher, comme on
-   le fait déjà pour les comptes rendus de l'Assemblée.
+| Groupe | Pour | Contre | Abstention |
+|---|---:|---:|---:|
+| Les Républicains | 51 | — | 1 |
+| SER | — | 34 | — |
+| UC | 25 | 1 | 2 |
+| CRCE-K | — | 14 | — |
+| Les Indépendants | 10 | — | 1 |
+| GEST | — | 9 | — |
+| RDSE | 3 | 3 | 2 |
+| RDPI | 1 | 6 | 1 |
+| Non inscrits | 3 | — | — |
+
+(Les 179 sénateurs sans groupe depuis le renouvellement n'apparaissent pas
+ici : le groupe serait à prendre **à la date du scrutin**, dans le fichier
+d'historique des groupes, où il se retrouve à 100 %.)
+
+### Les trois réserves, et elles sont réelles
+
+1. **La clé vient d'une page web, pas d'un fichier publié.** C'est une
+   différence de nature : une page se refait, et le jour où le Sénat change la
+   mise en page de ses scrutins, la lecture casse. Tout le reste de ce que fait
+   le projet lit des fichiers publiés pour être lus.
+2. **La licence n'est pas celle de l'open data.** `data.senat.fr` a la sienne ;
+   une page de `senat.fr` est autre chose, et c'est à vérifier avant tout
+   usage.
+3. **Il faut une page par session**, soit une dizaine de fichiers de 280 Ko à
+   relire régulièrement. C'est peu, mais c'est une source de plus à surveiller.
+
+### Ce que les fichiers d'open data, eux, ne permettent pas
+
+Pour mémoire, et parce que c'est ce qui avait fait conclure trop vite : dans
+les seuls fichiers publiés, la seule piste est une table qui relie un scrutin à
+un **numéro** d'amendement. Comme chaque texte numérote ses amendements à
+partir de 1, elle ne désigne un texte unique que dans **21 %** des cas — 43 %
+en ajoutant une fenêtre de dates. Le calendrier des séances, qui départagerait,
+**contient 13 lignes**.
+
+**La leçon : l'absence d'un lien dans un fichier ne prouve pas son absence
+chez l'éditeur.** Il a fallu qu'on me montre la page pour que j'aille la lire.
 
 ## 5. Les sénateurs — tout est là, sauf le plan de la salle
 
@@ -348,16 +383,21 @@ des interventions.
 | **2. Les amendements du Sénat** | Ce que le Sénat a changé à un texte : 6 744 amendements adoptés sur 168 textes, avec texte entier, auteur et groupe | Une archive de 154 Mo en plus, 15,7 Mo publiés. Le modèle d'affichage existe déjà |
 | **3. Le lien « La loi en clair »** | Une explication écrite par des humains, pour 119 textes | Un lien |
 | **4. Les sénateurs** | Nommer l'auteur d'un amendement du Sénat, avec sa photo et son groupe | Un fichier léger, lisible directement par une page web |
-| **5. Les paroles du Sénat** | L'argumentaire de 205 textes, dont 108 qui n'en ont aucun aujourd'hui | **545 Mo par jour**, et trois règles d'affichage à inventer |
-| — | **Qui a voté quoi au Sénat** | **Impossible** sans rapprocher par titre |
+| **5. Qui a voté quoi au Sénat** | Le vote groupe par groupe sur 145 textes — la fiche d'une loi n'en montre aujourd'hui que la moitié | Lire une page web par session. Licence à vérifier, et une page se refait |
+| **6. Les paroles du Sénat** | L'argumentaire de 205 textes, dont 108 qui n'en ont aucun aujourd'hui | **545 Mo par jour**, et trois règles d'affichage à inventer |
 
-Les quatre premiers points se tiennent. Le cinquième est un vrai projet, à
-décider pour lui-même. Le dernier est fermé, et il vaut mieux le savoir.
+Les quatre premiers points se tiennent. Le cinquième est le plus intéressant
+pour le lecteur — la fiche d'une loi montre aujourd'hui le vote des députés et
+rien des sénateurs — mais il repose sur une page web, pas sur un fichier
+publié : c'est un choix à faire les yeux ouverts. Le sixième est un vrai projet,
+à décider pour lui-même.
 
 ## Ce qui reste à vérifier avant de s'en servir
 
 - **La licence du fichier des sénateurs** : il n'est pas publié sous
   `data.senat.fr` et sa licence n'a pas été vérifiée.
+- **La licence des pages de scrutins publics**, pour la même raison : ce sont
+  des pages de `senat.fr`, pas des fichiers d'open data.
 - **Le téléchargement partiel de l'archive des débats** : le serveur dit
   l'accepter, personne ne l'a essayé.
 - **Un dossier du Sénat pour deux des nôtres** : le signet `pjl24-869` est

@@ -143,7 +143,7 @@ Ces mots sont repris **tels quels**, sans traduction ni interprétation. Aucun
 d'eux ne dit qu'un texte est fini pour de bon : un texte non adopté peut être
 redéposé, et la source ne se prononce pas là-dessus.
 
-## Les votes du Sénat : ils existent, mais rien ne les relie aux textes
+## Les votes du Sénat : rien ne les relie aux textes **dans les fichiers**
 
 **Trouvaille du 2026-08-31.** La page « Données » du site n'annonce que quatre
 catégories — travaux législatifs, amendements, questions, comptes rendus — et
@@ -171,6 +171,17 @@ après déclaration d'urgence, relatif au secteur de l'énergie
 C'est-à-dire un rapprochement par titre — exactement ce que le §3.2 du plan
 qualifie de « coûteux, fragile, jamais fiable à 100 % » et recommande
 d'éviter. **Ce n'est donc pas fait.**
+
+> **Corrigé le 2026-10-04 : le lien existe, mais ailleurs.** Tout ce qui
+> précède reste exact des *fichiers* d'open data. Mais **les pages de scrutins
+> publics du site** (`senat.fr/scrutin-public/scr<année>.html`) donnent, pour
+> chaque scrutin, un lien en clair vers son dossier législatif — 97 à 99 % des
+> scrutins sur cinq sessions, et les 1 424 ainsi rattachés se retrouvent tous
+> dans le fichier des scrutins par leur session et leur numéro. Détail et
+> réserves dans
+> [`../CE-QUE-LE-SENAT-APPORTERAIT.md`](../CE-QUE-LE-SENAT-APPORTERAIT.md),
+> § 4. **L'absence d'un lien dans un fichier ne prouve pas son absence chez
+> l'éditeur.**
 
 **Ce qui est repris, et qui suffit pour l'essentiel :** l'« État du dossier »
 dit `adopté` ou `non adopté` **par texte**, sans aucune devinette. C'est le
