@@ -3,6 +3,11 @@
 **Vérifié le 2026-08-31.** Chiffres relevés sur les fichiers téléchargés ce
 jour-là.
 
+> **Ce qu'on pourrait en montrer est étudié à part**, et mesuré le 2026-10-04 :
+> voir [`../CE-QUE-LE-SENAT-APPORTERAIT.md`](../CE-QUE-LE-SENAT-APPORTERAIT.md).
+> Cette fiche-ci décrit la source ; l'autre répond à « qu'est-ce qu'on affiche,
+> et pour combien de textes ».
+
 ## Son rôle : compléter, pas porter le produit
 
 **Le socle le récupère depuis le 2026-08-31**, pour une raison précise : lui
