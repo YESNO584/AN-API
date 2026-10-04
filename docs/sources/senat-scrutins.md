@@ -174,12 +174,82 @@ cassée ; on voit une rubrique qui date d'avant.
 C'est exactement ce que le socle fait déjà pour les amendements et les débats
 de l'Assemblée.
 
+## La licence — lue le 2026-10-04
+
+**Deux régimes séparés, et aucun des deux textes ne renvoie à l'autre.**
+
+| | Les **fichiers** de `data.senat.fr` | Les **pages** de `www.senat.fr` |
+|---|---|---|
+| Le texte | [Licence Ouverte 2.0](https://data.senat.fr/licence/) (Etalab) | [Mentions légales](https://www.senat.fr/mentions-legales.html) du site |
+| Ce qui est libre | « les données publiées dans des formats ouverts **sur le site Open Data du Sénat (data.senat.fr)** » | « les **travaux parlementaires** ne sont couverts par aucun droit d'auteur » (art. L.122-5 du code de la propriété intellectuelle) |
+| Les conditions | citer la paternité : le nom du producteur **et la date de dernière mise à jour** | **trois** : la gratuité de la diffusion, le respect de l'intégrité des documents, et la citation expresse de `www.senat.fr` **avec un lien** |
+| Usage commercial | explicitement permis | non traité ; la gratuité est exigée |
+| Les photographies | — | **exclues** : « les autres contenus sont couverts par le droit d'auteur […] (photographies, infographies) » |
+
+La licence de l'open data **se borne elle-même à `data.senat.fr`**, dès sa
+première phrase. Elle ne couvre donc ni les pages de scrutins publics, ni le
+fichier des sénateurs de `senat.fr`, ni les photos.
+
+### Les pages de scrutins publics sont libres, sous trois conditions
+
+Ce sont des travaux parlementaires. Les mentions légales du Sénat sont
+explicites : leur reproduction « sous forme papier ou électronique est libre
+sous réserve » de trois choses. Le projet en remplit déjà deux, et doit
+ajouter la troisième :
+
+| La condition | Où en est le projet |
+|---|---|
+| **La gratuité de la diffusion** | ✅ Le site est gratuit, sans compte, et le dépôt est public |
+| **Le respect de l'intégrité** (aucune modification ni altération) | ✅ C'est déjà la règle du projet : ce qui vient d'une source est recopié mot pour mot |
+| **La citation expresse de `www.senat.fr`, avec un lien** | ❌ **À ajouter.** Le pied de page cite l'Assemblée, pas le Sénat |
+
+**Une nuance que je ne tranche pas.** La condition d'intégrité vise la
+reproduction d'un *document*. Ici, on n'en reproduirait aucun : on extrairait
+d'une page un lien — ce scrutin concerne ce texte — pour afficher des chiffres
+qui viennent, eux, de l'open data. Je ne crois pas que ce soit « une
+modification ou altération », mais le texte ne le dit pas, et ce n'est pas à
+moi d'en décider.
+
+### Le site autorise lui-même la lecture automatisée
+
+`www.senat.fr/robots.txt` dit `Allow: /`, et aucune de ses règles d'exclusion
+ne vise `/scrutin-public/`, `/api-senat/` ni `/senimg/`. Rien à demander, donc,
+pour lire une page par jour — à condition de rester ce qu'on est : **une
+lecture quotidienne de 29 Ko, avec un `User-Agent` qui nomme le projet**. Rien
+qui ressemble à une aspiration.
+
+### Ce que la licence change pour les autres pistes du Sénat
+
+- **Les photos des sénateurs : à considérer comme non libres.** Je les avais
+  présentées comme utilisables ; les mentions légales nomment explicitement
+  les photographies parmi les contenus couverts par le droit d'auteur. **Le
+  projet est déjà dans la même situation pour les députés** — leurs photos
+  viennent du site de l'Assemblée, pas de l'open data, et `extraction.py` le
+  note. Ce n'est donc pas une question nouvelle, c'est la même question
+  étendue à une seconde chambre. Elle mérite d'être tranchée pour les deux à
+  la fois.
+- **Le fichier des sénateurs** (`senat.fr/api-senat/senateurs.json`) est sur le
+  site, pas dans l'open data. Une liste de sénateurs avec leur groupe et leur
+  siège est-elle un « travail parlementaire » ? Le texte ne le dit pas. Les
+  mêmes trois conditions sont ce qu'on peut faire de plus prudent.
+- **Tout le reste** — amendements, dossiers, thèmes, débats, scrutins chiffrés —
+  vient de `data.senat.fr` et relève de la Licence Ouverte 2.0, sans
+  ambiguïté.
+
+### Ce qu'il faudra écrire à l'écran
+
+La Licence Ouverte demande le nom du producteur **et la date de dernière mise
+à jour** ; les mentions légales demandent le nom du site **et un lien**. Les
+deux se satisfont d'une seule phrase au pied de page, à côté de celle qui cite
+déjà l'Assemblée :
+
+> Données du Sénat — [`data.senat.fr`](https://data.senat.fr) sous Licence
+> Ouverte 2.0, et [`senat.fr`](https://www.senat.fr) pour les scrutins
+> publics. Mises à jour le *(date)*.
+
 ## Ce qui reste à trancher avant d'écrire une ligne de code
 
-- **La licence.** `data.senat.fr` a la sienne ; ces pages sont sur
-  `senat.fr`, et rien ne dit qu'elle s'y applique. À vérifier.
-- **La politesse.** Une lecture par jour, d'une page de 29 Ko, avec un
-  `User-Agent` qui nomme le projet. Rien qui ressemble à une aspiration.
-- **Où la ranger.** Ce n'est pas une archive mais une page : elle n'a pas sa
-  place parmi les `SOURCES` du socle telles qu'elles sont écrites aujourd'hui,
-  qui supposent toutes un fichier à télécharger et à ouvrir.
+- **Les photos**, pour les deux chambres à la fois (voir ci-dessus).
+- **Où ranger cette source.** Ce n'est pas une archive mais une page : elle n'a
+  pas sa place parmi les `SOURCES` du socle telles qu'elles sont écrites
+  aujourd'hui, qui supposent toutes un fichier à télécharger et à ouvrir.

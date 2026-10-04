@@ -26,9 +26,17 @@ Le Sénat apporte trois choses qu'elle n'a pas :
 
 ## Licence
 
-Licence propre au Sénat, consultable sur `data.senat.fr/licence/`. Elle
-n'impose pas le repartage sous la même licence, contrairement à l'ODbL de La
-Fabrique de la Loi.
+**Licence Ouverte 2.0 (Etalab)** — vérifié le 2026-10-04 sur
+`data.senat.fr/licence/`, qui en reprend les termes et renvoie au PDF
+d'Etalab. Elle n'impose pas le repartage sous la même licence, contrairement à
+l'ODbL de La Fabrique de la Loi ; elle demande de citer **le producteur et la
+date de dernière mise à jour**, et permet explicitement l'usage commercial.
+
+**Elle ne couvre que `data.senat.fr`**, dès sa première phrase : « les données
+publiées dans des formats ouverts sur le site Open Data du Sénat ». Les pages
+de `www.senat.fr` relèvent d'un autre régime — les mentions légales du site —
+détaillé dans [`senat-scrutins.md`](senat-scrutins.md) § Licence. Retenir
+surtout que **les photographies en sont exclues**.
 
 ## Le jeu central : la liste des dossiers législatifs
 

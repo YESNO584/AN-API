@@ -217,6 +217,10 @@ le jour même. Pour chacun : **nom, prénom, civilité, circonscription, série 
 photo à 100 %**. Les photos sont 348 images distinctes, 512 × 512, aucune
 pastille générique.
 
+> **Mais les photos ne sont pas libres** (vérifié le 2026-10-04) : les mentions
+> légales du Sénat nomment les photographies parmi les contenus couverts par le
+> droit d'auteur. Voir plus bas, « Ce qui reste à vérifier ».
+
 ### Une exception à une règle du projet, vérifiée
 
 CLAUDE.md dit qu'« une page web ne peut pas aller chercher ces données
@@ -400,10 +404,16 @@ publié : c'est un choix à faire les yeux ouverts. Le sixième est un vrai proj
 
 ## Ce qui reste à vérifier avant de s'en servir
 
-- **La licence du fichier des sénateurs** : il n'est pas publié sous
-  `data.senat.fr` et sa licence n'a pas été vérifiée.
-- **La licence des pages de scrutins publics**, pour la même raison : ce sont
-  des pages de `senat.fr`, pas des fichiers d'open data.
+- **Les licences : vérifiées le 2026-10-04**, et il y en a deux. Les fichiers
+  de `data.senat.fr` sont sous Licence Ouverte 2.0, sans ambiguïté. Les pages
+  de `senat.fr` — les scrutins publics, le fichier des sénateurs, les photos —
+  relèvent des mentions légales du site : les travaux parlementaires y sont
+  libres sous trois conditions (gratuité, intégrité, citation du site avec un
+  lien), mais **les photographies en sont explicitement exclues**. Détail dans
+  [`sources/senat-scrutins.md`](sources/senat-scrutins.md) § Licence.
+- **Les photos, pour les deux chambres.** Celles des sénateurs ne sont pas
+  libres ; celles des députés viennent elles aussi du site de l'Assemblée et
+  non de l'open data. C'est une seule question, à trancher une fois.
 - **Le téléchargement partiel de l'archive des débats** : le serveur dit
   l'accepter, personne ne l'a essayé.
 - **Un dossier du Sénat pour deux des nôtres** : le signet `pjl24-869` est
