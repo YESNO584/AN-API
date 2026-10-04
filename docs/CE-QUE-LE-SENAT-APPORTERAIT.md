@@ -402,6 +402,11 @@ rien des sénateurs — mais il repose sur une page web, pas sur un fichier
 publié : c'est un choix à faire les yeux ouverts. Le sixième est un vrai projet,
 à décider pour lui-même.
 
+> **Où ranger ces données quand on les affichera** : une base Sénat séparée,
+> de 30 Mo, rattachée aux textes de l'Assemblée par une table de jointure que
+> la source publie elle-même. Mesuré dans
+> [`../SEPARER-LES-BASES.md`](../SEPARER-LES-BASES.md).
+
 ## Ce qui reste à vérifier avant de s'en servir
 
 - **Les licences : vérifiées le 2026-10-04**, et il y en a deux. Les fichiers

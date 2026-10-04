@@ -1077,3 +1077,20 @@ chambre. Il attendait le premier appelant qui ne le ferait pas.
 relecture : « une étape de l'Assemblée n'en est pas une du Sénat ». À refaire
 pour toute fonction qui lit un identifiant structuré — lui donner l'identifiant
 d'à côté, celui qui lui ressemble, et exiger qu'elle le refuse.
+
+### Une clé de cache empreinte un fichier, pas une règle
+
+Ajouter une fonction de lecture à `extraction.py` a jeté le cache de
+`parlement.db` et fait retélécharger 412 Mo — qui sont tombés sur un serveur
+lent et ont cassé la publication. La fonction ne touchait à aucune table.
+
+La cause est structurelle : `hashFiles` empreinte des **fichiers entiers**, et
+`extraction.py` fait deux métiers — remplir la base et la lire. Mesuré : sur
+ses 88 noms publics, 13 ne servent qu'à la publication.
+
+Ce qu'il faut retenir avant de toucher un fichier surveillé par un cache :
+**demander ce que ce cache protège, et si le changement concerne vraiment ce
+qui est stocké.** Ici la réponse était non, et elle aurait coûté dix secondes.
+
+La correction durable est de couper le fichier selon ses deux métiers — ce que
+le projet a déjà fait pour `legi.py` et `textes.py`.
