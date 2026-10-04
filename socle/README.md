@@ -387,6 +387,28 @@ Après : **2 147 textes sur 2 151 ont un nom d'auteur**, et **plus aucun
 cosignataire anonyme**. Les 4 restants n'ont pas d'auteur dans la source, ou
 un identifiant qu'aucune des deux archives ne connaît.
 
+### Où un texte en est au Sénat
+
+`textes.json` porte, pour chaque texte qui y est passé, un objet `senat` : le
+**moment** de sa dernière étape au Sénat, le code de la source, sa lecture, sa
+date et la conclusion. C'est ce qui range le fil de l'onglet « Sénat ».
+
+**Les étapes du Sénat ne sont pas celles de l'Assemblée, et on ne les aligne
+pas** (`extraction.ETAPES_SENAT`). Cinq moments : déposé, renvoyé en
+commission, rapport déposé, en séance, décidé. La lecture — première, deuxième,
+nouvelle — ne fait pas colonne : les trois passent par les mêmes étapes, et en
+faire quinze colonnes presque toutes vides n'aurait rien dit de plus.
+
+**Le préfixe de lecture est vérifié, et c'est indispensable** : les deux
+chambres emploient les mêmes suffixes. Sans ce contrôle, `AN1-DEPOT` rendait
+« déposé au Sénat » et rangeait dans le fil du Sénat un texte qui n'y est
+jamais allé — un test l'a attrapé le 2026-10-04. Préfixes relevés le même
+jour : `SN1` (2 088 étapes), `SN2` (33), `SNNLEC` (22).
+
+Mesuré le 2026-10-04 : **731 textes sur 2 219** ont une étape au Sénat. Parmi
+ceux qui sont en cours, 499 en sont au renvoi en commission, 89 à la décision,
+3 au rapport. `etapes.json` publie ces comptes sous `etapesSenat`.
+
 ### L'issue d'un texte
 
 Un texte finit rarement par une promulgation. Le socle distingue :

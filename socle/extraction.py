@@ -101,6 +101,69 @@ CHAMBRES = {"AN": "assemblee", "SN": "senat"}
 EN_COURS, PROMULGUE, RETIRE, SANS_ACTE, REJETE, NON_ADOPTE, CADUC = (
     "en_cours", "promulgue", "retire", "sans_acte", "rejete", "non_adopte", "caduc")
 
+# Les étapes **propres au Sénat**, telles que la source les nomme.
+#
+# **On ne les aligne pas sur les six étapes de l'Assemblée**, et c'est voulu :
+# les deux chambres ne découpent pas le parcours pareil, et les faire
+# correspondre reviendrait à inventer un découpage que personne ne publie.
+#
+# Le code d'une étape au Sénat porte sa lecture en préfixe — `SN1`, `SN2`,
+# `SNNLEC` — puis son moment : `SN1-COM-FOND-RAPPORT`. La lecture s'affiche à
+# part, sur la carte ; ce sont les moments qui font les colonnes, sans quoi on
+# aurait quinze colonnes presque toutes vides.
+#
+# Mesuré le 2026-10-04 sur les 731 textes passés au Sénat : 494 en sont au
+# renvoi en commission, 191 à la décision, 20 au rapport, 1 au dépôt.
+ETAPES_SENAT = (
+    ("depot", "Déposé au Sénat",
+     "Le texte est arrivé au Sénat. Rien n'y a encore été examiné."),
+    ("commission", "Renvoyé en commission",
+     "Une commission du Sénat en est saisie. C'est de loin le cas le plus "
+     "fréquent : la plupart des textes attendent là."),
+    ("rapport", "Rapport déposé",
+     "La commission a rendu son rapport. Le texte peut aller en séance."),
+    ("seance", "En séance publique",
+     "Le Sénat en débat en séance."),
+    ("decision", "Décidé",
+     "Le Sénat s'est prononcé. Ce qui arrive ensuite — navette, commission "
+     "mixte paritaire, promulgation — ne lui appartient plus."),
+)
+
+# Les préfixes de lecture au Sénat. Ils sont la seule chose qui distingue une
+# étape du Sénat d'une étape de l'Assemblée : les deux chambres emploient les
+# mêmes suffixes (`-DEPOT`, `-DEBATS-DEC`…).
+LECTURES_SENAT = re.compile(r"^SN(\d+|NLEC|LECDEF)$")
+
+# Du code de la source au moment qu'il désigne. La clé est ce qui suit la
+# lecture ; la lecture elle-même (`SN1`, `SN2`, `SNNLEC`) ne décide de rien.
+MOMENTS_SENAT = {
+    "DEPOT": "depot",
+    "COM-FOND-SAISIE": "commission",
+    "COM-FOND-RAPPORT": "rapport",
+    "DEBATS-SEANCE": "seance",
+    "DEBATS-DEC": "decision",
+}
+
+
+def moment_au_senat(code: str | None) -> str | None:
+    """Le moment du parcours sénatorial que ce code désigne, ou rien.
+
+    « SN1-COM-FOND-RAPPORT » → « rapport ». Un code que la table ne connaît
+    pas — une procédure accélérée, une saisine pour avis — ne rend rien : il
+    n'a pas de colonne, et en inventer une serait pire que de l'ignorer.
+
+    **Le préfixe doit être celui d'une lecture au Sénat**, et c'est vérifié :
+    les deux chambres emploient les mêmes suffixes, si bien que « AN1-DEPOT »
+    rendait « depot » et aurait rangé dans le fil du Sénat un texte qui n'y
+    est jamais allé. Préfixes relevés le 2026-10-04 : `SN1` (2 088 étapes),
+    `SN2` (33) et `SNNLEC` (22).
+    """
+    lecture, _, reste = (code or "").partition("-")
+    if not reste or not LECTURES_SENAT.match(lecture):
+        return None
+    return MOMENTS_SENAT.get(reste)
+
+
 # Ce que le Sénat écrit dans « État du dossier », et ce que nous en faisons.
 # On ne traduit pas, on ne déduit pas : ces mots sont les siens.
 FINS_SENAT = {

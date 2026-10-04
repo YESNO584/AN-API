@@ -203,6 +203,26 @@ a pas encore d'application, de base de données ni de dépendances.
   cette liste que les trois fichiers de listes s'écrivent **après** la boucle
   de détail : le rapprochement d'un amendement avec son scrutin n'est résolu
   que là.
+- **L'onglet « Sénat » range les mêmes textes selon les étapes du Sénat, et
+  on ne les aligne pas sur celles de l'Assemblée** (2026-10-04). Cinq moments
+  nommés par la source — déposé, renvoyé en commission, rapport déposé, en
+  séance, décidé — dans `extraction.ETAPES_SENAT` ; la lecture (première,
+  deuxième, nouvelle) s'affiche sur la carte et ne fait pas colonne, sans quoi
+  il y en aurait quinze presque toutes vides. **Le préfixe de lecture doit être
+  vérifié** : les deux chambres emploient les mêmes suffixes, et sans ce
+  contrôle `AN1-DEPOT` rangeait dans le fil du Sénat un texte qui n'y est
+  jamais allé (attrapé par un test, pas par une relecture). 731 textes sur
+  2 219 y figurent, et le compteur le dit — deux textes sur trois ne sont
+  jamais allés au Sénat.
+- **Le pied de page cite les deux chambres, et le Sénat a deux licences**
+  (vérifié le 2026-10-04). `data.senat.fr` est sous Licence Ouverte 2.0, qui
+  demande le producteur et la date de mise à jour ; les pages de `senat.fr`
+  relèvent des mentions légales du site, qui demandent la gratuité,
+  l'intégrité et **la citation du site avec un lien**. Une seule phrase au pied
+  satisfait les deux. **Les photographies sont exclues** des deux régimes :
+  celles des sénateurs ne sont pas libres, et celles des députés viennent elles
+  aussi du site de l'Assemblée et non de l'open data. Détail dans
+  `docs/sources/senat-scrutins.md`.
 - **Un numéro d'amendement ne suffit pas à désigner un amendement dans un
   dossier :** deux lectures y portent les mêmes numéros. Ce qui les sépare est
   le **numéro de dépôt du document amendé** (`debat_amendement.texte_numero`,

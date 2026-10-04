@@ -10,7 +10,37 @@ téléphone.
 comme page d'accueil à chaque mise à jour des données. C'est la façon la plus
 simple de la regarder depuis un téléphone, sans rien installer.
 
-## Deux onglets, en bas de l'écran
+## Trois onglets, en bas de l'écran
+
+**« Sénat » est à gauche, « Textes » au milieu, « Travaux » à droite.**
+L'onglet « Sénat » suit **les mêmes textes** que celui de l'Assemblée, mais
+rangés selon **les étapes que le Sénat nomme lui-même** : déposé, renvoyé en
+commission, rapport déposé, en séance, décidé.
+
+**On ne les aligne pas sur les six étapes de l'Assemblée**, et c'est voulu :
+les deux chambres ne découpent pas le parcours pareil, et les faire
+correspondre inventerait un découpage que personne ne publie. Les règles de
+lecture vivent dans `socle/extraction.py` (`ETAPES_SENAT`, `moment_au_senat`) ;
+la formulation à l'écran est dans `feed.html`, comme pour l'Assemblée.
+
+Trois choses à savoir :
+
+- **731 textes sur 2 218** y figurent — ceux qui sont passés au Sénat. Le
+  compteur le dit (« 731 textes passés au Sénat, sur 2 218 ») : ce n'est pas un
+  trou, c'est que deux textes sur trois n'y sont jamais allés.
+- **La carte est la même** que dans l'onglet « Textes », avec une ligne de plus
+  qui dit la lecture au Sénat et la date de sa dernière étape. **L'étape n'y
+  est pas répétée** : la colonne la porte déjà.
+- **Toucher un texte ouvre la même fiche**, celle qui décrit le parcours dans
+  les deux chambres. Il n'y a pas de seconde fiche.
+
+La colonne « En séance publique » est presque toujours vide, et c'est juste :
+la séance s'achève le jour même par une décision.
+
+Comme pour « Travaux », **cet onglet n'a pas de filtres** : ils portent sur le
+parcours de l'Assemblée, et les garder ferait un fil vide sans raison visible.
+
+### Les deux onglets d'origine
 
 **Textes** — les 2 150 textes qui peuvent devenir une loi, rangés par étape.
 C'est l'onglet décrit ci-dessous, et il n'a pas changé.

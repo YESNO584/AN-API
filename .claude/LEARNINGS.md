@@ -1062,3 +1062,18 @@ fichiers que j'ai lus** ». Une conclusion négative ne vaut que pour ce qui a
 Ce qui l'aurait attrapé : avant de déclarer une donnée absente, **ouvrir la
 page du site qui l'afficherait si elle existait**. Un éditeur qui montre
 quelque chose à l'écran le sait quelque part.
+
+### Deux chambres, les mêmes suffixes de code
+
+`moment_au_senat("AN1-DEPOT")` rendait « déposé au Sénat ». Ma fonction coupait
+le code à son premier tiret et lisait le reste : or l'Assemblée et le Sénat
+emploient exactement les mêmes suffixes (`-DEPOT`, `-DEBATS-DEC`…), et seul le
+préfixe de lecture les sépare.
+
+Le défaut ne se voyait pas à l'usage, parce que l'appelant filtrait déjà sur la
+chambre. Il attendait le premier appelant qui ne le ferait pas.
+
+**C'est un test écrit par acquit de conscience qui l'a trouvé**, pas une
+relecture : « une étape de l'Assemblée n'en est pas une du Sénat ». À refaire
+pour toute fonction qui lit un identifiant structuré — lui donner l'identifiant
+d'à côté, celui qui lui ressemble, et exiger qu'elle le refuse.

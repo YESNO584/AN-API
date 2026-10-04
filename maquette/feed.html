@@ -1054,6 +1054,15 @@
     <p><strong>Source :</strong> dossiers législatifs de l'Assemblée nationale,
       sous Licence Ouverte (Etalab). Les données décrivent le parcours dans
       <em>les deux chambres</em>.</p>
+    <!-- Les deux licences du Sénat n'en sont qu'une seule phrase à l'écran,
+         mais elles n'exigent pas la même chose : la Licence Ouverte demande le
+         producteur et la date de mise à jour, les mentions légales du site
+         demandent le nom du site et un lien. Voir docs/sources/senat.md. -->
+    <p><strong>Et du Sénat :</strong> l'état de chaque dossier, repris de
+      <a href="https://data.senat.fr" target="_blank" rel="noopener">data.senat.fr</a>,
+      sous Licence Ouverte 2.0 (Etalab), et de
+      <a href="https://www.senat.fr" target="_blank" rel="noopener">senat.fr</a>
+      pour ses travaux parlementaires.</p>
     <p>Lues sur <a id="lien-socle" href="#">le socle du projet</a>,
       mis à jour chaque matin. Dernière mise à jour : <span id="maj">…</span>.</p>
     <p class="dans-le-fil"><strong>Rien n'est écarté.</strong> Les dossiers qui ne fabriquent pas de loi
@@ -1111,6 +1120,30 @@ const ISSUES = {
     "Le texte a été retiré par celui qui l'avait déposé. Ce n'est ni un rejet ni un " +
     "échec de vote : son auteur a choisi de l'enlever."],
 };
+
+/* Les étapes **propres au Sénat**. Elles ne correspondent pas une à une à
+   celles de l'Assemblée, et on ne les aligne pas : les deux chambres ne
+   découpent pas le parcours pareil, et les faire correspondre inventerait un
+   découpage que personne ne publie. Les règles de lecture, elles, vivent dans
+   `socle/extraction.py` — ici c'est la formulation à l'écran. */
+const ETAPES_SENAT = [
+  { cle: "depot", nom: "Déposé au Sénat", quoi:
+    "Le texte vient d'arriver au Sénat, en navette depuis l'Assemblée ou déposé " +
+    "là directement. Personne ne l'y a encore examiné." },
+  { cle: "commission", nom: "Renvoyé en commission", quoi:
+    "Une commission du Sénat en est saisie. C'est de très loin le cas le plus " +
+    "fréquent : la plupart des textes attendent là, parfois des années." },
+  { cle: "rapport", nom: "Rapport déposé", quoi:
+    "La commission a rendu son rapport et sa propre version du texte. La séance " +
+    "publique peut être inscrite à l'ordre du jour." },
+  { cle: "seance", nom: "En séance publique", quoi:
+    "Le Sénat en débat en séance. Cette étape est brève : elle s'achève le jour " +
+    "même par une décision, et c'est pourquoi la colonne est presque toujours vide." },
+  { cle: "decision", nom: "Décidé", quoi:
+    "Le Sénat s'est prononcé — adopté, modifié ou rejeté. Ce qui arrive ensuite " +
+    "ne lui appartient plus : la navette, la commission mixte paritaire et la " +
+    "promulgation se jouent ailleurs. La carte dit où le texte en est arrivé." },
+];
 
 const ETAPES = [
   { n: ARRETE, nom: "Arrêté en chemin", quoi:
@@ -1241,6 +1274,26 @@ const EXPLICATIONS = {
   frise: ["Le parcours du texte",
     "Les six étapes qu'un texte doit franchir pour devenir une loi. Le trait coloré " +
     "montre où il en est ; les traits plus sombres, les étapes déjà passées."],
+  lectureSenat: ["La lecture au Sénat",
+    "Un texte peut repasser plusieurs fois devant la même chambre : première " +
+    "lecture, deuxième lecture, puis nouvelle lecture après une commission " +
+    "mixte paritaire. Chaque lecture recommence les mêmes étapes."],
+  conclusionSenat: ["Ce que le Sénat a décidé",
+    "Le mot est celui de la source, repris tel quel : adopté, modifié, " +
+    "rejeté. Il dit ce que le Sénat a fait du texte à cette étape, et rien " +
+    "de ce qui lui est arrivé ensuite."],
+  dateSenat: ["La date de la dernière étape au Sénat",
+    "Elle ne dit rien de ce qui se passe à l'Assemblée au même moment : les " +
+    "deux chambres avancent chacune de son côté, et la fiche du texte montre " +
+    "le parcours entier."],
+  friseSenat: ["Le parcours au Sénat",
+    "Ces colonnes sont les étapes que le Sénat nomme lui-même, et elles ne " +
+    "correspondent pas une à une à celles de l'Assemblée : les deux chambres " +
+    "ne découpent pas le parcours pareil, et les aligner inventerait un " +
+    "découpage que personne ne publie. Un texte est dans la colonne de sa " +
+    "dernière étape au Sénat. Ce qui lui arrive ensuite — la navette, la " +
+    "commission mixte paritaire, la promulgation — se joue ailleurs, et c'est " +
+    "la carte qui le dit."],
   travaux: ["Les travaux de l'Assemblée",
     "Ces dossiers n'aboutissent à aucune loi : ce sont des enquêtes, des rapports, " +
     "des prises de position et des motions. Ils sont ici pour que rien ne soit " +
@@ -1362,12 +1415,32 @@ const statutDe = (t) => t.statut || (t.etape === PROMULGUEE ? "promulgue" : "en_
  * l'ordre des colonnes, et la carte à dessiner.
  * ------------------------------------------------------------------ */
 let ONGLET = "textes";
+let SENAT = [];
 let TRAVAUX = [];
 let CATEGORIES_TRAVAUX = [];
 
 const VUES = {
+  // À gauche des deux autres, parce que c'est l'autre chambre qu'on vient
+  // chercher : le fil de l'Assemblée reste l'onglet par défaut.
+  senat: {
+    nom: "Sénat",
+    liste: () => SENAT,
+    total: () => SENAT.length,
+    categorieDe: (t) => t.senat.moment,
+    ordre: () => ETAPES_SENAT,
+    cleDe: (e) => e.cle,
+    carte: (t) => carte(t),
+    // Les étapes du Sénat sont un parcours, comme celles de l'Assemblée : une
+    // colonne est « derrière » la colonne ouverte. Les travaux, eux, ne se
+    // traversent pas.
+    parcours: true,
+    // La colonne la plus avancée, comme pour les textes : c'est là que se
+    // passe l'actualité du Sénat.
+    ouverture: (categories) => Math.max(categories.length - 1, 0),
+  },
   textes: {
     nom: "Textes",
+    parcours: true,
     liste: () => retenus(),
     total: () => TEXTES.length,
     categorieDe: (t) => t.etape,
@@ -1384,6 +1457,7 @@ const VUES = {
   },
   travaux: {
     nom: "Travaux",
+    parcours: false,
     liste: () => TRAVAUX,
     total: () => TRAVAUX.length,
     categorieDe: (t) => t.type,
@@ -1802,6 +1876,12 @@ function carte(t) {
   if (dispute) l.append(dispute);
   c.append(l);
 
+  // Dans l'onglet « Sénat », la carte doit dire où le texte en est **là-bas**.
+  // Les étiquettes du dessus décrivent le parcours vu de l'Assemblée : sans
+  // cette ligne, la colonne dirait « Décidé » et la carte parlerait d'autre
+  // chose.
+  if (ONGLET === "senat" && t.senat) c.append(ligneSenat(t.senat));
+
   if (t.etape === ARRETE && ISSUES[t.statut]) {
     const issue = el("div", "lignes");
     issue.append(etiquette("arrete", ISSUES[t.statut][0], ISSUES[t.statut],
@@ -1834,6 +1914,30 @@ function carte(t) {
   // Pas de frise ici : tous les textes d'une colonne sont à la même étape.
   // Elle est en bas de l'écran, une bonne fois — voir `frise-bas`.
   return c;
+}
+
+/* Ce que le Sénat a fait du texte, et quand. **Sa lecture s'affiche ici et
+   non en colonne** : première, deuxième et nouvelle lecture partagent les
+   mêmes étapes, et en faire quinze colonnes presque toutes vides n'aurait
+   rien dit de plus. La conclusion est le mot de la source, repris tel quel. */
+function ligneSenat(e) {
+  const l = el("div", "lignes senat-ligne");
+  // **L'étape n'est pas répétée ici** : la colonne la porte déjà, et toutes
+  // les cartes d'une colonne sont à la même. Ce qui mérite la place, c'est ce
+  // qui change d'une carte à l'autre.
+  if (e.lecture) {
+    l.append(etiquette("chambre-senat", "Sénat · " + e.lecture,
+                       EXPLICATIONS.lectureSenat, e.libelle || null));
+  }
+  if (e.conclusion) {
+    l.append(etiquette("", e.conclusion, EXPLICATIONS.conclusionSenat,
+                       "Le mot du Sénat, repris tel quel"));
+  }
+  if (e.date) {
+    l.append(etiquette("", "au Sénat le " + dateCourte.format(enDate(e.date)),
+                       EXPLICATIONS.dateSenat));
+  }
+  return l;
 }
 
 /* ---------- l'entrée en vigueur, et le lien vers le détail ---------- *
@@ -2000,6 +2104,7 @@ function changerDOnglet(cle) {
 
 function dessiner(garderPosition = false) {
   if (ONGLET === "travaux") return dessinerTravaux(garderPosition);
+  if (ONGLET === "senat") return dessinerSenat(garderPosition);
   const liste = retenus();
   const y = garderPosition ? window.scrollY : 0;
 
@@ -2042,6 +2147,34 @@ function dessiner(garderPosition = false) {
 
   dessinerColonnes(liste);
   if (!garderPosition) window.scrollTo(0, 0); else window.scrollTo(0, y);
+}
+
+/* L'onglet du Sénat : les mêmes textes et les mêmes cartes, rangés selon les
+   étapes que le Sénat nomme lui-même. Pas de filtres — ils portent sur le
+   parcours de l'Assemblée, et les garder ici ferait un fil vide sans raison
+   visible. */
+function dessinerSenat(garderPosition = false) {
+  const y = garderPosition ? window.scrollY : 0;
+  $("compte").innerHTML = "";
+  $("compte").append(el("b", null, nb.format(SENAT.length)));
+  // Le compteur dit ce qu'il compte, et surtout ce qu'il ne compte pas : deux
+  // textes sur trois ne sont jamais allés au Sénat.
+  $("compte").append(document.createTextNode(
+    ` texte${SENAT.length > 1 ? "s" : ""} passé${SENAT.length > 1 ? "s" : ""} `
+    + `au Sénat, sur ${nb.format(TEXTES.length)}`));
+
+  const fil = $("fil");
+  fil.textContent = "";
+  if (!SENAT.length) {
+    fil.append(el("div", "vide",
+      "Aucun texte au Sénat. La publication du jour ne porte pas encore ses "
+      + "étapes."));
+    CATEGORIES = [];
+    dessinerFriseBas(null);
+    return;
+  }
+  dessinerColonnes(SENAT);
+  window.scrollTo(0, garderPosition ? y : 0);
 }
 
 // L'onglet des travaux : mêmes colonnes, même frise, pas de filtres.
@@ -2246,6 +2379,13 @@ function dessinerOnglets(barre) {
   barre.append(onglets);
 }
 
+// La place d'une catégorie dans l'ordre des colonnes de l'onglet courant.
+// Les étapes de l'Assemblée se comparent par leur numéro ; celles du Sénat
+// n'en ont pas, et c'est leur rang qui dit laquelle vient avant l'autre.
+function rangDansLOrdre(cle) {
+  return vue().ordre().findIndex((c) => vue().cleDe(c) === cle);
+}
+
 function dessinerFriseBas(cle) {
   const barre = $("frise-bas");
   // La frise décrit le fil. Elle ne doit pas réapparaître par-dessus une
@@ -2267,8 +2407,13 @@ function dessinerFriseBas(cle) {
     const estArret = ONGLET === "textes" && n === ARRETE;
     // « Passée » n'a de sens que pour un parcours. Les travaux ne se
     // traversent pas : aucune de leurs catégories n'est derrière une autre.
-    const passee = ONGLET === "textes" && !arret && !estArret
-                   && (fini ? !estFin : n < cle);
+    // Une colonne est « derrière » celle qu'on regarde. Pour les textes, le
+    // rang est un numéro d'étape ; pour le Sénat, c'est la place dans l'ordre
+    // des colonnes. Les travaux, eux, ne se traversent pas.
+    const passee = vue().parcours && !arret && !estArret
+                   && (ONGLET === "textes"
+                       ? (fini ? !estFin : n < cle)
+                       : rangDansLOrdre(n) < rangDansLOrdre(cle));
     const ici = n === cle;
     const b = el("button", [estFin ? "fini" : "", estArret ? "arret" : "",
                             passee ? "faite" : "", ici ? "ici" : ""]
@@ -2297,8 +2442,10 @@ function dessinerFriseBas(cle) {
   const aide = el("button", "aide", "ⓘ");
   aide.setAttribute("aria-label", "Ce que veut dire cette catégorie");
   aide.addEventListener("click", () => expliquer(
-    ONGLET === "textes" ? EXPLICATIONS.frise[0] : "Les travaux de l'Assemblée",
-    (ONGLET === "textes" ? EXPLICATIONS.frise[1] : EXPLICATIONS.travaux[1])
+    EXPLICATIONS[ONGLET === "textes" ? "frise"
+                 : ONGLET === "senat" ? "friseSenat" : "travaux"][0],
+    EXPLICATIONS[ONGLET === "textes" ? "frise"
+                 : ONGLET === "senat" ? "friseSenat" : "travaux"][1]
     + "\n\n" + e.nom + " : " + (e.quoi || ""),
     situation ? situation[0].toUpperCase() + situation.slice(1) : ""));
   dit.append(aide);
@@ -5084,6 +5231,10 @@ async function charger() {
     GROUPES = new Map((groupes?.groupes || []).map((g) => [g.sigle, g]));
     // Les travaux de l'Assemblée : le second onglet. S'ils manquent, l'onglet
     // reste, vide et honnête, plutôt que de disparaître sans explication.
+    // L'onglet « Sénat » : les mêmes textes, mais seulement ceux qui y sont
+    // passés, et rangés selon les étapes du Sénat. Deux textes sur trois n'y
+    // sont jamais allés — ce n'est pas un trou, et l'onglet le dit.
+    SENAT = TEXTES.filter((t) => t.senat);
     TRAVAUX = travaux?.travaux || [];
     CATEGORIES_TRAVAUX = travaux?.categories || [];
     ETAT = etat || {};

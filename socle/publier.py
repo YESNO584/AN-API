@@ -1090,6 +1090,26 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     # écartés des comptes et rangés à part.
     forme_seule = articles_de_pure_forme(legi_cx)
     change = changements_par_loi(legi_cx, forme_seule)
+    # Où chaque texte en est **au Sénat**, selon les étapes que le Sénat
+    # nomme lui-même. C'est ce qui range le fil de l'onglet « Sénat ». On
+    # garde la **dernière** étape, celle qui dit où le texte en est — et sa
+    # lecture, qui s'affiche à part parce qu'elle ne fait pas une colonne.
+    etape_senat = {}
+    en_cours_au_senat = {l["uid"] for l in cx.execute(
+        "SELECT uid FROM dossier WHERE est_loi = 1 AND statut = ?",
+        (extraction.EN_COURS,))}
+    for l in cx.execute(
+            "SELECT dossier_uid, code, libelle, lecture, date, conclusion"
+            " FROM etape WHERE chambre = 'senat' ORDER BY date, rang"):
+        moment = extraction.moment_au_senat(l["code"])
+        if not moment:
+            continue
+        etape_senat[l["dossier_uid"]] = {
+            "moment": moment, "code": l["code"], "libelle": l["libelle"],
+            "lecture": l["lecture"], "date": l["date"],
+            "conclusion": l["conclusion"],
+        }
+
     compte_amendements = {l["dossier_uid"]: l["n"] for l in cx.execute(
         "SELECT dossier_uid, COUNT(*) n FROM amendement GROUP BY dossier_uid")}
     # Combien de prises de parole par texte, pour que la carte du fil puisse
@@ -1219,10 +1239,23 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         })
     tailles["groupes/<ref>.json"] = deputes
 
+    # Les textes rangés par moment du parcours **sénatorial**, pour que
+    # l'onglet « Sénat » sache dessiner ses colonnes sans rien recalculer.
+    par_moment: dict[str, int] = {}
+    for uid, e in etape_senat.items():
+        if uid in en_cours_au_senat:
+            par_moment[e["moment"]] = par_moment.get(e["moment"], 0) + 1
     tailles["etapes.json"] = ecrire(sortie / "etapes.json", {
         "genereLe": genere_le,
         "etapes": [{"n": n, "nom": nom, "quoi": quoi, "textesEnCours": par_etape.get(n, 0)}
                    for n, nom, quoi in extraction.ETAPES],
+        # **Les étapes du Sénat ne sont pas celles de l'Assemblée**, et on ne
+        # les aligne pas : les deux chambres ne découpent pas le parcours
+        # pareil. Voir `extraction.ETAPES_SENAT`.
+        "etapesSenat": [{"cle": cle, "nom": nom, "quoi": quoi,
+                         "textesEnCours": par_moment.get(cle, 0)}
+                        for cle, nom, quoi in extraction.ETAPES_SENAT],
+        "textesAuSenat": len(etape_senat),
         # Les lois promulguées ne sont pas une septième étape : c'est l'après.
         # Mais un lecteur qui compte les textes doit les retrouver quelque part.
         "promulguees": comptes.get(extraction.PROMULGUE, 0),
@@ -1393,6 +1426,10 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
                                               "dernierVote": None, "voteEnsemble": None}))
             texte["amendements"] = compte_amendements.get(l["uid"], 0)
             texte["paroles"] = compte_paroles.get(l["uid"], 0)
+            # Absent plutôt que vide : deux textes sur trois ne sont jamais
+            # allés au Sénat, et ce n'est pas un trou.
+            if l["uid"] in etape_senat:
+                texte["senat"] = etape_senat[l["uid"]]
             # Absent plutôt que vide : la grande majorité des textes n'a aucun
             # amendement mesurable, et une liste vide par texte pèserait pour
             # rien dans un fichier chargé d'un coup.

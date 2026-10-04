@@ -1496,5 +1496,49 @@ class LAmpleurDuDebatDUnAmendement(unittest.TestCase):
                          [(["2406"], "12"), (["2984"], "885")])
 
 
+class LesEtapesDuSenat(unittest.TestCase):
+    """Le Sénat découpe le parcours à sa façon, et on ne l'aligne pas sur celui
+    de l'Assemblée."""
+
+    def test_le_code_donne_le_moment(self):
+        self.assertEqual(extraction.moment_au_senat("SN1-COM-FOND-RAPPORT"),
+                         "rapport")
+        self.assertEqual(extraction.moment_au_senat("SN1-DEBATS-DEC"), "decision")
+        self.assertEqual(extraction.moment_au_senat("SN1-DEPOT"), "depot")
+
+    def test_la_lecture_ne_change_pas_le_moment(self):
+        """Première, deuxième et nouvelle lecture passent par les mêmes
+        étapes : c'est ce qui permet cinq colonnes au lieu de quinze."""
+        for prefixe in ("SN1", "SN2", "SNNLEC"):
+            self.assertEqual(
+                extraction.moment_au_senat(f"{prefixe}-DEBATS-DEC"), "decision")
+
+    def test_un_code_inconnu_ne_rend_rien(self):
+        """Une procédure accélérée n'est pas une étape du parcours : lui
+        inventer une colonne serait pire que de l'ignorer."""
+        self.assertIsNone(extraction.moment_au_senat("SN1-PROCACC"))
+        self.assertIsNone(extraction.moment_au_senat(""))
+        self.assertIsNone(extraction.moment_au_senat(None))
+
+    def test_une_etape_de_l_assemblee_n_en_est_pas_une_du_senat(self):
+        """Les codes de l'Assemblée ne doivent rien rendre : sans quoi un
+        texte jamais allé au Sénat se retrouverait dans son fil."""
+        for code in ("AN1-DEPOT", "AN1-COM-FOND-RAPPORT", "AN1-DEBATS-SEANCE"):
+            self.assertIsNone(extraction.moment_au_senat(code))
+
+    def test_une_lecture_du_senat_qu_on_n_a_pas_encore_vue(self):
+        """Trois préfixes existent aujourd'hui ; une troisième lecture ou une
+        lecture définitive au Sénat doit marcher sans qu'on y retouche."""
+        self.assertEqual(extraction.moment_au_senat("SN3-DEBATS-DEC"), "decision")
+        self.assertEqual(extraction.moment_au_senat("SNLECDEF-DEBATS-DEC"),
+                         "decision")
+
+    def test_chaque_moment_a_sa_colonne(self):
+        """La table des codes et celle des colonnes doivent se répondre : un
+        moment sans colonne rangerait des textes nulle part."""
+        colonnes = {cle for cle, _, _ in extraction.ETAPES_SENAT}
+        self.assertEqual(set(extraction.MOMENTS_SENAT.values()), colonnes)
+
+
 if __name__ == "__main__":
     sys.exit(0 if unittest.main(exit=False, verbosity=2).result.wasSuccessful() else 1)
