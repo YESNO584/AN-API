@@ -292,5 +292,51 @@ class LeMemeAmendementPublieDeuxFois(unittest.TestCase):
         self.assertEqual([f["uid"] for f in fiches], [self.JUMEAUX[0]])
 
 
+class LeSujetDUnTexte(unittest.TestCase):
+    """Le sujet vient du Sénat, et le pont est le signet.
+
+    Deux pièges, et ce sont ceux qui ne se voient pas : **l'ordre des sujets
+    est celui du Sénat**, pas celui de la lecture de la table — la carte
+    n'en montre qu'un, et ce doit être le premier que la source cite ; et
+    **un signet que nous ne connaissons pas se jette**, sinon la clé du
+    dictionnaire serait un signet là où tout le reste attend un `uid`.
+    """
+
+    def base(self):
+        cx = sqlite3.connect(":memory:")
+        cx.row_factory = sqlite3.Row
+        cx.executescript(
+            (pathlib.Path(__file__).resolve().parent / "schema_senat.sql")
+            .read_text(encoding="utf-8"))
+        return cx
+
+    def poser(self, cx, lignes):
+        cx.executemany("INSERT INTO theme_senat (signet, theme, rang)"
+                       " VALUES (?, ?, ?)", lignes)
+
+    def test_les_sujets_gardent_l_ordre_du_senat(self):
+        cx = self.base()
+        # Le cas réel d'une loi de finances, et il est choisi pour ça :
+        # l'ordre de la source n'est **pas** l'ordre alphabétique. Sans le tri
+        # par rang, la clé primaire `(signet, theme)` rend les lignes rangées
+        # par nom, et la carte afficherait « Budget » au lieu du sujet
+        # principal. 1 792 signets sur 8 135 sont dans ce cas.
+        self.poser(cx, [("pjlf1979", "Budget", 1),
+                        ("pjlf1979", "Économie et finances, fiscalité", 0)])
+        self.assertEqual(
+            publier.themes_par_texte(cx, {"pjlf1979": "DLR5L17N1"}),
+            {"DLR5L17N1": ["Économie et finances, fiscalité", "Budget"]})
+
+    def test_un_signet_inconnu_ne_fait_pas_d_entree(self):
+        cx = self.base()
+        self.poser(cx, [("ppl25-401", "Justice", 0),
+                        ("ppl24-999", "Défense", 0)])
+        rendu = publier.themes_par_texte(cx, {"ppl25-401": "DLR5L17N1"})
+        self.assertEqual(rendu, {"DLR5L17N1": ["Justice"]})
+
+    def test_sans_base_du_senat_il_n_y_a_pas_de_sujet(self):
+        self.assertEqual(publier.themes_par_texte(None, {"a": "b"}), {})
+
+
 if __name__ == "__main__":
     sys.exit(0 if unittest.main(exit=False, verbosity=2).result.wasSuccessful() else 1)

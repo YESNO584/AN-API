@@ -184,6 +184,7 @@ rassemblés en fin de document.
 | « Assemblée nationale », « Sénat », « Les deux chambres » | **N** | la source ne donne que `AN` / `SN` |
 | « Proposition de loi », « Budget de l'État »… | **N** | version raccourcie du libellé de procédure. **Un type absent de notre table s'affiche mot pour mot** (**S**) |
 | Le sigle du groupe de l'auteur | **S** | |
+| Le sujet (« Santé », « Économie et finances, fiscalité ») | **S** | la colonne `THEMES` de `dossiers-legislatifs.csv`, **mot pour mot et dans l'ordre du Sénat**. Le découpage sur la virgule est à nous, les noms non |
 | Le point de couleur du groupe | **N** | convention d'affichage — l'open data n'en publie aucune, et la page le dit |
 | « 1re lecture », « Nouvelle lecture » | **S** | `libelleActe.libelleCourt` |
 | Le dernier acte (« Dépôt », « Renvoi en commission ») | **S** | `libelleActe.nomCanonique` |

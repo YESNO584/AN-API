@@ -469,6 +469,46 @@ Mesuré le 2026-10-04 : **731 textes sur 2 219** ont une étape au Sénat. Parmi
 ceux qui sont en cours, 499 en sont au renvoi en commission, 89 à la décision,
 3 au rapport. `etapes.json` publie ces comptes sous `etapesSenat`.
 
+### Le sujet d'un texte
+
+**L'application n'avait aucune notion de sujet avant le Sénat.** On pouvait
+filtrer par étape, par chambre, par type, jamais par « santé » ou
+« logement » : l'Assemblée ne classe pas ses dossiers par thème, et rien dans
+`parlement.db` ne le permettait. Le Sénat, lui, le publie — une colonne
+`THEMES` dans `dossiers-legislatifs.csv`, remplie pour 8 135 de ses dossiers.
+
+Le pont est le même que pour tout le reste du Sénat : la colonne `signet`.
+`recuperer_senat.ranger_themes` remplit `theme_senat (signet, theme, rang)`,
+et `publier.themes_par_texte` la traduit en `uid`. Mesuré le 2026-10-04 :
+**17 185 rattachements, 30 sujets distincts**, dont **1 625 tombent sur nos
+textes** et donnent un sujet à **729 d'entre eux sur 2 218**. Un texte en
+porte **deux en médiane**. Le sujet est posé sur les trois fichiers de
+listes — `textes.json`, `arretes.json`, `promulgues.json` — parce que la
+carte du fil en a besoin sans ouvrir le texte ; **les 107 lois promulguées
+en ont toutes un**, puisqu'une loi est forcément passée au Sénat.
+
+**Un nom de sujet peut contenir une virgule, et la virgule sépare aussi les
+sujets** (`senat.themes_de`). Trois noms sont dans ce cas — « Économie et
+finances, fiscalité », « PME, commerce et artisanat », « Recherche, sciences
+et techniques » — et les découper naïvement donnait **33 sujets au lieu de
+30**, dont trois fantômes (« fiscalité », « commerce et artisanat »,
+« sciences et techniques »). `senat.THEMES_COMPOSES` les recompose avant le
+découpage.
+
+**L'ordre des sujets est celui de la source, et il compte.** La carte du fil
+n'en montre qu'un — le premier — parce qu'avec deux en médiane elle
+deviendrait une liste de mots-clés. Ce premier sujet n'est **pas** le premier
+par ordre alphabétique : sur une loi de finances la source écrit « Économie et
+finances, fiscalité » puis « Budget ». **1 792 signets sur 8 135** sont dans ce
+cas. La colonne `rang` garde cet ordre, et le tri de `themes_par_texte` s'y
+appuie — sans lui, la clé primaire `(signet, theme)` rendrait les lignes
+rangées par nom, sans erreur et sans que rien ne le signale.
+
+**Les deux tiers des textes n'ont aucun sujet, et ce n'est pas un trou** :
+1 489 sur 2 218 ne sont jamais allés au Sénat. `etapes.json` publie
+`textesAvecTheme` pour que l'écran puisse le dire au lieu de les faire
+disparaître sans explication.
+
 ### L'issue d'un texte
 
 Un texte finit rarement par une promulgation. Le socle distingue :

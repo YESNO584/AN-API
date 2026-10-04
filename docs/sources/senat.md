@@ -86,6 +86,26 @@ législature) et **4 333 « promulgué »**. Un fil des textes en cours doit
 Volume annuel de dossiers ouverts : 350 en 2022, 418 en 2023, 331 en 2024,
 408 en 2025, 243 en 2026 jusqu'à fin août.
 
+### Le champ « Thèmes » : la seule réponse à « de quoi parle ce texte »
+
+**L'Assemblée ne classe pas ses dossiers par sujet.** Le Sénat le fait, dans
+cette colonne, remplie pour **8 135 dossiers sur 12 424**. Mesuré le
+2026-10-04 : **17 185 rattachements, 30 sujets distincts**, dont 1 625 tombent
+sur les 2 218 textes du projet et en classent **729**.
+
+**Les sujets sont séparés par des virgules — et trois noms en contiennent
+une.** « Économie et finances, fiscalité », « PME, commerce et artisanat »,
+« Recherche, sciences et techniques ». Découper sur la virgule sans les
+recomposer donne **33 sujets au lieu de 30**, dont trois qui n'existent pas :
+« fiscalité », « commerce et artisanat », « sciences et techniques ». Le piège
+est silencieux — ces trois fantômes ressemblent à des sujets.
+
+**L'ordre dans lequel la colonne les écrit n'est pas alphabétique, et il a un
+sens** : le premier est le sujet principal. Sur une loi de finances, le champ
+porte « Économie et finances, fiscalité » puis « Budget ». **1 792 dossiers
+sur 8 135** ont un ordre différent de l'ordre alphabétique — il faut donc le
+conserver, et non laisser une clé de tri le remplacer.
+
 ## Les autres jeux de données
 
 Tailles et dates relevées le 2026-08-31 ; tous à jour du jour même.

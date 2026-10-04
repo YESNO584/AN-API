@@ -157,6 +157,41 @@ class LireUnCsvDuSenat(unittest.TestCase):
         self.assertEqual(senat.lire_csv_senat(self.ecrire("% rien\n")), [])
 
 
+class LesThemesDUnTexte(unittest.TestCase):
+    """Le Sénat classe chaque dossier ; l'application n'avait aucune notion de
+    sujet avant lui."""
+
+    def test_un_theme_simple(self):
+        self.assertEqual(senat.themes_de("Justice"), ["Justice"])
+
+    def test_plusieurs_themes_se_decoupent_sur_la_virgule(self):
+        self.assertEqual(
+            senat.themes_de("Collectivités territoriales, Pouvoirs publics et Constitution"),
+            ["Collectivités territoriales", "Pouvoirs publics et Constitution"])
+
+    def test_un_nom_de_theme_peut_contenir_une_virgule(self):
+        """Trois en contiennent une, et le découpage naïf en inventait trois
+        qui n'existent pas : « fiscalité », « commerce et artisanat »,
+        « sciences et techniques »."""
+        for valeur, attendu in (
+                ("Économie et finances, fiscalité",
+                 ["Économie et finances, fiscalité"]),
+                ("PME, commerce et artisanat", ["PME, commerce et artisanat"]),
+                ("Recherche, sciences et techniques",
+                 ["Recherche, sciences et techniques"])):
+            self.assertEqual(senat.themes_de(valeur), attendu)
+
+    def test_un_nom_compose_melange_aux_autres(self):
+        self.assertEqual(
+            senat.themes_de("Société, Économie et finances, fiscalité, Travail"),
+            ["Économie et finances, fiscalité", "Société", "Travail"])
+
+    def test_rien_ne_donne_rien(self):
+        self.assertEqual(senat.themes_de(""), [])
+        self.assertEqual(senat.themes_de(None), [])
+        self.assertEqual(senat.themes_de("  "), [])
+
+
 class LOrdreDesGroupes(unittest.TestCase):
     """Il ne peut pas se mesurer sur les sièges au Sénat : on le mesure sur la
     façon de voter."""

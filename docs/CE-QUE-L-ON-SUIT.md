@@ -120,6 +120,27 @@ Un texte parcourt les deux chambres quel que soit son point de départ. **La
 source de vérité reste l'open data de l'Assemblée**, qui publie le parcours
 complet, étapes sénatoriales comprises.
 
+## De quoi ils parlent : 30 sujets, pour un texte sur trois
+
+**L'Assemblée ne classe pas ses dossiers par sujet. Le Sénat, si** — c'est
+donc de lui que vient la seule réponse à « de quoi parle ce texte ». Les huit
+sujets les plus fournis :
+
+| Sujet | Textes |
+|---|---:|
+| Société | 396 |
+| Questions sociales et santé | 121 |
+| Collectivités territoriales | 118 |
+| Pouvoirs publics et Constitution | 117 |
+| Économie et finances, fiscalité | 115 |
+| Justice | 66 |
+| Police et sécurité | 66 |
+| Environnement | 60 |
+
+**729 textes sur 2 218 ont un sujet, et 1 489 n'en ont aucun** : ils ne sont
+jamais allés au Sénat. Les 107 lois promulguées en ont toutes un, puisqu'une
+loi y est forcément passée. Un texte classé en porte **deux en médiane**.
+
 ## Ce qui arrive à un texte : 10 634 étapes, 104 formes
 
 Les étapes se regroupent en une poignée de familles. Les plus fréquentes :

@@ -187,6 +187,36 @@ def lire_csv_senat(chemin: pathlib.Path) -> list[dict]:
     return list(csv.DictReader(lignes, delimiter=separateur))
 
 
+# ------------------------------------------------------- les thèmes d'un texte
+
+URL_DOSSIERS = DONNEES + "dosleg/dossiers-legislatifs.csv"
+
+# **Trois noms de thème contiennent eux-mêmes une virgule**, qui est aussi le
+# séparateur de la liste. Découper naïvement dessus donne 33 thèmes au lieu de
+# 30, et en invente trois qui n'existent pas : « fiscalité », « commerce et
+# artisanat », « sciences et techniques » (mesuré le 2026-10-04).
+THEMES_COMPOSES = (
+    "Économie et finances, fiscalité",
+    "PME, commerce et artisanat",
+    "Recherche, sciences et techniques",
+)
+
+
+def themes_de(valeur: str | None) -> list[str]:
+    """Les thèmes d'un dossier, dans l'ordre où la source les écrit.
+
+    On recolle d'abord les trois noms composés, puis on découpe le reste sur la
+    virgule. Mesuré : 30 thèmes réels, deux par texte en médiane, cinq au plus.
+    """
+    reste, trouves = (valeur or "").strip(), []
+    for compose in THEMES_COMPOSES:
+        if compose in reste:
+            trouves.append(compose)
+            reste = reste.replace(compose, "")
+    trouves += [x.strip() for x in reste.split(",") if x.strip()]
+    return trouves
+
+
 # ------------------------------- l'ordre des groupes, mesuré sur les votes
 
 def rang_par_les_votes(positions: dict[str, dict[str, int]],

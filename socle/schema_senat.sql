@@ -89,6 +89,22 @@ CREATE TABLE IF NOT EXISTS groupe_senat (
     rang     INTEGER
 );
 
+-- Le sujet d'un texte, tel que le Sénat le classe. **L'application n'en avait
+-- aucune notion avant lui** : on pouvait filtrer par étape, par chambre, par
+-- type, jamais par « santé » ou « logement ».
+--
+-- Un texte en porte deux en médiane, cinq au plus, parmi 30. Attention : trois
+-- noms de thème contiennent eux-mêmes une virgule, qui est aussi le séparateur
+-- de la liste — voir `senat.themes_de`.
+CREATE TABLE IF NOT EXISTS theme_senat (
+    signet TEXT NOT NULL,
+    theme  TEXT NOT NULL,
+    rang   INTEGER NOT NULL,       -- l'ordre où la source les écrit
+    PRIMARY KEY (signet, theme)
+);
+
+CREATE INDEX IF NOT EXISTS theme_senat_par_theme ON theme_senat (theme);
+
 -- Les séances à venir, et le texte qu'elles examinent. C'est le calendrier.
 CREATE TABLE IF NOT EXISTS seance_senat (
     date   TEXT NOT NULL,

@@ -1126,3 +1126,20 @@ calendrier vide, qui ressemblait à « le Sénat n'a rien de prévu ».
 Ce qui l'a attrapé : s'étonner d'un zéro, et remonter la jointure clé par clé
 au lieu de conclure que la donnée manquait. **Un résultat vide se vérifie comme
 un résultat faux.**
+
+### Un index peut faire passer un test qui ne vérifie rien
+
+Un test écrit pour voir casser un `ORDER BY rang` passait aussi **sans** le
+tri. La raison : la clé primaire de la table est `(signet, theme)`, SQLite
+parcourt cet index, et les lignes sortent rangées par nom de thème. Les trois
+thèmes du décor étaient déjà dans l'ordre alphabétique — le test mesurait donc
+l'index, pas la règle.
+
+Le décor a été refait sur un **vrai cas où les deux ordres diffèrent** (une loi
+de finances : la source écrit « Économie et finances, fiscalité » avant
+« Budget »), et la règle défaite y est bien vue casser.
+
+La leçon, qui vaut au-delà de SQLite : **un décor de test rangé comme la règle
+le rangerait ne prouve rien.** Et le réflexe qui l'attrape est toujours le
+même — défaire la règle, et exiger qu'un test nommé le voie. C'est la troisième
+fois qu'un test aveugle est trouvé de cette façon dans ce projet.

@@ -240,6 +240,22 @@ a pas encore d'application, de base de données ni de dépendances.
   retrouvent. Les votes du Sénat s'affichent dans le parcours, **à leur date et
   jamais mêlés à ceux de l'Assemblée** : pas de total commun, pas de
   comparaison.
+- **Le sujet d'un texte vient du Sénat, et de lui seul** (2026-10-04).
+  L'Assemblée ne classe pas ses dossiers par thème ; le Sénat le fait, dans la
+  colonne `THEMES` de `dossiers-legislatifs.csv`. 30 sujets, **729 textes sur
+  2 218** en portent un, deux en médiane. **Une virgule sépare deux sujets,
+  sauf dans trois noms qui en contiennent une** (« Économie et finances,
+  fiscalité », « PME, commerce et artisanat », « Recherche, sciences et
+  techniques ») : les découper naïvement donnait 33 sujets dont trois
+  fantômes — `senat.THEMES_COMPOSES` les recompose d'abord. **Et l'ordre de la
+  source n'est pas l'ordre alphabétique** : la carte du fil n'affiche que le
+  premier sujet, et sur une loi de finances la source écrit « Économie et
+  finances, fiscalité » avant « Budget » (1 792 signets sur 8 135 sont dans ce
+  cas). La colonne `rang` le garde ; **la clé primaire `(signet, theme)` rend
+  les lignes rangées par nom** si l'on oublie le tri, sans erreur et sans que
+  rien ne le signale. Les deux tiers des textes n'ont aucun sujet parce
+  qu'ils ne sont jamais allés au Sénat : l'écran doit le dire, pas les faire
+  disparaître.
 - **Le lien entre un scrutin du Sénat et un texte vient d'une page web, et de
   rien d'autre.** Aucun fichier d'open data ne le publie : par le numéro
   d'amendement 21 % des scrutins tombent sur un seul texte, 43 % avec une

@@ -236,12 +236,30 @@ place — ce qui donnait l'impression qu'il rétrécissait.
 | **Nature du texte** | Proposition, projet, loi organique, constitutionnelle, budget, ratification… |
 | **Dernier mouvement** | Cette semaine, ce mois-ci, ces trois mois — ou à l'arrêt depuis plus d'un an |
 | **Issue** | En cours, promulguée, rejetée, non adoptée, retirée, caduque |
+| **Sujet** | Les 30 sujets dont le Sénat classe les dossiers — santé, logement, justice… |
 | **Votes** | A fait l'objet d'un vote, voté sur le texte entier, adopté, rejeté |
 | **Calendrier** | Les textes dont une séance est déjà programmée |
 | **Recherche** | Dans les titres |
 
 Ils se combinent, chacun affiche son nombre de textes, ceux qui ne mèneraient
 à rien sont grisés, et un bouton efface tout.
+
+#### Le filtre « Sujet », et ce qu'il doit avouer
+
+C'est le premier filtre qui ne vient pas de l'Assemblée : **elle ne classe pas
+ses dossiers par thème, le Sénat si**. Les 30 sujets et leurs comptes sont
+publiés dans `etapes.json`, rangés du plus fourni au moins fourni.
+
+**Les deux tiers des textes n'en ont aucun, et l'écran le dit.** 1 489 sur
+2 218 ne sont jamais allés au Sénat ; filtrer par sujet les écarte tous. Une
+note sous les puces l'annonce, parce qu'un filtre qui fait disparaître deux
+textes sur trois sans rien expliquer passerait pour une panne.
+
+Sur la carte du fil, le sujet est une étiquette de la **couleur du Sénat**, et
+il n'y en a **qu'une** : un texte en porte deux en médiane, et la carte ne doit
+pas devenir une liste de mots-clés. Celle qui s'affiche est la première que la
+source cite — pas la première par ordre alphabétique. **La fiche, elle, les
+montre tous** : la place ne manque pas.
 
 ### La fiche d'un texte
 

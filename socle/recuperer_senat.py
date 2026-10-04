@@ -313,6 +313,25 @@ def ranger_seances(cx: sqlite3.Connection, archive: pathlib.Path,
     return len(lignes)
 
 
+def ranger_themes(cx: sqlite3.Connection, chemin: pathlib.Path) -> int:
+    """Le sujet de chaque dossier, tel que le Sénat le classe.
+
+    Le fichier est celui que le socle lit déjà pour l'état d'un dossier, mais
+    il est retéléchargé ici — 3,5 Mo — plutôt que partagé : les deux bases
+    restent indépendantes, et c'est tout l'intérêt de les avoir séparées.
+    """
+    lignes = []
+    for l in senat.lire_csv_senat(chemin):
+        sig = senat.signet_de(l.get("URL du dossier"))
+        if not sig:
+            continue
+        for rang, theme in enumerate(senat.themes_de(l.get("Thèmes"))):
+            lignes.append((sig, theme, rang))
+    cx.execute("DELETE FROM theme_senat")
+    cx.executemany("INSERT OR REPLACE INTO theme_senat VALUES (?,?,?)", lignes)
+    return len(lignes)
+
+
 def ranger_dossiers(cx: sqlite3.Connection, archive: pathlib.Path) -> int:
     """Les dossiers du Sénat, pour faire le pont et nommer ce qu'on affiche."""
     lignes = [(senat.net(l["signet"]), senat.net(l["loicod"]),
@@ -339,7 +358,8 @@ def main() -> int:
         archive = dossier / "dosleg.zip"
         extraction.telecharger(archive, None, senat.URL_DOSLEG)
         for nom, url in (("senateurs", senat.URL_SENATEURS),
-                         ("histogroupes", senat.URL_HISTOGROUPES)):
+                         ("histogroupes", senat.URL_HISTOGROUPES),
+                         ("dossiers", senat.URL_DOSSIERS)):
             print(f"  {nom}", file=sys.stderr)
             extraction.telecharger(dossier / f"{nom}.csv", None, url)
 
@@ -363,11 +383,12 @@ def main() -> int:
             n_vot = ranger_votes(cx, archive, historique, options.depuis)
             n_grp = ranger_groupes(cx, options.depuis, noms)
             n_sea = ranger_seances(cx, archive, dt.date.today().isoformat())
+            n_the = ranger_themes(cx, dossier / "dossiers.csv")
 
     print(f"  {n_dos:>7,} dossiers · {n_scr:>6,} scrutins ({len(sessions)} sessions"
           f" relues) · {n_vot:>6,} lignes de vote par groupe", file=sys.stderr)
-    print(f"  {n_sen:>7,} sénateurs · {n_grp} groupes · {n_sea} séances à venir",
-          file=sys.stderr)
+    print(f"  {n_sen:>7,} sénateurs · {n_grp} groupes · {n_sea} séances à venir"
+          f" · {n_the:,} rattachements de thème", file=sys.stderr)
     for x in alertes:
         print(f"  ALERTE {x}", file=sys.stderr)
     return 1 if alertes and not n_scr else 0

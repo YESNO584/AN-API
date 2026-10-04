@@ -1128,6 +1128,27 @@ def votes_du_senat(senat_cx: sqlite3.Connection | None,
     return par_texte
 
 
+def themes_par_texte(senat_cx: sqlite3.Connection | None,
+                     signets: dict[str, str]) -> dict[str, list[str]]:
+    """Le sujet de chaque texte, tel que le Sénat le classe.
+
+    **L'application n'avait aucune notion de sujet avant lui** : on pouvait
+    filtrer par étape, par chambre, par type, jamais par « santé » ou
+    « logement ». 730 textes en portent un — tous ceux passés au Sénat, dont
+    les 107 lois promulguées ; les deux tiers restants n'y sont jamais allés,
+    et le filtre doit le dire plutôt que de les faire disparaître.
+    """
+    if senat_cx is None:
+        return {}
+    par_texte: dict[str, list[str]] = {}
+    for l in senat_cx.execute("SELECT signet, theme FROM theme_senat"
+                              " ORDER BY signet, rang"):
+        uid = signets.get(l["signet"])
+        if uid:
+            par_texte.setdefault(uid, []).append(l["theme"])
+    return par_texte
+
+
 def composition_du_senat(senat_cx: sqlite3.Connection | None) -> dict | None:
     """Qui siège au Sénat, et dans quel groupe.
 
@@ -1207,6 +1228,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             signets[sig] = l["uid"]
             titres[l["uid"]] = l["titre"]
     votes_senat = votes_du_senat(senat_cx, signets)
+    themes = themes_par_texte(senat_cx, signets)
 
     etape_senat = {}
     en_cours_au_senat = {l["uid"] for l in cx.execute(
@@ -1377,6 +1399,11 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
             sortie / "senat" / "calendrier.json",
             {"genereLe": genere_le, "jours": agenda_senat})
 
+    compte_themes: dict[str, int] = {}
+    for liste in themes.values():
+        for t in liste:
+            compte_themes[t] = compte_themes.get(t, 0) + 1
+
     tailles["etapes.json"] = ecrire(sortie / "etapes.json", {
         "genereLe": genere_le,
         "etapes": [{"n": n, "nom": nom, "quoi": quoi, "textesEnCours": par_etape.get(n, 0)}
@@ -1388,6 +1415,11 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
                          "textesEnCours": par_moment.get(cle, 0)}
                         for cle, nom, quoi in affichage.ETAPES_SENAT],
         "textesAuSenat": len(etape_senat),
+        # Les sujets, et combien de textes chacun porte. Le plus fourni
+        # d'abord : c'est l'ordre dans lequel le filtre les propose.
+        "themes": [{"nom": t, "textes": n} for t, n in
+                   sorted(compte_themes.items(), key=lambda x: (-x[1], x[0]))],
+        "textesAvecTheme": len(themes),
         # Les lois promulguées ne sont pas une septième étape : c'est l'après.
         # Mais un lecteur qui compte les textes doit les retrouver quelque part.
         "promulguees": comptes.get(extraction.PROMULGUE, 0),
@@ -1563,6 +1595,8 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
                                               "dernierVote": None, "voteEnsemble": None}))
             texte["amendements"] = compte_amendements.get(l["uid"], 0)
             texte["paroles"] = compte_paroles.get(l["uid"], 0)
+            if l["uid"] in themes:
+                texte["themes"] = themes[l["uid"]]
             # Absent plutôt que vide : deux textes sur trois ne sont jamais
             # allés au Sénat, et ce n'est pas un trou.
             if l["uid"] in etape_senat:

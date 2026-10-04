@@ -233,6 +233,9 @@
   .etiq.chambre-senat { color: var(--senat); background: transparent; border-color: currentColor; }
   .etiq.prochaine { color: var(--ok); background: transparent; border-color: currentColor; }
   .etiq.dormant { color: var(--faible); font-style: italic; }
+  /* Le sujet vient du Sénat : il porte sa couleur, discrètement. */
+  .etiq.sujet { color: var(--senat); background: transparent;
+                border-color: currentColor; }
   .etiq.grp { display: inline-flex; align-items: center; gap: .3rem; }
   .etiq.grp i { width: .45rem; height: .45rem; border-radius: 50%; display: block;
                 flex: 0 0 auto; }
@@ -1295,6 +1298,12 @@ const EXPLICATIONS = {
   frise: ["Le parcours du texte",
     "Les six étapes qu'un texte doit franchir pour devenir une loi. Le trait coloré " +
     "montre où il en est ; les traits plus sombres, les étapes déjà passées."],
+  theme: ["Le sujet d'un texte",
+    "Le classement est celui du Sénat, repris tel quel : c'est le seul des " +
+    "deux à en publier un. Un texte en porte deux en moyenne, et la carte " +
+    "n'en montre que le premier — toucher cette étiquette les donne tous. " +
+    "Deux textes sur trois n'ont aucun sujet : ils ne sont jamais allés au " +
+    "Sénat."],
   lectureSenat: ["La lecture au Sénat",
     "Un texte peut repasser plusieurs fois devant la même chambre : première " +
     "lecture, deuxième lecture, puis nouvelle lecture après une commission " +
@@ -1399,6 +1408,7 @@ let TEXTES = [];
 let GROUPES = new Map();
 let ETAT = {};
 const filtres = { etapes: new Set(), chambres: new Set(), types: new Set(),
+                  themes: new Set(),
                   activite: null, programme: false, vote: null, etat: null, mots: "" };
 
 const nb = new Intl.NumberFormat("fr-FR");
@@ -1454,6 +1464,8 @@ const statutDe = (t) => t.statut || (t.etape === PROMULGUEE ? "promulgue" : "en_
  * ------------------------------------------------------------------ */
 let ONGLET = "textes";
 let SENAT = [];
+let THEMES = [];
+let THEMES_TOTAL = 0;      // combien de textes portent au moins un sujet
 let TRAVAUX = [];
 let CATEGORIES_TRAVAUX = [];
 
@@ -1556,6 +1568,10 @@ function retenus() {
     if (filtres.etapes.size && !filtres.etapes.has(t.etape)) return false;
     if (filtres.chambres.size && !filtres.chambres.has(t.chambre || "aucune")) return false;
     if (filtres.types.size && !filtres.types.has(t.type)) return false;
+    // Un texte sans thème n'est pas « hors sujet » : il n'est jamais allé au
+    // Sénat, qui est le seul à classer. Le filtre l'écarte, et le dit.
+    if (filtres.themes.size
+        && !(t.themes || []).some((x) => filtres.themes.has(x))) return false;
     if (filtres.programme && !t.prochaine_date) return false;
     if (filtres.vote === "tous" && !t.votes) return false;
     if (filtres.vote === "ensemble" && !t.voteEnsemble) return false;
@@ -1573,6 +1589,7 @@ function retenus() {
 
 function combienActifs() {
   return filtres.etapes.size + filtres.chambres.size + filtres.types.size
+       + filtres.themes.size
        + (filtres.activite ? 1 : 0) + (filtres.programme ? 1 : 0)
        + (filtres.vote ? 1 : 0) + (filtres.etat ? 1 : 0);
 }
@@ -1643,6 +1660,28 @@ function dessinerFiltres() {
          () => { filtres.etat = filtres.etat === cle ? null : cle; dessiner(); },
          aide))));
 
+  // **Le sujet d'un texte, et la seule chose que l'application ne savait pas
+  // dire.** Les thèmes viennent du Sénat, qui est le seul à classer : deux
+  // textes sur trois n'en portent aucun, et le groupe le dit sous les puces
+  // plutôt que de les faire disparaître sans raison.
+  if (THEMES.length) {
+    const sujets = groupe("Sujet", THEMES.map((x) =>
+      puce(x.nom, filtres.themes.has(x.nom),
+           compteur((t) => (t.themes || []).includes(x.nom)),
+           () => bascule(filtres.themes, x.nom),
+           ["Le sujet d'un texte",
+            "Le classement est celui du Sénat, repris tel quel : c'est le seul " +
+            "des deux à en publier un. Un texte peut porter plusieurs sujets."])));
+    const sans = TEXTES.length - THEMES_TOTAL;
+    if (sans > 0) {
+      sujets.append(el("p", "rien",
+        `${nb.format(sans)} textes sur ${nb.format(TEXTES.length)} n'ont aucun `
+        + "sujet : ils ne sont jamais allés au Sénat, et l'Assemblée n'en "
+        + "publie pas. Filtrer par sujet les écarte."));
+    }
+    boite.append(sujets);
+  }
+
   boite.append(groupe("Où le texte se trouve", ["assemblee", "senat", "aucune"].map((c) =>
     puce(c === "aucune" ? "Les deux" : CHAMBRES[c][0],
          filtres.chambres.has(c), compteur((t) => (t.chambre || "aucune") === c),
@@ -1702,6 +1741,7 @@ function dessinerFiltres() {
   effacer.disabled = combienActifs() === 0 && !filtres.mots;
   effacer.addEventListener("click", () => {
     filtres.etapes.clear(); filtres.chambres.clear(); filtres.types.clear();
+    filtres.themes.clear();
     filtres.activite = null; filtres.programme = false; filtres.vote = null;
     filtres.etat = null; filtres.mots = "";
     $("recherche").value = ""; dessiner();
@@ -1889,6 +1929,13 @@ function carte(t) {
   l.append(etiquette("chambre-" + (ch || "aucune"), CHAMBRES[ch][0], CHAMBRES[ch]));
   l.append(etiquette("", typeCourt(t.type), TYPES[t.type] || [typeCourt(t.type), ""]));
   if (t.auteur_sigle) l.append(etiquetteGroupe(t));
+  // Le sujet, classé par le Sénat — le seul des deux à en publier un. Un seul
+  // s'affiche : un texte en porte deux en médiane, et la carte ne doit pas
+  // devenir une liste de mots-clés.
+  for (const sujet of (t.themes || []).slice(0, 1)) {
+    l.append(etiquette("sujet", sujet, EXPLICATIONS.theme,
+                       (t.themes || []).join(" · ")));
+  }
   if (t.lecture) l.append(etiquette("", t.lecture, EXPLICATIONS.lecture));
   if (t.dernier_acte) l.append(etiquette("", t.dernier_acte, EXPLICATIONS.acte));
   if (t.conclusion) l.append(etiquette("", t.conclusion, EXPLICATIONS.conclusion));
@@ -3768,7 +3815,14 @@ async function ouvrirFiche(uid) {
   // Le même repère que sur la carte du fil, et il mène au même écran. Il lit
   // la ligne de la liste, pas la fiche : c'est `textes.json` qui porte les
   // chiffres, parce que la carte en a besoin sans ouvrir le texte.
-  const dispute = repereDisputes(TEXTES.find((x) => x.uid === uid) || {});
+  const ligne = TEXTES.find((x) => x.uid === uid) || {};
+  // Le sujet, comme sur la carte, et lu au même endroit : `textes.json` le
+  // porte, la fiche n'a donc rien de plus à charger. Elle les montre **tous**,
+  // là où la carte n'en montre qu'un : la place ne manque pas ici.
+  for (const sujet of ligne.themes || []) {
+    l.append(etiquette("sujet", sujet, EXPLICATIONS.theme));
+  }
+  const dispute = repereDisputes(ligne);
   if (dispute) l.append(dispute);
   if (d.procedureAcceleree) {
     l.append(etiquette("acceleree", "Procédure accélérée",
@@ -5443,14 +5497,17 @@ function lire(nom, obligatoire = false) {
 async function charger() {
   $("lien-socle").href = new URL(SOCLE + "/textes.json", location.href).href;
   try {
-    const [textes, promulguees, arretes, etat, groupes, travaux] = await Promise.all([
-      lire("textes.json", true),
-      lire("promulgues.json"),
-      lire("arretes.json"),
-      lire("etat.json"),
-      lire("groupes.json"),
-      lire("travaux.json"),
-    ]);
+    const [textes, promulguees, arretes, etat, groupes, travaux, etapes] =
+      await Promise.all([
+        lire("textes.json", true),
+        lire("promulgues.json"),
+        lire("arretes.json"),
+        lire("etat.json"),
+        lire("groupes.json"),
+        lire("travaux.json"),
+        // Les sujets du Sénat vivent ici, avec les comptes par étape.
+        lire("etapes.json"),
+      ]);
     // Trois fichiers, trois issues. Les lois promulguées ouvrent le fil — une
     // application qui s'appelle « Qui vote quoi » doit montrer celles
     // qui sont allées au bout. Les textes arrêtés le ferment.
@@ -5468,6 +5525,10 @@ async function charger() {
     // passés, et rangés selon les étapes du Sénat. Deux textes sur trois n'y
     // sont jamais allés — ce n'est pas un trou, et l'onglet le dit.
     SENAT = TEXTES.filter((t) => t.senat);
+    // Les sujets que le Sénat publie. L'application n'en avait aucun avant
+    // lui : on filtrait par étape, par chambre, par type, jamais par « santé ».
+    THEMES = (etapes?.themes) || [];
+    THEMES_TOTAL = (etapes?.textesAvecTheme) || 0;
     TRAVAUX = travaux?.travaux || [];
     CATEGORIES_TRAVAUX = travaux?.categories || [];
     ETAT = etat || {};
