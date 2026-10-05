@@ -318,6 +318,20 @@ a pas encore d'application, de base de données ni de dépendances.
   illisible s'écarte au lieu d'entrer en base. Contrôle croisé : les neuf
   sigles **et les neuf effectifs** de la page correspondent un pour un aux
   nôtres.
+- **Cette page a cessé de les publier le lendemain, et détecter ne suffisait
+  pas à les garder** (2026-10-05). Le Sénat a retiré l'élément porteur ; la
+  publication l'a bien signalé, **et a quand même effacé les couleurs de la
+  veille**, la table des groupes se vidant à chaque passage. L'hémicycle du
+  Sénat s'est affiché tout gris. C'est la même panne que les archives
+  facultatives de l'Assemblée, réintroduite ailleurs — **la chercher partout
+  où une table se vide et se réécrit**. Trois choses la tiennent, et il faut
+  les trois : on **redemande** (trois essais, vingt secondes — `senat.fr`
+  coupe la connexion par intermittence) ; un **filet versionné**,
+  `socle/groupes_senat.json`, écrit par
+  `.claude/scripts/relever_groupes_senat.py` et jamais à la main, qui applique
+  **les mêmes contrôles que la page** ; et `ranger_groupes` **reprend ce que
+  la base avait** pour tout groupe absent du relevé du jour — ce qui arrive
+  aujourd'hui l'emporte, sans quoi une couleur serait figée pour toujours.
 - **Les écrans du Sénat sont ceux de l'Assemblée, pas des copies** (2026-10-04).
   L'hémicycle, la liste des groupes, la barre des mois, la grille des jours et
   la liste du jour sont **les mêmes fonctions**, à qui l'on passe la chambre.

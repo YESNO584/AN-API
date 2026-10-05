@@ -1203,3 +1203,35 @@ La parade n'était pas de dédoubler l'état — ce qui aurait dédoublé le cod
 mais d'exiger que le jour retenu **porte quelque chose dans ce qu'on dessine**.
 La règle vaut au-delà : un état partagé entre deux vues doit être revalidé
 contre la vue courante, pas seulement contre lui-même.
+
+### Détecter une source qui tombe n'est pas la garder
+
+Le contrôle écrit la veille a parfaitement fait son travail : la page du Sénat
+ne portait plus les couleurs, il l'a vu, il l'a signalé dans le journal. **Et
+les couleurs ont disparu quand même**, parce que la table se vide et se
+réécrit à chaque passage : une lecture ratée réécrivait des cases vides.
+
+Le projet connaissait déjà cette panne — elle est documentée depuis septembre
+pour les archives facultatives de l'Assemblée, avec sa parade. Je l'ai
+réintroduite ailleurs sans la reconnaître, parce que je pensais « source
+facultative » en termes de *fichier téléchargé*, pas de *colonne mise à jour*.
+
+**La forme à reconnaître : toute table qui se vide et se réécrit à partir
+d'une source qui peut manquer.** La question à se poser en écrivant un
+`DELETE FROM` : *que devient ce qui était là si la source du jour est vide ?*
+
+Trois parades, et il en faut souvent plus d'une :
+
+1. **Redemander** — ici le serveur coupait aussi la connexion par
+   intermittence, indépendamment du changement de page.
+2. **Un filet versionné** dans le dépôt, qui applique **les mêmes contrôles**
+   que la source — sinon il fait entrer par la fenêtre ce qui a été écarté à
+   la porte.
+3. **Reprendre ce que la base avait** pour ce que la source du jour ne dit
+   pas, le jour l'emportant toujours — sans quoi la valeur est figée pour
+   toujours.
+
+Un détail qui a sa valeur : le test écrit pour la parade n° 2 a trouvé un vrai
+trou dans la parade elle-même — un fichier de secours contenant une liste JSON
+faisait tomber la publication entière. **Un filet qui casse ne doit pas faire
+tomber ce qu'il devait rattraper.**

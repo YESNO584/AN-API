@@ -488,6 +488,29 @@ Contrôle croisé du 2026-10-04 : les **neuf** sigles de la page sont les nôtre
 **et les neuf effectifs correspondent un pour un** à ceux de `groupe_senat`.
 Huit groupes sont teintés ; `NI` ne l'est pas, et se dessine en gris.
 
+##### La page a cessé de les publier le lendemain
+
+**Le 2026-10-05, l'élément `<hemicycle-groups>` n'était plus sur la page.** Le
+contrôle l'a vu, l'a signalé — **et les couleurs de la veille ont quand même
+disparu**, la table des groupes se vidant et se réécrivant à chaque passage.
+L'hémicycle du Sénat s'est affiché tout gris. C'est la panne des archives
+facultatives de l'Assemblée, réintroduite ailleurs : **détecter n'est pas
+garder.**
+
+Trois choses la tiennent désormais, et il faut les trois :
+
+| | |
+|---|---|
+| **On redemande** | Trois essais, vingt secondes de pause. `senat.fr` coupe la connexion par intermittence : deux lectures sur trois ont échoué d'affilée le 2026-10-05 sur un serveur qui répondait très bien la minute suivante |
+| **Un filet versionné** | `groupes_senat.json` — le dernier relevé réussi, écrit par `.claude/scripts/relever_groupes_senat.py`, **jamais à la main**. Il applique **les mêmes contrôles que la page**, et un fichier absent ou abîmé rend `{}` au lieu de faire tomber la publication |
+| **La base garde ce qu'elle avait** | `ranger_groupes` reprend la couleur déjà en table pour tout groupe que le relevé du jour ne nomme pas. **Ce qui arrive aujourd'hui l'emporte** — sans quoi une couleur serait figée pour toujours |
+
+Une page qui ne donne plus rien n'est donc **pas** une page qu'on abandonne :
+elle reste la source, relue chaque jour. L'hypothèse la plus simple pour sa
+disparition est que 179 sénateurs sur 348 n'ont plus de groupe, et qu'un
+hémicycle à moitié vide ne valait pas d'être montré ; il reviendra peut-être
+quand les groupes se reformeront.
+
 ### Où un texte en est au Sénat
 
 `textes.json` porte, pour chaque texte qui y est passé, un objet `senat` : le

@@ -233,6 +233,44 @@ def groupes_lisibles(groupes: dict[str, dict]) -> str | None:
     return None
 
 
+# **Le filet, quand la page ne donne plus rien.** Mesuré le 2026-10-05 : le
+# Sénat a retiré de sa page l'élément qui portait les couleurs, du jour au
+# lendemain, et l'hémicycle s'est affiché tout gris. Ce fichier garde le
+# dernier relevé réussi — il est **versionné**, écrit par
+# `.claude/scripts/relever_groupes_senat.py`, jamais à la main.
+SECOURS = pathlib.Path(__file__).resolve().parent / "groupes_senat.json"
+
+
+def couleurs_de_secours(chemin: pathlib.Path | None = None) -> dict[str, dict]:
+    """Le dernier relevé réussi des couleurs, ou rien.
+
+    Un fichier absent ou abîmé rend `{}` plutôt que de faire échouer la
+    publication : c'est un filet, et un filet qui casse ne doit pas faire
+    tomber ce qu'il devait rattraper.
+    """
+    try:
+        brut = json.loads((chemin or SECOURS).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    # Le fichier peut être n'importe quoi : une liste, un nombre, du JSON
+    # valide qui n'a rien à voir. Un filet qui lève une exception ferait
+    # tomber la publication entière pour une couleur.
+    groupes = brut.get("groupes") if isinstance(brut, dict) else None
+    if not isinstance(groupes, dict):
+        return {}
+    gardes = {}
+    for sigle, g in groupes.items():
+        if not isinstance(g, dict):
+            continue
+        couleur = net(g.get("couleur"))
+        # Le même contrôle qu'à la lecture de la page : le filet ne doit pas
+        # faire entrer ce que la page n'aurait pas laissé passer.
+        if sigle in PAS_UN_VRAI_GROUPE or not couleur or not COULEUR.fullmatch(couleur):
+            continue
+        gardes[sigle] = {"nom": net(g.get("nom")), "couleur": couleur.upper()}
+    return gardes
+
+
 # ------------------------------------------------------- les sénateurs, en CSV
 
 def lire_csv_senat(chemin: pathlib.Path) -> list[dict]:

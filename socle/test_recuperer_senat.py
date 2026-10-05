@@ -10,6 +10,7 @@ import sys
 import unittest
 
 import recuperer_senat as rs
+import senat
 
 SCHEMA = pathlib.Path(__file__).resolve().parent / "schema_senat.sql"
 
@@ -105,6 +106,99 @@ class RelireUnePartieDesSessions(unittest.TestCase):
         self.assertEqual(cx.execute("SELECT signet FROM scrutin_senat"
                                     " WHERE session = 2020").fetchone()["signet"],
                          "ppl20-002")
+
+
+class LesCouleursNeSEffacentPas(unittest.TestCase):
+    """Le 2026-10-05, le Sénat a retiré de sa page l'élément qui portait les
+    couleurs. La table se vidant et se réécrivant à chaque passage, celles de
+    la veille sont parties avec, et l'hémicycle s'est affiché tout gris.
+
+    Ces tests tiennent la reprise : **ce qui arrive aujourd'hui l'emporte, ce
+    qui manque est repris de la base.**
+    """
+
+    def base_avec_couleurs(self):
+        cx = base()
+        cx.execute("INSERT INTO senateur (matricule, nom, groupe)"
+                   " VALUES ('1', 'Hier', 'SOC')")
+        cx.execute("INSERT INTO groupe_senat"
+                   " (sigle, nom, nom_complet, couleur, effectif, rang)"
+                   " VALUES ('SOC', 'SER', 'Groupe Socialiste', '#B84592', 1, 0)")
+        return cx
+
+    def couleur(self, cx, sigle="SOC"):
+        l = cx.execute("SELECT nom_complet, couleur FROM groupe_senat"
+                       " WHERE sigle = ?", (sigle,)).fetchone()
+        return (l["nom_complet"], l["couleur"]) if l else None
+
+    def test_une_page_illisible_n_efface_pas_les_couleurs_de_la_veille(self):
+        cx = self.base_avec_couleurs()
+        rs.ranger_groupes(cx, "2024-01-01", {"SOC": "SER"}, {})
+        self.assertEqual(self.couleur(cx), ("Groupe Socialiste", "#B84592"))
+
+    def test_une_couleur_neuve_remplace_l_ancienne(self):
+        # Le jour où le Sénat change la teinte d'un groupe, c'est la page qui
+        # tranche — reprendre l'ancienne figerait la couleur pour toujours.
+        cx = self.base_avec_couleurs()
+        rs.ranger_groupes(cx, "2024-01-01", {"SOC": "SER"},
+                          {"SOC": {"nom": "Groupe Socialiste refondu",
+                                   "couleur": "#000FFF"}})
+        self.assertEqual(self.couleur(cx),
+                         ("Groupe Socialiste refondu", "#000FFF"))
+
+    def test_un_groupe_jamais_teinte_reste_sans_couleur(self):
+        # `NI` n'a pas de couleur sur la page du Sénat. Rien ne doit lui en
+        # inventer une au passage.
+        cx = base()
+        cx.execute("INSERT INTO senateur (matricule, nom, groupe)"
+                   " VALUES ('1', 'Seul', 'NI')")
+        rs.ranger_groupes(cx, "2024-01-01", {"NI": "NI"}, {})
+        self.assertEqual(self.couleur(cx, "NI"), (None, None))
+
+    def test_l_effectif_et_le_rang_se_recalculent_quand_meme(self):
+        # La reprise ne porte que sur l'habit : un groupe qui perd un membre
+        # doit voir son effectif baisser le jour même.
+        cx = self.base_avec_couleurs()
+        cx.execute("INSERT INTO senateur (matricule, nom, groupe)"
+                   " VALUES ('2', 'Neuf', 'SOC')")
+        rs.ranger_groupes(cx, "2024-01-01", {"SOC": "SER"}, {})
+        self.assertEqual(cx.execute("SELECT effectif FROM groupe_senat"
+                                    " WHERE sigle = 'SOC'").fetchone()[0], 2)
+
+
+class LeFiletDesCouleurs(unittest.TestCase):
+    """Le fichier versionné qui rattrape une page qui ne donne plus rien."""
+
+    def test_le_releve_livre_avec_le_projet_se_lit(self):
+        g = senat.couleurs_de_secours()
+        self.assertGreaterEqual(len(g), senat.GROUPES_ATTENDUS)
+        for sigle, x in g.items():
+            self.assertRegex(x["couleur"], r"^#[0-9A-F]{6}$")
+            self.assertTrue(x["nom"])
+
+    def test_un_filet_absent_ne_fait_pas_tomber_la_publication(self):
+        self.assertEqual(
+            senat.couleurs_de_secours(pathlib.Path("/introuvable.json")), {})
+
+    def test_un_filet_abime_ne_fait_pas_tomber_la_publication(self):
+        import tempfile
+        for contenu in ("{ pas du json", "[]", '{"groupes": 3}'):
+            with tempfile.NamedTemporaryFile("w", suffix=".json",
+                                             delete=False) as f:
+                f.write(contenu)
+            self.assertEqual(senat.couleurs_de_secours(pathlib.Path(f.name)), {})
+
+    def test_le_filet_applique_les_memes_controles_que_la_page(self):
+        # Un filet qui laisserait passer ce que la page refuse ferait entrer
+        # par la fenêtre ce qui a été écarté à la porte.
+        import json as _json, tempfile
+        mauvais = {"groupes": {"X": {"nom": "X", "couleur": "rouge"},
+                               "AUCUN": {"nom": "Nouveaux", "couleur": "#000000"},
+                               "BON": {"nom": "Bon", "couleur": "#a1b2c3"}}}
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+            _json.dump(mauvais, f)
+        g = senat.couleurs_de_secours(pathlib.Path(f.name))
+        self.assertEqual(g, {"BON": {"nom": "Bon", "couleur": "#A1B2C3"}})
 
 
 if __name__ == "__main__":

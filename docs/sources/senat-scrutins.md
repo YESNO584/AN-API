@@ -142,6 +142,40 @@ et le dump n'a pas de table de groupes.
 lit l'attribut, jamais le dessin qu'il sert à faire. Le contrôle est celui des
 pages de scrutins : une page refaite rend **rien**, pas une moitié.
 
+### Elle a disparu le lendemain
+
+**Mesuré le 2026-10-05, au lendemain du jour où elle a été lue** : l'élément
+`<hemicycle-groups>` n'est plus sur la page. Elle répond toujours `200`, pèse
+148 Ko au lieu de 163, et ne contient plus ni `hemicycle`, ni `seats`, ni la
+moindre couleur. Aucun fichier de remplacement n'y est cité.
+
+L'hypothèse la plus simple : **179 sénateurs sur 348 n'ont plus de groupe**
+depuis le renouvellement du 27 septembre, et un hémicycle à moitié vide ne
+valait pas d'être montré. Le dessin reviendra peut-être quand les groupes se
+reformeront — raison de continuer à lire la page plutôt que de l'abandonner.
+
+**Ce que cette panne a coûté, et ce qu'elle a appris.** La publication du
+2026-10-05 a bien détecté l'illisibilité et l'a signalée — mais elle a quand
+même effacé les couleurs de la veille, parce que la table des groupes se vide
+et se réécrit à chaque passage. **Détecter n'est pas garder.** Trois choses
+tiennent désormais, et il faut les trois :
+
+1. **On redemande** (trois essais, vingt secondes) : `senat.fr` coupe la
+   connexion par intermittence — deux lectures sur trois ont échoué d'affilée
+   le 2026-10-05 sur un serveur qui répondait très bien la minute suivante.
+2. **Un filet versionné**, `socle/groupes_senat.json` : le dernier relevé
+   réussi, écrit par `.claude/scripts/relever_groupes_senat.py`, jamais à la
+   main. Il applique **les mêmes contrôles que la page**, pour ne pas faire
+   entrer par la fenêtre ce qui a été écarté à la porte.
+3. **La base garde ce qu'elle avait** : `ranger_groupes` reprend la couleur
+   déjà en table pour tout groupe que le relevé du jour ne nomme pas. Ce qui
+   arrive aujourd'hui l'emporte — sans quoi une couleur serait figée pour
+   toujours.
+
+Le filet se relance quand la page redonne l'information :
+
+    .claude/scripts/relever_groupes_senat.py
+
 ### Contrôle croisé
 
 Les **neuf** sigles de la page sont les nôtres, et **les neuf effectifs

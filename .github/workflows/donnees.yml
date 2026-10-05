@@ -173,6 +173,10 @@ jobs:
       - name: Retrouver la base du Sénat de la veille
         uses: actions/cache@v4
         env:
+          # `groupes_senat.json` n'y est **pas**, et c'est voulu : les groupes
+          # sont recalculés à chaque exécution, cache ou pas. L'y ajouter
+          # ferait relire 21 sessions de scrutins pour un changement de
+          # couleur — exactement le gaspillage que le projet a déjà mesuré.
           REGLES: ${{ hashFiles('socle/senat.py', 'socle/recuperer_senat.py',
                                 'socle/schema_senat.sql') }}
         with:

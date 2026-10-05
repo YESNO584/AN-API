@@ -426,7 +426,7 @@ l'Assemblée.
 
 | | |
 |---|---|
-| **La couleur de chaque groupe** | **S** — celles du Sénat, lues sur `senat.fr/vos-senateurs/groupes-politiques.html`. **À l'inverse de l'Assemblée**, qui n'en publie aucune et pour qui la couleur est notre convention |
+| **La couleur de chaque groupe** | **S** — celles du Sénat, lues sur `senat.fr/vos-senateurs/groupes-politiques.html`. **À l'inverse de l'Assemblée**, qui n'en publie aucune et pour qui la couleur est notre convention. Depuis le 2026-10-05 la page ne les publie plus : elles viennent du **dernier relevé réussi** (`socle/groupes_senat.json`), recopié de cette même page le 2026-10-04 par le programme, jamais à la main. La provenance ne change donc pas — c'est la source, prise un jour nommé |
 | **Le nom complet de chaque groupe** | **S** — même page, mot pour mot (« Groupe Socialiste, Écologiste et Républicain ») |
 | L'abrégé sur la pastille (« SER », « CRCE-K ») | **S** — celui de l'open data |
 | L'ordre des groupes, de la gauche à la droite | **C** — **mesuré** sur la façon de voter, faute de pouvoir l'être sur les sièges |

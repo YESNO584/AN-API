@@ -1,0 +1,39 @@
+{
+ "_lu_le": "2026-10-04",
+ "_source": "https://www.senat.fr/vos-senateurs/groupes-politiques.html",
+ "_pourquoi": "Les couleurs et les noms complets des groupes du Sénat, relevés sur sa page des groupes politiques par senat.groupes_de_la_page. Ce fichier est un SECOURS : la page reste la source, et la publication la relit chaque jour. Le 2026-10-05, le Sénat a retiré de cette page l'élément qui les portait — sans ce filet, l'hémicycle du Sénat s'affichait tout gris. Rien ici n'est écrit à la main : le fichier se régénère avec .claude/scripts/relever_groupes_senat.py.",
+ "groupes": {
+  "CRC": {
+   "nom": "Groupe Communiste Républicain Citoyen et Écologiste - Kanaky",
+   "couleur": "#D90001"
+  },
+  "GEST": {
+   "nom": "Groupe Écologiste - Solidarité et Territoires",
+   "couleur": "#5CB88D"
+  },
+  "LREM": {
+   "nom": "Groupe Rassemblement des démocrates, progressistes et indépendants",
+   "couleur": "#F1B608"
+  },
+  "RDSE": {
+   "nom": "Groupe du Rassemblement Démocratique et Social Européen",
+   "couleur": "#814A97"
+  },
+  "RTLI": {
+   "nom": "Groupe Les Indépendants - République et Territoires",
+   "couleur": "#C7DDE2"
+  },
+  "SOC": {
+   "nom": "Groupe Socialiste, Écologiste et Républicain",
+   "couleur": "#B84592"
+  },
+  "UC": {
+   "nom": "Groupe Union Centriste",
+   "couleur": "#7ACCEA"
+  },
+  "UMP": {
+   "nom": "Groupe Les Républicains",
+   "couleur": "#2455A2"
+  }
+ }
+}
