@@ -232,25 +232,36 @@ class LaBaseSeConstruitACote(unittest.TestCase):
         self.vieille = self.dossier / "senat.db"
         self.neuve = self.dossier / "senat.db.chantier"
 
-    def test_une_base_sans_senateurs_ne_remplace_rien(self):
-        # Le cas exact du 2026-10-06 : la source des sénateurs rend une page
-        # web, la base se construit mais n'a personne dedans.
+    def test_perdre_les_senateurs_de_la_veille_est_refuse(self):
+        # Le cas du 2026-10-06 : la source des sénateurs rend une page web.
+        # On avait 348 sénateurs, la base neuve n'en a aucun : c'est une perte.
         self.poser(self.vieille)
         self.poser(self.neuve, senateurs=0)
         self.assertIn("composition",
                       rs.assez_pour_remplacer(self.neuve, self.vieille))
 
-    def test_une_premiere_base_vide_ne_se_publie_pas_non_plus(self):
-        # **C'est le cas qui est arrivé**, et le seul que la comparaison avec
-        # la veille ne peut pas attraper : le cache venait d'être perdu, il n'y
-        # avait donc aucune base d'hier à comparer. Sans ce contrôle, une base
-        # neuve et vide se publiait et vidait l'onglet « Sénat ».
+    def test_une_base_entierement_vide_ne_se_publie_jamais(self):
+        # Sans base de la veille, la comparaison ne peut rien dire : c'est le
+        # seul garde-fou qui reste, et c'est le cas d'un cache perdu.
+        self.poser(self.neuve, senateurs=0, dossiers=0, themes=0)
+        self.assertFalse(self.vieille.exists())
+        self.assertIn("vide", rs.assez_pour_remplacer(self.neuve, self.vieille))
+
+    def test_une_base_partielle_vaut_mieux_que_rien(self):
+        # **Ne jamais refuser mieux.** Le 2026-10-06, les dossiers et les
+        # sujets arrivaient parfaitement pendant que les sénateurs manquaient.
+        # Exiger les trois gelait trois écrans pour en protéger un — alors
+        # qu'un écran qui dit « pas de données » est honnête.
         self.poser(self.neuve, senateurs=0)
         self.assertFalse(self.vieille.exists())
-        self.assertIn("composition",
-                      rs.assez_pour_remplacer(self.neuve, self.vieille))
+        self.assertIsNone(rs.assez_pour_remplacer(self.neuve, self.vieille))
 
-    def test_une_base_sans_sujets_ne_remplace_rien(self):
+    def test_une_base_partielle_ne_remplace_pas_une_base_complete(self):
+        self.poser(self.vieille)
+        self.poser(self.neuve, senateurs=0)
+        self.assertIsNotNone(rs.assez_pour_remplacer(self.neuve, self.vieille))
+
+    def test_une_base_sans_sujets_ne_remplace_pas_une_qui_en_a(self):
         self.poser(self.vieille)
         self.poser(self.neuve, themes=0)
         self.assertIn("sujets",

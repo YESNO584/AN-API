@@ -406,11 +406,15 @@ publication se déclarait **réussie**.
    21 pages au Sénat chaque matin pour le même résultat.
 2. **Construire dans le chantier.** Une exception le jette et laisse la base
    intacte.
-3. **`assez_pour_remplacer`** avant tout échange. Il refuse trois choses : une
-   base illisible ; une base sans aucune ligne dans `senateur`,
-   `dossier_senat` ou `theme_senat` — les trois tables sans lesquelles un
-   écran entier disparaît ; et une **chute de plus d'un quart** par rapport à
-   la veille, qui n'est pas une actualité du Parlement mais une source abîmée.
+3. **`assez_pour_remplacer`** avant tout échange. Sa règle tient en une
+   phrase : **ne jamais remplacer par pire, ne jamais refuser mieux.** Il
+   refuse une base illisible, une base **entièrement** vide, et une table qui
+   perd plus d'un quart de ses lignes — ce qui n'arrive pas en un jour au
+   Parlement et signe une source à moitié lue. Exiger que *chaque* table
+   vitale soit remplie a été la première parade, et elle protégeait trop
+   large : elle gelait les dossiers, les séances et les sujets, qui arrivaient
+   parfaitement, pour protéger la seule liste des sénateurs. **Un écran qui
+   dit honnêtement « pas de données » vaut mieux que trois écrans gelés.**
 4. **`os.replace`**, atomique, seulement alors.
 
 | Ce qui arrive | Ce que le site montre |

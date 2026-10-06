@@ -539,23 +539,30 @@ def assez_pour_remplacer(neuve: pathlib.Path,
                          ancienne: pathlib.Path) -> str | None:
     """Ce qui empêche de remplacer la base de la veille, ou rien.
 
-    **Une base neuve mais vide est pire que la base d'hier.** Le 2026-10-06,
-    `data.senat.fr` a rendu une page web à la place des deux fichiers de
-    sénateurs : la construction s'arrêtait net, laissait une base vide, et
-    l'onglet « Sénat » du site perdait tout. Ce contrôle est ce qui fait que
-    l'échec d'une source ne devient pas une régression visible.
+    **La règle tient en une phrase : ne jamais remplacer par pire, mais ne
+    jamais refuser mieux.** Le 2026-10-06, `data.senat.fr` a rendu une page web
+    à la place de ses fichiers de sénateurs : la construction laissait une base
+    vide et l'onglet « Sénat » perdait tout.
+
+    Exiger que **chaque** table vitale soit remplie était la première parade —
+    et elle protégeait trop large : le même jour, les dossiers, les séances et
+    les sujets arrivaient parfaitement, et ils restaient bloqués parce que la
+    liste des sénateurs manquait. Un écran qui dit honnêtement « pas de
+    données » vaut mieux que trois écrans gelés.
+
+    Trois refus, donc, et seulement trois : une base illisible ; une base
+    **entièrement** vide ; et une table qui **perd plus d'un quart** de ses
+    lignes, ce qui n'arrive pas en un jour au Parlement et signe une source à
+    moitié lue.
     """
     neuf = compter(neuve)
     if not neuf:
         return "la base construite n'est pas lisible"
-    for table, quoi in VITAL.items():
-        if not neuf.get(table):
-            return f"la base construite n'a aucune ligne pour {quoi}"
+    if not any(neuf.values()):
+        return "la base construite est entièrement vide"
     if not ancienne.exists():
         return None
     vieux = compter(ancienne)
-    # Une chute de plus d'un quart n'arrive pas en un jour au Parlement : c'est
-    # une source abîmée, pas une actualité.
     for table, quoi in VITAL.items():
         avant, apres = vieux.get(table, 0), neuf[table]
         if avant and apres < avant * 0.75:
