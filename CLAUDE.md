@@ -246,7 +246,10 @@ a pas encore d'application, de base de données ni de dépendances.
   lesquelles un écran disparaît ; `senat.PAS_UN_CSV` traite **une page web
   servie en CSV comme une source absente** ; et `etat.json` publie
   `senatVuLe`, que les écrans du Sénat affichent quand les données ne sont pas
-  du jour. **Le cache a deux clés de repli, dont `senat-` tout court** : un
+  du jour. **Et `senateurs_a_jour` garde la liste des sénateurs et les groupes
+  quand leur source manque**, pour qu'une seule source en panne n'en gèle pas
+  quatre — un Parlement sans aucun membre n'existe pas, une liste vide est
+  toujours une panne. **Le cache a deux clés de repli, dont `senat-` tout court** : un
   changement de règles ne doit plus faire perdre la base de la veille.
   **Chercher cette forme partout** : une source facultative qui écrit
   directement dans ce qui est publié.

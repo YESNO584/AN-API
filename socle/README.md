@@ -431,6 +431,24 @@ a **deux clés de repli**, dont `senat-` tout court : un changement de règles n
 doit plus faire perdre la base de la veille, ce qui est précisément ce qui a
 transformé une source cassée en page blanche.
 
+#### Une source cassée n'en bloque pas quatre
+
+Le 2026-10-06, **tout le dossier `senateurs/`** de `data.senat.fr` rendait la
+même page web — y compris pour un nom de fichier inventé — pendant que les
+dossiers, les scrutins, les séances et les sujets arrivaient parfaitement.
+
+Sans garde, une seule source en panne gelait toute la base : la liste des
+sénateurs sortait vide, `assez_pour_remplacer` refusait l'échange, et plus
+rien ne se mettait à jour. `senateurs_a_jour` laisse donc `senateur` et
+`groupe_senat` **telles qu'elles sont** quand leur source manque, et le reste
+se met à jour normalement. Mesuré ce jour-là : les 348 sénateurs et 9 groupes
+gardés, les dossiers passés de 12 450 à 12 451 et les sujets de 17 185 à
+17 187.
+
+**Un Parlement sans aucun membre n'existe pas** : une liste vide est toujours
+une panne, jamais une actualité. C'est ce qui autorise à garder plutôt qu'à
+écrire.
+
 #### Une source peut mentir sur ce qu'elle est
 
 `senat.lire_csv_senat` refuse un fichier dont la première ligne commence par

@@ -244,6 +244,37 @@ def noms_des_groupes(historique: dict, actifs: list[dict]) -> dict[str, str]:
     return noms
 
 
+def senateurs_a_jour(cx: sqlite3.Connection, actifs: list[dict],
+                     historique: dict) -> tuple[int, dict, list[str]]:
+    """Met la liste des sénateurs à jour, **ou garde celle d'hier**.
+
+    **Une source cassée ne doit pas en bloquer quatre.** Le 2026-10-06, tout
+    le dossier `senateurs/` de `data.senat.fr` rendait une page web — y compris
+    pour un nom de fichier inventé — pendant que les dossiers, les scrutins,
+    les séances et les sujets arrivaient parfaitement. Sans cette porte, un
+    seul dossier en panne gelait toute la base du Sénat : la liste sortait
+    vide, le garde-fou refusait de remplacer, et plus rien ne se mettait à
+    jour.
+
+    `senateur` et `groupe_senat` sont alors laissées **telles qu'elles sont** :
+    ni vidées, ni remplies de vide. **Un Parlement sans aucun membre n'existe
+    pas** — une liste vide est toujours une panne, jamais une actualité.
+
+    Rend le nombre de sénateurs, les noms courts des groupes (vides si la
+    source manque, pour que `ranger_groupes` ne soit pas appelé), et les
+    alertes à écrire au journal.
+    """
+    if actifs and historique:
+        return (ranger_senateurs(cx, actifs, historique),
+                noms_des_groupes(historique, actifs), [])
+    manquants = " et ".join(
+        n for n, v in (("la liste des sénateurs", actifs),
+                       ("l'historique des groupes", historique)) if not v)
+    garde = cx.execute("SELECT COUNT(*) n FROM senateur").fetchone()["n"]
+    return garde, {}, [f"{manquants} : source illisible — les {garde} "
+                       f"sénateurs déjà en base sont gardés tels quels"]
+
+
 def ranger_senateurs(cx: sqlite3.Connection, actifs: list[dict],
                      historique: dict) -> int:
     """Les sénateurs en exercice.
@@ -438,8 +469,9 @@ def construire(chemin: pathlib.Path, options) -> list[str]:
             historique = lire_historique(dossier / "histogroupes.csv")
             actifs = [s for s in senat.lire_csv_senat(dossier / "senateurs.csv")
                       if s.get("État") == "ACTIF"]
-            noms = noms_des_groupes(historique, actifs)
-            n_sen = ranger_senateurs(cx, actifs, historique)
+
+            n_sen, noms, alertes_sources = senateurs_a_jour(
+                cx, actifs, historique)
             # Les sessions à relire : celle en cours toujours, les closes une
             # seule fois — elles sont figées.
             en_cours = session_en_cours()
@@ -450,11 +482,20 @@ def construire(chemin: pathlib.Path, options) -> list[str]:
             if options.sessions:
                 sessions = sessions[-options.sessions:]
             n_scr, alertes = ranger_scrutins(cx, archive, sessions)
-            n_vot = ranger_votes(cx, archive, historique, options.depuis)
+            alertes += alertes_sources
+            # Sans l'historique, aucun vote ne peut être attribué à un
+            # groupe : le recalculer rendrait 278 552 « sans groupe ».
+            n_vot = (ranger_votes(cx, archive, historique, options.depuis)
+                     if historique else 0)
             habits, alerte_couleurs = couleurs_des_groupes()
             if alerte_couleurs:
                 alertes.append(alerte_couleurs)
-            n_grp = ranger_groupes(cx, options.depuis, noms, habits)
+            # `ranger_groupes` recompte les effectifs sur `senateur` : sans
+            # liste neuve, il recompterait la même chose, mais il perdrait les
+            # noms courts que seul le fichier des sénateurs porte.
+            n_grp = (ranger_groupes(cx, options.depuis, noms, habits) if noms
+                     else cx.execute(
+                         "SELECT COUNT(*) n FROM groupe_senat").fetchone()["n"])
             n_sea = ranger_seances(cx, archive, dt.date.today().isoformat())
             n_the = ranger_themes(cx, dossier / "dossiers.csv")
 

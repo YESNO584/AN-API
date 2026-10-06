@@ -331,5 +331,70 @@ class UneSourceQuiNEnEstPlusUne(unittest.TestCase):
         self.assertEqual(rs.lire_historique(self.ecrire(page)), {})
 
 
+class UneSourceCasseeNEnBloquePasQuatre(unittest.TestCase):
+    """Le 2026-10-06, tout le dossier `senateurs/` de `data.senat.fr` rendait
+    une page web — y compris pour un nom de fichier inventé — pendant que les
+    dossiers, les scrutins, les séances et les sujets arrivaient parfaitement.
+
+    Sans cette porte, un seul dossier en panne gelait toute la base du Sénat :
+    la liste des sénateurs sortait vide, le garde-fou refusait de remplacer, et
+    plus rien ne se mettait à jour.
+    """
+
+    SENATEUR = {"Matricule": "1", "Qualité": "M.", "Prénom usuel": "Jean",
+                "Nom usuel": "Dupont", "Circonscription": "Ain",
+                "Groupe politique": "SER", "État": "ACTIF"}
+    HISTORIQUE = {"1": [("2023-10-01", "", "SOC", "SER")]}
+
+    def peuplee(self, combien=348):
+        cx = base()
+        cx.executemany("INSERT INTO senateur (matricule, nom, groupe)"
+                       " VALUES (?,?,?)",
+                       [(str(i), f"S{i}", "SOC") for i in range(combien)])
+        return cx
+
+    def combien(self, cx):
+        return cx.execute("SELECT COUNT(*) FROM senateur").fetchone()[0]
+
+    def test_sans_liste_de_senateurs_la_table_n_est_pas_videe(self):
+        cx = self.peuplee()
+        n, noms, alertes = rs.senateurs_a_jour(cx, [], self.HISTORIQUE)
+        self.assertEqual(self.combien(cx), 348)
+        self.assertEqual(n, 348)
+        self.assertEqual(noms, {})          # pour ne pas réécrire les groupes
+        self.assertIn("la liste des sénateurs", alertes[0])
+
+    def test_sans_historique_la_table_n_est_pas_videe_non_plus(self):
+        cx = self.peuplee()
+        rs.senateurs_a_jour(cx, [self.SENATEUR], {})
+        self.assertEqual(self.combien(cx), 348)
+
+    def test_les_deux_sources_manquantes_sont_toutes_deux_nommees(self):
+        cx = self.peuplee()
+        _, _, alertes = rs.senateurs_a_jour(cx, [], {})
+        self.assertIn("la liste des sénateurs", alertes[0])
+        self.assertIn("historique des groupes", alertes[0])
+
+    def test_avec_les_deux_sources_la_liste_se_remplace(self):
+        cx = self.peuplee()
+        n, noms, alertes = rs.senateurs_a_jour(cx, [self.SENATEUR],
+                                               self.HISTORIQUE)
+        self.assertEqual(self.combien(cx), 1)
+        self.assertEqual(n, 1)
+        self.assertEqual(noms.get("SOC"), "SER")
+        self.assertEqual(alertes, [])
+
+    def test_ranger_senateurs_avec_une_liste_vide_vide_bien_la_table(self):
+        # **C'est la raison d'être de la porte** : appelée avec une liste vide,
+        # cette fonction efface tout. Si ce test cesse d'échouer sans la porte,
+        # c'est que la fonction a changé et que la porte ne sert plus.
+        cx = base()
+        cx.executemany("INSERT INTO senateur (matricule, nom) VALUES (?,?)",
+                       [(str(i), f"S{i}") for i in range(348)])
+        rs.ranger_senateurs(cx, [], {})
+        self.assertEqual(
+            cx.execute("SELECT COUNT(*) FROM senateur").fetchone()[0], 0)
+
+
 if __name__ == "__main__":
     sys.exit(0 if unittest.main(exit=False, verbosity=2).result.wasSuccessful() else 1)
