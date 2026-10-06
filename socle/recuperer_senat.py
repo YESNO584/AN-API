@@ -21,7 +21,9 @@ import argparse
 import collections
 import datetime as dt
 import json
+import os
 import pathlib
+import shutil
 import sqlite3
 import sys
 import tempfile
@@ -417,17 +419,9 @@ def ranger_dossiers(cx: sqlite3.Connection, archive: pathlib.Path) -> int:
     return len(lignes)
 
 
-def main() -> int:
-    a = argparse.ArgumentParser(description=__doc__,
-                                formatter_class=argparse.RawDescriptionHelpFormatter)
-    a.add_argument("--base", type=pathlib.Path, default=BASE)
-    a.add_argument("--sessions", type=int, default=0,
-                   help="combien de sessions relire (0 = celles qui manquent)")
-    a.add_argument("--depuis", default="2024-01-01",
-                   help="la date à partir de laquelle on détaille les votes")
-    options = a.parse_args()
-
-    cx = ouvrir(options.base)
+def construire(chemin: pathlib.Path, options) -> list[str]:
+    """Remplit une base du Sénat. Rend les alertes, lève sur un vrai échec."""
+    cx = ouvrir(chemin)
     with tempfile.TemporaryDirectory() as travail:
         dossier = pathlib.Path(travail)
         print("  dosleg", file=sys.stderr)
@@ -464,14 +458,121 @@ def main() -> int:
             n_sea = ranger_seances(cx, archive, dt.date.today().isoformat())
             n_the = ranger_themes(cx, dossier / "dossiers.csv")
 
+            # La date de construction : c'est elle que la page affichera le
+            # jour où les données du Sénat datent de la veille.
+            cx.execute("INSERT OR REPLACE INTO source (url, vu_le)"
+                       " VALUES (?, ?)", (MARQUE_DE_FRAICHEUR, maintenant()))
+
     print(f"  {n_dos:>7,} dossiers · {n_scr:>6,} scrutins ({len(sessions)} sessions"
           f" relues) · {n_vot:>6,} lignes de vote par groupe", file=sys.stderr)
     print(f"  {n_sen:>7,} sénateurs · {n_grp} groupes ({len(habits)} teintés)"
           f" · {n_sea} séances à venir"
           f" · {n_the:,} rattachements de thème", file=sys.stderr)
+    cx.close()
+    return alertes
+
+
+# Ce que la base doit porter pour valoir d'être publiée. Ce ne sont pas des
+# seuils de qualité : ce sont les tables sans lesquelles un écran entier
+# disparaît de l'application.
+VITAL = {
+    "senateur": "la composition du Sénat",
+    "dossier_senat": "le pont avec nos textes",
+    "theme_senat": "les sujets",
+}
+MARQUE_DE_FRAICHEUR = "senat.db"
+
+
+def compter(chemin: pathlib.Path) -> dict[str, int]:
+    cx = sqlite3.connect(chemin)
+    try:
+        return {t: cx.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                for t in VITAL}
+    except sqlite3.Error:
+        return {}
+    finally:
+        cx.close()
+
+
+def assez_pour_remplacer(neuve: pathlib.Path,
+                         ancienne: pathlib.Path) -> str | None:
+    """Ce qui empêche de remplacer la base de la veille, ou rien.
+
+    **Une base neuve mais vide est pire que la base d'hier.** Le 2026-10-06,
+    `data.senat.fr` a rendu une page web à la place des deux fichiers de
+    sénateurs : la construction s'arrêtait net, laissait une base vide, et
+    l'onglet « Sénat » du site perdait tout. Ce contrôle est ce qui fait que
+    l'échec d'une source ne devient pas une régression visible.
+    """
+    neuf = compter(neuve)
+    if not neuf:
+        return "la base construite n'est pas lisible"
+    for table, quoi in VITAL.items():
+        if not neuf.get(table):
+            return f"la base construite n'a aucune ligne pour {quoi}"
+    if not ancienne.exists():
+        return None
+    vieux = compter(ancienne)
+    # Une chute de plus d'un quart n'arrive pas en un jour au Parlement : c'est
+    # une source abîmée, pas une actualité.
+    for table, quoi in VITAL.items():
+        avant, apres = vieux.get(table, 0), neuf[table]
+        if avant and apres < avant * 0.75:
+            return (f"{quoi} : {apres:,} lignes contre {avant:,} la veille"
+                    f" ({apres / avant:.0%})")
+    return None
+
+
+def main() -> int:
+    a = argparse.ArgumentParser(description=__doc__,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    a.add_argument("--base", type=pathlib.Path, default=BASE)
+    a.add_argument("--sessions", type=int, default=0,
+                   help="combien de sessions relire (0 = celles qui manquent)")
+    a.add_argument("--depuis", default="2024-01-01",
+                   help="la date à partir de laquelle on détaille les votes")
+    options = a.parse_args()
+
+    # **On construit à côté, et on ne remplace qu'en cas de succès complet.**
+    # Avant, la construction écrivait directement dans la base publiée : le
+    # 2026-10-06, une source du Sénat a rendu une page web au lieu d'un CSV,
+    # la construction s'est arrêtée, et le site a perdu d'un coup la
+    # composition, le calendrier et les 30 sujets du Sénat. Une reconstruction
+    # qui échoue ne doit rien coûter.
+    #
+    # On **part de la base existante** plutôt que de rien : les sessions de
+    # scrutins closes sont figées, et les relire toutes redemanderait 21 pages
+    # au Sénat chaque matin pour le même résultat.
+    base = options.base
+    chantier = base.with_name(base.name + ".chantier")
+    chantier.unlink(missing_ok=True)
+    if base.exists():
+        shutil.copy2(base, chantier)
+
+    def renoncer(pourquoi: str) -> int:
+        chantier.unlink(missing_ok=True)
+        print(f"  {pourquoi}", file=sys.stderr)
+        # Dire laquelle des deux situations on est dans : « on garde la veille »
+        # serait faux le jour où il n'y a pas de veille — et c'est ce jour-là
+        # que l'onglet « Sénat » s'affiche vide.
+        print("  la base de la veille est gardée telle quelle" if base.exists()
+              else "  et il n'y a aucune base de la veille : le site n'aura pas"
+                   " de données du Sénat", file=sys.stderr)
+        return 1
+
+    try:
+        alertes = construire(chantier, options)
+    except Exception as erreur:
+        return renoncer(f"ÉCHEC {type(erreur).__name__}: {erreur}")
+
+    souci = assez_pour_remplacer(chantier, base)
+    if souci:
+        return renoncer(f"REFUS de remplacer : {souci}")
+
+    os.replace(chantier, base)
     for x in alertes:
         print(f"  ALERTE {x}", file=sys.stderr)
-    return 1 if alertes and not n_scr else 0
+    return 0
 
 
 if __name__ == "__main__":

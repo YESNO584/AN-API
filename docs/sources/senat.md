@@ -218,6 +218,27 @@ dit `adopté` ou `non adopté` **par texte**, sans aucune devinette. C'est le
 résultat du vote ; ce qui manque, c'est le détail par sénateur — que
 l'Assemblée fournit pour ses propres votes.
 
+## Les fichiers de sénateurs ont cessé d'en être, le 2026-10-06
+
+**`ODSEN_GENERAL.csv` et `ODSEN_HISTOGROUPES.csv` rendent une page web.**
+Mesuré ce jour-là :
+
+| | |
+|---|---|
+| Code | `200 OK` |
+| Type annoncé | `text/csv` |
+| Taille | 4 932 et 4 928 octets, contre plusieurs centaines de Ko |
+| Contenu | `<!DOCTYPE html>` puis une page du « data export configurator » |
+
+**Aucun signal n'était faux sauf le contenu.** Les deux autres sources du même
+portail — `dossiers-legislatifs.csv` (3,6 Mo) et `dosleg.zip` (16 Mo) — étaient
+intactes le même jour.
+
+C'est la panne la plus coûteuse rencontrée sur ce portail : lue comme un CSV,
+la page donnait `<!DOCTYPE html>` pour en-tête de colonnes, et la construction
+de la base s'arrêtait sur `KeyError: 'Matricule'`. Détail de la parade dans
+`../../socle/README.md`, § « La base du Sénat se construit à côté ».
+
 ## Deux pièges vérifiés
 
 1. **L'encodage est le latin-1, pas l'UTF-8.** Lu en UTF-8, le fichier

@@ -232,6 +232,24 @@ a pas encore d'application, de base de données ni de dépendances.
   celles des sénateurs ne sont pas libres, et celles des députés viennent elles
   aussi du site de l'Assemblée et non de l'open data. Détail dans
   `docs/sources/senat-scrutins.md`.
+- **`senat.db` se construit à côté et ne remplace la veille qu'en cas de
+  succès complet** (2026-10-06). Avant, la construction écrivait directement
+  dans la base publiée : `data.senat.fr` a rendu une **page web** à la place
+  de ses deux fichiers de sénateurs — `200 OK`, `Content-Type: text/csv`,
+  4,9 Ko de HTML — la construction s'est arrêtée sur un `KeyError`, et le site
+  a perdu d'un coup la composition, le calendrier et les 30 sujets, pendant
+  que la publication se déclarait **réussie**. Quatre choses tiennent
+  maintenant : on travaille sur une **copie** de la base (et non sur rien, pour
+  ne pas redemander 21 pages de scrutins chaque matin) ; `os.replace` ne
+  survient qu'après `assez_pour_remplacer`, qui **refuse une base vide, une
+  base illisible, ou une chute de plus d'un quart** sur les trois tables sans
+  lesquelles un écran disparaît ; `senat.PAS_UN_CSV` traite **une page web
+  servie en CSV comme une source absente** ; et `etat.json` publie
+  `senatVuLe`, que les écrans du Sénat affichent quand les données ne sont pas
+  du jour. **Le cache a deux clés de repli, dont `senat-` tout court** : un
+  changement de règles ne doit plus faire perdre la base de la veille.
+  **Chercher cette forme partout** : une source facultative qui écrit
+  directement dans ce qui est publié.
 - **Les données du Sénat vivent dans `senat.db`, à part, et le pont est la
   colonne `signet`** (2026-10-04). 4,5 Mo, construite par `recuperer_senat.py`
   selon les règles de `senat.py`, facultative, avec **sa propre clé de cache**.

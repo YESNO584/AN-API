@@ -389,6 +389,57 @@ Après : **2 147 textes sur 2 151 ont un nom d'auteur**, et **plus aucun
 cosignataire anonyme**. Les 4 restants n'ont pas d'auteur dans la source, ou
 un identifiant qu'aucune des deux archives ne connaît.
 
+### La base du Sénat se construit à côté
+
+**Une reconstruction qui échoue ne doit rien coûter au site.** Elle le coûtait :
+le 2026-10-06, `data.senat.fr` a rendu une **page web** à la place de ses deux
+fichiers de sénateurs — `200 OK`, `Content-Type: text/csv`, 4,9 Ko de HTML. La
+construction écrivait directement dans la base publiée ; elle s'est arrêtée sur
+un `KeyError: 'Matricule'`, a laissé une base vide, et le site a perdu d'un
+coup la composition, le calendrier et les 30 sujets — pendant que la
+publication se déclarait **réussie**.
+
+`recuperer_senat.main` travaille donc ainsi :
+
+1. **Copier** `senat.db` vers `senat.db.chantier`. Pas repartir de rien : les
+   sessions de scrutins closes sont figées, et les relire toutes redemanderait
+   21 pages au Sénat chaque matin pour le même résultat.
+2. **Construire dans le chantier.** Une exception le jette et laisse la base
+   intacte.
+3. **`assez_pour_remplacer`** avant tout échange. Il refuse trois choses : une
+   base illisible ; une base sans aucune ligne dans `senateur`,
+   `dossier_senat` ou `theme_senat` — les trois tables sans lesquelles un
+   écran entier disparaît ; et une **chute de plus d'un quart** par rapport à
+   la veille, qui n'est pas une actualité du Parlement mais une source abîmée.
+4. **`os.replace`**, atomique, seulement alors.
+
+| Ce qui arrive | Ce que le site montre |
+|---|---|
+| Construction réussie | Les données du jour |
+| Construction en échec | **Celles de la veille**, datées à l'écran |
+| Première construction en échec | L'onglet dit que la source est absente |
+
+La date vient de la table `source`, ligne `senat.db`, écrite seulement à la fin
+d'une construction complète. `etat.json` la publie sous `senatVuLe`, et les
+deux écrans du Sénat l'affichent quand ce n'est pas le jour de la publication —
+**la page ne doit jamais se donner pour plus fraîche qu'elle n'est.**
+
+Deux choses vont avec, côté publication : l'étape reste `continue-on-error`
+(la source est facultative, le reste du site doit se publier), mais le résumé
+de l'exécution dit en une ligne si le Sénat n'a pas pu être relu. Et le cache
+a **deux clés de repli**, dont `senat-` tout court : un changement de règles ne
+doit plus faire perdre la base de la veille, ce qui est précisément ce qui a
+transformé une source cassée en page blanche.
+
+#### Une source peut mentir sur ce qu'elle est
+
+`senat.lire_csv_senat` refuse un fichier dont la première ligne commence par
+`<` (`PAS_UN_CSV`). **Un code HTTP et un type de contenu ne prouvent rien** :
+ce jour-là, les deux étaient parfaits. Une page web servie en CSV est donc une
+source **absente** — zéro ligne — et non un en-tête de colonnes exotique. C'est
+la même idée que `page_lisible` pour les pages de scrutins ; elle manquait pour
+les fichiers.
+
 ### La base du Sénat, et pourquoi elle est à part
 
 `senat.db` — **4,5 Mo**, construite par `recuperer_senat.py` selon les règles de

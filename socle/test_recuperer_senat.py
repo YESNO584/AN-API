@@ -7,6 +7,7 @@
 import pathlib
 import sqlite3
 import sys
+import tempfile
 import unittest
 
 import recuperer_senat as rs
@@ -199,6 +200,135 @@ class LeFiletDesCouleurs(unittest.TestCase):
             _json.dump(mauvais, f)
         g = senat.couleurs_de_secours(pathlib.Path(f.name))
         self.assertEqual(g, {"BON": {"nom": "Bon", "couleur": "#A1B2C3"}})
+
+
+class LaBaseSeConstruitACote(unittest.TestCase):
+    """**Une reconstruction qui échoue ne doit rien coûter au site.**
+
+    Le 2026-10-06, `data.senat.fr` a rendu une page web à la place des deux
+    fichiers de sénateurs. La construction écrivait directement dans la base
+    publiée : elle s'est arrêtée, a laissé une base vide, et l'onglet « Sénat »
+    a perdu d'un coup la composition, le calendrier et les 30 sujets — sans que
+    la publication, marquée « réussie », le signale.
+
+    Ces tests tiennent le garde-fou : **ce qui sort du chantier doit valoir
+    mieux que ce qu'il remplace, sinon on garde la veille.**
+    """
+
+    def poser(self, chemin, senateurs=348, dossiers=12450, themes=17185):
+        cx = sqlite3.connect(chemin)
+        cx.executescript(SCHEMA.read_text(encoding="utf-8"))
+        cx.executemany("INSERT INTO senateur (matricule, nom) VALUES (?,?)",
+                       [(str(i), f"S{i}") for i in range(senateurs)])
+        cx.executemany("INSERT INTO dossier_senat (signet) VALUES (?)",
+                       [(f"ppl-{i}",) for i in range(dossiers)])
+        cx.executemany("INSERT INTO theme_senat (signet, theme, rang)"
+                       " VALUES (?,?,0)",
+                       [(f"ppl-{i}", "Justice") for i in range(themes)])
+        cx.commit(); cx.close()
+
+    def setUp(self):
+        self.dossier = pathlib.Path(tempfile.mkdtemp())
+        self.vieille = self.dossier / "senat.db"
+        self.neuve = self.dossier / "senat.db.chantier"
+
+    def test_une_base_sans_senateurs_ne_remplace_rien(self):
+        # Le cas exact du 2026-10-06 : la source des sénateurs rend une page
+        # web, la base se construit mais n'a personne dedans.
+        self.poser(self.vieille)
+        self.poser(self.neuve, senateurs=0)
+        self.assertIn("composition",
+                      rs.assez_pour_remplacer(self.neuve, self.vieille))
+
+    def test_une_premiere_base_vide_ne_se_publie_pas_non_plus(self):
+        # **C'est le cas qui est arrivé**, et le seul que la comparaison avec
+        # la veille ne peut pas attraper : le cache venait d'être perdu, il n'y
+        # avait donc aucune base d'hier à comparer. Sans ce contrôle, une base
+        # neuve et vide se publiait et vidait l'onglet « Sénat ».
+        self.poser(self.neuve, senateurs=0)
+        self.assertFalse(self.vieille.exists())
+        self.assertIn("composition",
+                      rs.assez_pour_remplacer(self.neuve, self.vieille))
+
+    def test_une_base_sans_sujets_ne_remplace_rien(self):
+        self.poser(self.vieille)
+        self.poser(self.neuve, themes=0)
+        self.assertIn("sujets",
+                      rs.assez_pour_remplacer(self.neuve, self.vieille))
+
+    def test_une_chute_brutale_ne_remplace_rien(self):
+        # Une source à moitié lue : 100 sénateurs sur 348. Ce n'est pas une
+        # actualité du Parlement, c'est une source abîmée.
+        self.poser(self.vieille)
+        self.poser(self.neuve, senateurs=100)
+        souci = rs.assez_pour_remplacer(self.neuve, self.vieille)
+        self.assertIsNotNone(souci)
+        self.assertIn("348", souci)
+
+    def test_une_base_complete_remplace(self):
+        self.poser(self.vieille)
+        self.poser(self.neuve, senateurs=349, dossiers=12460)
+        self.assertIsNone(rs.assez_pour_remplacer(self.neuve, self.vieille))
+
+    def test_une_variation_normale_passe(self):
+        # Un sénateur qui démissionne ne doit pas bloquer la publication.
+        self.poser(self.vieille)
+        self.poser(self.neuve, senateurs=347)
+        self.assertIsNone(rs.assez_pour_remplacer(self.neuve, self.vieille))
+
+    def test_la_premiere_construction_n_a_rien_a_depasser(self):
+        self.poser(self.neuve)
+        self.assertIsNone(rs.assez_pour_remplacer(self.neuve, self.vieille))
+
+    def test_une_base_illisible_ne_remplace_rien(self):
+        self.poser(self.vieille)
+        self.neuve.write_bytes(b"ceci n'est pas une base")
+        self.assertIn("lisible",
+                      rs.assez_pour_remplacer(self.neuve, self.vieille))
+
+
+class UneSourceQuiNEnEstPlusUne(unittest.TestCase):
+    """Le pire genre de panne : `200 OK`, `Content-Type: text/csv`, et du HTML.
+
+    C'est ce que `data.senat.fr` a servi le 2026-10-06 pour ses deux fichiers
+    de sénateurs. Rien ne clochait, sauf le contenu.
+    """
+
+    def ecrire(self, texte):
+        f = self.dossier / "essai.csv"
+        f.write_text(texte, encoding="latin-1")
+        return f
+
+    def setUp(self):
+        self.dossier = pathlib.Path(tempfile.mkdtemp())
+
+    def test_une_page_web_servie_en_csv_ne_rend_aucune_ligne(self):
+        page = ("<!DOCTYPE html>\n<head><link rel=\"stylesheet\" href=\"/x.css\" />"
+                "</head>\n<body>Erreur</body>\n")
+        self.assertEqual(senat.lire_csv_senat(self.ecrire(page)), [])
+
+    def test_les_autres_formes_de_page_sont_vues_aussi(self):
+        for tete in ("<html>", "<?xml version=\"1.0\"?>", "  <!doctype HTML>",
+                     "<head>", "<body>"):
+            self.assertEqual(
+                senat.lire_csv_senat(self.ecrire(tete + "\nsuite\n")), [])
+
+    def test_un_vrai_csv_se_lit_toujours(self):
+        vrai = "Matricule,Nom usuel\n21071F,Aeschlimann\n"
+        self.assertEqual(senat.lire_csv_senat(self.ecrire(vrai)),
+                         [{"Matricule": "21071F", "Nom usuel": "Aeschlimann"}])
+
+    def test_un_csv_dont_une_valeur_ressemble_a_du_html_se_lit(self):
+        # La garde porte sur l'en-tête, pas sur le contenu : une colonne qui
+        # contiendrait une balise ne doit pas faire jeter le fichier.
+        vrai = "Matricule,Note\n21071F,<b>gras</b>\n"
+        self.assertEqual(len(senat.lire_csv_senat(self.ecrire(vrai))), 1)
+
+    def test_un_historique_vide_ne_fait_pas_tomber_la_lecture(self):
+        # Sans la garde, ce fichier levait `KeyError: 'Matricule'` et arrêtait
+        # toute la construction.
+        page = "<!DOCTYPE html>\n<body>Erreur</body>\n"
+        self.assertEqual(rs.lire_historique(self.ecrire(page)), {})
 
 
 if __name__ == "__main__":

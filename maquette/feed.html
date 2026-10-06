@@ -1447,6 +1447,21 @@ function avisDeVeille(vuLe, quoi, poids) {
     + `matin.`);
 }
 
+/* Le même avis pour le Sénat, dont les données ne viennent pas d'une archive
+   mais de quatre sources. **La page ne doit jamais se donner pour plus fraîche
+   qu'elle n'est** : quand la reconstruction échoue, celles de la veille
+   restent affichées, et il faut le dire. */
+function avisDuSenat() {
+  if (!ETAT.senatVuLe || !ETAT.genereLe) return null;
+  const jour = (iso) => String(iso).slice(0, 10);
+  if (jour(ETAT.senatVuLe) === jour(ETAT.genereLe)) return null;
+  return el("p", "avertissement",
+    `Les données du Sénat datent du `
+    + `${dateLongue.format(enDate(jour(ETAT.senatVuLe)))} : ses sources n'ont `
+    + `pas pu être relues depuis. Rien n'a été effacé, et le reste du site est `
+    + `à jour. La récupération est retentée chaque matin.`);
+}
+
 // Les six étapes du parcours, pour la frise. « Promulguée » n'en fait pas
 // partie : c'est l'après, pas une septième étape.
 const PARCOURS = ETAPES.filter((e) => e.n !== PROMULGUEE && e.n !== ARRETE)
@@ -4701,6 +4716,9 @@ async function ouvrirCompositionSenat(sigle = null) {
   sous.append(aide);
   f.append(sous);
 
+  const veille = avisDuSenat();
+  if (veille) f.append(veille);
+
   const zone = el("div", "hemicycle");
   f.append(zone);
   const svg = dessinerHemicycle(groupes, places);
@@ -4821,6 +4839,8 @@ async function ouvrirCalendrierSenat() {
     `${nb.format(evenements.length)} séance${evenements.length > 1 ? "s" : ""} `
     + `annoncée${evenements.length > 1 ? "s" : ""}, sur `
     + `${nb.format(jours.length)} jour${jours.length > 1 ? "s" : ""}.`));
+  const veille = avisDuSenat();
+  if (veille) f.append(veille);
 
   const source = {
     mois: () => mois,

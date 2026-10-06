@@ -1294,6 +1294,10 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         # faut-il le dire, sans quoi la page se donnerait pour plus fraîche
         # qu'elle n'est. C'est l'horodatage du dernier téléchargement réussi.
         "amendementsVusLe": vu_le(cx, extraction.URL_AMENDEMENTS),
+        # Et de quand datent les données du Sénat. Même raison : une
+        # reconstruction qui échoue n'efface plus la base de la veille — mais
+        # la page ne doit pas se donner pour plus fraîche qu'elle n'est.
+        "senatVuLe": vu_le(senat_cx, "senat.db") if senat_cx else None,
         "textesEnCours": comptes.get(extraction.EN_COURS, 0),
         "promulgues": comptes.get(extraction.PROMULGUE, 0),
         "scrutins": cx.execute("SELECT COUNT(*) n FROM vote").fetchone()["n"],

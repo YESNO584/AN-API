@@ -289,14 +289,27 @@ def lire_csv_senat(chemin: pathlib.Path) -> list[dict]:
 
     On prend donc celui qui découpe l'en-tête en le plus de colonnes : c'est
     une mesure, pas une devinette.
+
+    **Et un quatrième, mesuré le 2026-10-06 : le fichier peut ne pas être un
+    fichier.** Ce jour-là, `data.senat.fr` a rendu une **page web** pour les
+    deux fichiers de sénateurs — `200 OK`, `Content-Type: text/csv`, 4,9 Ko de
+    HTML. Rien ne clochait, sauf le contenu. Le lecteur prenait
+    `<!DOCTYPE html>` pour un en-tête et la publication s'arrêtait sur un
+    `KeyError: 'Matricule'`. Une source qui n'est pas ce qu'elle annonce est
+    une **source absente** : on rend une liste vide, comme pour une page de
+    scrutins refaite.
     """
     with chemin.open(encoding="latin-1", newline="") as f:
         lignes = [l for l in f if not l.startswith("%")]
-    if not lignes:
+    if not lignes or PAS_UN_CSV.match(lignes[0]):
         return []
     separateur = max((",", ";", "\t"),
                      key=lambda c: len(next(csv.reader([lignes[0]], delimiter=c))))
     return list(csv.DictReader(lignes, delimiter=separateur))
+
+
+# Ce qu'une page web met en tête, et qu'aucun en-tête de CSV ne porte.
+PAS_UN_CSV = re.compile(r"\s*<(?:\?xml|!DOCTYPE|html|head|body)\b", re.I)
 
 
 # ------------------------------------------------------- les thèmes d'un texte

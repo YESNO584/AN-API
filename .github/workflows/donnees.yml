@@ -182,7 +182,19 @@ jobs:
         with:
           path: socle/senat.db
           key: senat-${{ env.REGLES }}-${{ github.run_id }}
-          restore-keys: senat-${{ env.REGLES }}-
+          # **Deux clés de repli, et la seconde est celle qui comptait.** La
+          # première retrouve une base bâtie avec les mêmes règles. La seconde,
+          # `senat-`, retrouve **n'importe quelle base précédente**, y compris
+          # d'avant un changement de règles : le 2026-10-06, une modification
+          # des règles a fait perdre la base de la veille, et une source
+          # cassée le même matin a vidé l'onglet « Sénat » du site. Le schéma
+          # n'est pas un obstacle — `recuperer_senat.py` construit sa base
+          # **à côté**, avec le schéma du jour, et ne remplace celle-ci qu'en
+          # cas de succès complet. Une base ancienne ne peut donc que servir
+          # de point de départ ou de secours, jamais casser la publication.
+          restore-keys: |
+            senat-${{ env.REGLES }}-
+            senat-
 
       # Facultative, comme le droit consolidé : sans elle, tout le reste se
       # publie et l'application n'affiche simplement ni les votes du Sénat, ni
@@ -192,11 +204,44 @@ jobs:
       # texte, qu'aucun fichier d'open data ne publie. Une page se refait, donc
       # `senat.page_lisible` veille — une page qui a changé de forme devient
       # une source absente, et non « zéro vote au Sénat ».
+      #
+      # **`continue-on-error` ne coûte plus la base.** Le programme construit
+      # à côté et ne remplace qu'en cas de succès complet : un échec ici laisse
+      # la base de la veille intacte, et `senatVuLe` dit à l'écran de quand
+      # elle date. Sans cela, le 2026-10-06, une source du Sénat rendant une
+      # page web au lieu d'un CSV a fait disparaître du site la composition, le
+      # calendrier et les 30 sujets — sans que rien ne le signale.
       - name: Récupérer les votes et la composition du Sénat
         working-directory: socle
         continue-on-error: true
         timeout-minutes: 20
         run: python recuperer_senat.py
+
+      # Un échec de l'étape précédente n'arrête pas la publication — mais il ne
+      # doit pas passer inaperçu non plus. Une ligne dans le résumé suffit :
+      # c'est là qu'on regarde quand quelque chose manque à l'écran.
+      - name: Dire si le Sénat n'a pas pu être relu
+        if: always()
+        working-directory: socle
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import datetime as dt, pathlib, sqlite3
+          base = pathlib.Path("senat.db")
+          if not base.exists():
+              print("### Sénat : aucune base\n")
+              raise SystemExit
+          cx = sqlite3.connect(base)
+          l = cx.execute("SELECT vu_le FROM source WHERE url = 'senat.db'").fetchone()
+          quand = (l[0] if l else "")[:10]
+          jour = dt.date.today().isoformat()
+          if quand == jour:
+              print(f"### Sénat : à jour ({quand})\n")
+          else:
+              print(f"### ⚠️ Sénat : données du {quand or 'jour inconnu'}, "
+                    f"pas de ce matin\n")
+              print("La base de la veille a été gardée — rien n'a été effacé. "
+                    "La page le dit à l'écran.\n")
+          PY
 
       # Le droit consolidé se garde d'un jour sur l'autre. La première passe lit
       # un socle de 1,1 Go — quinze minutes, mesurées — et n'a pas à être

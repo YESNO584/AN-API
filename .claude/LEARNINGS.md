@@ -1235,3 +1235,47 @@ Un détail qui a sa valeur : le test écrit pour la parade n° 2 a trouvé un vr
 trou dans la parade elle-même — un fichier de secours contenant une liste JSON
 faisait tomber la publication entière. **Un filet qui casse ne doit pas faire
 tomber ce qu'il devait rattraper.**
+
+### Reconstruire en place, c'est détruire avant de savoir si on peut refaire
+
+Trois jours de suite, la même panne sous trois formes : une source du Sénat
+tombe, et le site perd des données qu'il avait déjà. Le 5 octobre, les
+couleurs des groupes. Le 6, **toute la base** — composition, calendrier,
+30 sujets — pendant que la publication se déclarait « réussie ».
+
+Les deux premières fois j'ai corrigé l'endroit précis : garder la couleur,
+garder la ligne. C'était traiter le symptôme. La vraie question, posée par
+l'utilisateur, était : *quel intérêt de tout reconstruire et de détruire
+l'existant ?*
+
+**La règle qui remplace les rustines : on construit à côté, et on ne remplace
+qu'après avoir vérifié que le résultat vaut mieux.** Concrètement :
+
+1. Copier l'existant vers un chantier — pas repartir de zéro, sinon on
+   redemande tout à la source chaque matin.
+2. Travailler sur le chantier. Un échec n'y coûte rien.
+3. **Comparer avant de remplacer** : des tables vitales non vides, et pas de
+   chute brutale par rapport à la veille. Un `os.replace` atomique à la fin.
+4. Dire à l'écran de quand datent les données si elles ne sont pas du jour.
+
+Ce qu'il faut voir venir : **une source facultative qui écrit directement dans
+ce qui est publié.** Le mot « facultative » dit qu'elle peut manquer ; il ne
+dit rien de ce qu'elle emporte en manquant.
+
+### Une source peut mentir sur ce qu'elle est
+
+`data.senat.fr` a servi une page web pour un CSV : `200 OK`,
+`Content-Type: text/csv`, 4,9 Ko de HTML. Aucun signal n'était faux sauf le
+contenu. Le lecteur a pris `<!DOCTYPE html>` pour un en-tête de colonnes et
+la construction s'est arrêtée sur `KeyError: 'Matricule'`.
+
+**Un code HTTP et un type de contenu ne prouvent rien.** Ce qui prouve, c'est
+de regarder les premiers octets : un CSV ne commence pas par `<`. Le projet
+avait déjà cette idée pour les pages du Sénat (`page_lisible`) ; elle manquait
+pour ses fichiers.
+
+Et le test qui l'a vérifiée a servi deux fois : il a aussi montré qu'un de mes
+garde-fous était **aveugle** — le refus d'une base vide passait toujours,
+parce qu'un autre contrôle l'attrapait d'abord. Le seul cas où il compte
+vraiment est celui qui est arrivé : une première construction, sans base de la
+veille à comparer.
