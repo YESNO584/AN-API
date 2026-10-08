@@ -1,15 +1,4 @@
-/* Le fil et ses trois onglets : les colonnes, la frise du bas, le compteur, le passage d'une colonne à l'autre. */
-
-function changerDOnglet(cle) {
-  if (cle === ONGLET) return;
-  ONGLET = cle;
-  nommerLesBoutons();
-  if (!$("filtres").hidden) {
-    $("filtres").hidden = true;
-    $("bascule").setAttribute("aria-expanded", "false");
-  }
-  dessiner();
-}
+/* Le fil : le compteur, les colonnes et leurs copies du tour sans fin, les onglets du bas, la frise. */
 
 /* Le compteur dit ce qu'il compte, et chaque onglet compte autre chose. */
 function compteDe(liste) {
@@ -65,78 +54,7 @@ function filVide() {
   return "Aucun texte à afficher.";
 }
 
-/* Les trois onglets se dessinent pareil : la même liste filtrée, le même
-   compteur, le même badge, les mêmes colonnes. Seul ce que chacun déclare dans
-   `VUES` les sépare. */
-function dessiner(garderPosition = false) {
-  const y = garderPosition ? window.scrollY : 0;
-  const liste = VUES[ONGLET].liste();
-  compteDe(liste);
-
-  const b = $("bascule");
-  b.textContent = "Filtres";
-  const actifs = combienActifs();
-  if (actifs) b.append(el("span", "n", String(actifs)));
-  if (!$("filtres").hidden) dessinerFiltres();
-
-  const fil = $("fil");
-  fil.textContent = "";
-  if (!liste.length) {
-    fil.append(el("div", "vide", filVide()));
-    CATEGORIES = [];
-    // La barre du bas reste : c'est par ses onglets qu'on repart.
-    dessinerFriseBas(null);
-    return;
-  }
-
-  dessinerColonnes(liste);
-  window.scrollTo(0, garderPosition ? y : 0);
-}
-
-/* ---------- les colonnes ---------- *
- * Une colonne par catégorie d'étape, côte à côte, **dans l'ordre du parcours** :
- * le dépôt à gauche, la promulgation à droite. Le fil se lit donc comme une
- * frise, de la plus ancienne étape à la plus récente. Une seule colonne est
- * visible ; on passe à la suivante en faisant glisser, ou avec les flèches.
-
- *
- * Chaque colonne charge ses textes par paquets, pour elle seule. Un compteur
- * commun à tout le fil ne marcherait plus ici : les dernières colonnes
- * resteraient vides jusqu'à ce qu'on ait tout affiché dans les premières.
- * ------------------------------------------------------------------ */
-
-// Les textes rangés par étape, les colonnes remises dans l'ordre du parcours.
-// L'ordre des textes *à l'intérieur* d'une colonne ne bouge pas : c'est celui
-// de la liste, déjà triée. Les étapes sans texte n'ont pas d'entrée — une
-// colonne vide ne s'affiche pas.
-function parCategorie(liste) {
-  const paquets = new Map();
-  for (const t of liste) {
-    const cle = vue().categorieDe(t);
-    if (!paquets.has(cle)) paquets.set(cle, []);
-    paquets.get(cle).push(t);
-  }
-  const ordre = vue().ordre();
-  const rangDe = (cle) => {
-    const i = ordre.findIndex((c) => vue().cleDe(c) === cle);
-    return i === -1 ? ordre.length : i;
-  };
-  return [...paquets.entries()].sort((a, x) => rangDe(a[0]) - rangDe(x[0]));
-}
-
 const vraiesColonnes = () => $("fil").querySelectorAll(".colonne:not(.fantome)");
-
-// Le tour est sans fin : après la dernière catégorie vient la première.
-function versColonne(rang, glisser = true) {
-  const fil = $("fil");
-  const colonnes = vraiesColonnes();
-  if (!colonnes.length) return;
-  const n = colonnes.length;
-  const cible = colonnes[((rang % n) + n) % n];
-  // `offsetLeft` est mesuré depuis le fil, qui est positionné (CSS
-  // `position: relative`) — donc directement utilisable comme défilement.
-  fil.scrollTo({ left: cible.offsetLeft, behavior: glisser ? "smooth" : "auto" });
-}
 
 function fleche(signe, ou, rang) {
   const b = el("button", "fleche", signe);
@@ -184,7 +102,7 @@ function colonne(cle, textes, rang) {
   const paquetSuivant = () => {
     const ancienBouton = col.querySelector(".plus");
     if (ancienBouton) ancienBouton.remove();
-    for (const t of textes.slice(montres, montres + PAR_PAQUET)) col.append(vue().carte(t));
+    for (const t of textes.slice(montres, montres + PAR_PAQUET)) col.append(carteDe(t));
     montres = Math.min(montres + PAR_PAQUET, textes.length);
     const reste = textes.length - montres;
     if (reste > 0) {
@@ -222,33 +140,6 @@ function poserLesCopies(fil) {
   fil.append(copier(colonnes[0]));
 }
 
-function surveillerLeTour(fil) {
-  let minuteur = null;
-  fil.addEventListener("scroll", () => {
-    clearTimeout(minuteur);
-    // On attend l'immobilité : sauter pendant le geste le couperait net.
-    suivreLaFrise();
-    minuteur = setTimeout(() => {
-      const colonnes = [...vraiesColonnes()];
-      if (colonnes.length < 2) return;
-      const premiere = colonnes[0], derniere = colonnes[colonnes.length - 1];
-      if (fil.scrollLeft < premiere.offsetLeft / 2) {
-        fil.scrollTo({ left: derniere.offsetLeft, behavior: "auto" });
-      } else if (fil.scrollLeft > derniere.offsetLeft + derniere.offsetWidth / 2) {
-        fil.scrollTo({ left: premiere.offsetLeft, behavior: "auto" });
-      }
-    }, 120);
-  }, { passive: true });
-}
-
-// La catégorie la plus avancée du parcours : celle sur laquelle le fil
-// s'ouvre. C'est là que se passe l'actualité — les 1 729 textes restés au
-// dépôt sont à un glissement de là, vers la gauche. « Arrêté en chemin » ne
-// compte pas : ce n'est pas une étape mais une sortie de route.
-function colonneDOuverture(categories) {
-  return vue().ouverture(categories);
-}
-
 /* ---------- la frise du bas ---------- *
  * Sept traits : les six étapes du parcours, puis la promulgation, en vert.
  * Ils disent où l'on est et servent à s'y rendre. « Arrêté en chemin » n'a
@@ -256,10 +147,6 @@ function colonneDOuverture(categories) {
  * le dit en toutes lettres, et on y va en faisant glisser le fil, comme
  * avant. Toucher un trait ou glisser mène au même endroit.
  * ------------------------------------------------------------------ */
-
-// Les catégories affichées, dans l'ordre, telles que la dernière construction
-// les a posées. La frise s'en sert pour savoir où mène chaque trait.
-let CATEGORIES = [];
 
 // Les deux onglets, sous la frise. Ils restent visibles même quand le fil est
 // vide : c'est par eux qu'on repart.
@@ -273,13 +160,6 @@ function dessinerOnglets(barre) {
     onglets.append(b);
   }
   barre.append(onglets);
-}
-
-// La place d'une catégorie dans l'ordre des colonnes de l'onglet courant.
-// Les étapes de l'Assemblée se comparent par leur numéro ; celles du Sénat
-// n'en ont pas, et c'est leur rang qui dit laquelle vient avant l'autre.
-function rangDansLOrdre(cle) {
-  return vue().ordre().findIndex((c) => vue().cleDe(c) === cle);
 }
 
 /* Le trait d'une catégorie sur la frise : passée, en cours, ou vide — et où
@@ -358,62 +238,3 @@ function dessinerFriseBas(cle) {
   barre.append(dit);
   dessinerOnglets(barre);
 }
-
-// La colonne réellement sous les yeux — celle dont le bord gauche est le plus
-// proche du défilement. Les copies du tour sans fin comptent pour la vraie
-// colonne qu'elles représentent, sinon la frise clignoterait au passage.
-function categorieVisible() {
-  const fil = $("fil");
-  const colonnes = [...vraiesColonnes()];
-  if (!colonnes.length) return null;
-  let proche = colonnes[0], ecart = Infinity;
-  for (const c of colonnes) {
-    const d = Math.abs(c.offsetLeft - fil.scrollLeft);
-    if (d < ecart) { ecart = d; proche = c; }
-  }
-  // La clé d'une colonne est un numéro d'étape dans l'onglet des textes, un
-  // nom de catégorie dans celui des travaux. La convertir en nombre dans les
-  // deux cas donnait NaN pour les travaux, et la frise gardait l'étape
-  // précédente au lieu de suivre.
-  const cle = proche.dataset.etape;
-  return ONGLET === "textes" ? Number(cle) : cle;
-}
-
-// La catégorie qu'on regardait au dernier passage. Sert à savoir quand on
-// vient d'en changer — et donc quand remonter en haut.
-let CATEGORIE_VUE = null;
-
-function suivreLaFrise(remonter = true) {
-  const etape = categorieVisible();
-  if (etape === null || (typeof etape === "number" && Number.isNaN(etape))) return;
-  if (etape !== CATEGORIE_VUE) {
-    // Changer d'étape en étant descendu dans la liste déposait le lecteur au
-    // milieu de la nouvelle colonne. Sans animation : sur un changement de
-    // colonne, un déroulé donne l'impression que la page part toute seule.
-    if (remonter && CATEGORIE_VUE !== null && window.scrollY > 0) {
-      window.scrollTo({ top: 0, behavior: "auto" });
-    }
-    CATEGORIE_VUE = etape;
-  }
-  dessinerFriseBas(etape);
-}
-
-function dessinerColonnes(liste) {
-  const fil = $("fil");
-  const categories = parCategorie(liste);
-  CATEGORIES = categories;
-  categories.forEach(([etape, textes], rang) =>
-    fil.append(colonne(etape, textes, rang)));
-  poserLesCopies(fil);
-  const cible = vraiesColonnes()[colonneDOuverture(categories)];
-  if (cible) fil.scrollLeft = cible.offsetLeft;
-  CATEGORIE_VUE = null;
-  suivreLaFrise(false);
-}
-
-
-/* ------------------------------------------------------------------ *
- * La fiche d'un texte
- * ------------------------------------------------------------------ */
-
-const SORTS_AMDT = { "Adopté": "adopte", "Rejeté": "rejete" };

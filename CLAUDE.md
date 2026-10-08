@@ -19,7 +19,7 @@ a pas encore d'application, de base de données ni de dépendances.
 | `docs/sources/` | Ce que valent les sources de données, **mesuré** (étape 0, faite le 2026-08-31) |
 | `socle/` | **Le cœur du code.** Récupère, range, publie. `extraction/` (les règles de lecture, un module par source, testées), `recuperer.py` et ses étapes dans `recuperation/` (le programme quotidien), `publier.py` et ses étapes dans `publication/` (écrit les fichiers mis en ligne), `serveur.py` (développement local seulement), `schema.sql`, `descriptions.json` et `resumes_debats.json` (les deux seules données non publiques du projet, écrites hors ligne — voir la règle ci-dessous). Pour le droit consolidé : `legi/` (les règles, testées) et `recuperer_legi.py`. Pour le Sénat : `senat.py`, `recuperer_senat.py` et ses étapes dans `recuperation_senat/`. Voir `socle/README.md` |
 | `.github/workflows/` | La publication quotidienne des données, exécutée par GitHub |
-| `maquette/` | La maquette de l'étape 1 : `feed.html` (la coquille), `css/` (une feuille par écran) et `js/` (un fichier par responsabilité, des scripts classiques qui partagent la même portée), qui **lit les données publiées par le socle**. Voir `maquette/README.md` |
+| `maquette/` | La maquette de l'étape 1 : `feed.html` (la coquille), `css/` (une feuille par écran) et `js/` rangé en **modèle / vue / contrôleur** — `js/modele/` (le vocabulaire, les données publiées, l'état de l'écran, les règles), `js/vue/` (ce qui dessine, un fichier par écran), `js/controleur/` (l'aiguillage des adresses, les gestes, ce qui se charge à la demande) —, des scripts classiques qui partagent la même portée et **lisent les données publiées par le socle**. Voir `maquette/README.md` |
 | `.claude/` | La configuration Claude Code |
 
 - **La source de vérité des données est l'open data de l'Assemblée
@@ -54,6 +54,20 @@ a pas encore d'application, de base de données ni de dépendances.
   table par table, et la maquette comparée écran par écran dans un
   navigateur (46 écrans, même DOM). `.claude/scripts/decouper.py` déplace des
   définitions Python d'un fichier à un paquet avec leurs imports.
+- **La maquette suit modèle / vue / contrôleur** (2026-10-08), et la
+  frontière est celle-ci : une vue dessine à partir des données et de l'état
+  et **ne les change jamais** ; un geste qui change l'état — `bascule`,
+  `changerDOnglet`, `choisirLeDessin`, `choisirLeMode`, `allerAuMoisVoisin`,
+  `effacerLesFiltres` — est une fonction de `js/controleur/`, que la vue se
+  contente d'accrocher à un bouton ; ce qui se charge à la demande
+  (`versionLue`, `membresDuGroupe`, `moisCharge`) vit dans
+  `js/modele/donnees.js`, et ce qui l'orchestre (`ouvrir…`,
+  `chargerLesChangements`, `montrerLaVue`) dans le contrôleur. `VUES` ne
+  nomme plus de vue : la carte d'un élément se choisit dans `vue/cartes.js`
+  (`carteDe`). `feed.html` charge le modèle, puis les vues, puis les
+  contrôleurs, et `controleur/demarrage.js` porte **toutes** les instructions
+  exécutées au chargement — une fonction appelée au chargement doit être
+  définie dans un script chargé avant.
 - **Aucune donnée du Parlement n'est versionnée.** Les bases
   `socle/parlement.db` et `socle/legi.db`, le dossier `socle/public/` et les
   archives téléchargées sont ignorés par git — ils se reconstruisent avec

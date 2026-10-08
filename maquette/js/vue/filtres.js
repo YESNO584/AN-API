@@ -1,95 +1,4 @@
-/* Le panneau des filtres : ce que chaque onglet applique, compte et dessine. */
-
-function retenus(v = ONGLET) {
-  const mots = normaliser(filtres.mots.trim());
-  const a = (nom) => aLeFiltre(nom, v);
-  return VUES[v].base().filter((t) => {
-    if (a("etat") && filtres.etat && statutDe(t) !== filtres.etat) return false;
-    if (a("etapes") && filtres.etapes.size && !filtres.etapes.has(t.etape)) return false;
-    // L'onglet du Sénat range sur les étapes du Sénat : c'est donc sur
-    // celles-là qu'il filtre, et jamais sur celles de l'Assemblée.
-    if (a("etapesSenat") && filtres.etapesSenat.size
-        && !filtres.etapesSenat.has((t.senat || {}).moment)) return false;
-    if (a("chambres") && filtres.chambres.size
-        && !filtres.chambres.has(t.chambre || "aucune")) return false;
-    if (a("types") && filtres.types.size && !filtres.types.has(t.type)) return false;
-    // Un texte sans thème n'est pas « hors sujet » : il n'est jamais allé au
-    // Sénat, qui est le seul à classer. Le filtre l'écarte, et le dit.
-    if (a("themes") && filtres.themes.size
-        && !(t.themes || []).some((x) => filtres.themes.has(x))) return false;
-    if (a("programme") && filtres.programme && !t.prochaine_date) return false;
-    if (a("vote") && filtres.vote) {
-      const v = filtres.vote;
-      if (v === "tous" && !t.votes) return false;
-      if (v === "ensemble" && !t.voteEnsemble) return false;
-      if (v === "adopte" && !(t.voteEnsemble && t.voteEnsemble.sort === "adopté")) return false;
-      if (v === "rejete" && !(t.voteEnsemble && t.voteEnsemble.sort !== "adopté")) return false;
-    }
-    if (a("activite") && filtres.activite) {
-      const seuil = ACTIVITE[filtres.activite][1];
-      const age = jours(t.date_dernier_mouvement);
-      if (seuil > 0 ? age > seuil : age < -seuil) return false;
-    }
-    if (mots && !normaliser(t.titre).includes(mots)) return false;
-    return true;
-  });
-}
-
-/* Le badge du bouton « Filtres » ne compte que ce que **cet onglet** applique.
-   Sans cette restriction, un filtre d'étape posé dans « Textes » comptait pour
-   un dans « Travaux », qui ne s'en sert pas : le badge annonçait un filtre que
-   le fil ignorait. */
-function combienActifs(v = ONGLET) {
-  const a = (nom) => aLeFiltre(nom, v);
-  return (a("etapes") ? filtres.etapes.size : 0)
-       + (a("etapesSenat") ? filtres.etapesSenat.size : 0)
-       + (a("chambres") ? filtres.chambres.size : 0)
-       + (a("types") ? filtres.types.size : 0)
-       + (a("themes") ? filtres.themes.size : 0)
-       + (a("activite") && filtres.activite ? 1 : 0)
-       + (a("programme") && filtres.programme ? 1 : 0)
-       + (a("vote") && filtres.vote ? 1 : 0)
-       + (a("etat") && filtres.etat ? 1 : 0);
-}
-
-/* ---------- panneau des filtres ---------- */
-function puce(libelle, actif, compte, surClic, explication) {
-  const enveloppe = el("span", "puce-groupe");
-  const b = el("button", "puce");
-  b.setAttribute("aria-pressed", actif ? "true" : "false");
-  b.append(document.createTextNode(libelle));
-  if (compte != null) b.append(el("span", "c", nb.format(compte)));
-  if (compte === 0) { b.disabled = true; b.setAttribute("aria-pressed", "false"); }
-  b.addEventListener("click", surClic);
-  enveloppe.append(b);
-
-  // Un bouton séparé pour l'explication : sur un téléphone il n'y a ni
-  // survol ni clic droit, et le toucher est déjà pris par le filtre.
-  if (explication) {
-    const aide = el("button", "aide", "ⓘ");
-    aide.setAttribute("aria-label", "Que veut dire « " + libelle + " » ?");
-    aide.addEventListener("click", (e) => {
-      e.stopPropagation();
-      expliquer(explication[0], explication[1], explication[2] || libelle);
-    });
-    enveloppe.append(aide);
-  }
-  return enveloppe;
-}
-
-function groupe(titre, contenu) {
-  const g = el("div", "groupe");
-  g.append(el("div", "titre", titre));
-  const p = el("div", "puces");
-  contenu.forEach((c) => p.append(c));
-  g.append(p);
-  return g;
-}
-
-function bascule(ensemble, valeur) {
-  ensemble.has(valeur) ? ensemble.delete(valeur) : ensemble.add(valeur);
-  dessiner();
-}
+/* Le panneau des filtres : un groupe de puces par filtre, et le bouton qui efface tout. */
 
 /* Les six étapes du parcours. */
 function groupeEtapes(base, compteur) {
@@ -235,16 +144,7 @@ function groupeCalendrier(base, compteur) {
 function boutonToutEffacer() {
   const effacer = el("button", "effacer", "Tout effacer");
   effacer.disabled = combienActifs() === 0 && !filtres.mots;
-  // « Tout » veut dire tout, y compris les filtres des autres onglets : ils
-  // restent posés quand on change d'onglet, et ce bouton est le seul endroit
-  // d'où les défaire.
-  effacer.addEventListener("click", () => {
-    filtres.etapes.clear(); filtres.etapesSenat.clear();
-    filtres.chambres.clear(); filtres.types.clear(); filtres.themes.clear();
-    filtres.activite = null; filtres.programme = false; filtres.vote = null;
-    filtres.etat = null; filtres.mots = "";
-    $("recherche").value = ""; dessiner();
-  });
+  effacer.addEventListener("click", effacerLesFiltres);
   return effacer;
 }
 
@@ -274,8 +174,3 @@ function dessinerFiltres() {
   }
   boite.append(boutonToutEffacer());
 }
-
-/* ---------- une carte ---------- */
-/* Le groupe de l'auteur, en couleur. Un point coloré plutôt qu'une pastille
-   pleine : la couleur d'un groupe n'est qu'une convention d'affichage — voir
-   `groupes.json` — et la donner en fond la ferait passer pour une donnée. */

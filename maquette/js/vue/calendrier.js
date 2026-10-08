@@ -1,47 +1,4 @@
-/* Le calendrier : un mois, une grille de jours, la liste du jour choisi — pour l'une ou l'autre chambre. */
-
-function moisVoisin(mois, pas) {
-  const [a, m] = mois.split("-").map(Number);
-  const d = new Date(a, m - 1 + pas, 1);
-  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
-}
-
-async function moisCharge(mois) {
-  if (MOIS_EN_CACHE.has(mois)) return MOIS_EN_CACHE.get(mois);
-  const d = await lire(`calendrier/${mois}.json`);
-  const evenements = d?.evenements || [];
-  MOIS_EN_CACHE.set(mois, evenements);
-  return evenements;
-}
-
-async function ouvrirAgenda() {
-  const f = ouvrirEcran();
-  const retour = boutonRetour("", "Retour au fil");
-  f.append(retour);
-  f.append(el("h2", "fiche-titre", "Calendrier"));
-
-  if (!AGENDA) AGENDA = await lire("calendrier.json");
-  if (!AGENDA || !(AGENDA.mois || []).length) {
-    f.append(el("div", "vide", "Calendrier indisponible."));
-    return;
-  }
-  f.append(el("p", "fiche-sous",
-    `${nb.format(AGENDA.total)} séances, votes et décisions, de `
-    + moisLong.format(enDate(AGENDA.mois[0].mois + "-01")) + " à "
-    + moisLong.format(enDate(AGENDA.mois[AGENDA.mois.length - 1].mois + "-01")) + "."));
-
-  // On ouvre sur le mois en cours s'il porte quelque chose, sinon sur le
-  // dernier mois qui en porte : un calendrier vide au premier regard ne dit
-  // pas où aller.
-  if (!MOIS_VU) {
-    const connus = AGENDA.mois.map((m) => m.mois);
-    MOIS_VU = connus.includes(moisDe(aujourdhui()))
-      ? moisDe(aujourdhui()) : connus[connus.length - 1];
-  }
-  const zone = el("div");
-  f.append(zone);
-  await dessinerMois(zone, CALENDRIER_AN);
-}
+/* Le calendrier : la barre des mois, la grille des jours, la liste du jour choisi — pour l'une ou l'autre chambre. */
 
 /* La barre des mois : le mois affiché, et une flèche de chaque côté tant
    qu'il y a un mois à voir dans ce sens. */
@@ -51,53 +8,13 @@ function barreDesMois(zone, source, connus) {
     const b = el("button", null, signe);
     b.setAttribute("aria-label", pas < 0 ? "Mois précédent" : "Mois suivant");
     b.disabled = !actif;
-    b.addEventListener("click", async () => {
-      MOIS_VU = moisVoisin(MOIS_VU, pas);
-      JOUR_VU = null;
-      await dessinerMois(zone, source);
-    });
+    b.addEventListener("click", () => allerAuMoisVoisin(zone, source, pas));
     return b;
   };
   barre.append(fleche("‹", -1, MOIS_VU > connus[0]),
                el("b", null, moisLong.format(enDate(MOIS_VU + "-01"))),
                fleche("›", 1, MOIS_VU < connus[connus.length - 1]));
   return barre;
-}
-
-async function dessinerMois(zone, source) {
-  const evenements = await source.charger(MOIS_VU);
-  const connus = source.mois();
-  zone.textContent = "";
-
-  zone.append(barreDesMois(zone, source, connus));
-
-  const parJour = new Map();
-  for (const e of evenements) {
-    if (!parJour.has(e.date)) parJour.set(e.date, []);
-    parJour.get(e.date).push(e);
-  }
-
-  // Le jour choisi se décide **avant** de dessiner la grille : sinon la case
-  // du jour ne serait pas marquée, la grille ayant été construite avant de
-  // savoir lequel montrer.
-  //
-  // **Et il doit porter quelque chose dans *ce* calendrier.** Les deux
-  // chambres partagent `JOUR_VU` : passer du calendrier du Sénat à celui de
-  // l'Assemblée gardait un jour chargé au Sénat et vide à l'Assemblée, qui
-  // rendait une liste vide sous une grille pleine.
-  if (evenements.length
-      && (!JOUR_VU || moisDe(JOUR_VU) !== MOIS_VU || !parJour.has(JOUR_VU))) {
-    // Aujourd'hui s'il porte quelque chose, sinon le premier jour du mois qui
-    // en porte.
-    JOUR_VU = parJour.has(aujourdhui()) ? aujourdhui() : [...parJour.keys()].sort()[0];
-  }
-  zone.append(grilleDuMois(parJour, zone, source));
-
-  if (!evenements.length) {
-    zone.append(el("div", "vide", source.vide));
-    return;
-  }
-  zone.append(listeDuJour(parJour.get(JOUR_VU) || [], source));
 }
 
 /* **Une seule mécanique de calendrier, deux chambres.** La barre des mois, la
@@ -193,17 +110,3 @@ function ligneEvenement(e) {
   }
   return b;
 }
-
-/* ------------------------------------------------------------------ *
- * L'hémicycle : la composition de l'Assemblée
- *
- * Les 577 sièges, coloriés par groupe, de la gauche à la droite. Ce qui est
- * mesuré : l'effectif de chaque groupe (un compte de députés) et l'ordre des
- * groupes (le numéro de siège médian de leurs députés, publié par
- * l'Assemblée). Ce qui est une convention : la place d'un siège dans le
- * dessin — l'open data ne dit pas où chaque député s'assied — et les
- * couleurs. L'écran le dit lui-même, au toucher.
- * ------------------------------------------------------------------ */
-
-const RANGEES = 12;            // rangées d'arcs, du fond de la salle au perchoir
-const CREUX = 0.45;            // rayon de la rangée la plus courte, en part du grand

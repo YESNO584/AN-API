@@ -1,4 +1,9 @@
-/* Une carte du fil — texte, travail — et ses étiquettes : groupe, vote, loi, repère des amendements disputés. */
+/* Une carte du fil — texte, travail — et ses étiquettes : groupe, vote, loi, repère des amendements disputés, ce que la loi change. */
+
+/* ---------- une carte ---------- */
+/* Le groupe de l'auteur, en couleur. Un point coloré plutôt qu'une pastille
+   pleine : la couleur d'un groupe n'est qu'une convention d'affichage — voir
+   `groupes.json` — et la donner en fond la ferait passer pour une donnée. */
 
 function etiquetteGroupe(t) {
   const b = el("button", "etiq grp");
@@ -16,14 +21,6 @@ function etiquetteGroupe(t) {
   });
   return b;
 }
-
-/* Les amendements d'un texte que le socle a pu **mesurer** : ceux dont on
-   connaît à la fois le scrutin et le nombre d'orateurs. Ce sont les seuls sur
-   lesquels le repère peut se prononcer. Les deux seuils restent ici, dans la
-   maquette, parce que c'est un choix d'affichage : le socle publie les
-   chiffres et ne tranche rien. */
-const amendementsDisputes = (t) =>
-  (t.amendementsMesurables || []).filter(estDebattu);
 
 /* Le repère du texte entier : il dit qu'au moins un amendement y a été adopté
    de justesse après un long échange, et il mène à la liste de ces
@@ -43,22 +40,6 @@ function repereDisputes(t) {
     + `adopté${disputes.length > 1 ? "s" : ""} de justesse`));
   return a;
 }
-
-function etiquette(classe, libelle, explication, valeur) {
-  const b = el("button", "etiq " + (classe || ""), libelle);
-  b.addEventListener("click", (ev) => {
-    // Dans le parcours, ces étiquettes vivent à l'intérieur d'un dépliant :
-    // sans ça, demander une explication ouvrirait ou fermerait l'étape.
-    ev.preventDefault();
-    expliquer(explication[0], explication[1], valeur ?? libelle);
-  });
-  return b;
-}
-
-
-/* ---------- les votes ---------- */
-const POSITIONS = { pour: "pour", contre: "contre", abstention: "abstention",
-                    "partagé": "partagé" };
 
 function bandeauVote(t) {
   const b = el("button", "vote");
@@ -129,44 +110,6 @@ function ligneDuGroupeAuVote(g) {
   ligne.append(el("span", "detail",
     total ? `${g.pour}/${g.contre}/${g.abstentions}` : "n'a pas voté"));
   return ligne;
-}
-
-async function detailVotes(t) {
-  const e = t.voteEnsemble;
-  const [titre, quoi] = e ? EXPLICATIONS.voteEnsemble : EXPLICATIONS.votesAmendements;
-  expliquer(titre, quoi, e
-    ? `${e.sort} le ${dateLongue.format(enDate(e.date))}`
-    : `${nb.format(t.votes)} votes, aucun sur le texte entier`);
-
-  const zone = el("div", "groupes");
-  zone.append(el("p", "attente", "Chargement du détail par groupe…"));
-  $("info-texte").after(zone);
-
-  try {
-    const detail = await fetch(`${SOCLE}/textes/${t.uid}.json`).then((r) => {
-      if (!r.ok) throw new Error("réponse " + r.status);
-      return r.json();
-    });
-    const votes = detail.votes || [];
-    const principal = votes.find((v) => v.portee === "ensemble") || votes[0];
-    zone.textContent = "";
-    if (!principal) { zone.append(el("p", "attente", "Aucun détail publié.")); return; }
-
-    zone.append(el("p", "objet", principal.objet));
-    const rappel = el("p", "convention");
-    rappel.textContent = "Groupes rangés comme dans l'hémicycle, de la gauche à la droite.";
-    zone.append(rappel);
-
-    zone.append(legendeDesVotes());
-    for (const g of principal.groupes) zone.append(ligneDuGroupeAuVote(g));
-    if (votes.length > 1) {
-      zone.append(el("p", "attente",
-        `Ce texte compte ${nb.format(votes.length)} votes enregistrés en tout.`));
-    }
-  } catch (erreur) {
-    zone.textContent = "";
-    zone.append(el("p", "attente", "Détail indisponible : " + erreur.message));
-  }
 }
 
 /* Les étiquettes de la carte : la chambre, la nature, le groupe de l'auteur,
@@ -292,20 +235,6 @@ function ligneSenat(e) {
   }
   return l;
 }
-
-/* ---------- l'entrée en vigueur, et le lien vers le détail ---------- *
- * Rien n'est rédigé ici à partir de rien : les dates viennent du texte
- * officiel, le nombre d'articles est un compte, et la raison pour laquelle une
- * loi ne change aucun article est son propre type de dossier.
- * ------------------------------------------------------------------ */
-
-// Les lois qui ne modifient aucun article, quand la source dit pourquoi.
-// Seuls les types de dossier qui l'expliquent d'eux-mêmes sont ici ; pour les
-// autres, on constate sans inventer de raison.
-const POURQUOI_SANS_CHANGEMENT = {
-  "Projet de ratification des traités et conventions":
-    "ce texte autorise la ratification d'un traité",
-};
 
 // « l'article » ou « les 12 articles ». L'accord se fait ici, une fois : les
 // libellés écrivaient « les 1 article », qui se lit comme une faute.
@@ -440,7 +369,8 @@ function carteTravail(t) {
   return c;
 }
 
-/* ---------- affichage ---------- */
-/* Changer d'onglet **garde** les filtres et la recherche : ils valent
-   maintenant dans les trois onglets, et chacun n'applique que les siens. Le
-   panneau se referme, parce qu'il ne montre plus les mêmes groupes. */
+/* La carte d'un élément, selon l'onglet : un travail n'a pas la même carte
+   qu'un texte. */
+function carteDe(t) {
+  return ONGLET === "travaux" ? carteTravail(t) : carte(t);
+}

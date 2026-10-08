@@ -1,33 +1,5 @@
 /* Ce qu'une loi promulguée change au droit : la liste des articles, et la fiche d'un article avec ses trois lectures. */
 
-async function ouvrirChangements(uid) {
-  const f = ouvrirEcran();
-  const retour = boutonRetour("#/texte/" + uid, "Retour au texte");
-  f.append(retour);
-  f.append(el("p", "avertissement", "Chargement…"));
-
-  let d;
-  try {
-    d = await lire(`changements/${uid}.json`, true);
-  } catch (e) {
-    f.textContent = "";
-    f.append(retour, el("div", "vide", "Détail indisponible : " + e.message));
-    return;
-  }
-  f.textContent = "";
-  f.append(retour);
-
-  const texte = TEXTES.find((x) => x.uid === uid);
-  f.append(el("h2", "fiche-titre", texte ? texte.titre : "Ce que cette loi change"));
-  const ajouts = d.articlesAjoutes || [];
-  const sous = el("p", "fiche-sous",
-    (d.loi ? "LOI n° " + d.loi + " — " : "")
-    + (ajouts.length ? "ce qu'elle change au droit, et ce qu'elle y ajoute."
-                     : "ce qu'elle change au droit."));
-  f.append(sous);
-  f.append(...contenuDesChangements(uid, d));
-}
-
 /* ---------- l'onglet « Articles » ---------- *
  * Ce que la loi change au droit, en entier dans l'onglet. Avant, l'onglet ne
  * portait qu'un lien vers un écran à part : un aller-retour pour une liste
@@ -63,17 +35,7 @@ function blocChangements(uid, t) {
 
   const attente = el("p", "avertissement", "Chargement de la liste des articles…");
   b.append(attente);
-  return [b, async () => {
-    let d;
-    try {
-      d = await lire(`changements/${uid}.json`, true);
-    } catch (e) {
-      attente.replaceWith(el("div", "vide", "Détail indisponible : " + e.message));
-      return;
-    }
-    attente.remove();
-    b.append(...contenuDesChangements(uid, d));
-  }];
+  return [b, () => chargerLesChangements(uid, b, attente)];
 }
 
 /* La liste elle-même : les compteurs, les articles groupés par code, les
@@ -220,27 +182,6 @@ function ligneArticle(uid, a, retouche = false) {
   return b;
 }
 
-// Comment le texte est montré : les différences, le texte en vigueur seul, ou
-// celui d'avant seul. Le choix se garde d'un article à l'autre.
-let MODE_TEXTE = "diff";
-
-async function ouvrirArticle(uid, identifiant) {
-  const f = ouvrirEcran();
-  const retour = boutonRetour("#/change/" + uid, "Tous les articles");
-  f.append(retour);
-  f.append(el("p", "avertissement", "Chargement…"));
-
-  let a;
-  try {
-    a = await lire(`changements/${uid}/${identifiant}.json`, true);
-  } catch (e) {
-    f.textContent = "";
-    f.append(retour, el("div", "vide", "Article indisponible : " + e.message));
-    return;
-  }
-  dessinerArticle(f, retour, uid, a);
-}
-
 /* Les deux façons de montrer une comparaison — la légende et le texte
  * coloré — servent à deux écrans : un article de loi modifié par une loi
  * promulguée, et une version d'un texte modifiée par la commission ou la
@@ -343,11 +284,7 @@ function basculeDuMode(f, retour, uid, a) {
   for (const [cle, nom] of noms) {
     const b = el("button", null, nom);
     b.setAttribute("aria-pressed", String(MODE_TEXTE === cle));
-    b.addEventListener("click", () => {
-      MODE_TEXTE = cle;
-      dessinerArticle(f, retour, uid, a);
-      window.scrollTo(0, 0);
-    });
+    b.addEventListener("click", () => choisirLeMode(cle, f, retour, uid, a));
     bascule.append(b);
   }
   return bascule;
@@ -388,24 +325,3 @@ function dessinerArticle(f, retour, uid, a) {
                 el("span", null, "Le texte officiel, sur le site du service public."));
   f.append(source);
 }
-
-/* ------------------------------------------------------------------ *
- * Les versions successives d'un texte
- *
- * Un texte de loi n'est pas figé : il est déposé, puis la commission le
- * réécrit, puis la séance le réécrit encore. L'Assemblée publie chacune de
- * ces versions ; l'écran les montre **superposées**, comme les rédactions
- * d'un article de loi — ce qui a été retiré en rouge barré, ce qui a été
- * ajouté en vert.
- *
- * À côté de chaque article changé, **les amendements adoptés sur cet
- * article** : leur numéro, leur auteur, son groupe. Le rapprochement se fait
- * par le numéro d'article, jamais par le texte — dire quel mot vient de quel
- * amendement demanderait d'interpréter l'instruction de l'amendement, donc de
- * fabriquer du texte de loi. Mesuré le 2026-09-18 : 420 amendements adoptés
- * sur 470 tombent sur un article qui a réellement changé, 2 sur un article
- * resté identique — le rapprochement est presque toujours juste, et souvent
- * incomplet. **Un article sans amendement le dit.**
- * ------------------------------------------------------------------ */
-
-// Ce que le compte d'une version annonce, sous son nom, dans le parcours.

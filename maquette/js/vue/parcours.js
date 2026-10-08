@@ -1,95 +1,4 @@
-/* Le parcours d'un texte dans les deux chambres, étape par étape, votes compris — ceux du Sénat à leur date, jamais mêlés. */
-
-function personne(p, role) {
-  const bloc = el("div", "auteur");
-  if (p.photo) {
-    const img = el("img");
-    img.src = p.photo;
-    img.alt = "";
-    img.loading = "lazy";
-    // Toutes les photos ne sont pas en ligne : on remplace sans casser la mise
-    // en page plutôt que d'afficher une image brisée.
-    img.addEventListener("error", () => img.replaceWith(el("div", "sans-photo", "—")));
-    bloc.append(img);
-  } else {
-    bloc.append(el("div", "sans-photo", "—"));
-  }
-  const qui = el("div", "qui");
-  qui.append(el("div", "nom", [p.civilite, p.prenom, p.nom].filter(Boolean).join(" ")));
-  if (role) qui.append(el("div", "role", role));
-  if (p.sigle) {
-    const g = el("div", "grp");
-    const teinte = el("i");
-    if (p.couleur) teinte.style.background = p.couleur;
-    g.append(teinte);
-    g.append(document.createTextNode(p.nom_groupe || p.sigle));
-    qui.append(g);
-  }
-  bloc.append(qui);
-  return bloc;
-}
-
-// Une rubrique de la fiche. Par défaut un dépliant ; `plat` la rend toujours
-// ouverte, pour une rubrique posée dans un onglet — l'onglet a déjà fait le
-// choix de ce qu'on regarde, et il n'y aurait rien à déplier de plus.
-function bloc(titre, ouvert, plat) {
-  if (plat) {
-    const b = el("div", "bloc");
-    b.append(el("h3", null, titre));
-    return b;
-  }
-  const b = el("details", "bloc");
-  if (ouvert) b.open = true;
-  b.append(el("summary", null, titre));
-  return b;
-}
-
-/* ---------- le parcours ---------- */
-
-/* La même étiquette que dans le fil : même forme, mêmes couleurs. Une pastille
-   propre au parcours donnerait deux vocabulaires visuels pour une seule idée. */
-function pastilleChambre(chambre) {
-  return etiquette("chambre-" + (chambre || "aucune"),
-                   CHAMBRES[chambre][0], CHAMBRES[chambre]);
-}
-
-/* Ce que chaque champ publié veut dire. **La valeur affichée, elle, vient des
-   données** : ce tableau ne donne que le nom du champ et son explication —
-   aucune phrase n'y décrit un texte à la place de sa source. */
-const CHAMPS_ETAPE = {
-  organe: ["Qui s'est réuni",
-    "La commission ou l'organe désigné par l'acte. Une chambre travaille d'abord " +
-    "en commission — un groupe restreint de parlementaires spécialisés — avant que " +
-    "le texte n'arrive devant tous les élus."],
-  texteAssocie: ["Le document de cette étape",
-    "Le document parlementaire attaché à l'acte, avec son numéro d'impression. " +
-    "C'est sous ce numéro que le texte circule."],
-  texteAdopte: ["Le texte qui en sort",
-    "La nouvelle version du texte produite par cette étape. C'est elle qui servira " +
-    "de base à l'étape suivante — pas la version précédente."],
-  rapporteurs: ["Le ou les rapporteurs",
-    "Le parlementaire chargé d'examiner le texte au nom de la commission et d'en " +
-    "rendre compte. Son rapport oriente le débat."],
-  provenance: ["D'où vient le document",
-    "La qualification que l'Assemblée donne au document : texte déposé, texte " +
-    "transmis par l'autre chambre…"],
-  saisine: ["Qui a saisi le Conseil constitutionnel",
-    "Le Conseil ne s'autosaisit pas d'une loi ordinaire : il faut que le Président " +
-    "de la République, un président de chambre, ou soixante parlementaires le " +
-    "saisissent."],
-  motif: ["Sur quel fondement",
-    "L'article de la Constitution invoqué pour cette saisine."],
-  decision: ["Le numéro de la décision",
-    "La décision rendue par le Conseil constitutionnel, sous son numéro officiel."],
-  loi: ["Le numéro de la loi",
-    "Une fois promulgué, le texte reçoit un numéro définitif — année et rang dans " +
-    "l'année — sous lequel il sera cité désormais."],
-  journalOfficiel: ["Le Journal officiel",
-    "Le numéro du Journal officiel où la loi a été publiée. La publication est ce " +
-    "qui la rend applicable."],
-  dateJO: ["La date de publication",
-    "Le jour où la loi a paru au Journal officiel."],
-};
+/* Le parcours d'un texte dans les deux chambres, étape par étape, votes compris — ceux du Sénat à leur date, jamais mêlés à ceux de l'Assemblée. */
 
 function valeurChamp(cle, v) {
   const zone = el("div", "val");
@@ -152,12 +61,6 @@ function ligneParcours(e) {
   return li;
 }
 
-// Le numéro que l'objet d'un scrutin nomme : « l'amendement n° 885 (rect.) du
-// Gouvernement à l'article 3 du projet de loi… ». Le premier nommé seulement —
-// un objet qui ajoute « et les amendements identiques suivants » ne dit pas
-// lesquels.
-const NUMERO_D_AMENDEMENT = /(l['’]amendement|le sous-amendement)\s+n°\s*(\d+(?:\s*\(rect[^)]*\))?)/i;
-
 function ligneVoteParcours(v) {
   const li = el("li");
   const d = el("details");
@@ -206,25 +109,6 @@ function ligneVoteParcours(v) {
   return li;
 }
 
-/* Étapes et votes dans un seul fil, par date. Les étapes d'un même jour
-   gardent l'ordre du fichier source ; les votes de ce jour-là viennent
-   ensuite, parce que **l'open data ne dit pas à quel moment de la journée un
-   scrutin a eu lieu** — son champ `referenceLegislative` est vide dans les
-   8 434 scrutins de la législature (mesuré le 2026-08-31). */
-function filDuParcours(d) {
-  const items = [];
-  (d.parcours || []).forEach((e, i) => items.push({ date: e.date, rang: [0, i], e }));
-  (d.votes || []).forEach((v, i) => items.push({ date: v.date, rang: [1, i], v }));
-  // Les scrutins du Sénat, à leur date, **à côté de ceux de l'Assemblée et
-  // jamais mêlés à eux** : chaque ligne dit sa chambre, et rien n'additionne
-  // ni ne compare les deux. Les chiffres viennent de l'open data du Sénat, le
-  // lien avec le texte de ses pages de scrutins publics.
-  (d.votesSenat || []).forEach((v, i) => items.push({ date: v.date, rang: [2, i], s: v }));
-  items.sort((a, b) => a.date.localeCompare(b.date) ||
-                       a.rang[0] - b.rang[0] || a.rang[1] - b.rang[1]);
-  return items;
-}
-
 /* Une ligne de scrutin du Sénat dans le parcours. Elle ne réemploie pas celle
    de l'Assemblée : les deux ne portent pas les mêmes chiffres — le Sénat ne
    publie pas les abstentions au niveau du scrutin — et les faire se ressembler
@@ -264,20 +148,6 @@ function ligneVoteSenat(v) {
   }
   return li;
 }
-
-const PORTEES = {
-  ensemble: ["Vote sur le texte entier",
-    "La chambre s'est prononcée sur l'ensemble du texte. C'est ce vote qui décide " +
-    "si le texte poursuit son chemin."],
-  article: ["Vote sur un article",
-    "La chambre s'est prononcée sur un seul article, pas sur l'ensemble."],
-  amendement: ["Vote sur un amendement",
-    "La chambre s'est prononcée sur une modification proposée au texte."],
-  motion: ["Vote sur une motion",
-    "Un vote de procédure : rejeter le texte avant de l'examiner, ou censurer le Gouvernement."],
-  autre: ["Autre vote", "Un vote qui ne porte ni sur le texte, ni sur un article, ni sur un amendement."],
-};
-const extraction_portee = (p) => (PORTEES[p] || ["Vote"])[0];
 
 function detailVoteConnu(v) {
   expliquer(...(PORTEES[v.portee] || ["Vote", ""]),

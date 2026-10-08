@@ -19,6 +19,41 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-10-08 — La maquette en modèle / vue / contrôleur : ce qui s'est trouvé en rangeant
+
+- **Ranger révèle ce qu'un découpage par numéros de ligne avait laissé en
+  place.** Quatre fichiers finissaient par les constantes du suivant
+  (`amendement.js` portait l'agenda, `fiche_texte.js` les camps du résumé,
+  `fiche_debats.js` la mention d'origine, `calendrier.js` les rangées de
+  l'hémicycle). Un classement par rôle — chaque définition dans un seul des
+  trois dossiers — ne laisse pas ces restes passer : la répartition se fait
+  **nom par nom**, avec un plan exhaustif que le script refuse s'il manque un
+  nom ou s'il en place un deux fois (`tmp/mvc.py`).
+- **Quatre gestes se cachaient dans des vues**, sous la forme d'un écouteur
+  qui changeait l'état et redessinait : effacer les filtres, changer de mois,
+  choisir le dessin de l'hémicycle, choisir la lecture d'un article — plus
+  deux chargements à la demande (une vue du texte, la liste des articles).
+  Ils sont des fonctions du contrôleur ; la vue accroche la fonction au
+  bouton et rien d'autre. Et `VUES` nommait la carte à dessiner : une table
+  du modèle qui désigne une vue est le signe qu'un choix d'affichage est du
+  mauvais côté (`carteDe`, dans la vue).
+- **Un découpeur de scripts classiques doit comprendre trois choses, sinon il
+  avale la moitié d'un fichier** : un motif régulier (`/[’‘]/g` contient un
+  accent grave, pris pour un gabarit), un commentaire en fin de ligne (`let
+  AGENDA = null; // …` ne finit pas par `;`), et un commentaire isolé en fin de
+  fichier, qui décrit le premier bloc du fichier **suivant**
+  (`tmp/blocs_js.py`).
+- **L'ordre de chargement est une contrainte du modèle, pas un détail** : une
+  fonction appelée au chargement doit être définie dans un script chargé avant
+  (`surveillerLeTour($("fil"))`, `fermer`, `charger`). Toutes les instructions
+  exécutées au chargement vivent donc dans `controleur/demarrage.js`, chargé
+  en dernier, et le modèle n'évalue au chargement que des tables.
+- Même preuve que pour la découpe par longueur : 46 écrans comparés dans un
+  navigateur entre la maquette d'avant et celle d'après, sur les mêmes
+  données, DOM identique et aucune erreur. `publier.py` copie `js/` en
+  profondeur (`rglob`) : sans cela, la publication aurait servi une coquille
+  qui appelle des scripts absents.
+
 ## 2026-10-08 — Découper 9 000 lignes sans rien casser : ce qui l'a prouvé, et ce qui a failli
 
 - **La règle est née ici : aucun fichier au-dessus de 500 lignes, aucune

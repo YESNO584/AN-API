@@ -4,12 +4,18 @@
 les mains de quelqu'un pour regarder s'il comprend.
 
 Une page, **`feed.html`**, qui charge ses feuilles de style (`css/`, une par
-écran) et ses scripts (`js/`, un fichier par responsabilité — le vocabulaire,
-les filtres, les cartes, le fil, la fiche et ses onglets, les écrans de la
-loi, du Sénat, du calendrier et de l'hémicycle). Rien d'extérieur au dépôt,
-aucune étape de construction : ce sont des scripts classiques, chargés dans
-l'ordre de la page et partageant la même portée. Elle s'ouvre dans un
-navigateur, au format téléphone.
+écran) et ses scripts (`js/`), rangés en **modèle, vue, contrôleur** :
+
+| Dossier | Ce qu'il porte | Ce qu'il ne fait pas |
+|---|---|---|
+| `js/modele/` | Le vocabulaire (`vocabulaire`, `explications`), les données publiées par le socle et ce qui se charge à la demande (`donnees`), ce que le lecteur a choisi (`etat`), les règles — filtres, ordre des colonnes, recherche sans accent, seuils (`regles`) | Rien n'y touche l'écran |
+| `js/vue/` | Ce qui dessine, un fichier par écran : `aides`, `cartes`, `fil`, `filtres`, `parcours`, `fiche`, `fiche_debats`, `fiche_texte`, `onglets`, `loi`, `versions`, `amendement`, `calendrier`, `senat`, `hemicycle` | Une vue ne change ni les données ni l'état : elle accroche un geste du contrôleur à un bouton |
+| `js/controleur/` | L'aiguillage des adresses et le démarrage (`demarrage`), les gestes du fil et des onglets (`fil`, `onglets`), l'ouverture des écrans et ce qui s'y charge à la demande (`fiche`, `loi`, `chambres`) | Il ne construit pas de DOM lui-même au-delà de l'assemblage |
+
+Rien d'extérieur au dépôt, aucune étape de construction : ce sont des
+scripts classiques, chargés dans l'ordre de la page — modèle, vue,
+contrôleur — et partageant la même portée. Elle s'ouvre dans un navigateur,
+au format téléphone.
 
 **En ligne : <https://yesno584.github.io/AN-API/>** — le socle la publie
 comme page d'accueil à chaque mise à jour des données. C'est la façon la plus
@@ -26,7 +32,7 @@ commission, rapport déposé, en séance, décidé.
 les deux chambres ne découpent pas le parcours pareil, et les faire
 correspondre inventerait un découpage que personne ne publie. Les règles de
 lecture vivent dans `socle/affichage.py` (`ETAPES_SENAT`, `moment_au_senat`) ;
-la formulation à l'écran est dans `js/vocabulaire.js`, comme pour l'Assemblée.
+la formulation à l'écran est dans `js/modele/vocabulaire.js`, comme pour l'Assemblée.
 
 Trois choses à savoir :
 
@@ -443,7 +449,7 @@ corrélation de rang de −0,07, c'est-à-dire rien. Un amendement voté 54 cont
 54 a eu 48 paragraphes de débat, un autre voté 50 contre 50 en a eu 12 ; et le
 plus discuté de la législature — 358 paragraphes, 90 orateurs — a été rejeté
 161 contre 67, sans suspense. Le repère dit donc exactement ce qu'il compte, et
-rien de plus. Les deux seuils sont dans `js/versions.js` (`ECART_DEBATTU`,
+rien de plus. Les deux seuils sont dans `js/modele/regles.js` (`ECART_DEBATTU`,
 `ORATEURS_DEBATTU`), nommés, parce que c'est un
 choix d'affichage : le socle publie les chiffres bruts et ne tranche rien.
 

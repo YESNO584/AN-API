@@ -1,4 +1,8 @@
-/* L'onglet « Texte » : le texte déposé comparé à la version à jour, article par article. */
+/* L'onglet « Texte » : le texte déposé comparé à la version à jour, article par article, et les trois vues qu'on en propose. */
+
+// L'icône de l'origine : une étincelle pour l'IA, une silhouette pour une
+// personne. Dessinée ici plutôt qu'écrite en emoji, dont le rendu change d'un
+// téléphone à l'autre.
 
 function articlesDeLaVersion(d, mode, uid) {
   const zone = el("div");
@@ -49,19 +53,6 @@ function articlesDeLaVersion(d, mode, uid) {
          : "")));
   }
   return zone;
-}
-
-// Le texte demandé, gardé une fois lu : passer d'un bouton à l'autre ne doit
-// pas retélécharger 2,8 Mo. La clé est le nom du fichier, pas le mode — deux
-// des trois vues se dessinent à partir du même.
-const VERSIONS_LUES = new Map();
-
-async function versionLue(uid, nom) {
-  const cle = uid + "/" + nom;
-  if (!VERSIONS_LUES.has(cle)) {
-    VERSIONS_LUES.set(cle, await lire(`versions/${uid}/${nom}.json`));
-  }
-  return VERSIONS_LUES.get(cle);
 }
 
 /* Les vues qu'un texte propose : la version déposée, et — dès qu'il en a deux —
@@ -141,90 +132,21 @@ function blocTexte(uid, versions, plat) {
   }
   const vues = vuesDuTexte(versions);
 
-  const sous = el("p", "sous-texte");
-  const zone = el("div");
-  let boutons = [];
-
-  const montrer = async (vue) => {
-    for (const b2 of boutons) {
-      b2.setAttribute("aria-pressed", String(b2.dataset.cle === vue.cle));
-    }
-    sous.textContent = vue.sous;
-    zone.textContent = "";
-    zone.append(el("p", "avertissement", "Chargement…"));
-    const d = await versionLue(uid, vue.fichier);
-    // Un autre bouton a pu être touché pendant le chargement : ne pas écraser
-    // ce qu'on regarde maintenant par ce qu'on regardait avant.
-    if (sous.textContent !== vue.sous) return;
-    zone.textContent = "";
-    zone.append(d ? articlesDeLaVersion(d, vue.mode, uid)
-                  : el("p", "avertissement", "Texte indisponible."));
-  };
+  const o = { uid, sous: el("p", "sous-texte"), zone: el("div"), boutons: [] };
+  const montrer = (vue) => montrerLaVue(o, vue);
 
   if (vues.length > 1) {
     // Les mêmes trois boutons côte à côte que pour un article de loi : un seul
     // geste à apprendre pour choisir ce qu'on regarde, partout dans la fiche.
-    b.append(basculeDesVues(vues, boutons, montrer));
+    b.append(basculeDesVues(vues, o.boutons, montrer));
   } else {
     b.append(el("p", "avertissement",
       "Une seule version de ce texte est publiée : il n'y a donc rien à "
       + "comparer, et le texte déposé est aussi le texte à jour."));
   }
-  b.append(sous, zone);
+  b.append(o.sous, o.zone);
   // La première vue est demandée à l'ouverture de l'onglet, pas à celle de la
   // fiche : une version pèse jusqu'à 2,8 Mo, et l'onglet n'est pas toujours
   // celui qu'on ouvre.
   return [b, () => montrer(vues[0])];
 }
-
-/* ---------- le résumé des débats ---------- *
- * **La seconde rubrique écrite par une IA**, après la description d'un texte.
- * Elle range les groupes par ce qu'ils ont voté et donne au plus quatre
- * arguments par groupe. Deux choses la tiennent :
- *
- *   — le classement pour / contre vient du **scrutin**, pas de la rédaction :
- *     une phrase d'orateur ne décide jamais d'un vote affiché. Mesuré le
- *     2026-09-02, l'UDR a voté *pour* les soins palliatifs pendant que son
- *     orateur disait « votera contre » — il parlait de l'autre texte du jour ;
- *   — les prises de parole complètes restent affichées en dessous, mot pour
- *     mot. Le résumé s'ajoute, il ne remplace rien.
- * ------------------------------------------------------------------ */
-
-/* Les camps, dans cet ordre. « Partagé » n'est pas un demi-vote : c'est un
-   groupe dont les voix se sont réparties sans majorité claire — le socle le
-   calcule sur le décompte, jamais sur la position annoncée par la source, qui
-   la contredit dans 3 % des cas. */
-const CAMPS = {
-  pour: "Ont voté pour",
-  contre: "Ont voté contre",
-  abstention: "Se sont abstenus",
-  "partagé": "Se sont partagés",
-  aucun_vote: "N'ont pas voté",
-};
-
-const ORIGINE_RESUME = {
-  ia: {
-    mot: "Résumé généré par une intelligence artificielle",
-    court: "Généré par une IA",
-    titre: "Ce résumé est généré par une IA",
-    quoi: "Les arguments de ce résumé ont été écrits par une intelligence " +
-      "artificielle à partir des prises de parole publiées plus bas. Elle " +
-      "peut donc se tromper, ou choisir mal. Les prises de parole, elles, " +
-      "sont recopiées du compte rendu de l'Assemblée, mot pour mot : elles " +
-      "sont sous ce résumé, entières.\n\nCe qui n'est pas écrit par l'IA : " +
-      "le classement « ont voté pour » et « ont voté contre » est relevé dans " +
-      "le scrutin publié par l'Assemblée. Aucune phrase d'orateur ne décide " +
-      "d'un vote affiché — un orateur peut annoncer un vote et son groupe en " +
-      "émettre un autre, et cela s'est vu.",
-  },
-  humain: {
-    mot: "Résumé écrit par une personne",
-    court: "Écrit par une personne",
-    titre: "Ce résumé est écrit par une personne",
-    quoi: "Les arguments de ce résumé ont été rédigés pour cette application " +
-      "à partir des prises de parole publiées plus bas, qui sont recopiées du " +
-      "compte rendu de l'Assemblée, mot pour mot.\n\nLe classement « ont voté " +
-      "pour » et « ont voté contre », lui, est relevé dans le scrutin publié " +
-      "par l'Assemblée.",
-  },
-};
