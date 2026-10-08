@@ -28,6 +28,54 @@ async function ouvrirChangements(uid) {
   f.append(...contenuDesChangements(uid, d));
 }
 
+/* ---------- l'onglet « Articles » ---------- *
+ * Ce que la loi change au droit, en entier dans l'onglet. Avant, l'onglet ne
+ * portait qu'un lien vers un écran à part : un aller-retour pour une liste
+ * qui tient là où on la cherche. L'écran, lui, reste — la carte du fil y mène
+ * toujours, et une adresse partagée continue de l'ouvrir.
+ *
+ * La liste est demandée à l'ouverture de l'onglet, pas à celle de la fiche.
+ * Elle **ne porte aucun texte d'article** — c'est la raison d'être de la
+ * coupure en deux fichiers côté socle — et le texte d'un article n'arrive que
+ * si on ouvre cet article.
+ * ------------------------------------------------------------------ */
+function blocChangements(uid, t) {
+  const b = bloc("Ce que cette loi change", false, true);
+  const c = t.change;
+  const ajouts = (c && c.ajouts) || 0;
+
+  // Rien à charger : la loi ne touche à aucun article et n'en écrit aucun. Le
+  // dire, avec la raison quand la source la porte.
+  if (!c || (!c.total && !ajouts)) {
+    const raison = POURQUOI_SANS_CHANGEMENT[t.type];
+    b.append(el("p", "sans-change", "Ne modifie aucun article de loi existante"
+      + (raison ? " — " + raison + "." : ".")));
+    return [b, null];
+  }
+  // Une loi peut n'amender aucun texte d'avant et pourtant écrire du droit :
+  // c'est le cas des lois de finances, dont presque toute la matière tient
+  // dans leurs propres articles.
+  if (!c.total) {
+    b.append(el("p", "sans-change",
+      "Ne modifie aucun article de loi existante — tout son droit tient dans "
+      + "ses propres articles."));
+  }
+
+  const attente = el("p", "avertissement", "Chargement de la liste des articles…");
+  b.append(attente);
+  return [b, async () => {
+    let d;
+    try {
+      d = await lire(`changements/${uid}.json`, true);
+    } catch (e) {
+      attente.replaceWith(el("div", "vide", "Détail indisponible : " + e.message));
+      return;
+    }
+    attente.remove();
+    b.append(...contenuDesChangements(uid, d));
+  }];
+}
+
 /* La liste elle-même : les compteurs, les articles groupés par code, les
  * retouches, et ce que la loi ajoute. Écrite une fois et posée à deux
  * endroits — l'onglet « Articles » de la fiche et cet écran, atteint depuis

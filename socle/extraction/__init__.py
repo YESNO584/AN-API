@@ -26,12 +26,14 @@ from extraction.sources import (  # noqa: F401
     PREFIXE_DOSSIER_AN, URL_DEBATS, NS_DEBATS,
 )
 from extraction.archives import ESSAIS_SANS_PROGRES, MORCEAU, telecharger  # noqa: F401
+from extraction.actes import (  # noqa: F401
+    CHAMBRES, QUANTIEMES, chambre_du_code, libelle, aplatir, precision_acte,
+    details_acte, numero_etape, fusionner_actes,
+)
 from extraction.dossiers import (  # noqa: F401
-    TYPES_DE_LOI, ETAPES, CHAMBRES, EN_COURS, PROMULGUE, RETIRE, SANS_ACTE,
-    REJETE, NON_ADOPTE, CADUC, FINS_SENAT, QUANTIEMES, chambre_du_code,
-    libelle, aplatir, precision_acte, details_acte, numero_etape,
-    statut_final, fusionner_actes, analyser, est_rejete, lire_senat,
-    cle_senat, lire_archive, lire_reunions, lire_documents,
+    TYPES_DE_LOI, ETAPES, EN_COURS, PROMULGUE, RETIRE, SANS_ACTE, REJETE,
+    NON_ADOPTE, CADUC, FINS_SENAT, statut_final, analyser, est_rejete,
+    lire_senat, cle_senat, lire_archive, lire_reunions, lire_documents,
 )
 from extraction.scrutins import (  # noqa: F401
     ENSEMBLE, ARTICLE, AMENDEMENT, MOTION, AUTRE, PORTEES, classer_portee,
