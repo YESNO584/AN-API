@@ -1,0 +1,313 @@
+/* La fiche d'un texte : son en-tête, ses onglets, ses blocs — et la mise en page large. */
+
+  /* ---------- la fiche d'un texte ---------- */
+  #fiche { padding: 0 var(--marge) 4rem; }
+  .retour {
+    display: inline-flex; align-items: center; gap: .35rem; margin: .9rem 0 .2rem;
+    font: inherit; font-size: .85rem; padding: .4rem .7rem .4rem .5rem;
+    border-radius: 999px; border: 1px solid var(--trait-fort);
+    background: var(--carte); color: var(--gris); cursor: pointer;
+  }
+  .retour:active { border-color: var(--accent); color: var(--accent); }
+  .fiche-titre { font-size: 1.25rem; line-height: 1.3; font-weight: 660;
+                 margin: .8rem 0 .8rem; letter-spacing: -.01em; }
+
+  .auteur { display: flex; align-items: center; gap: .7rem; margin: 1rem 0;
+            background: var(--carte); border: 1px solid var(--trait);
+            border-radius: var(--rayon); padding: .7rem .8rem; }
+  .auteur img { width: 3rem; height: 3.6rem; object-fit: cover; border-radius: 8px;
+                background: var(--doux); flex: 0 0 auto; }
+  .auteur .sans-photo { width: 3rem; height: 3.6rem; border-radius: 8px;
+                        background: var(--doux); display: grid; place-items: center;
+                        color: var(--faible); font-size: 1.1rem; flex: 0 0 auto; }
+  .auteur .qui { min-width: 0; }
+  .auteur .nom { font-weight: 620; font-size: .95rem; }
+  .auteur .role { font-size: .76rem; color: var(--faible); }
+  .auteur .grp { display: inline-flex; align-items: center; gap: .3rem;
+                 font-size: .78rem; margin-top: .25rem; }
+  .auteur .grp i { width: .5rem; height: .9rem; border-radius: 2px; display: block; }
+
+  .bloc { margin-top: 1.6rem; }
+  .bloc > h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em;
+               color: var(--accent); margin: 0 0 .6rem; font-weight: 620; }
+  .bloc .vide { margin-top: 0; }
+
+  .parcours { list-style: none; margin: 0; padding: 0; }
+  .parcours > li { border-bottom: 1px solid var(--trait); }
+  .parcours > li:last-child { border-bottom: none; }
+  /* La ligne d'une version appartient à l'étape du dessus : pas de trait
+     entre les deux, sinon elle passerait pour une étape de plus. */
+  .parcours > li.sans-trait { border-bottom: none; }
+  .parcours .rang { display: flex; gap: .6rem; font-size: .82rem; padding: .45rem 0;
+                    align-items: baseline; cursor: pointer; list-style: none; }
+  .parcours .rang::-webkit-details-marker { display: none; }
+  .parcours .j { width: 5.2rem; flex: 0 0 auto; color: var(--faible);
+                 font-variant-numeric: tabular-nums; }
+  .parcours .q { min-width: 0; flex: 1 1 auto; }
+  .parcours .q b { font-weight: 600; }
+  .parcours .ch { font-size: .74rem; color: var(--gris); margin-top: .15rem;
+                  display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; }
+  .parcours li.avenir { opacity: .65; }
+  .parcours li.avenir .j::after { content: " ▸"; }
+  .parcours .chevron { flex: 0 0 auto; color: var(--faible); font-size: .7rem;
+                       transition: transform .15s; }
+  .parcours details[open] > .rang .chevron { transform: rotate(90deg); }
+
+  /* Ce que l'étape dit d'elle-même. Chaque valeur vient de l'open data.
+     Sur un téléphone, l'intitulé passe au-dessus de la valeur : côte à côte,
+     il ne resterait que six caractères de large pour la valeur. */
+  .champs { margin: 0 0 .7rem 5.8rem; font-size: .8rem; }
+  .champs > div { display: flex; flex-direction: column; gap: .1rem;
+                  padding: .25rem 0; }
+  .champs .cle { align-self: flex-start; }
+  .champs .val { min-width: 0; line-height: 1.45; }
+  .champs .val small { display: block; color: var(--faible); font-size: .74rem;
+                       margin-top: .1rem; }
+  .champs .vide { color: var(--faible); font-style: italic; margin: 0; }
+  .champs .charger { margin-top: .4rem; }
+  @media (min-width: 30rem) {
+    .champs > div { flex-direction: row; gap: .6rem; }
+    .champs .cle { flex: 0 0 9rem; }
+  }
+
+  .bloc > summary { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em;
+                    color: var(--accent); margin: 0 0 .6rem; font-weight: 620;
+                    cursor: pointer; list-style: none; display: flex; gap: .4rem;
+                    align-items: center; }
+  .bloc > summary::-webkit-details-marker { display: none; }
+  .bloc > summary::before { content: "▸"; font-size: .7rem; transition: transform .15s; }
+  .bloc[open] > summary::before { transform: rotate(90deg); }
+
+  /* Les rubriques de fond d'une fiche ne se lisent pas ensemble : on en
+     regarde une à la fois. Des onglets plutôt que des dépliants empilés, pour
+     que ce qui existe se voie d'un coup d'œil au lieu de se découvrir en
+     défilant.
+
+     La barre tient sur une seule ligne et se fait glisser quand les libellés
+     ne tiennent pas tous à l'écran — cinq d'entre eux demandent 346 px quand
+     un écran de 390 px en offre 358, et la largeur d'un libellé dépend de la
+     police du téléphone. L'onglet allumé est toujours ramené à l'écran. */
+  /* `position: relative` sert à la mesure, pas au dessin : sans elle,
+     `offsetLeft` d'un onglet se compterait depuis un autre ancêtre et la barre
+     ne saurait plus si l'onglet allumé est à l'écran. */
+  .onglets-fiche { display: flex; gap: .2rem; margin-top: 1.6rem; position: relative;
+                   border-bottom: 1px solid var(--trait);
+                   overflow-x: auto; overscroll-behavior-x: contain;
+                   scrollbar-width: none; }
+  .onglets-fiche::-webkit-scrollbar { display: none; }
+  .onglets-fiche button {
+    flex: 1 0 auto; font: inherit; font-size: .8rem; font-weight: 600;
+    padding: .55rem .5rem; background: none; cursor: pointer;
+    border: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    color: var(--faible); white-space: nowrap;
+  }
+  .onglets-fiche button[aria-selected="true"] {
+    color: var(--texte); border-bottom-color: var(--accent);
+  }
+
+  /* Les contenus sont posés côte à côte : on passe d'un onglet à l'autre en
+     glissant du doigt, exactement comme d'une colonne du fil à la suivante —
+     même accrochage, même tour sans fin.
+
+     `align-items: flex-start` n'est pas un détail : sans lui chaque panneau
+     s'étirerait à la hauteur de la bande, et la hauteur que le programme y
+     mesure ne serait plus la sienne. Cette hauteur est justement celle du
+     panneau affiché : « Vote » tient sur un écran, « Amendements » sur
+     cinquante, et prendre la hauteur du plus grand laisserait un vide sous
+     tous les autres. */
+  .onglets-corps {
+    display: flex; align-items: flex-start; position: relative;
+    margin: .9rem calc(-1 * var(--marge)) 0;
+    overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    scrollbar-width: none; transition: height .15s;
+  }
+  .onglets-corps::-webkit-scrollbar { display: none; }
+  .panneau { flex: 0 0 100%; min-width: 0; scroll-snap-align: start;
+             padding: 0 var(--marge); }
+  .panneau > .bloc { margin-top: 0; }
+  /* Les copies posées aux deux bouts pour le tour sans fin : elles ne sont là
+     que le temps d'un glissement, et rien ne s'y touche. */
+  .panneau.fantome { pointer-events: none; }
+
+  /* La description du texte. C'est la seule partie de l'application qui ne
+     soit ni recopiée de la source, ni calculée : elle est écrite, aujourd'hui
+     par une IA. D'où le trait de couleur, l'étiquette d'origine et
+     l'explication au toucher — un lecteur doit voir d'un coup d'œil que ces
+     phrases-là n'ont pas le même statut que le reste de la fiche. */
+  .description { background: var(--carte); border: 1px solid var(--trait);
+                 border-left: 3px solid var(--trait-fort);
+                 border-radius: var(--rayon); padding: .75rem .85rem;
+                 margin: .9rem 0; }
+  .description p { margin: 0; font-size: .93rem; line-height: 1.5; }
+  /* Le nom d'usage, en tête : le nom que le texte porte dans la bouche des
+     orateurs, et qui n'est écrit nulle part dans la source. */
+  .description .nom-usage { display: flex; align-items: baseline; gap: .3rem;
+    background: none; border: 0; padding: 0; margin: 0 0 .4rem; cursor: pointer;
+    font: inherit; font-size: .8rem; color: var(--gris); text-align: left; }
+  .description .nom-usage b { font-weight: 640; color: var(--texte);
+    white-space: nowrap; }
+  .description .nom-usage u { text-decoration: none;
+    text-decoration: underline dotted; text-underline-offset: .18em; }
+  .description .nom-usage:active b { color: var(--accent); }
+  /* Le contexte : ce qui se passait avant le texte, un paragraphe au plus.
+     Plus discret que l'accroche, qui reste la phrase qui décide. */
+  .description p.contexte { font-size: .86rem; color: var(--gris);
+    margin-bottom: .45rem; }
+  /* L'accroche porte la phrase, les puces portent les mesures. Le gras
+     distingue les deux sans ajouter de titre, qui ferait une ligne de plus
+     sur un écran déjà court. */
+  .description p.accroche { font-weight: 560; }
+  .description ul { margin: .55rem 0 0; padding-left: 1.05rem; }
+  .description li { font-size: .89rem; line-height: 1.45; margin-top: .3rem;
+                    color: var(--texte); }
+  .description li::marker { color: var(--faible); }
+  /* Repliée, la liste s'arrête à la troisième puce. On cache des puces
+     entières et non un nombre de lignes : mesurée, la description des soins
+     palliatifs occupait 820 px sur un écran de 844, et la fiche entière
+     passait sous le pli. Couper au milieu d'une phrase aurait été pire. */
+  .description ul.replie li:nth-child(n+4) { display: none; }
+  .description .deplier { display: block; margin-top: .45rem; padding: 0;
+                          font: inherit; font-size: .78rem; border: 0;
+                          background: none; color: var(--accent);
+                          cursor: pointer; text-align: left; }
+  .description .origine { display: flex; align-items: center; gap: .3rem;
+                          margin-top: .55rem; padding: 0; font: inherit;
+                          font-size: .74rem; color: var(--gris);
+                          background: none; border: 0; cursor: pointer;
+                          text-align: left; }
+  .description .origine:active { color: var(--accent); }
+  .description .origine svg { width: .95rem; height: .95rem; flex: 0 0 auto;
+                              fill: currentColor; }
+  .description .origine u { text-decoration: none;
+                            border-bottom: 1px dotted currentColor; }
+
+  /* Le résumé des débats reprend le cadre de la description — même statut,
+     même signalement — et y ajoute les camps de vote. */
+  /* L'onglet « Texte » : les trois boutons côte à côte reprennent la bascule
+     d'un article de loi (`.bascule-texte`), et la ligne en dessous dit quelle
+     version on lit et de quand. */
+  .sous-texte { font-size: .78rem; color: var(--gris); line-height: 1.4;
+                margin: 0 0 .7rem; }
+
+  .resume-debats { margin: 0 0 .9rem; }
+  .resume-debats .sur-quel-vote { font-size: .76rem; color: var(--gris);
+                                  line-height: 1.4; }
+  .resume-debats .sur-quel-vote b { color: var(--texte); }
+  .resume-debats .camp { margin-top: .7rem; }
+  .resume-debats .camp h5 { margin: 0 0 .35rem; font-size: .72rem;
+                            font-weight: 700; letter-spacing: .04em;
+                            text-transform: uppercase; color: var(--gris); }
+  .resume-debats .camp.pour h5 { color: var(--ok); }
+  .resume-debats .camp.contre h5 { color: var(--accent); }
+  /* Les orateurs sans groupe : séparés des camps par un trait, parce qu'ils
+     n'en sont pas un. Un ministre ne vote pas. */
+  .resume-debats .camp.orateurs { margin-top: .9rem; padding-top: .7rem;
+                                  border-top: 1px solid var(--trait); }
+  .resume-debats .pourquoi-orateurs { font-size: .76rem; color: var(--gris);
+                                      line-height: 1.4; margin: 0 0 .2rem; }
+  .resume-debats .groupe-dit { margin-top: .45rem; }
+  .resume-debats .qui { display: flex; align-items: baseline; gap: .35rem;
+                        flex-wrap: wrap; }
+  .resume-debats .qui i { width: .4rem; height: .8rem; border-radius: 2px;
+                          background: var(--doux); flex: 0 0 auto;
+                          align-self: center; }
+  .resume-debats .qui b { font-size: .84rem; font-weight: 660; }
+  .resume-debats .qui span { font-size: .72rem; color: var(--faible);
+                             min-width: 0; }
+  .resume-debats ul { margin: .2rem 0 0; padding-left: 1.05rem; }
+  .resume-debats li { font-size: .85rem; line-height: 1.45; margin-top: .25rem; }
+
+  .liens { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+  .liens a { font-size: .8rem; padding: .4rem .7rem; border-radius: 8px;
+             background: var(--doux); color: var(--gris); text-decoration: none; }
+  .liens a::after { content: " ↗"; }
+  .liens a.officiel { background: var(--accent); color: var(--fond); }
+
+  .amdt { background: var(--carte); border: 1px solid var(--trait);
+          border-radius: var(--rayon); padding: .7rem .8rem; margin-bottom: .5rem; }
+  .amdt .tete { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
+                font-size: .74rem; color: var(--gris); margin-bottom: .45rem; }
+  .amdt .num { font-weight: 640; color: var(--texte); }
+  .amdt .sort { padding: .1rem .4rem; border-radius: 5px; background: var(--doux); }
+  .amdt .sort.adopte { color: var(--ok); }
+  .amdt .sort.rejete { color: var(--accent); }
+  .amdt .grp { display: inline-flex; align-items: center; gap: .25rem; }
+  .amdt .grp i { width: .4rem; height: .8rem; border-radius: 2px; display: block; }
+  .amdt .disp { font-size: .84rem; line-height: 1.55; }
+  .amdt .disp .ajout { color: var(--ok); font-weight: 560;
+                       background: color-mix(in srgb, var(--ok) 12%, transparent);
+                       border-radius: 3px; padding: 0 .15rem; }
+  .amdt .disp .retrait { color: var(--accent); text-decoration: line-through;
+                         background: color-mix(in srgb, var(--accent) 12%, transparent);
+                         border-radius: 3px; padding: 0 .15rem; }
+  .amdt .expose { font-size: .78rem; color: var(--gris); margin: .5rem 0 0;
+                  padding-top: .5rem; border-top: 1px solid var(--trait); }
+  /* Ce que les groupes ont dit. Une prise de parole fait 4 260 caractères en
+     médiane : on la replie, on ne la coupe pas — le texte entier est là, et
+     un mot en moins serait un choix de notre part. */
+  .parole { background: var(--carte); border: 1px solid var(--trait);
+            border-left: 3px solid var(--trait-fort);
+            border-radius: var(--rayon); padding: .7rem .8rem; margin-bottom: .5rem; }
+  .parole .tete { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
+                  font-size: .74rem; color: var(--gris); margin-bottom: .45rem; }
+  .parole .qui { font-weight: 640; color: var(--texte); }
+  .parole .grp { display: inline-flex; align-items: center; gap: .25rem; }
+  .parole .grp i { width: .4rem; height: .8rem; border-radius: 2px; display: block; }
+  .parole .quand { margin-left: auto; }
+  .parole .dit { font-size: .84rem; line-height: 1.6; margin: 0;
+                 white-space: pre-wrap; }
+  .parole .dit.replie { display: -webkit-box; -webkit-line-clamp: 4;
+                        -webkit-box-orient: vertical; overflow: hidden; }
+  .parole .plus { display: block; margin-top: .4rem; padding: 0; font: inherit;
+                  font-size: .76rem; border: 0; background: none;
+                  color: var(--accent); cursor: pointer; text-align: left; }
+  /* Les groupes qui ont parlé, dans l'ordre de l'hémicycle. Choisir un groupe
+     ne cache pas les autres paroles : il y saute. */
+  .chips { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .6rem; }
+  .chips button { font: inherit; font-size: .74rem; padding: .25rem .5rem;
+                  border-radius: 999px; border: 1px solid var(--trait);
+                  background: var(--carte); color: var(--gris); cursor: pointer;
+                  display: inline-flex; align-items: center; gap: .3rem; }
+  .chips button[aria-pressed="true"] { border-color: var(--trait-fort);
+                                       color: var(--texte); }
+  .chips button i { width: .4rem; height: .8rem; border-radius: 2px; display: block; }
+
+  .avertissement { font-size: .76rem; color: var(--faible); margin: 0 0 .7rem;
+                   line-height: 1.5; }
+  .charger { width: 100%; padding: .7rem; font: inherit; font-size: .85rem;
+             border-radius: var(--rayon); border: 1px dashed var(--trait-fort);
+             background: transparent; color: var(--gris); cursor: pointer; }
+
+  /* Le bas généreux garde le dernier paragraphe au-dessus de la frise fixe. */
+  footer { padding: 1.5rem var(--marge) calc(6rem + env(safe-area-inset-bottom));
+           font-size: .76rem; color: var(--faible);
+           border-top: 1px solid var(--trait); margin-top: 2rem; line-height: 1.6; }
+  footer a { color: var(--gris); }
+
+  /* Sur un écran de détail — une fiche, la liste des articles d'une loi, un
+     article, le calendrier — la source se colle en bas de l'écran : d'où
+     viennent ces données et de quand elles datent restent sous les yeux
+     pendant la lecture. La place est libre, la frise du fil s'étant retirée,
+     et c'est la même façon de se poser qu'elle. Le fil, lui, ne change pas.
+     Le troisième paragraphe décrit l'organisation du fil — les onglets, les
+     colonnes : il n'a rien à dire sur une fiche, et il s'y retire. */
+  body.fiche-ouverte footer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    margin-top: 0;
+    background: color-mix(in srgb, var(--fond) 97%, transparent);
+    backdrop-filter: blur(8px);
+    padding: .55rem var(--marge) calc(.55rem + env(safe-area-inset-bottom));
+  }
+  body.fiche-ouverte footer .dans-le-fil { display: none; }
+  /* Collé, ce bloc mange la même hauteur sur toute la fiche : mesuré, 152 px
+     en 390 px de large et 191 px en 320 px, soit près d'un quart de l'écran.
+     Il se resserre donc — texte plus petit, lignes plus serrées, paragraphes
+     rapprochés. Les phrases, elles, ne changent pas : c'est la provenance des
+     données, elle se lit telle quelle. */
+  body.fiche-ouverte footer { font-size: .7rem; line-height: 1.35; }
+  body.fiche-ouverte footer p { margin: 0 0 .25rem; }
+  body.fiche-ouverte footer p:last-of-type { margin-bottom: 0; }
+  /* La hauteur du bas de page est mesurée, pas devinée : deux phrases tiennent
+     sur deux lignes ici et sur quatre ailleurs, selon la largeur de l'écran. */
+  body.fiche-ouverte #fiche { padding-bottom: calc(var(--haut-pied, 5rem) + 1rem); }

@@ -1,0 +1,66 @@
+/* L'hémicycle : les sièges, la bascule des deux dessins, la liste des groupes et des députés. */
+
+  /* ---------- l'hémicycle ---------- */
+  .hemicycle { margin: .2rem 0 1.1rem; position: relative; }
+  /* La bascule entre les deux dessins, posée dans le coin du dessin : elle sert
+     à l'hémicycle, pas à l'écran entier. */
+  .bascule-hemi { position: absolute; top: 0; right: 0; display: flex;
+                  border: 1px solid var(--trait-fort); border-radius: 999px;
+                  overflow: hidden; background: var(--carte); }
+  .bascule-hemi button { font: inherit; font-size: .68rem; padding: .18rem .5rem;
+                         border: 0; background: none; color: var(--gris);
+                         cursor: pointer; }
+  .bascule-hemi button[aria-pressed="true"] { background: var(--doux);
+                                              color: var(--texte); font-weight: 620; }
+  .bascule-hemi button:disabled { opacity: .45; cursor: default; }
+  .sous-dessin { font-size: .72rem; color: var(--faible); margin: .3rem 0 0;
+                 line-height: 1.35; }
+  /* Un siège que personne n'occupe : en creux, pas absent — sinon le dessin
+     laisserait croire que la salle compte 576 places. */
+  .hemicycle svg .vides circle { fill: var(--doux); }
+  .hemicycle svg.un-seul .vides { opacity: .35; }
+  .hemicycle svg { width: 100%; height: auto; display: block; }
+  /* Un liseré de la couleur du fond détache deux sièges voisins de même
+     couleur, sans dessiner de trait par-dessus la couleur du groupe. */
+  .hemicycle svg circle { stroke: var(--fond); stroke-width: .16; }
+  /* Un groupe choisi : les autres s'effacent, aucun ne disparaît. */
+  .hemicycle svg.un-seul g { opacity: .2; }
+  .hemicycle svg.un-seul g.vu { opacity: 1; }
+  /* Les sièges se touchent pour isoler un groupe : le curseur le dit. */
+  .hemicycle svg { cursor: pointer; }
+  .hemi-liste { display: flex; flex-direction: column; gap: .35rem; }
+  .hemi-groupe {
+    display: flex; align-items: center; gap: .55rem; width: 100%;
+    font: inherit; text-align: left; cursor: pointer; color: var(--texte);
+    background: var(--carte); border: 1px solid var(--trait);
+    border-radius: 10px; padding: .5rem .6rem;
+  }
+  .hemi-groupe i { width: .5rem; height: 1.7rem; border-radius: 3px; flex: 0 0 auto;
+                   background: var(--doux); }
+  .hemi-groupe .sigle { flex: 0 0 auto; width: 4.3rem; font-size: .8rem; font-weight: 650; }
+  .hemi-groupe .nom { flex: 1; min-width: 0; font-size: .76rem; color: var(--gris);
+                      line-height: 1.3; }
+  .hemi-groupe .n { flex: 0 0 auto; font-size: .9rem; font-weight: 650;
+                    font-variant-numeric: tabular-nums; }
+  .hemi-groupe .n span { font-size: .7rem; font-weight: 500; color: var(--faible); }
+  .hemi-liste + .hf-total, .fiche-sous .hf-total { font-variant-numeric: tabular-nums; }
+  .hemi-groupe .hf { flex: 0 0 auto; font-size: .7rem; color: var(--gris);
+                     font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .hemi-groupe .chevron { flex: 0 0 auto; color: var(--faible); font-size: 1.1rem;
+                          line-height: 1; }
+
+  .deputes { display: flex; flex-direction: column; gap: .3rem; }
+  .depute { display: flex; align-items: center; gap: .6rem;
+            background: var(--carte); border: 1px solid var(--trait);
+            border-radius: 10px; padding: .4rem .6rem; }
+  /* La même vignette que sur la fiche d'un texte, en plus petit : une liste en
+     compte jusqu'à 122. La hauteur est fixée pour que les lignes ne sautent
+     pas quand une photo arrive. */
+  .depute img, .depute .sans-photo { width: 2.3rem; height: 2.8rem; flex: 0 0 auto;
+                                     border-radius: 7px; background: var(--doux); }
+  .depute img { object-fit: cover; }
+  .depute .sans-photo { display: grid; place-items: center;
+                        color: var(--faible); font-size: .9rem; }
+  .depute .corps { min-width: 0; }
+  .depute b { display: block; font-size: .85rem; font-weight: 620; line-height: 1.3; }
+  .depute .ou { display: block; font-size: .74rem; color: var(--gris); }

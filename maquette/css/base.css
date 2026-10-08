@@ -1,0 +1,153 @@
+/* Les couleurs des deux thèmes, l'en-tête, la recherche et le panneau des filtres. */
+
+  :root {
+    color-scheme: light dark;
+    --fond: #f7f6f3;
+    --carte: #ffffff;
+    --doux: #eeece7;
+    --trait: #e0ddd6;
+    --trait-fort: #c9c3b8;
+    --texte: #1a1815;
+    --gris: #6a645b;
+    --faible: #948d82;
+    --accent: #8a1f2e;
+    --accent-doux: #f6e9eb;
+    --assemblee: #24607f;
+    --senat: #6a4a7c;
+    --ok: #2f6b46;
+    /* Ce qu'une loi retire et ce qu'elle ajoute. Deux couleurs, pas une : le
+       rouge seul ne dirait pas si le texte disparaît ou s'il arrive. */
+    --retire: #9b2226;
+    --retire-fond: #fbe9e9;
+    --ajoute: #1f6f43;
+    --ajoute-fond: #e6f4ec;
+    /* Et ce qui n'est que de la typographie : une virgule, une espace, un
+       tiret. Le droit n'a pas bougé — ces morceaux restent lisibles mais
+       cessent de crier. */
+    --forme-ajout: #2a5d8f;
+    --forme-ajout-fond: #e6eef7;
+    --forme-retrait: #6a645b;
+    --forme-retrait-fond: #eeece7;
+    --rayon: 14px;
+    --marge: 1rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --fond: #131211; --carte: #1e1c1a; --doux: #26241f; --trait: #322f2a;
+      --trait-fort: #4b463e; --texte: #eeebe5; --gris: #a49d92; --faible: #7a736a;
+      --accent: #e79aa5; --accent-doux: #382226; --assemblee: #7db6d6;
+      --senat: #b795c8; --ok: #7cc79b;
+      --retire: #f0a0a4; --retire-fond: #3a2224;
+      --ajoute: #86d3a6; --ajoute-fond: #1d3328;
+      --forme-ajout: #8fbde6; --forme-ajout-fond: #1e2c39;
+      --forme-retrait: #a49d92; --forme-retrait-fond: #26241f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --fond: #131211; --carte: #1e1c1a; --doux: #26241f; --trait: #322f2a;
+    --trait-fort: #4b463e; --texte: #eeebe5; --gris: #a49d92; --faible: #7a736a;
+    --accent: #e79aa5; --accent-doux: #382226; --assemblee: #7db6d6;
+    --senat: #b795c8; --ok: #7cc79b;
+    --retire: #f0a0a4; --retire-fond: #3a2224;
+    --ajoute: #86d3a6; --ajoute-fond: #1d3328;
+    --forme-ajout: #8fbde6; --forme-ajout-fond: #1e2c39;
+    --forme-retrait: #a49d92; --forme-retrait-fond: #26241f;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    background: var(--fond); color: var(--texte);
+    font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .ecran { max-width: 30rem; margin: 0 auto; min-height: 100vh; background: var(--fond); }
+
+  /* ---------- bandeau + en-tête ---------- */
+  /* Le bandeau reste en haut, à hauteur constante : mesuré, il partait avec le
+     défilement et l'en-tête blanc venait prendre sa place — ce qui donnait
+     l'impression qu'il se réduisait. */
+  .bandeau {
+    background: var(--accent-doux); color: var(--accent);
+    font-size: .74rem; padding: .5rem var(--marge); text-align: center;
+    line-height: 1.35;
+    position: sticky; top: 0; z-index: 30;
+  }
+  header {
+    padding: 1.1rem var(--marge) .8rem;
+    position: sticky; top: var(--haut-bandeau, 48px); z-index: 20;
+    background: var(--fond); border-bottom: 1px solid var(--trait);
+  }
+  .titre-ligne { display: flex; align-items: center; gap: .6rem; }
+  h1 { font-size: 1.45rem; margin: 0; letter-spacing: -.02em; font-weight: 660;
+       flex: 1; min-width: 0; }
+  .bouton-agenda {
+    flex: 0 0 auto; width: 2.4rem; height: 2.4rem; padding: 0; cursor: pointer;
+    border: 1px solid var(--trait-fort); border-radius: 11px;
+    background: var(--carte); color: var(--gris);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bouton-agenda:active { border-color: var(--accent); color: var(--accent); }
+  .bouton-agenda svg { width: 1.25rem; height: 1.25rem; fill: none;
+                       stroke: currentColor; stroke-width: 1.7;
+                       stroke-linecap: round; }
+  .bouton-agenda svg .plein { fill: currentColor; stroke: none; }
+  .compte { font-size: .82rem; color: var(--gris); margin-top: .15rem; }
+  .compte b { color: var(--texte); font-variant-numeric: tabular-nums; }
+
+  /* ---------- barre de recherche + bouton filtres ---------- */
+  .barre { display: flex; gap: .5rem; margin-top: .7rem; }
+  /* `display: flex` l'emporte sur le `display: none` que le navigateur donne à
+     [hidden] : sans cette ligne, cacher la barre ne la cachait pas. */
+  .barre[hidden] { display: none; }
+  .barre input {
+    flex: 1; min-width: 0; font: inherit; font-size: .92rem;
+    padding: .55rem .8rem; border-radius: 999px;
+    border: 1px solid var(--trait-fort); background: var(--carte); color: inherit;
+  }
+  .barre input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .bouton-filtres {
+    font: inherit; font-size: .88rem; font-weight: 560; white-space: nowrap;
+    padding: .55rem .9rem; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--trait-fort); background: var(--carte); color: inherit;
+  }
+  .bouton-filtres[aria-expanded="true"] { background: var(--accent); color: var(--fond); border-color: var(--accent); }
+  .bouton-filtres .n {
+    display: inline-block; min-width: 1.15rem; margin-left: .3rem; padding: 0 .28rem;
+    border-radius: 999px; background: var(--accent); color: var(--fond);
+    font-size: .74rem; font-variant-numeric: tabular-nums;
+  }
+  .bouton-filtres[aria-expanded="true"] .n { background: var(--fond); color: var(--accent); }
+
+  /* ---------- panneau des filtres ---------- */
+  .filtres { padding: 0 var(--marge) .9rem; border-bottom: 1px solid var(--trait);
+             background: var(--fond); }
+  /* Titre au-dessus de ses puces, tout part du bord gauche. */
+  .filtres .groupe { display: block; margin-top: .85rem; }
+  .filtres .groupe > .titre {
+    font-size: .7rem; text-transform: uppercase; letter-spacing: .07em;
+    color: var(--faible); margin: 0 0 .4rem; display: flex; align-items: center;
+    justify-content: flex-start; gap: .3rem;
+  }
+  .puces { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: .35rem; }
+  .puce {
+    font: inherit; font-size: .8rem; padding: .3rem .65rem; border-radius: 999px;
+    border: 1px solid var(--trait-fort); background: var(--carte); color: var(--gris);
+    cursor: pointer; display: inline-flex; align-items: center; gap: .3rem;
+  }
+  .puce[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--fond); }
+  .puce:disabled { opacity: .38; cursor: default; }
+  .puce .c { font-size: .72rem; opacity: .65; font-variant-numeric: tabular-nums; }
+  .puce-groupe { display: inline-flex; align-items: center; gap: .15rem; }
+  .aide {
+    font: inherit; font-size: .82rem; line-height: 1; padding: .3rem .15rem;
+    border: none; background: transparent; color: var(--faible); cursor: pointer;
+  }
+  .aide:active { color: var(--accent); }
+  .effacer {
+    margin-top: .9rem; width: 100%; font: inherit; font-size: .85rem; padding: .5rem;
+    border-radius: var(--rayon); border: 1px dashed var(--trait-fort);
+    background: transparent; color: var(--gris); cursor: pointer;
+  }
+  .effacer:disabled { opacity: .4; cursor: default; }

@@ -82,9 +82,9 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
         # Et ce qu'elle charge : son style et ses scripts, un fichier par
         # responsabilité, servis tels quels à côté d'elle. Pas d'étape de
         # construction — la page les demande par leur chemin relatif.
-        p.tailles["style.css + js/*.js"] = sum(
+        p.tailles["css/*.css + js/*.js"] = sum(
             ecrire(p.sortie / f.relative_to(MAQUETTE.parent), None, f.read_bytes())
-            for f in [MAQUETTE.parent / "style.css"]
+            for f in sorted((MAQUETTE.parent / "css").glob("*.css"))
                      + sorted((MAQUETTE.parent / "js").glob("*.js")))
     else:
         print(f"Maquette introuvable ({MAQUETTE}) : pas de page d'accueil.",

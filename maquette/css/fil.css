@@ -1,0 +1,185 @@
+/* Le fil : une colonne par étape, les cartes, et la frise accrochée en bas. */
+
+  /* ---------- fil : une colonne par catégorie d'étape ---------- */
+  /* Les catégories sont rangées côte à côte au lieu d'être empilées. Une
+     seule est visible ; on passe à la suivante en faisant glisser vers la
+     gauche ou la droite, ou avec les flèches ‹ ›. Le défilement vertical
+     reste celui de la page, et toutes les colonnes commencent en haut : les
+     textes restent donc alignés d'une colonne à l'autre. */
+  main#fil {
+    display: flex; align-items: flex-start; padding: 0 0 5.5rem;
+    position: relative; overflow-x: auto;
+    scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  main#fil::-webkit-scrollbar { display: none; }
+  /* `hidden` doit l'emporter sur `display: flex` : la fiche masque le fil. */
+  main#fil[hidden] { display: none; }
+  main#fil > .vide { flex: 0 0 auto; margin: .9rem var(--marge);
+                     width: calc(100% - 2 * var(--marge)); }
+  .colonne { flex: 0 0 100%; min-width: 0; scroll-snap-align: start;
+             padding: 0 var(--marge); }
+
+  .tete-colonne { margin: 1.1rem 0 .2rem; }
+  .titre-etape {
+    display: flex; align-items: center; gap: .4rem; margin: 0;
+    font-size: .78rem; font-weight: 620;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--accent);
+  }
+  .titre-etape .nom {
+    flex: 1 1 auto; min-width: 0; font: inherit; color: inherit;
+    text-align: left; background: none; border: none; padding: 0;
+    cursor: pointer; text-transform: inherit; letter-spacing: inherit;
+  }
+  .titre-etape .nom:active { opacity: .6; }
+  /* Alignée sous le nom : la flèche mesure 1.6rem, l'écart .4rem. */
+  .sous-etape { font-size: .74rem; color: var(--faible); margin-top: .1rem;
+                padding-left: 2rem; }
+  .fleche {
+    flex: 0 0 auto; font: inherit; font-size: 1rem; line-height: 1;
+    width: 1.6rem; height: 1.6rem; padding: 0; border-radius: 999px;
+    cursor: pointer; border: 1px solid var(--trait-fort);
+    background: var(--carte); color: var(--gris);
+  }
+  .fleche:disabled { opacity: .3; cursor: default; }
+  .fleche:active:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .titre-etape.fini { color: var(--ok); }
+  .etiq.promulguee { color: var(--ok); background: transparent; border-color: currentColor; }
+  /* La procédure accélérée décrit la procédure, pas l'issue du texte : trait
+     discontinu pour qu'elle ne se confonde pas avec « Promulguée » ou
+     « Rejeté », qui disent où le texte en est. */
+  .etiq.acceleree { background: transparent; border-style: dashed;
+                    border-color: var(--trait-fort); color: var(--gris); }
+  .etiq.arrete { color: var(--accent); background: transparent; border-color: currentColor;
+                 font-weight: 560; }
+  .titre-etape.arret { color: var(--faible); }
+  .etiq.lien { color: var(--gris); background: var(--doux); text-decoration: none;
+               display: inline-block; }
+  .etiq.lien::after { content: " ↗"; }
+
+  .carte {
+    background: var(--carte); border: 1px solid var(--trait);
+    border-radius: var(--rayon); padding: .85rem .9rem; margin-top: .6rem;
+  }
+  .carte h2 { font-size: .97rem; font-weight: 600; line-height: 1.35; margin: 0 0 .5rem; }
+  .carte h2 a { color: inherit; text-decoration: none; }
+  .carte h2 a:active { color: var(--accent); }
+
+  .lignes { display: flex; flex-wrap: wrap; gap: .3rem; }
+  .etiq {
+    font: inherit; font-size: .74rem; padding: .18rem .5rem; border-radius: 7px;
+    border: 1px solid transparent; background: var(--doux); color: var(--gris);
+    cursor: pointer; text-align: left;
+  }
+  .etiq:active { border-color: var(--accent); }
+  .etiq.chambre-assemblee { color: var(--assemblee); background: transparent; border-color: currentColor; }
+  .etiq.chambre-senat { color: var(--senat); background: transparent; border-color: currentColor; }
+  .etiq.prochaine { color: var(--ok); background: transparent; border-color: currentColor; }
+  .etiq.dormant { color: var(--faible); font-style: italic; }
+  /* Le sujet vient du Sénat : il porte sa couleur, discrètement. */
+  .etiq.sujet { color: var(--senat); background: transparent;
+                border-color: currentColor; }
+  .etiq.grp { display: inline-flex; align-items: center; gap: .3rem; }
+  .etiq.grp i { width: .45rem; height: .45rem; border-radius: 50%; display: block;
+                flex: 0 0 auto; }
+  .etiq::after { content: " ⓘ"; font-size: .8em; opacity: .5; font-style: normal; }
+
+  .vote {
+    display: flex; align-items: baseline; gap: .45rem; width: 100%; margin-top: .6rem;
+    font: inherit; font-size: .78rem; text-align: left; cursor: pointer;
+    padding: .4rem .55rem; border-radius: 8px;
+    border: 1px solid var(--trait); background: var(--doux); color: var(--gris);
+  }
+  .vote .verdict { font-weight: 640; white-space: nowrap; }
+  .vote.adopte .verdict { color: var(--ok); }
+  .vote.rejete .verdict { color: var(--accent); }
+  .vote .chiffres { flex: 1; min-width: 0; font-variant-numeric: tabular-nums; }
+  .vote .quand, .vote .loupe { color: var(--faible); white-space: nowrap; }
+  .vote:active { border-color: var(--accent); }
+
+  .groupes { margin-top: .9rem; border-top: 1px solid var(--trait); padding-top: .7rem; }
+  .groupes .objet { font-size: .8rem; color: var(--gris); margin: 0 0 .7rem; }
+  .groupes .attente { font-size: .8rem; color: var(--faible); margin: .6rem 0 0; }
+  .legende { display: flex; gap: .8rem; font-size: .72rem; color: var(--faible);
+             margin-bottom: .6rem; }
+  .legende span { display: inline-flex; align-items: center; gap: .25rem; }
+  .legende i { width: .65rem; height: .5rem; border-radius: 2px; display: block; }
+  .legende i.pour { background: var(--ok); }
+  .legende i.contre { background: var(--accent); }
+  .legende i.abstention { background: var(--trait-fort); }
+  .groupes .groupe { display: flex; align-items: center; gap: .5rem; margin-bottom: .3rem;
+            font-size: .76rem; }
+  .groupes .groupe .teinte { width: .45rem; height: 1rem; border-radius: 2px; flex: 0 0 auto;
+                    background: var(--trait-fort); }
+  .groupes .groupe .sigle { width: 4rem; flex: 0 0 auto; font: inherit; font-size: .76rem;
+                   font-weight: 600; color: var(--texte); text-align: left;
+                   background: none; border: none; padding: 0; cursor: pointer; }
+  .groupes .groupe .sigle:active { color: var(--accent); }
+  .groupes .convention { font-size: .72rem; color: var(--faible); margin: 0 0 .6rem; }
+  .groupes .groupe .barre { flex: 1; display: flex; height: 9px; border-radius: 4px;
+                   overflow: hidden; background: var(--doux); }
+  .groupes .groupe .barre i { display: block; }
+  .groupes .groupe .barre i.pour { background: var(--ok); }
+  .groupes .groupe .barre i.contre { background: var(--accent); }
+  .groupes .groupe .barre i.abstention { background: var(--trait-fort); }
+  .groupes .groupe .barre i.vide { flex: 1; background: var(--doux); }
+  .groupes .groupe .detail { width: 4.6rem; flex: 0 0 auto; text-align: right;
+                    color: var(--faible); font-variant-numeric: tabular-nums; }
+
+  /* ---------- la frise, accrochée en bas ---------- */
+  .frise-bas {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    background: color-mix(in srgb, var(--fond) 97%, transparent);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--trait);
+    padding: .5rem var(--marge) calc(.5rem + env(safe-area-inset-bottom));
+    display: flex; flex-direction: column; gap: .3rem;
+  }
+  .frise-bas[hidden] { display: none; }
+  .frise-bas .traits { display: flex; gap: .25rem; align-items: center; }
+  .frise-bas .traits button {
+    flex: 1; min-width: 0; height: 16px; padding: 6px 0 6px;   /* la cible du doigt
+       est plus haute que le trait : on vise 16 px, on touche un trait de 4 px */
+    border: none; background: none; cursor: pointer;
+    display: flex; align-items: center;
+  }
+  .frise-bas .traits button i {
+    display: block; width: 100%; height: 4px; border-radius: 2px;
+    background: var(--trait); transition: background .15s;
+  }
+  .frise-bas .traits button.faite i { background: var(--trait-fort); }
+  .frise-bas .traits button.ici i { background: var(--accent); height: 6px; }
+  /* Le trait de la promulgation s'allume en vert quand on y est. Le reste du
+     temps il reste éteint : c'est un état, pas un décor. */
+  .frise-bas .traits button.fini.ici i { background: var(--ok); height: 6px; }
+  /* Une catégorie vide garde son trait, en pointillé : la frise garde la même
+     forme d'un jour à l'autre. Elle ne mène nulle part, mais elle se touche
+     et dit ce qu'elle est. */
+  .frise-bas .traits button.absent i {
+    background: none; border-top: 2px dashed var(--trait); height: 0;
+  }
+  .frise-bas .dit {
+    display: flex; align-items: baseline; gap: .4rem;
+    font-size: .72rem; color: var(--faible);
+  }
+  .frise-bas .dit b { font-size: .78rem; font-weight: 620; color: var(--texte); }
+  .frise-bas .dit b.fini { color: var(--ok); }
+  .frise-bas .dit b.arret { color: var(--accent); }
+  .frise-bas .dit .aide { margin-left: auto; background: none; border: none;
+                          font: inherit; color: var(--faible); cursor: pointer; }
+
+  /* Les deux onglets, sous la frise : les textes qui peuvent devenir des lois,
+     et les travaux de l'Assemblée qui n'aboutissent à aucune loi. Chacun a ses
+     propres colonnes, donc sa propre frise juste au-dessus. */
+  .frise-bas .onglets { display: flex; gap: .3rem; margin-top: .1rem; }
+  .frise-bas .onglets button {
+    flex: 1; font: inherit; font-size: .78rem; font-weight: 600;
+    padding: .42rem .3rem; border: 1px solid transparent; border-radius: 9px;
+    background: none; color: var(--faible); cursor: pointer;
+    display: flex; align-items: baseline; justify-content: center; gap: .35rem;
+  }
+  .frise-bas .onglets button[aria-selected="true"] {
+    background: var(--carte); border-color: var(--trait); color: var(--texte);
+  }
+  .frise-bas .onglets button .n { font-size: .68rem; font-weight: 500;
+                                  color: var(--faible); font-variant-numeric: tabular-nums; }

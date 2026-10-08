@@ -1,0 +1,24 @@
+/* L'explication au toucher : le voile et sa carte. */
+
+  /* ---------- explication au toucher ---------- */
+  .voile {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 40;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .voile[hidden] { display: none; }
+  .info {
+    background: var(--carte); width: 100%; max-width: 30rem;
+    border-radius: var(--rayon) var(--rayon) 0 0; padding: 1.1rem var(--marge) 1.6rem;
+    padding-bottom: calc(1.6rem + env(safe-area-inset-bottom));
+  }
+  .info h3 { margin: 0 0 .4rem; font-size: 1rem; font-weight: 620; }
+  .info p { margin: 0; color: var(--gris); font-size: .9rem; line-height: 1.55; }
+  .info .valeur {
+    display: inline-block; margin-bottom: .55rem; font-size: .78rem;
+    padding: .18rem .5rem; border-radius: 7px; background: var(--doux); color: var(--texte);
+  }
+  .info button {
+    margin-top: 1.1rem; width: 100%; font: inherit; font-size: .9rem; font-weight: 560;
+    padding: .65rem; border-radius: var(--rayon); border: none;
+    background: var(--accent); color: var(--fond); cursor: pointer;
+  }

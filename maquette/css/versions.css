@@ -1,0 +1,85 @@
+/* Les versions d'un texte et les amendements adoptés sur chaque article. */
+
+  /* ---------- les versions successives d'un texte ---------- */
+  /* La ligne posée sous l'étape qui a produit une version. Décalée comme les
+     champs d'une étape, et bordée : elle appartient à l'étape, elle ne la
+     remplace pas. */
+  .version { display: flex; gap: .5rem; align-items: center; cursor: pointer;
+    width: calc(100% - 5.8rem); margin: .1rem 0 .7rem 5.8rem; text-align: left;
+    font: inherit; border: none; border-left: 3px solid var(--accent);
+    background: var(--doux); border-radius: 0 9px 9px 0; padding: .5rem .6rem; }
+  .version .q { flex: 1 1 auto; min-width: 0; }
+  .version b { display: block; font-size: .84rem; font-weight: 620; color: var(--texte); }
+  .version .chiffres { font-size: .76rem; color: var(--gris); }
+  .version .chevron { flex: 0 0 auto; color: var(--faible); font-size: .8rem; }
+
+  .art-titre { display: flex; align-items: baseline; gap: .5rem;
+               margin: 1.5rem 0 .5rem; flex-wrap: wrap; }
+  .art-titre h3 { font-size: .95rem; font-weight: 660; margin: 0; }
+  .art-titre .quoi { font-size: .68rem; text-transform: uppercase; letter-spacing: .05em;
+                     border-radius: 999px; padding: .12rem .45rem;
+                     background: var(--doux); color: var(--gris); }
+  .art-titre .quoi.nouveau { background: var(--ajoute-fond); color: var(--ajoute); }
+  .art-titre .quoi.retire { background: var(--retire-fond); color: var(--retire); }
+
+  /* Les amendements adoptés sur l'article, au-dessus de son texte. Sur un
+     téléphone il n'y a pas de place pour une colonne à côté : l'écran fait
+     30 rem au plus, et une colonne de 16 rem réduirait le texte à une bande
+     illisible. */
+  .amdts { border: 1px solid var(--trait); border-radius: 11px; padding: .55rem .6rem;
+           margin-bottom: .6rem; background: var(--carte); }
+  .amdts .chapeau { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em;
+                    color: var(--accent); font-weight: 620; margin-bottom: .35rem; }
+  .amdts i { width: .3rem; height: .95rem; border-radius: 2px; flex: 0 0 auto;
+             background: var(--trait-fort); }
+  .amdts .num { font-weight: 620; flex: 0 0 auto; }
+  .amdts .qui { color: var(--gris); min-width: 0; overflow: hidden;
+                text-overflow: ellipsis; white-space: nowrap; }
+  /* La flèche d'un lien sortant, et **pas** le bouton rond `.fleche` du
+     parcours : porter sa classe lui donnait un cercle de 1,6 rem autour d'un
+     signe de 0,75 rem, décentré. */
+  .sortant { color: var(--faible); font-size: .75rem; flex: 0 0 auto; }
+  /* La ligne d'un amendement dans la liste d'un article. Sa classe n'est plus
+     `.amdt` : c'était celle de la **carte** d'un amendement, qui lui posait un
+     cadre et un fond dont elle n'a que faire. */
+  .amdts .rang-amdt { padding: .15rem 0; }
+  .amdts .rang-amdt + .rang-amdt { border-top: 1px solid var(--trait);
+                                   margin-top: .15rem; padding-top: .3rem; }
+  .amdts .vers-amdt { display: flex; align-items: center; gap: .4rem; width: 100%;
+                      padding: .3rem 0; font: inherit; font-size: .8rem;
+                      text-align: left; color: inherit; background: none;
+                      border: 0; cursor: pointer; }
+  .amdts .vers-amdt:active .num { color: var(--accent); }
+  /* Une ligne qui porte un **titre** et non un numéro : sans cela, un titre de
+     loi sortait de l'écran de 1 349 px (constaté le 2026-10-04). */
+  .amdts .vers-amdt.titre { align-items: flex-start; }
+  .amdts .vers-amdt.titre .num { flex: 1 1 auto; min-width: 0;
+                                 white-space: normal; line-height: 1.35; }
+  .amdts .vers-amdt.titre .chevron { flex: 0 0 auto; margin-top: .1rem; }
+  .amdts .vers-amdt .chevron { margin-left: auto; color: var(--faible);
+                               font-size: 1.1rem; line-height: 1; }
+  .amdts .rien { font-size: .78rem; color: var(--faible); line-height: 1.4; }
+  /* Un amendement tient sur deux lignes quand il a été débattu : le lien
+     au-dessus, le repère et ses chiffres en dessous. Le trait sépare deux
+     amendements voisins, que leurs deux lignes rendraient sinon illisibles. */
+  /* La pastille sert à deux endroits : sous un article de l'onglet « Texte »,
+     où elle porte sa phrase, et sur une ligne de vote du parcours, où elle se
+     réduit au « ! » faute de place. */
+  .etiq.dispute { color: var(--accent); background: var(--accent-doux);
+                  border-color: currentColor; font-size: .72rem; }
+  .etiq.dispute b { font-weight: 700; }
+  /* Et un troisième usage depuis le 2026-09-23 : sur la carte du fil et en
+     tête de fiche, où elle porte le compte et **mène** à la liste de ces
+     amendements. Elle ne s'explique donc pas sur place — d'où le chevron à la
+     place du ⓘ des autres étiquettes : deux gestes différents ne se signalent
+     pas du même signe. */
+  a.etiq.dispute { display: inline-flex; align-items: center; gap: .3rem;
+                   text-decoration: none; }
+  a.etiq.dispute::after { content: "›"; opacity: .7; font-size: 1.1em;
+                          line-height: 1; }
+  .amdts .etiq.dispute { margin: .1rem 0 .25rem; }
+  .amdts .etiq.dispute b { margin-right: .25rem; }
+  .amdts .chiffres-amdt { display: block; font-size: .72rem; color: var(--gris);
+                          padding-left: .7rem; margin-bottom: .2rem; }
+  .amdts .quand-amdt { display: block; font-size: .72rem; color: var(--faible);
+                       padding-left: .7rem; }

@@ -1,0 +1,42 @@
+/* Les écrans du Sénat et la ligne de ses scrutins dans le parcours. */
+
+  /* Les trois écrans du Sénat. La ligne de scrutin se distingue de celle de
+     l'Assemblée par un trait de couleur : les deux ne s'additionnent pas, et
+     l'œil ne doit pas pouvoir les confondre. */
+  .vote-senat { border-left: 3px solid var(--senat); padding-left: .55rem; }
+  .vote-senat .objet-vote { font-size: .8rem; color: var(--gris);
+                            margin: .15rem 0 .35rem; }
+  .groupes-senat { margin: .3rem 0 .2rem; }
+  .grp-senat { display: flex; justify-content: space-between; gap: .6rem;
+               font-size: .78rem; padding: .18rem 0;
+               border-bottom: 1px solid var(--trait); }
+  .grp-senat:last-child { border-bottom: none; }
+  .grp-senat .qui { color: var(--texte); }
+  .membres-senat { padding: .2rem 0 .5rem .7rem; }
+  .membres-senat .disp { font-size: .8rem; color: var(--gris); margin: .12rem 0; }
+
+  .resume-change { display: flex; gap: .45rem; margin: 0 0 1rem; }
+  .resume-change .tuile {
+    flex: 1; background: var(--carte); border: 1px solid var(--trait);
+    border-radius: 11px; padding: .6rem .4rem; text-align: center;
+  }
+  .resume-change .tuile b { display: block; font-size: 1.3rem; line-height: 1.2;
+                            font-variant-numeric: tabular-nums; }
+  .resume-change .tuile span { display: block; font-size: .66rem; color: var(--gris);
+                               margin-top: .1rem; }
+  .resume-change .tuile.CREE b { color: var(--ok); }
+  .resume-change .tuile.AJOUTE b { color: var(--ok); }
+  .resume-change .tuile.ABROGE b { color: var(--accent); }
+
+  .code-groupe { background: var(--carte); border: 1px solid var(--trait);
+                 border-radius: var(--rayon); overflow: hidden; margin-bottom: .7rem; }
+  .code-groupe > summary { list-style: none; cursor: pointer; padding: .8rem .9rem;
+                           display: flex; justify-content: space-between;
+                           align-items: center; gap: .5rem; }
+  .code-groupe > summary::-webkit-details-marker { display: none; }
+  .code-groupe > summary::after { content: "›"; transform: rotate(90deg);
+    color: var(--faible); font-size: 1.3rem; line-height: 1; transition: transform .15s; }
+  .code-groupe[open] > summary::after { transform: rotate(-90deg); }
+  .code-groupe > summary b { font-size: .92rem; font-weight: 620; }
+  .code-groupe > summary i { font-style: normal; font-size: .74rem; color: var(--gris);
+                             display: block; }

@@ -1,0 +1,100 @@
+/* Ce qu'une loi change au droit : l'entrée en vigueur sur la carte, les articles touchés, retouchés ou ajoutés. */
+
+  /* ---------- ce qu'une loi change au droit ---------- */
+  /* L'entrée en vigueur, sur la carte du fil : une loi promulguée peut ne pas
+     s'appliquer encore, et c'est ce qu'on cherche à savoir en premier. */
+  .vigueur {
+    display: flex; gap: .45rem; align-items: flex-start; margin-top: .55rem;
+    background: var(--doux); border-radius: 9px; padding: .45rem .55rem;
+    font-size: .76rem; color: var(--gris); line-height: 1.4;
+  }
+  .vigueur b { color: var(--texte); font-weight: 620; display: block; }
+  .vigueur.attente { background: var(--accent-doux); color: var(--accent); }
+  .vigueur.attente b { color: var(--accent); }
+  .lien-change {
+    margin-top: .5rem; font: inherit; font-size: .8rem; text-align: left;
+    background: none; border: none; padding: 0; color: var(--accent);
+    font-weight: 620; cursor: pointer;
+  }
+  .sans-change { margin-top: .5rem; font-size: .78rem; color: var(--faible);
+                 line-height: 1.4; }
+
+  /* Les articles que la loi touche sans rien changer au fond. En pointillé et
+     replié : ils sont consultables, mais hors du compte des modifications. */
+  .retouches { background: var(--carte); border: 1px dashed var(--trait-fort);
+               border-radius: var(--rayon); overflow: hidden; margin-bottom: .7rem; }
+  .retouches > summary { list-style: none; cursor: pointer; padding: .75rem .9rem;
+                         font-size: .82rem; color: var(--gris); }
+  .retouches > summary::-webkit-details-marker { display: none; }
+  .retouches > summary b { color: var(--texte); font-weight: 620; }
+
+  .art { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left;
+         font: inherit; background: none; border: 0; border-top: 1px solid var(--trait);
+         padding: .7rem .9rem; cursor: pointer; color: inherit; }
+  .art:active { background: var(--doux); }
+  .art .quoi { font-size: .62rem; font-weight: 700; letter-spacing: .03em;
+               padding: .14rem .4rem; border-radius: 5px; flex: 0 0 auto;
+               background: var(--doux); color: var(--gris); }
+  .art .quoi.CREE { background: var(--ajoute-fond); color: var(--ajoute); }
+  /* Un article que la loi a écrit : du texte en plus, comme un article créé
+     dans un code — même couleur, mot différent. */
+  .art .quoi.AJOUTE { background: var(--ajoute-fond); color: var(--ajoute); }
+  .art .quoi.ABROGE { background: var(--retire-fond); color: var(--retire); }
+  .art .nom { flex: 1; min-width: 0; }
+  .art .nom b { display: block; font-size: .88rem; font-weight: 620; }
+  .art .nom span { display: block; font-size: .72rem; color: var(--faible); }
+  .art .chevron { color: var(--faible); font-size: 1.2rem; flex: 0 0 auto; }
+  .jauge { height: 3px; border-radius: 2px; background: var(--trait); overflow: hidden;
+           margin-top: .3rem; width: 100%; }
+  .jauge i { display: block; height: 100%; background: var(--accent); }
+
+  .bascule-texte { display: flex; gap: .3rem; margin: 0 0 .7rem; background: var(--doux);
+                   border-radius: 9px; padding: .2rem; }
+  .bascule-texte button { flex: 1; font: inherit; font-size: .78rem; font-weight: 600;
+    padding: .4rem; border: 0; background: none; border-radius: 7px;
+    color: var(--gris); cursor: pointer; }
+  .bascule-texte button[aria-pressed="true"] { background: var(--carte); color: var(--texte); }
+  .legende-diff { display: flex; flex-wrap: wrap; gap: .8rem; row-gap: .35rem;
+                  margin: 0 0 .7rem; font-size: .72rem; color: var(--gris); }
+  .legende-diff s { color: var(--retire); background: var(--retire-fond);
+                    padding: 0 .25rem; border-radius: 3px; }
+  .legende-diff u { color: var(--ajoute); background: var(--ajoute-fond);
+                    text-decoration: none; padding: 0 .25rem; border-radius: 3px; }
+  .legende-diff s.forme { color: var(--forme-retrait); background: var(--forme-retrait-fond); }
+  .legende-diff u.forme { color: var(--forme-ajout); background: var(--forme-ajout-fond); }
+  .texte-loi { background: var(--carte); border: 1px solid var(--trait);
+    border-radius: var(--rayon); padding: .9rem; font-size: .88rem; line-height: 1.65;
+    overflow-wrap: anywhere; margin-bottom: .8rem; }
+  .texte-loi del { color: var(--retire); background: var(--retire-fond);
+                   border-radius: 3px; padding: 0 .12rem; }
+  .texte-loi ins { color: var(--ajoute); background: var(--ajoute-fond);
+                   border-radius: 3px; padding: 0 .12rem; text-decoration: none;
+                   font-weight: 520; }
+  /* Une virgule, une espace, un tiret : le droit n'a pas bougé. On ne les
+     retire pas du texte — la ponctuation fait partie de la loi — mais elles
+     cessent d'avoir l'air d'un changement de fond. */
+  .texte-loi ins.forme { color: var(--forme-ajout); background: var(--forme-ajout-fond);
+                         font-weight: inherit; }
+  .texte-loi del.forme { color: var(--forme-retrait); background: var(--forme-retrait-fond);
+                         text-decoration: line-through; }
+  /* Une espace surlignée n'a rien à montrer : sans cette largeur minimale, le
+     seul changement de l'article serait invisible. `pre-wrap` empêche aussi le
+     navigateur de la ravaler. */
+  .texte-loi ins.forme, .texte-loi del.forme {
+    white-space: pre-wrap; min-width: .3em; display: inline-block;
+    border-radius: 3px; padding: 0 .1rem;
+  }
+  .nota { font-size: .78rem; color: var(--gris); background: var(--doux);
+          border-radius: 9px; padding: .6rem .7rem; margin-bottom: .8rem; line-height: 1.5; }
+  .lien-source { display: block; background: var(--carte); border: 1px solid var(--trait);
+    border-radius: var(--rayon); padding: .75rem .9rem; text-decoration: none;
+    color: inherit; font-size: .83rem; margin-bottom: 1.2rem; }
+  .lien-source b { display: block; color: var(--accent); font-weight: 620; }
+  .lien-source span { color: var(--faible); font-size: .74rem; }
+
+  .plus, .vide {
+    margin-top: .9rem; width: 100%; padding: .7rem; font: inherit; font-size: .85rem;
+    border-radius: var(--rayon); border: 1px dashed var(--trait-fort);
+    background: transparent; color: var(--gris); cursor: pointer; text-align: center;
+  }
+  .vide { cursor: default; border-style: solid; padding: 2rem 1rem; line-height: 1.5; }
