@@ -4,7 +4,7 @@
     cd .claude/scripts && ./mutations_legi.py
 
 Un test qui ne casse pas quand la règle casse ne teste rien. Ce programme défait
-une règle de `socle/legi.py` à la fois, relance les suites `socle/test_legi*.py`, et exige
+une règle du paquet `socle/legi/` à la fois, relance les suites `socle/test_legi*.py`, et exige
 qu'**au moins un test échoue, nommément**.
 
 Deux précautions, l'une et l'autre apprises à ses dépens le 2026-09-03 :
@@ -68,18 +68,25 @@ MUTATIONS: list[tuple[str, str, str]] = [
 
 
 def essayer(copie: pathlib.Path, nom: str, avant: str, apres: str,
-            original: str) -> str | None:
-    """Rend `None` si un test nommé voit la mutation, sinon dit ce qui manque."""
-    if avant not in original:
+            original: dict[pathlib.Path, str]) -> str | None:
+    """Rend `None` si un test nommé voit la mutation, sinon dit ce qui manque.
+
+    `legi` est un paquet : la règle à défaire est cherchée dans chacun de ses
+    modules, et seul celui qui la porte est réécrit — les autres restent
+    intacts.
+    """
+    porteurs = [f for f, texte in original.items() if avant in texte]
+    if not porteurs:
         print(f"  ??  {nom}\n      motif introuvable — la règle a changé, "
               f"mettre MUTATIONS à jour")
         return f"{nom} (motif introuvable)"
-
-    (copie / "legi.py").write_text(original.replace(avant, apres, 1))
+    fichier = porteurs[0]
+    for f, texte in original.items():
+        f.write_text(texte)
+    fichier.write_text(original[fichier].replace(avant, apres, 1))
     with tempfile.NamedTemporaryFile(suffix=".pyc") as sortie:
         try:
-            py_compile.compile(str(copie / "legi.py"), cfile=sortie.name,
-                               doraise=True)
+            py_compile.compile(str(fichier), cfile=sortie.name, doraise=True)
         except py_compile.PyCompileError:
             print(f"  !!  {nom}\n      la mutation casse la syntaxe : "
                   f"elle ne prouve rien")
@@ -103,7 +110,7 @@ def main() -> int:
         shutil.copytree(SOCLE, copie,
                         ignore=shutil.ignore_patterns("*.db", "*.db-*", "public",
                                                       "archives_legi", "__pycache__"))
-        original = (copie / "legi.py").read_text()
+        original = {f: f.read_text() for f in sorted((copie / "legi").glob("*.py"))}
 
         temoin = subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", ".", "-p", "test_legi*.py"], cwd=copie,
                                 capture_output=True, text=True)

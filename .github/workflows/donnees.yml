@@ -249,7 +249,7 @@ jobs:
       #
       # **L'empreinte des règles fait partie de la clé, et c'est indispensable.**
       # La base ne garde que ce que les règles retenaient le jour où elle a été
-      # remplie : changer `legi.py` sans jeter le cache laisserait en ligne une
+      # remplie : changer une règle de `legi/` sans jeter le cache laisserait en ligne une
       # base d'hier, à qui les nouvelles règles ne s'appliqueraient plus qu'aux
       # archives du jour. Constaté en ajoutant les articles propres des lois le
       # 2026-09-03 : le correctif n'aurait rien changé pour les lois anciennes.
@@ -258,7 +258,7 @@ jobs:
       - name: Retrouver le droit consolidé de la veille
         uses: actions/cache@v4
         env:
-          REGLES: ${{ hashFiles('socle/legi.py', 'socle/recuperer_legi.py') }}
+          REGLES: ${{ hashFiles('socle/legi/*.py', 'socle/recuperer_legi.py') }}
         with:
           path: socle/legi.db
           key: legi-${{ env.REGLES }}-${{ github.run_id }}

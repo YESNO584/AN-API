@@ -9,7 +9,8 @@ import pathlib
 import sqlite3
 import tempfile
 import unittest
-import recuperer_senat as rs
+from recuperation_senat import garde
+from recuperation_senat import senateurs
 import senat
 from decor_senat import SCHEMA, base
 
@@ -50,14 +51,14 @@ class LaBaseSeConstruitACote(unittest.TestCase):
         self.poser(self.vieille)
         self.poser(self.neuve, senateurs=0)
         self.assertIn("composition",
-                      rs.assez_pour_remplacer(self.neuve, self.vieille))
+                      garde.assez_pour_remplacer(self.neuve, self.vieille))
 
     def test_une_base_entierement_vide_ne_se_publie_jamais(self):
         # Sans base de la veille, la comparaison ne peut rien dire : c'est le
         # seul garde-fou qui reste, et c'est le cas d'un cache perdu.
         self.poser(self.neuve, senateurs=0, dossiers=0, themes=0)
         self.assertFalse(self.vieille.exists())
-        self.assertIn("vide", rs.assez_pour_remplacer(self.neuve, self.vieille))
+        self.assertIn("vide", garde.assez_pour_remplacer(self.neuve, self.vieille))
 
     def test_une_base_partielle_vaut_mieux_que_rien(self):
         # **Ne jamais refuser mieux.** Le 2026-10-06, les dossiers et les
@@ -66,48 +67,48 @@ class LaBaseSeConstruitACote(unittest.TestCase):
         # qu'un écran qui dit « pas de données » est honnête.
         self.poser(self.neuve, senateurs=0)
         self.assertFalse(self.vieille.exists())
-        self.assertIsNone(rs.assez_pour_remplacer(self.neuve, self.vieille))
+        self.assertIsNone(garde.assez_pour_remplacer(self.neuve, self.vieille))
 
     def test_une_base_partielle_ne_remplace_pas_une_base_complete(self):
         self.poser(self.vieille)
         self.poser(self.neuve, senateurs=0)
-        self.assertIsNotNone(rs.assez_pour_remplacer(self.neuve, self.vieille))
+        self.assertIsNotNone(garde.assez_pour_remplacer(self.neuve, self.vieille))
 
     def test_une_base_sans_sujets_ne_remplace_pas_une_qui_en_a(self):
         self.poser(self.vieille)
         self.poser(self.neuve, themes=0)
         self.assertIn("sujets",
-                      rs.assez_pour_remplacer(self.neuve, self.vieille))
+                      garde.assez_pour_remplacer(self.neuve, self.vieille))
 
     def test_une_chute_brutale_ne_remplace_rien(self):
         # Une source à moitié lue : 100 sénateurs sur 348. Ce n'est pas une
         # actualité du Parlement, c'est une source abîmée.
         self.poser(self.vieille)
         self.poser(self.neuve, senateurs=100)
-        souci = rs.assez_pour_remplacer(self.neuve, self.vieille)
+        souci = garde.assez_pour_remplacer(self.neuve, self.vieille)
         self.assertIsNotNone(souci)
         self.assertIn("348", souci)
 
     def test_une_base_complete_remplace(self):
         self.poser(self.vieille)
         self.poser(self.neuve, senateurs=349, dossiers=12460)
-        self.assertIsNone(rs.assez_pour_remplacer(self.neuve, self.vieille))
+        self.assertIsNone(garde.assez_pour_remplacer(self.neuve, self.vieille))
 
     def test_une_variation_normale_passe(self):
         # Un sénateur qui démissionne ne doit pas bloquer la publication.
         self.poser(self.vieille)
         self.poser(self.neuve, senateurs=347)
-        self.assertIsNone(rs.assez_pour_remplacer(self.neuve, self.vieille))
+        self.assertIsNone(garde.assez_pour_remplacer(self.neuve, self.vieille))
 
     def test_la_premiere_construction_n_a_rien_a_depasser(self):
         self.poser(self.neuve)
-        self.assertIsNone(rs.assez_pour_remplacer(self.neuve, self.vieille))
+        self.assertIsNone(garde.assez_pour_remplacer(self.neuve, self.vieille))
 
     def test_une_base_illisible_ne_remplace_rien(self):
         self.poser(self.vieille)
         self.neuve.write_bytes(b"ceci n'est pas une base")
         self.assertIn("lisible",
-                      rs.assez_pour_remplacer(self.neuve, self.vieille))
+                      garde.assez_pour_remplacer(self.neuve, self.vieille))
 
 
 class UneSourceQuiNEnEstPlusUne(unittest.TestCase):
@@ -151,7 +152,7 @@ class UneSourceQuiNEnEstPlusUne(unittest.TestCase):
         # Sans la garde, ce fichier levait `KeyError: 'Matricule'` et arrêtait
         # toute la construction.
         page = "<!DOCTYPE html>\n<body>Erreur</body>\n"
-        self.assertEqual(rs.lire_historique(self.ecrire(page)), {})
+        self.assertEqual(senateurs.lire_historique(self.ecrire(page)), {})
 
 
 class UneSourceCasseeNEnBloquePasQuatre(unittest.TestCase):
@@ -181,7 +182,7 @@ class UneSourceCasseeNEnBloquePasQuatre(unittest.TestCase):
 
     def test_sans_liste_de_senateurs_la_table_n_est_pas_videe(self):
         cx = self.peuplee()
-        n, noms, alertes = rs.senateurs_a_jour(cx, [], self.HISTORIQUE)
+        n, noms, alertes = senateurs.senateurs_a_jour(cx, [], self.HISTORIQUE)
         self.assertEqual(self.combien(cx), 348)
         self.assertEqual(n, 348)
         self.assertEqual(noms, {})          # pour ne pas réécrire les groupes
@@ -189,18 +190,18 @@ class UneSourceCasseeNEnBloquePasQuatre(unittest.TestCase):
 
     def test_sans_historique_la_table_n_est_pas_videe_non_plus(self):
         cx = self.peuplee()
-        rs.senateurs_a_jour(cx, [self.SENATEUR], {})
+        senateurs.senateurs_a_jour(cx, [self.SENATEUR], {})
         self.assertEqual(self.combien(cx), 348)
 
     def test_les_deux_sources_manquantes_sont_toutes_deux_nommees(self):
         cx = self.peuplee()
-        _, _, alertes = rs.senateurs_a_jour(cx, [], {})
+        _, _, alertes = senateurs.senateurs_a_jour(cx, [], {})
         self.assertIn("la liste des sénateurs", alertes[0])
         self.assertIn("historique des groupes", alertes[0])
 
     def test_avec_les_deux_sources_la_liste_se_remplace(self):
         cx = self.peuplee()
-        n, noms, alertes = rs.senateurs_a_jour(cx, [self.SENATEUR],
+        n, noms, alertes = senateurs.senateurs_a_jour(cx, [self.SENATEUR],
                                                self.HISTORIQUE)
         self.assertEqual(self.combien(cx), 1)
         self.assertEqual(n, 1)
@@ -214,7 +215,7 @@ class UneSourceCasseeNEnBloquePasQuatre(unittest.TestCase):
         cx = base()
         cx.executemany("INSERT INTO senateur (matricule, nom) VALUES (?,?)",
                        [(str(i), f"S{i}") for i in range(348)])
-        rs.ranger_senateurs(cx, [], {})
+        senateurs.ranger_senateurs(cx, [], {})
         self.assertEqual(
             cx.execute("SELECT COUNT(*) FROM senateur").fetchone()[0], 0)
 

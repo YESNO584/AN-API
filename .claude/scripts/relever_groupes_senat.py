@@ -30,7 +30,7 @@ RACINE = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RACINE / "socle"))
 
 import senat                                                   # noqa: E402
-import recuperer_senat                                         # noqa: E402
+from recuperation_senat import site                            # noqa: E402
 
 SORTIE = RACINE / "socle" / "groupes_senat.json"
 
@@ -57,7 +57,7 @@ def main() -> int:
         page = pathlib.Path(args[0]).read_text(encoding="utf-8", errors="replace")
         d_ou = args[0]
     else:
-        page = recuperer_senat.lire_url(senat.URL_GROUPES)
+        page = site.lire_url(senat.URL_GROUPES)
         d_ou = senat.URL_GROUPES
 
     groupes = senat.groupes_de_la_page(page)
