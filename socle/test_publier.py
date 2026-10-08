@@ -12,7 +12,8 @@ import sqlite3
 import sys
 import unittest
 
-import publier
+from publication import amendements as publier_amdt
+from publication import senat as publier_senat
 
 SCHEMA = pathlib.Path(__file__).resolve().parent / "schema.sql"
 
@@ -59,23 +60,23 @@ def debat(cx, texte_numero, numero, orateurs, paragraphes=40):
 
 def adoptes(cx, ref, fenetre=None):
     """Les amendements adoptés sur `ref`, à plat, par numéro."""
-    index = publier.amendements_adoptes(
-        cx, ref, publier.votes_par_amendement(cx, "D1"),
-        publier.debats_par_amendement(cx, "D1"), fenetre)
+    index = publier_amdt.amendements_adoptes(
+        cx, ref, publier_amdt.votes_par_amendement(cx, "D1"),
+        publier_amdt.debats_par_amendement(cx, "D1"), fenetre)
     return {a["numero"]: a for liste in index.values() for a in liste}
 
 
 class LeNumeroDuDocument(unittest.TestCase):
     def test_il_se_lit_a_la_fin_de_la_reference(self):
-        self.assertEqual(publier.numero_de_document(BTC_PREMIERE), "2984")
+        self.assertEqual(publier_amdt.numero_de_document(BTC_PREMIERE), "2984")
 
     def test_les_zeros_de_tete_tombent(self):
         """La séance dit « n° 224 », la référence écrit « BTA0224 »."""
-        self.assertEqual(publier.numero_de_document("PIONANR5L17BTA0224"), "224")
+        self.assertEqual(publier_amdt.numero_de_document("PIONANR5L17BTA0224"), "224")
 
     def test_une_reference_sans_chiffre_ne_donne_rien(self):
-        self.assertEqual(publier.numero_de_document(None), "")
-        self.assertEqual(publier.numero_de_document("SANSNUMERO"), "")
+        self.assertEqual(publier_amdt.numero_de_document(None), "")
+        self.assertEqual(publier_amdt.numero_de_document("SANSNUMERO"), "")
 
 
 class LeScrutinDUnAmendement(unittest.TestCase):
@@ -172,9 +173,9 @@ class LaFicheDUnAmendement(unittest.TestCase):
     """Ce que le socle publie pour l'écran d'un amendement adopté."""
 
     def entier(self, cx, suite=()):
-        return {a["numero"]: a for a in publier.amendements_adoptes_en_entier(
-            cx, "D1", list(suite), publier.votes_par_amendement(cx, "D1"),
-            publier.debats_par_amendement(cx, "D1"))}
+        return {a["numero"]: a for a in publier_amdt.amendements_adoptes_en_entier(
+            cx, "D1", list(suite), publier_amdt.votes_par_amendement(cx, "D1"),
+            publier_amdt.debats_par_amendement(cx, "D1"))}
 
     def test_seuls_les_adoptes_ont_une_fiche(self):
         """Un amendement rejeté reste dans la liste de l'onglet, sans fiche à
@@ -249,7 +250,7 @@ class LeMemeAmendementPublieDeuxFois(unittest.TestCase):
         for uid in self.JUMEAUX:
             amendement(cx, "59", BTC_PREMIERE, uid=uid)
         lignes = cx.execute("SELECT * FROM amendement ORDER BY uid").fetchall()
-        gardees = publier.sans_les_doublons(lignes)
+        gardees = publier_amdt.sans_les_doublons(lignes)
         self.assertEqual([l["uid"] for l in gardees], [self.JUMEAUX[0]])
 
     def test_deux_textes_differents_restent_deux_amendements(self):
@@ -261,7 +262,7 @@ class LeMemeAmendementPublieDeuxFois(unittest.TestCase):
         amendement(cx, "1", BTC_PREMIERE, uid="AM…B0325P0D2N000001",
                    dispositif="Rédiger ainsi l’alinéa 3 : …", ordre=2)
         lignes = cx.execute("SELECT * FROM amendement ORDER BY ordre").fetchall()
-        self.assertEqual(len(publier.sans_les_doublons(lignes)), 2)
+        self.assertEqual(len(publier_amdt.sans_les_doublons(lignes)), 2)
 
     def test_un_meme_numero_sur_deux_documents_reste_deux_amendements(self):
         """Deux lectures numérotent pareil, et ce sont bien deux amendements."""
@@ -269,7 +270,7 @@ class LeMemeAmendementPublieDeuxFois(unittest.TestCase):
         amendement(cx, "1", BTC_PREMIERE)
         amendement(cx, "1", BTC_CMP)
         lignes = cx.execute("SELECT * FROM amendement").fetchall()
-        self.assertEqual(len(publier.sans_les_doublons(lignes)), 2)
+        self.assertEqual(len(publier_amdt.sans_les_doublons(lignes)), 2)
 
     def test_la_liste_d_une_version_ne_le_montre_plus_deux_fois(self):
         """On compte les lignes de l'index, **pas** les numéros distincts : le
@@ -278,7 +279,7 @@ class LeMemeAmendementPublieDeuxFois(unittest.TestCase):
         cx = base()
         for uid in self.JUMEAUX:
             amendement(cx, "59", BTC_PREMIERE, uid=uid)
-        index = publier.amendements_adoptes(cx, BTC_PREMIERE)
+        index = publier_amdt.amendements_adoptes(cx, BTC_PREMIERE)
         self.assertEqual(sum(len(liste) for liste in index.values()), 1)
 
     def test_il_n_a_qu_une_fiche(self):
@@ -287,7 +288,7 @@ class LeMemeAmendementPublieDeuxFois(unittest.TestCase):
         cx = base()
         for uid in self.JUMEAUX:
             amendement(cx, "59", BTC_PREMIERE, uid=uid)
-        fiches = publier.amendements_adoptes_en_entier(
+        fiches = publier_amdt.amendements_adoptes_en_entier(
             cx, "D1", [{"ref": BTC_PREMIERE, "date": "2026-05-06"}], {}, {})
         self.assertEqual([f["uid"] for f in fiches], [self.JUMEAUX[0]])
 
@@ -324,18 +325,18 @@ class LeSujetDUnTexte(unittest.TestCase):
         self.poser(cx, [("pjlf1979", "Budget", 1),
                         ("pjlf1979", "Économie et finances, fiscalité", 0)])
         self.assertEqual(
-            publier.themes_par_texte(cx, {"pjlf1979": "DLR5L17N1"}),
+            publier_senat.themes_par_texte(cx, {"pjlf1979": "DLR5L17N1"}),
             {"DLR5L17N1": ["Économie et finances, fiscalité", "Budget"]})
 
     def test_un_signet_inconnu_ne_fait_pas_d_entree(self):
         cx = self.base()
         self.poser(cx, [("ppl25-401", "Justice", 0),
                         ("ppl24-999", "Défense", 0)])
-        rendu = publier.themes_par_texte(cx, {"ppl25-401": "DLR5L17N1"})
+        rendu = publier_senat.themes_par_texte(cx, {"ppl25-401": "DLR5L17N1"})
         self.assertEqual(rendu, {"DLR5L17N1": ["Justice"]})
 
     def test_sans_base_du_senat_il_n_y_a_pas_de_sujet(self):
-        self.assertEqual(publier.themes_par_texte(None, {"a": "b"}), {})
+        self.assertEqual(publier_senat.themes_par_texte(None, {"a": "b"}), {})
 
 
 if __name__ == "__main__":
