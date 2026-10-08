@@ -167,6 +167,39 @@ def reproches(uid: str, entree: dict) -> list[str]:
     return ennuis
 
 
+def description_retenue(uid: str, entree: dict, args) -> dict:
+    """L'entrée telle qu'elle est rangée : nettoyée, datée, et son origine dite."""
+    nom = (entree.get("nomUsage") or "").strip()
+    return {
+        **({"contexte": entree["contexte"].strip()}
+           if (entree.get("contexte") or "").strip() else {}),
+        "accroche": entree["accroche"].strip(),
+        "points": [p.strip() for p in (entree.get("points") or []) if p.strip()],
+        # Le compte est relevé ici, jamais écrit par la rédaction.
+        **({"nomUsage": {"nom": nom, "citations": citations(uid, nom)}}
+           if nom else {}),
+        "origine": args.origine,
+        "le": args.date,
+        **({"modele": args.modele} if args.modele else {}),
+    }
+
+
+def bilan(args, entrees: dict, avant: int, ecrites: set, refusees: list) -> int:
+    """Ce que le lot a donné, et chaque refus avec sa raison. Rend le code de sortie."""
+    sans_points = sum(1 for e in entrees.values() if not e["points"])
+    total_points = sum(len(e["points"]) for e in entrees.values())
+    avec_contexte = sum(1 for e in entrees.values() if e.get("contexte"))
+    avec_nom = sum(1 for e in entrees.values() if e.get("nomUsage"))
+    print(f"{len(entrees)} descriptions dans {args.cible} "
+          f"({len(entrees) - avant} de plus, {len(ecrites)} réécrites)")
+    print(f"  {total_points} points, {sans_points} description(s) sans point")
+    print(f"  {avec_contexte} avec un contexte, {avec_nom} avec un nom d'usage")
+    print(f"  modèle : {args.modele or 'non renseigné'}")
+    for uid, ennuis in refusees:
+        print(f"  REFUSÉE {uid} : {', '.join(ennuis)}", file=sys.stderr)
+    return 1 if refusees else 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -200,19 +233,7 @@ def main() -> int:
             if ennuis:
                 refusees.append((uid, ennuis))
                 continue
-            nom = (entree.get("nomUsage") or "").strip()
-            entrees[uid] = {
-                **({"contexte": entree["contexte"].strip()}
-                   if (entree.get("contexte") or "").strip() else {}),
-                "accroche": entree["accroche"].strip(),
-                "points": [p.strip() for p in (entree.get("points") or []) if p.strip()],
-                # Le compte est relevé ici, jamais écrit par la rédaction.
-                **({"nomUsage": {"nom": nom, "citations": citations(uid, nom)}}
-                   if nom else {}),
-                "origine": args.origine,
-                "le": args.date,
-                **({"modele": args.modele} if args.modele else {}),
-            }
+            entrees[uid] = description_retenue(uid, entree, args)
             ecrites.add(uid)
 
     args.cible.write_text(json.dumps({
@@ -222,18 +243,7 @@ def main() -> int:
         "descriptions": entrees,
     }, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
-    sans_points = sum(1 for e in entrees.values() if not e["points"])
-    total_points = sum(len(e["points"]) for e in entrees.values())
-    avec_contexte = sum(1 for e in entrees.values() if e.get("contexte"))
-    avec_nom = sum(1 for e in entrees.values() if e.get("nomUsage"))
-    print(f"{len(entrees)} descriptions dans {args.cible} "
-          f"({len(entrees) - avant} de plus, {len(ecrites)} réécrites)")
-    print(f"  {total_points} points, {sans_points} description(s) sans point")
-    print(f"  {avec_contexte} avec un contexte, {avec_nom} avec un nom d'usage")
-    print(f"  modèle : {args.modele or 'non renseigné'}")
-    for uid, ennuis in refusees:
-        print(f"  REFUSÉE {uid} : {', '.join(ennuis)}", file=sys.stderr)
-    return 1 if refusees else 0
+    return bilan(args, entrees, avant, ecrites, refusees)
 
 
 if __name__ == "__main__":

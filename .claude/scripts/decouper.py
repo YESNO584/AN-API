@@ -102,6 +102,42 @@ def imports_utiles(imports: list[dict], corps: str) -> list[str]:
     return gardes
 
 
+def repartir(plan: dict, code: list[dict]) -> tuple[dict[str, list[dict]], list[dict]] | None:
+    """Les blocs de chaque module neuf, et ceux qui restent dans la source.
+    `None`, après l'avoir dit, si le plan nomme un inconnu ou coupe un bloc."""
+    destination: dict[str, str] = {}
+    for module, d in plan["modules"].items():
+        for nom in d["noms"]:
+            destination[nom] = module
+    inconnus = set(destination) - {n for b in code for n in b["noms"]}
+    if inconnus:
+        print("Noms introuvables dans la source :", sorted(inconnus), file=sys.stderr)
+        return None
+
+    par_module: dict[str, list[dict]] = {m: [] for m in plan["modules"]}
+    restent: list[dict] = []
+    for b in code:
+        cibles = {destination.get(n) for n in b["noms"]} - {None}
+        if len(cibles) > 1:
+            print("Un bloc définit des noms de modules différents :", b["noms"], file=sys.stderr)
+            return None
+        (par_module[cibles.pop()] if cibles else restent).append(b)
+    return par_module, restent
+
+
+def emprunts(bs: list[dict], moi: str, definis: dict[str, str]) -> list[str]:
+    """Les imports qu'un module doit aux autres : chaque nom qu'il emploie sans
+    le définir, rangé par le module qui le définit."""
+    corps = "\n".join(b["texte"] for b in bs)
+    utilises = noms_utilises(corps)
+    propres = {n for b in bs for n in b["noms"]}
+    par_origine: dict[str, list[str]] = {}
+    for n in sorted(utilises):
+        if n in definis and n not in propres and definis[n] != moi:
+            par_origine.setdefault(definis[n], []).append(n)
+    return [f"from {o} import {', '.join(ns)}" for o, ns in sorted(par_origine.items())]
+
+
 def main() -> int:
     source = pathlib.Path(sys.argv[1])
     plan = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding="utf-8"))
@@ -116,24 +152,10 @@ def main() -> int:
     imports = [b for b in tous if b["import"]]
     code = [b for b in tous if not b["import"]]
 
-    # Où va chaque nom.
-    destination: dict[str, str] = {}
-    for module, d in plan["modules"].items():
-        for nom in d["noms"]:
-            destination[nom] = module
-    inconnus = set(destination) - {n for b in code for n in b["noms"]}
-    if inconnus:
-        print("Noms introuvables dans la source :", sorted(inconnus), file=sys.stderr)
+    reparti = repartir(plan, code)
+    if reparti is None:
         return 1
-
-    par_module: dict[str, list[dict]] = {m: [] for m in plan["modules"]}
-    restent = []
-    for b in code:
-        cibles = {destination.get(n) for n in b["noms"]} - {None}
-        if len(cibles) > 1:
-            print("Un bloc définit des noms de modules différents :", b["noms"], file=sys.stderr)
-            return 1
-        (par_module[cibles.pop()] if cibles else restent).append(b)
+    par_module, restent = reparti
 
     # Qui définit quoi, pour les emprunts entre modules.
     definis: dict[str, str] = {}
@@ -145,28 +167,18 @@ def main() -> int:
         for n in b["noms"]:
             definis[n] = source.stem
 
-    def emprunts(bs: list[dict], moi: str) -> list[str]:
-        corps = "\n".join(b["texte"] for b in bs)
-        utilises = noms_utilises(corps)
-        propres = {n for b in bs for n in b["noms"]}
-        par_origine: dict[str, list[str]] = {}
-        for n in sorted(utilises):
-            if n in definis and n not in propres and definis[n] != moi:
-                par_origine.setdefault(definis[n], []).append(n)
-        return [f"from {o} import {', '.join(ns)}" for o, ns in sorted(par_origine.items())]
-
     for m, d in plan["modules"].items():
         bs = par_module[m]
         corps = "\n\n\n".join(b["texte"] for b in bs)
         lignes = ['"""' + d["doc"].rstrip() + '\n"""', "from __future__ import annotations", ""]
         lignes += imports_utiles(imports, corps)
-        lignes += emprunts(bs, f"{prefixe}{m}")
+        lignes += emprunts(bs, f"{prefixe}{m}", definis)
         lignes += ["", "", corps, ""]
         (paquet / f"{m}.py").write_text("\n".join(lignes), encoding="utf-8")
         print(f"  {paquet / (m + '.py')} : {len(bs)} blocs")
 
     corps = "\n\n\n".join(b["texte"] for b in restent)
-    lignes = entete + [""] + imports_utiles(imports, corps) + emprunts(restent, source.stem)
+    lignes = entete + [""] + imports_utiles(imports, corps) + emprunts(restent, source.stem, definis)
     lignes += ["", "", corps, ""]
     source.write_text("\n".join(lignes), encoding="utf-8")
     print(f"  {source} : {len(restent)} blocs gardés")

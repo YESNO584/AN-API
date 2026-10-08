@@ -146,6 +146,48 @@ def orateurs_sans_groupe(uid: str) -> dict[str, int]:
     return compte
 
 
+def arguments_retenus(uid: str, qui: str, arguments: list | None,
+                      refus: list[str]) -> list[str] | None:
+    """Les arguments d'un groupe, nettoyés — ou `None`, le refus noté, s'ils
+    sont absents, trop nombreux, trop longs, ou s'ils disent un vote."""
+    propres = [a.strip() for a in (arguments or []) if a and a.strip()]
+    if not propres:
+        refus.append(f"{uid} / {qui} : aucun argument")
+        return None
+    if len(propres) > ARGUMENTS_MAX:
+        refus.append(f"{uid} / {qui} : {len(propres)} arguments, "
+                     f"{ARGUMENTS_MAX} au plus")
+        return None
+    trop_long = [a for a in propres if len(a) > CARACTERES_MAX]
+    if trop_long:
+        refus.append(f"{uid} / {qui} : un argument dépasse "
+                     f"{CARACTERES_MAX} caractères")
+        return None
+    # Le camp vient du scrutin, jamais de la rédaction : un argument qui
+    # dit comment ce groupe a voté est refusé, même s'il est vrai.
+    vote_ecrit = [a for a in propres if DIT_UN_VOTE.search(a)]
+    if vote_ecrit:
+        refus.append(f"{uid} / {qui} : un argument dit une position de "
+                     f"vote — « {vote_ecrit[0][:70]}… »")
+        return None
+    return propres
+
+
+def ranger_comme_l_hemicycle(groupes: list[dict], orateurs: list[dict],
+                             vote: dict | None, dit: dict, seuls: list[str]) -> None:
+    """L'ordre de l'hémicycle : celui du scrutin quand il existe, sinon celui
+    du fichier des paroles, qui est déjà rangé de la gauche à la droite. Sans
+    ce secours, un texte sans scrutin affichait ses groupes par ordre
+    alphabétique — « DR, Dem, EPR », qui ne veut rien dire."""
+    rangs = {g["sigle"]: g.get("rang", 99) for g in (vote or {}).get("groupes", [])}
+    if not rangs:
+        rangs = {sigle: i for i, sigle in enumerate(dit)}
+    groupes.sort(key=lambda g: (rangs.get(g["sigle"], 99), g["sigle"]))
+    # Les orateurs dans l'ordre où le compte rendu les fait parler.
+    ordre_dit = {nom: i for i, nom in enumerate(seuls)}
+    orateurs.sort(key=lambda o: ordre_dit.get(o["nom"], 99))
+
+
 def controler(uid: str, ecrit: dict, refus: list[str]) -> dict | None:
     vote = vote_decisif(uid)
     # Présent au scrutin et sans position : personne n'y a voté dans ce groupe.
@@ -163,25 +205,8 @@ def controler(uid: str, ecrit: dict, refus: list[str]) -> dict | None:
         if qui not in dit and qui not in seuls:
             refus.append(f"{uid} / {qui} : n'a pas parlé sur ce texte")
             continue
-        propres = [a.strip() for a in (arguments or []) if a and a.strip()]
-        if not propres:
-            refus.append(f"{uid} / {qui} : aucun argument")
-            continue
-        if len(propres) > ARGUMENTS_MAX:
-            refus.append(f"{uid} / {qui} : {len(propres)} arguments, "
-                         f"{ARGUMENTS_MAX} au plus")
-            continue
-        trop_long = [a for a in propres if len(a) > CARACTERES_MAX]
-        if trop_long:
-            refus.append(f"{uid} / {qui} : un argument dépasse "
-                         f"{CARACTERES_MAX} caractères")
-            continue
-        # Le camp vient du scrutin, jamais de la rédaction : un argument qui
-        # dit comment ce groupe a voté est refusé, même s'il est vrai.
-        vote_ecrit = [a for a in propres if DIT_UN_VOTE.search(a)]
-        if vote_ecrit:
-            refus.append(f"{uid} / {qui} : un argument dit une position de "
-                         f"vote — « {vote_ecrit[0][:70]}… »")
+        propres = arguments_retenus(uid, qui, arguments, refus)
+        if propres is None:
             continue
         if qui in dit:
             groupes.append({"sigle": qui,
@@ -196,17 +221,7 @@ def controler(uid: str, ecrit: dict, refus: list[str]) -> dict | None:
     if not groupes and not orateurs:
         refus.append(f"{uid} : aucun groupe ni orateur retenu")
         return None
-    # L'ordre de l'hémicycle : celui du scrutin quand il existe, sinon celui
-    # du fichier des paroles, qui est déjà rangé de la gauche à la droite. Sans
-    # ce secours, un texte sans scrutin affichait ses groupes par ordre
-    # alphabétique — « DR, Dem, EPR », qui ne veut rien dire.
-    rangs = {g["sigle"]: g.get("rang", 99) for g in (vote or {}).get("groupes", [])}
-    if not rangs:
-        rangs = {sigle: i for i, sigle in enumerate(dit)}
-    groupes.sort(key=lambda g: (rangs.get(g["sigle"], 99), g["sigle"]))
-    # Les orateurs dans l'ordre où le compte rendu les fait parler.
-    ordre_dit = {nom: i for i, nom in enumerate(seuls)}
-    orateurs.sort(key=lambda o: ordre_dit.get(o["nom"], 99))
+    ranger_comme_l_hemicycle(groupes, orateurs, vote, dit, seuls)
     return {
         "vote": ({"date": vote.get("date"), "sort": vote.get("sort"),
                   "objet": vote.get("objet")} if vote else None),

@@ -165,21 +165,10 @@ ARTICLES_VERSION = 12
 EXTRAIT_VERSION = 1800
 
 
-def faits_du_texte_en_cours(uid: str, texte: dict) -> dict | None:
-    """Ce qu'un texte en cours décide, dans sa **dernière version publiée**.
-
-    Pas le texte déposé : un texte réécrit en commission ne dit plus ce qu'il
-    disait au dépôt, et le décrire au dépôt serait décrire un texte qui
-    n'existe plus. C'est la version que l'onglet « Texte » de la fiche montre
-    sous « Version à jour », et le même fichier publié.
-    """
-    versions = texte.get("versions") or []
-    if not versions:
-        return None
-    derniere = versions[-1]
-    d = lire_ou_rien(f"{SOCLE}/versions/{uid}/{derniere['ref']}.json")
-    if not d:
-        return None
+def articles_de_la_version(d: dict) -> tuple[list[dict], int, list[dict]]:
+    """Les articles que cette version imprime, combien elle en a vidés, et
+    ceux qui portent un texte — trois comptes que la source ne donne pas tels
+    quels, et que trois pièges mesurés faussaient."""
     # **Un article `retire` porte l'ANCIENNE rédaction, pas la nouvelle.** Une
     # version liste aussi ce qu'elle a supprimé, pour que la comparaison puisse
     # l'afficher barré. Le garder ici faisait décrire un texte qui n'existe
@@ -203,6 +192,25 @@ def faits_du_texte_en_cours(uid: str, texte: dict) -> dict | None:
     # dans ce cas. Les compter comme « lus » faisait annoncer « 7 sur 7 » là où
     # 4 étaient vides, donc surestimer la matière d'une description.
     porteurs = [a for a in tous if (a.get("texte") or "").strip()]
+    return tous, supprimes, porteurs
+
+
+def faits_du_texte_en_cours(uid: str, texte: dict) -> dict | None:
+    """Ce qu'un texte en cours décide, dans sa **dernière version publiée**.
+
+    Pas le texte déposé : un texte réécrit en commission ne dit plus ce qu'il
+    disait au dépôt, et le décrire au dépôt serait décrire un texte qui
+    n'existe plus. C'est la version que l'onglet « Texte » de la fiche montre
+    sous « Version à jour », et le même fichier publié.
+    """
+    versions = texte.get("versions") or []
+    if not versions:
+        return None
+    derniere = versions[-1]
+    d = lire_ou_rien(f"{SOCLE}/versions/{uid}/{derniere['ref']}.json")
+    if not d:
+        return None
+    tous, supprimes, porteurs = articles_de_la_version(d)
     articles = sorted(porteurs, key=lambda a: -len(a["texte"]))[:ARTICLES_VERSION]
     return {
         "uid": uid,
@@ -287,27 +295,36 @@ def main() -> int:
     # une loi promulguée se décrit sur le droit qu'elle change et qui est en
     # vigueur, un texte en cours sur sa dernière version publiée.
     if args.textes:
-        chemin = pathlib.Path(args.textes)
-        uids = ([x.strip() for x in chemin.read_text(encoding="utf-8").split() if x.strip()]
-                if chemin.exists()
-                else [x.strip() for x in args.textes.split(",") if x.strip()])
-        ecrits = sautes = 0
-        for uid in uids:
-            texte = lire_ou_rien(f"{SOCLE}/textes/{uid}.json")
-            faits = faits_du_texte_en_cours(uid, texte) if texte else None
-            if not faits:
-                sautes += 1
-                print(f"  {uid} : aucune version publiée à lire", file=sys.stderr)
-                continue
-            (args.sortie / f"{uid}.json").write_text(
-                json.dumps(faits, ensure_ascii=False, indent=1), encoding="utf-8")
-            ecrits += 1
-            print(f'  {uid}  {faits["articlesLus"]:>2}/{faits["articlesEnTout"]:<4}'
-                  f'  {faits["quelleVersion"]["nom"][:28]:28}  {(faits["titre"] or "")[:44]}')
-        print(f"{ecrits} textes écrits dans {args.sortie}, {sautes} sans version",
-              file=sys.stderr)
-        return 0
+        return ecrire_les_textes_en_cours(args)
+    return ecrire_les_lois(args)
 
+
+def ecrire_les_textes_en_cours(args) -> int:
+    """Un fichier par texte en cours demandé, sur sa dernière version publiée."""
+    chemin = pathlib.Path(args.textes)
+    uids = ([x.strip() for x in chemin.read_text(encoding="utf-8").split() if x.strip()]
+            if chemin.exists()
+            else [x.strip() for x in args.textes.split(",") if x.strip()])
+    ecrits = sautes = 0
+    for uid in uids:
+        texte = lire_ou_rien(f"{SOCLE}/textes/{uid}.json")
+        faits = faits_du_texte_en_cours(uid, texte) if texte else None
+        if not faits:
+            sautes += 1
+            print(f"  {uid} : aucune version publiée à lire", file=sys.stderr)
+            continue
+        (args.sortie / f"{uid}.json").write_text(
+            json.dumps(faits, ensure_ascii=False, indent=1), encoding="utf-8")
+        ecrits += 1
+        print(f'  {uid}  {faits["articlesLus"]:>2}/{faits["articlesEnTout"]:<4}'
+              f'  {faits["quelleVersion"]["nom"][:28]:28}  {(faits["titre"] or "")[:44]}')
+    print(f"{ecrits} textes écrits dans {args.sortie}, {sautes} sans version",
+          file=sys.stderr)
+    return 0
+
+
+def ecrire_les_lois(args) -> int:
+    """Un fichier par loi promulguée — toutes, ou celles demandées."""
     voulues = set((args.lois or "").split(",")) if args.lois else None
     promulguees = lire(f"{SOCLE}/promulgues.json")["textes"]
     ecrits = 0
@@ -333,7 +350,6 @@ def main() -> int:
               f"  {t['titre'][:60]}")
     print(f"{ecrits} lois écrites dans {args.sortie}")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())
