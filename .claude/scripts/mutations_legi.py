@@ -4,7 +4,7 @@
     cd .claude/scripts && ./mutations_legi.py
 
 Un test qui ne casse pas quand la règle casse ne teste rien. Ce programme défait
-une règle de `socle/legi.py` à la fois, relance `socle/test_legi.py`, et exige
+une règle de `socle/legi.py` à la fois, relance les suites `socle/test_legi*.py`, et exige
 qu'**au moins un test échoue, nommément**.
 
 Deux précautions, l'une et l'autre apprises à ses dépens le 2026-09-03 :
@@ -85,7 +85,7 @@ def essayer(copie: pathlib.Path, nom: str, avant: str, apres: str,
                   f"elle ne prouve rien")
             return f"{nom} (mutation invalide)"
 
-    fait = subprocess.run([sys.executable, "test_legi.py"], cwd=copie,
+    fait = subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", ".", "-p", "test_legi*.py"], cwd=copie,
                           capture_output=True, text=True)
     vus = re.findall(r"^(?:FAIL|ERROR): (\w+)", fait.stderr, re.M)
     if not vus:
@@ -105,7 +105,7 @@ def main() -> int:
                                                       "archives_legi", "__pycache__"))
         original = (copie / "legi.py").read_text()
 
-        temoin = subprocess.run([sys.executable, "test_legi.py"], cwd=copie,
+        temoin = subprocess.run([sys.executable, "-m", "unittest", "discover", "-s", ".", "-p", "test_legi*.py"], cwd=copie,
                                 capture_output=True, text=True)
         if temoin.returncode != 0:
             print("Les tests échouent déjà sans mutation : rien à mesurer.",

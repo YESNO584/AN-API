@@ -46,21 +46,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      # Les huit suites, et pas trois : `test_publier.py`, `test_recuperer.py`
-      # et `test_affichage.py` n'étaient pas lancées ici (constaté le
-      # 2026-10-04). Une règle qui casse doit se voir avant la publication, pas
-      # après.
+      # **Toutes les suites, découvertes et non listées.** Trois d'entre elles
+      # ont manqué ici pendant des semaines parce qu'une liste écrite à la main
+      # ne se met pas à jour toute seule (constaté le 2026-10-04). Un fichier
+      # `test_*.py` posé dans `socle/` tourne désormais sans qu'on y pense.
       - name: Tests
         working-directory: socle
-        run: |
-          python test_extraction.py
-          python test_affichage.py
-          python test_legi.py
-          python test_textes.py
-          python test_publier.py
-          python test_recuperer.py
-          python test_senat.py
-          python test_recuperer_senat.py
+        # Pas de `| tail` ici : un tube rend le code de retour de la dernière
+        # commande, et une suite en échec passerait pour réussie.
+        run: python -m unittest discover -s . -p "test_*.py"
+
+      # La règle de longueur : aucun fichier ni aucune fonction au-dessus des
+      # seuils de `longueurs.py`. Elle ne tient que si quelque chose la mesure.
+      - name: Longueur des fichiers et des fonctions
+        run: python .claude/scripts/longueurs.py
 
   publier:
     name: Récupérer et publier

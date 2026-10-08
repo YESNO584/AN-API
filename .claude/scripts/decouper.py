@@ -62,7 +62,11 @@ def blocs(src: str) -> tuple[list[str], list[dict]]:
         if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             noms = [n.name]
         elif isinstance(n, ast.Assign):
-            noms = [t.id for t in n.targets if isinstance(t, ast.Name)]
+            # `A = 1` comme `(A, B, C) = 1, 2, 3` : les deux définissent des noms.
+            noms = []
+            for t in n.targets:
+                cibles = t.elts if isinstance(t, ast.Tuple) else [t]
+                noms += [c.id for c in cibles if isinstance(c, ast.Name)]
         elif isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name):
             noms = [n.target.id]
         resultat.append({"noms": noms, "texte": "\n".join(lignes[premiere:derniere]),
@@ -103,7 +107,9 @@ def main() -> int:
     plan = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding="utf-8"))
     paquet = pathlib.Path(plan["paquet"])
     paquet.mkdir(exist_ok=True)
-    nom_paquet = paquet.name
+    # Le préfixe des imports entre modules neufs : le nom du paquet, ou rien
+    # quand les modules vivent à plat dans un dossier déjà sur le chemin.
+    prefixe = plan.get("prefixe", paquet.name + ".")
 
     src = source.read_text(encoding="utf-8")
     entete, tous = blocs(src)
@@ -134,7 +140,7 @@ def main() -> int:
     for m, bs in par_module.items():
         for b in bs:
             for n in b["noms"]:
-                definis[n] = f"{nom_paquet}.{m}"
+                definis[n] = f"{prefixe}{m}"
     for b in restent:
         for n in b["noms"]:
             definis[n] = source.stem
@@ -154,7 +160,7 @@ def main() -> int:
         corps = "\n\n\n".join(b["texte"] for b in bs)
         lignes = ['"""' + d["doc"].rstrip() + '\n"""', "from __future__ import annotations", ""]
         lignes += imports_utiles(imports, corps)
-        lignes += emprunts(bs, f"{nom_paquet}.{m}")
+        lignes += emprunts(bs, f"{prefixe}{m}")
         lignes += ["", "", corps, ""]
         (paquet / f"{m}.py").write_text("\n".join(lignes), encoding="utf-8")
         print(f"  {paquet / (m + '.py')} : {len(bs)} blocs")
