@@ -217,6 +217,115 @@ function poserLeDessin(zone, groupes, total, choisi, sigle, parSiege) {
 // l'ouverture d'un groupe, pas à un rechargement de la page.
 let PAR_SIEGE = false;
 
+/* La ligne d'un groupe dans la liste sous l'hémicycle — la même pour les
+   deux chambres. `hf`, s'il est donné, est l'emplacement du compte femmes /
+   hommes, rempli plus tard. Toucher la ligne ouvre le groupe, ou le referme
+   s'il l'était : c'est l'adresse qui porte l'état. */
+function ligneDeGroupe(g, choisi, sigle, nom, unite, racine, hf = null) {
+  const ligne = el("button", "hemi-groupe");
+  ligne.setAttribute("aria-expanded", String(g === choisi));
+  const teinte = el("i");
+  if (g.couleur) teinte.style.background = g.couleur;
+  ligne.append(teinte);
+  ligne.append(el("span", "sigle", sigle));
+  ligne.append(el("span", "nom", nom));
+  const compte = el("span", "n", nb.format(g.effectif));
+  compte.append(el("span", null, unite));
+  ligne.append(compte);
+  if (hf) ligne.append(hf);
+  ligne.append(el("span", "chevron", g === choisi ? "‹" : "›"));
+  ligne.addEventListener("click", () => {
+    location.hash = g === choisi ? racine : racine + "/" + encodeURIComponent(g.sigle);
+  });
+  return ligne;
+}
+
+/* La phrase sous le titre, et l'emplacement du total femmes / hommes qui se
+   complète quand les douze fichiers sont lus, comme les comptes par groupe :
+   la phrase ne fait pas attendre l'écran. */
+function sousTitreDeLAssemblee(total, groupes) {
+  const sous = el("p", "fiche-sous",
+    `${nb.format(total)} députés, ${groupes.length} groupes, `
+    + "de la gauche à la droite de l'hémicycle. ");
+  // Le total femmes / hommes se complète quand les douze fichiers sont lus,
+  // comme les comptes par groupe : la phrase ne fait pas attendre l'écran.
+  const totalHF = el("span", "hf-total");
+  sous.append(totalHF);
+  const aide = el("button", "aide", "ⓘ");
+  aide.setAttribute("aria-label", "Ce que ce dessin montre, et ce qu'il ne montre pas");
+  aide.addEventListener("click",
+    () => expliquer(...EXPLICATIONS.hemicycle, "Effectifs mesurés, places dessinées"));
+  sous.append(aide);
+  return [sous, totalHF];
+}
+
+/* La bascule entre les deux dessins, dans le coin haut droit. « Par siège »
+   attend que les douze fichiers de groupes soient lus : un hémicycle à
+   moitié vide serait pire qu'un dessin par blocs. Rend ses deux boutons. */
+function basculeDuDessin(zone, groupes, total, choisi, sigle) {
+  const bascule = el("div", "bascule-hemi");
+  bascule.setAttribute("role", "group");
+  bascule.setAttribute("aria-label", "Façon de dessiner l'hémicycle");
+  const boutons = [["groupe", false], ["siège", true]].map(([mot, siege]) => {
+    const b = el("button", null, mot);
+    b.setAttribute("aria-pressed", String(PAR_SIEGE === siege));
+    b.disabled = siege;               // levé dès que les députés sont lus
+    b.addEventListener("click", () => {
+      if (PAR_SIEGE === siege) return;
+      PAR_SIEGE = siege;
+      boutons.forEach((x, i) => x.setAttribute("aria-pressed",
+        String(PAR_SIEGE === (i === 1))));
+      poserLeDessin(zone, groupes, total, choisi, sigle, PAR_SIEGE);
+    });
+    bascule.append(b);
+    return b;
+  });
+  zone.append(bascule);
+  return boutons;
+}
+
+/* Le total de l'Assemblée : la somme des douze groupes, pas un chiffre à
+   part. Si un seul fichier manque, la phrase ne dit rien plutôt que de
+   donner un total incomplet pour le total. */
+function completerLesTotaux(groupes, boutons, totalHF, redessiner) {
+  Promise.all(groupes.map(membresDuGroupe)).then((tous) => {
+    if (tous.some((x) => !x)) return;
+    boutons[1].disabled = false;
+    if (PAR_SIEGE) redessiner();
+    const somme = tous.flat();
+    const { femmes, hommes } = femmesEtHommes(somme);
+    if (femmes + hommes === somme.length) {
+      totalHF.textContent = `${nb.format(femmes)} F / ${nb.format(hommes)} H. `;
+    }
+  });
+}
+
+/* Les députés du groupe ouvert, juste sous sa ligne. */
+async function deputesDuGroupe(f, choisi) {
+  const attente = el("p", "avertissement", "Chargement…");
+  f.append(attente);
+  const membres = await membresDuGroupe(choisi);
+  attente.remove();
+  if (!membres || !membres.length) {
+    f.append(el("div", "vide",
+      "La liste des députés de ce groupe n'est pas encore publiée. "
+      + "Elle arrive avec la publication du matin."));
+    return;
+  }
+  const detail = el("p", "fiche-sous",
+    `${nb.format(membres.length)} députés, classés par nom. `);
+  const aideNoms = el("button", "aide", "ⓘ");
+  aideNoms.setAttribute("aria-label", "D'où viennent ces noms");
+  aideNoms.addEventListener("click",
+    () => expliquer(...EXPLICATIONS.deputes, choisi.sigle));
+  detail.append(aideNoms);
+  f.append(detail);
+
+  const lignes = el("div", "deputes");
+  for (const x of membres) lignes.append(ligneDepute(x));
+  f.append(lignes);
+}
+
 /* Un seul écran, deux états : tous les groupes, ou un seul groupe ouvert avec
    ses députés en dessous. C'est l'adresse qui porte l'état — `#/hemicycle` ou
    `#/hemicycle/<sigle>` — de sorte que le retour du téléphone referme le
@@ -240,71 +349,23 @@ async function ouvrirHemicycle(sigle = null) {
   const choisi = groupes.find((g) => g.sigle === sigle) || null;
   const total = groupes.reduce((n, g) => n + g.effectif, 0);
 
-  const sous = el("p", "fiche-sous",
-    `${nb.format(total)} députés, ${groupes.length} groupes, `
-    + "de la gauche à la droite de l'hémicycle. ");
-  // Le total femmes / hommes se complète quand les douze fichiers sont lus,
-  // comme les comptes par groupe : la phrase ne fait pas attendre l'écran.
-  const totalHF = el("span", "hf-total");
-  sous.append(totalHF);
-  const aide = el("button", "aide", "ⓘ");
-  aide.setAttribute("aria-label", "Ce que ce dessin montre, et ce qu'il ne montre pas");
-  aide.addEventListener("click",
-    () => expliquer(...EXPLICATIONS.hemicycle, "Effectifs mesurés, places dessinées"));
-  sous.append(aide);
+  const [sous, totalHF] = sousTitreDeLAssemblee(total, groupes);
   f.append(sous);
 
   const zone = el("div", "hemicycle");
   f.append(zone);
-
-  // La bascule entre les deux dessins, dans le coin haut droit. « Par siège »
-  // attend que les douze fichiers de groupes soient lus : un hémicycle à
-  // moitié vide serait pire qu'un dessin par blocs.
-  const bascule = el("div", "bascule-hemi");
-  bascule.setAttribute("role", "group");
-  bascule.setAttribute("aria-label", "Façon de dessiner l'hémicycle");
-  const boutons = [["groupe", false], ["siège", true]].map(([mot, siege]) => {
-    const b = el("button", null, mot);
-    b.setAttribute("aria-pressed", String(PAR_SIEGE === siege));
-    b.disabled = siege;               // levé dès que les députés sont lus
-    b.addEventListener("click", () => {
-      if (PAR_SIEGE === siege) return;
-      PAR_SIEGE = siege;
-      boutons.forEach((x, i) => x.setAttribute("aria-pressed",
-        String(PAR_SIEGE === (i === 1))));
-      poserLeDessin(zone, groupes, total, choisi, sigle, PAR_SIEGE);
-    });
-    bascule.append(b);
-    return b;
-  });
-  zone.append(bascule);
+  const boutons = basculeDuDessin(zone, groupes, total, choisi, sigle);
   poserLeDessin(zone, groupes, total, choisi, sigle, PAR_SIEGE);
 
   // La liste : tous les groupes, ou le seul qui est ouvert.
   const liste = el("div", "hemi-liste");
   f.append(liste);
   for (const g of (choisi ? [choisi] : groupes)) {
-    const ligne = el("button", "hemi-groupe");
-    ligne.setAttribute("aria-expanded", String(g === choisi));
-    const teinte = el("i");
-    if (g.couleur) teinte.style.background = g.couleur;
-    ligne.append(teinte);
-    ligne.append(el("span", "sigle", g.sigle));
-    ligne.append(el("span", "nom", g.nom || ""));
-    const compte = el("span", "n", nb.format(g.effectif));
-    compte.append(el("span", null, " dép."));
-    ligne.append(compte);
     // Le compte femmes / hommes arrive avec le fichier du groupe : la ligne
     // s'affiche sans attendre, et se complète. Un fichier qui manque ne laisse
     // pas un chiffre faux, il ne laisse rien.
     const hf = el("span", "hf");
-    ligne.append(hf);
-    ligne.append(el("span", "chevron", g === choisi ? "‹" : "›"));
-    ligne.addEventListener("click", () => {
-      location.hash = g === choisi
-        ? "#/hemicycle" : "#/hemicycle/" + encodeURIComponent(g.sigle);
-    });
-    liste.append(ligne);
+    liste.append(ligneDeGroupe(g, choisi, g.sigle, g.nom || "", " dép.", "#/hemicycle", hf));
     membresDuGroupe(g).then((membres) => {
       if (!membres) return;
       const { femmes, hommes } = femmesEtHommes(membres);
@@ -312,43 +373,9 @@ async function ouvrirHemicycle(sigle = null) {
     });
   }
 
-  // Le total de l'Assemblée : la somme des douze groupes, pas un chiffre à
-  // part. Si un seul fichier manque, la phrase ne dit rien plutôt que de
-  // donner un total incomplet pour le total.
-  Promise.all(groupes.map(membresDuGroupe)).then((tous) => {
-    if (tous.some((x) => !x)) return;
-    boutons[1].disabled = false;
-    if (PAR_SIEGE) poserLeDessin(zone, groupes, total, choisi, sigle, true);
-    const somme = tous.flat();
-    const { femmes, hommes } = femmesEtHommes(somme);
-    if (femmes + hommes === somme.length) {
-      totalHF.textContent = `${nb.format(femmes)} F / ${nb.format(hommes)} H. `;
-    }
-  });
+  completerLesTotaux(groupes, boutons, totalHF,
+                     () => poserLeDessin(zone, groupes, total, choisi, sigle, true));
 
   if (!choisi) return;
-
-  // Les députés du groupe ouvert, juste sous sa ligne.
-  const attente = el("p", "avertissement", "Chargement…");
-  f.append(attente);
-  const membres = await membresDuGroupe(choisi);
-  attente.remove();
-  if (!membres || !membres.length) {
-    f.append(el("div", "vide",
-      "La liste des députés de ce groupe n'est pas encore publiée. "
-      + "Elle arrive avec la publication du matin."));
-    return;
-  }
-  const detail = el("p", "fiche-sous",
-    `${nb.format(membres.length)} députés, classés par nom. `);
-  const aideNoms = el("button", "aide", "ⓘ");
-  aideNoms.setAttribute("aria-label", "D'où viennent ces noms");
-  aideNoms.addEventListener("click",
-    () => expliquer(...EXPLICATIONS.deputes, choisi.sigle));
-  detail.append(aideNoms);
-  f.append(detail);
-
-  const lignes = el("div", "deputes");
-  for (const x of membres) lignes.append(ligneDepute(x));
-  f.append(lignes);
+  await deputesDuGroupe(f, choisi);
 }

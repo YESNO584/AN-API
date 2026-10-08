@@ -14,27 +14,69 @@ function iconeOrigine(origine) {
   return svg;
 }
 
+/* Le nom d'usage, et d'où il vient : il n'est écrit nulle part dans la source. */
+function ligneNomUsage(n) {
+  const ligne = el("button", "nom-usage");
+  ligne.append(el("b", null, "« " + n.nom + " »"));
+  ligne.append(el("u", null, "le nom qu'on lui donne en séance"));
+  ligne.title = "Ce nom n'est écrit nulle part dans la source — touchez pour"
+              + " savoir d'où il vient.";
+  ligne.addEventListener("click", () => expliquer(
+    "« " + n.nom + " »",
+    "Ce nom n'est écrit nulle part dans les documents de l'Assemblée "
+    + "nationale : c'est celui que les orateurs emploient en séance. Il est "
+    + "affiché parce qu'on cherche un texte sous le nom qu'on lui connaît, "
+    + "pas sous son intitulé officiel. Le compte affiché est relevé dans "
+    + "les prises de parole publiées ici, mot entier — il n'est pas écrit "
+    + "par la rédaction.",
+    n.citations ? "prononcé " + n.citations + " fois en séance" : null));
+  return ligne;
+}
+
+/* Au-delà de trois mesures, la description prenait tout l'écran et la fiche
+   commençait sous le pli. Les autres se demandent. */
+function boutonDeplier(liste, reste) {
+  liste.classList.add("replie");
+  const bouton = el("button", "deplier",
+    `Voir ${reste} autre${reste > 1 ? "s" : ""} mesure${reste > 1 ? "s" : ""}`);
+  bouton.addEventListener("click", () => {
+    const replie = liste.classList.toggle("replie");
+    bouton.textContent = replie
+      ? `Voir ${reste} autre${reste > 1 ? "s" : ""} mesure${reste > 1 ? "s" : ""}`
+      : "Replier";
+  });
+  return bouton;
+}
+
+/* La mention « Générée par une IA » — ou « écrite par une personne » — et son
+   explication au toucher. Sur un ordinateur, la mention complète apparaît au
+   survol ; sur un téléphone, où il n'y a pas de survol, le toucher ouvre la
+   même explication. Elle dit quand la rubrique a été écrite, et par quel
+   modèle si le socle le dit : le modèle n'est pas toujours renseigné — une
+   rubrique rédigée par une personne n'en a pas — et la ligne se tait alors
+   plutôt que d'annoncer un vide. */
+function boutonOrigine(code, origine, le, modele, verbe) {
+  const mention = el("button", "origine");
+  mention.append(iconeOrigine(code));
+  mention.append(el("u", null, origine.court));
+  mention.title = origine.mot + " — touchez pour en savoir plus.";
+  mention.setAttribute("aria-label", origine.mot);
+  mention.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    const quand = le ? verbe + " le " + dateLongue.format(enDate(le)) : null;
+    const par = modele ? "modèle " + modele : null;
+    expliquer(origine.titre, origine.quoi,
+              [quand, par].filter(Boolean).join(" · ") || null);
+  });
+  return mention;
+}
+
 function blocDescription(description) {
   const origine = ORIGINES[description.origine] || ORIGINES.ia;
   const boite = el("div", "description");
   // Le nom d'usage d'abord : c'est sous ce nom-là qu'on cherche le texte.
   if (description.nomUsage && description.nomUsage.nom) {
-    const n = description.nomUsage;
-    const ligne = el("button", "nom-usage");
-    ligne.append(el("b", null, "« " + n.nom + " »"));
-    ligne.append(el("u", null, "le nom qu'on lui donne en séance"));
-    ligne.title = "Ce nom n'est écrit nulle part dans la source — touchez pour"
-                + " savoir d'où il vient.";
-    ligne.addEventListener("click", () => expliquer(
-      "« " + n.nom + " »",
-      "Ce nom n'est écrit nulle part dans les documents de l'Assemblée "
-      + "nationale : c'est celui que les orateurs emploient en séance. Il est "
-      + "affiché parce qu'on cherche un texte sous le nom qu'on lui connaît, "
-      + "pas sous son intitulé officiel. Le compte affiché est relevé dans "
-      + "les prises de parole publiées ici, mot entier — il n'est pas écrit "
-      + "par la rédaction.",
-      n.citations ? "prononcé " + n.citations + " fois en séance" : null));
-    boite.append(ligne);
+    boite.append(ligneNomUsage(description.nomUsage));
   }
   // Le contexte : ce qui se passait avant. Un paragraphe, et facultatif — un
   // texte dont le titre suffit n'en a pas besoin.
@@ -50,40 +92,12 @@ function blocDescription(description) {
     // Au-delà de trois mesures, la description prenait tout l'écran et la
     // fiche commençait sous le pli. Les autres se demandent.
     if (points.length > VISIBLES) {
-      const reste = points.length - VISIBLES;
-      liste.classList.add("replie");
-      const bouton = el("button", "deplier",
-        `Voir ${reste} autre${reste > 1 ? "s" : ""} mesure${reste > 1 ? "s" : ""}`);
-      bouton.addEventListener("click", () => {
-        const replie = liste.classList.toggle("replie");
-        bouton.textContent = replie
-          ? `Voir ${reste} autre${reste > 1 ? "s" : ""} mesure${reste > 1 ? "s" : ""}`
-          : "Replier";
-      });
-      boite.append(bouton);
+      boite.append(boutonDeplier(liste, points.length - VISIBLES));
     }
   }
 
-  const mention = el("button", "origine");
-  mention.append(iconeOrigine(description.origine));
-  mention.append(el("u", null, origine.court));
-  // Sur un ordinateur, la mention complète apparaît au survol ; sur un
-  // téléphone, où il n'y a pas de survol, le toucher ouvre la même explication.
-  mention.title = origine.mot + " — touchez pour en savoir plus.";
-  mention.setAttribute("aria-label", origine.mot);
-  mention.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    // Quand elle a été écrite, et par quel modèle si le socle le dit. Le
-    // modèle n'est pas toujours renseigné — une description rédigée par une
-    // personne n'en a pas — et la ligne se tait alors plutôt que d'annoncer
-    // un vide.
-    const quand = description.le
-      ? "écrite le " + dateLongue.format(enDate(description.le)) : null;
-    const par = description.modele ? "modèle " + description.modele : null;
-    expliquer(origine.titre, origine.quoi,
-              [quand, par].filter(Boolean).join(" · ") || null);
-  });
-  boite.append(mention);
+  boite.append(boutonOrigine(description.origine, origine, description.le,
+                             description.modele, "écrite"));
   return boite;
 }
 
@@ -158,86 +172,63 @@ function blocChangements(uid, t) {
 // ouverte à la fois : le précédent n'a plus rien à surveiller.
 let OEIL_ONGLETS = null;
 
-function ongletsDeFiche(rubriques) {
-  const barre = el("div", "onglets-fiche");
-  barre.setAttribute("role", "tablist");
-  const bande = el("div", "onglets-corps");
-  const boutons = [], zones = [], charges = [];
-  let actif = 0;
-
+/* Les onglets, leur bande de panneaux et ce qu'on en sait : `o` est l'état
+   que les gestes ci-dessous se passent. */
+function ajusterLaBande(o) {
   // La hauteur de la bande est celle du panneau affiché. Elle se recalcule
   // dès que son contenu bouge : une liste qui arrive, un dépliant qu'on ouvre.
-  const ajuster = () => { bande.style.height = zones[actif].offsetHeight + "px"; };
+  o.bande.style.height = o.zones[o.actif].offsetHeight + "px";
+}
 
-  const montrer = (i) => {
-    actif = i;
-    boutons.forEach((b, j) => b.setAttribute("aria-selected", j === i ? "true" : "false"));
-    if (charges[i]) { charges[i](); charges[i] = null; }
-    ajuster();
-    // L'onglet allumé vient à l'écran quand la barre déborde : elle doit
-    // toujours dire ce qu'on regarde.
-    const bt = boutons[i];
-    if (bt.offsetLeft < barre.scrollLeft
-        || bt.offsetLeft + bt.offsetWidth > barre.scrollLeft + barre.clientWidth) {
-      barre.scrollTo({ left: bt.offsetLeft - (barre.clientWidth - bt.offsetWidth) / 2,
-                       behavior: "smooth" });
-    }
-  };
-
-  const aller = (i) => {
-    bande.scrollTo({ left: zones[i].offsetLeft, behavior: "auto" });
-    montrer(i);
-    // Toucher un onglet depuis le bas d'une longue liste laissait la page au
-    // milieu du suivant. On remonte à la barre, et seulement si elle est
-    // sortie par le haut — sans déroulé, comme pour les colonnes du fil.
-    if (barre.getBoundingClientRect().top < 0) barre.scrollIntoView();
-  };
-
-  rubriques.forEach(([libelle, contenu, charger], i) => {
-    const bt = el("button", null, libelle);
-    bt.type = "button";
-    bt.setAttribute("role", "tab");
-    bt.setAttribute("aria-selected", i === 0 ? "true" : "false");
-    bt.addEventListener("click", () => aller(i));
-    barre.append(bt);
-    boutons.push(bt);
-
-    const zone = el("section", "panneau");
-    zone.setAttribute("role", "tabpanel");
-    zone.setAttribute("aria-label", libelle);
-    zone.append(...[].concat(contenu));
-    bande.append(zone);
-    zones.push(zone);
-    charges.push(charger || null);
-  });
-
-  // Le tour sans fin, repris du fil : le navigateur refusant de faire défiler
-  // au-delà des bords, une **copie du panneau d'en face** est posée de chaque
-  // côté. Dès que le glissement s'immobilise sur une copie, la bande saute
-  // sans animation sur le vrai panneau, à l'autre bout — le saut ne se voit
-  // pas, on tombe sur une image identique à celle qu'on regardait.
-  if (zones.length > 1) {
-    const copier = (source) => {
-      const c = source.cloneNode(true);
-      c.classList.add("fantome");
-      c.setAttribute("aria-hidden", "true");
-      c.querySelectorAll("button, a, summary, input").forEach((n) => {
-        n.tabIndex = -1;
-        if ("disabled" in n) n.disabled = true;
-      });
-      return c;
-    };
-    bande.prepend(copier(zones[zones.length - 1]));
-    bande.append(copier(zones[0]));
+function montrerLOnglet(o, i) {
+  o.actif = i;
+  o.boutons.forEach((b, j) => b.setAttribute("aria-selected", j === i ? "true" : "false"));
+  if (o.charges[i]) { o.charges[i](); o.charges[i] = null; }
+  ajusterLaBande(o);
+  // L'onglet allumé vient à l'écran quand la barre déborde : elle doit
+  // toujours dire ce qu'on regarde.
+  const bt = o.boutons[i], barre = o.barre;
+  if (bt.offsetLeft < barre.scrollLeft
+      || bt.offsetLeft + bt.offsetWidth > barre.scrollLeft + barre.clientWidth) {
+    barre.scrollTo({ left: bt.offsetLeft - (barre.clientWidth - bt.offsetWidth) / 2,
+                     behavior: "smooth" });
   }
+}
 
+function allerALOnglet(o, i) {
+  o.bande.scrollTo({ left: o.zones[i].offsetLeft, behavior: "auto" });
+  montrerLOnglet(o, i);
+  // Toucher un onglet depuis le bas d'une longue liste laissait la page au
+  // milieu du suivant. On remonte à la barre, et seulement si elle est
+  // sortie par le haut — sans déroulé, comme pour les colonnes du fil.
+  if (o.barre.getBoundingClientRect().top < 0) o.barre.scrollIntoView();
+}
+
+/* Le tour sans fin, repris du fil : le navigateur refusant de faire défiler
+   au-delà des bords, une **copie du panneau d'en face** est posée de chaque
+   côté. Dès que le glissement s'immobilise sur une copie, la bande saute
+   sans animation sur le vrai panneau, à l'autre bout — le saut ne se voit
+   pas, on tombe sur une image identique à celle qu'on regardait. */
+function copiePourLeTour(source) {
+  const c = source.cloneNode(true);
+  c.classList.add("fantome");
+  c.setAttribute("aria-hidden", "true");
+  c.querySelectorAll("button, a, summary, input").forEach((n) => {
+    n.tabIndex = -1;
+    if ("disabled" in n) n.disabled = true;
+  });
+  return c;
+}
+
+function suivreLeGlissement(o) {
+  const { bande, zones } = o;
   let minuteur = null;
   bande.addEventListener("scroll", () => {
     // Pendant le geste, l'onglet allumé suit le doigt : la barre dit toujours
     // ce qu'on regarde, et la bande prend la hauteur de ce qui arrive.
     const large = bande.clientWidth || 1;
     const rang = Math.round((bande.scrollLeft - zones[0].offsetLeft) / large);
-    if (rang >= 0 && rang < zones.length && rang !== actif) montrer(rang);
+    if (rang >= 0 && rang < zones.length && rang !== o.actif) montrerLOnglet(o, rang);
     clearTimeout(minuteur);
     // On attend l'immobilité : sauter pendant le geste le couperait net.
     minuteur = setTimeout(() => {
@@ -245,29 +236,62 @@ function ongletsDeFiche(rubriques) {
       const premiere = zones[0], derniere = zones[zones.length - 1];
       if (bande.scrollLeft < premiere.offsetLeft / 2) {
         bande.scrollTo({ left: derniere.offsetLeft, behavior: "auto" });
-        montrer(zones.length - 1);
+        montrerLOnglet(o, zones.length - 1);
       } else if (bande.scrollLeft > derniere.offsetLeft + derniere.offsetWidth / 2) {
         bande.scrollTo({ left: premiere.offsetLeft, behavior: "auto" });
-        montrer(0);
+        montrerLOnglet(o, 0);
       }
     }, 120);
   }, { passive: true });
+}
+
+function ongletsDeFiche(rubriques) {
+  const barre = el("div", "onglets-fiche");
+  barre.setAttribute("role", "tablist");
+  const o = { barre, bande: el("div", "onglets-corps"),
+              boutons: [], zones: [], charges: [], actif: 0 };
+
+  rubriques.forEach(([libelle, contenu, charger], i) => {
+    const bt = el("button", null, libelle);
+    bt.type = "button";
+    bt.setAttribute("role", "tab");
+    bt.setAttribute("aria-selected", i === 0 ? "true" : "false");
+    bt.addEventListener("click", () => allerALOnglet(o, i));
+    barre.append(bt);
+    o.boutons.push(bt);
+
+    const zone = el("section", "panneau");
+    zone.setAttribute("role", "tabpanel");
+    zone.setAttribute("aria-label", libelle);
+    zone.append(...[].concat(contenu));
+    o.bande.append(zone);
+    o.zones.push(zone);
+    o.charges.push(charger || null);
+  });
+
+  if (o.zones.length > 1) {
+    o.bande.prepend(copiePourLeTour(o.zones[o.zones.length - 1]));
+    o.bande.append(copiePourLeTour(o.zones[0]));
+  }
+  suivreLeGlissement(o);
 
   // Les positions ne se mesurent qu'une fois la bande posée dans la page.
   requestAnimationFrame(() => {
-    bande.scrollLeft = zones[0].offsetLeft;
-    montrer(0);
+    o.bande.scrollLeft = o.zones[0].offsetLeft;
+    montrerLOnglet(o, 0);
     if (OEIL_ONGLETS) OEIL_ONGLETS.disconnect();
     if (window.ResizeObserver) {
-      OEIL_ONGLETS = new ResizeObserver(() => ajuster());
-      for (const z of zones) OEIL_ONGLETS.observe(z);
+      OEIL_ONGLETS = new ResizeObserver(() => ajusterLaBande(o));
+      for (const z of o.zones) OEIL_ONGLETS.observe(z);
     }
   });
 
-  return [barre, bande];
+  return [barre, o.bande];
 }
 
-async function ouvrirFiche(uid) {
+/* La fiche prend l'écran : le fil, ses filtres et sa frise se retirent, et le
+   bouton de retour se pose en premier. Rend la zone et ce bouton. */
+function preparerLaFiche() {
   const f = $("fiche");
   f.textContent = "";
   f.hidden = false;
@@ -287,33 +311,24 @@ async function ouvrirFiche(uid) {
   retour.addEventListener("click", () => { location.hash = ""; });
   f.append(retour);
   f.append(el("p", "avertissement", "Chargement de la fiche…"));
+  return [f, retour];
+}
 
-  let d;
-  try {
-    d = await lire(`textes/${uid}.json`, true);
-  } catch (e) {
-    f.append(el("div", "vide", "Fiche indisponible : " + e.message));
-    return;
-  }
-  f.textContent = "";
-  f.append(retour);
-
-  // Ce que la loi change au droit se lit en deux endroits, parce que ce sont
-  // deux questions. **Quand elle s'applique est une question sur le texte
-  // entier** : c'est la première chose qu'on vient vérifier devant une loi
-  // promulguée, elle passe donc avant son titre. Le détail de ses articles,
-  // lui, est une rubrique parmi d'autres — il est dans son onglet, plus bas.
-  const loi = d.statut === "promulgue" && !ETAT.droitConsolideIndisponible
+/* Ce que la loi change au droit se lit en deux endroits, parce que ce sont
+   deux questions. **Quand elle s'applique est une question sur le texte
+   entier** : c'est la première chose qu'on vient vérifier devant une loi
+   promulguée, elle passe donc avant son titre. Le détail de ses articles,
+   lui, est une rubrique parmi d'autres — il est dans son onglet, plus bas. */
+function laLoiDeLaFiche(uid, d) {
+  return d.statut === "promulgue" && !ETAT.droitConsolideIndisponible
     ? { ...d, uid, change: (TEXTES.find((x) => x.uid === uid) || {}).change,
         etape: PROMULGUEE }
     : null;
-  if (loi) {
-    const vigueur = laVigueur(loi);
-    if (vigueur) f.append(vigueur);
-  }
+}
 
-  f.append(el("h2", "fiche-titre", d.titre));
-
+/* Les étiquettes sous le titre : la chambre, l'étape, la nature, l'issue, les
+   sujets, le repère des amendements disputés, la procédure accélérée. */
+function etiquettesDeLaFiche(uid, d) {
   const l = el("div", "lignes");
   const ch = d.chambre || null;
   l.append(etiquette("chambre-" + (ch || "aucune"), CHAMBRES[ch][0], CHAMBRES[ch]));
@@ -351,16 +366,12 @@ async function ouvrirFiche(uid) {
       EXPLICATIONS.procedureAcceleree,
       "engagée le " + dateLongue.format(enDate(d.procedureAcceleree.date))));
   }
-  f.append(l);
+  return l;
+}
 
-  // La description du texte, avant les sources. **C'est la seule exception à
-  // la règle « rien n'est écrit par une IA »**, décidée pour cette rubrique et
-  // pour elle seule : le reste de la fiche est recopié de la source ou calculé.
-  // Elle ne s'affiche que si le socle en publie une — pas de cadre vide.
-  if (d.description && d.description.accroche) f.append(blocDescription(d.description));
-
-  // Les sources, tout en haut : c'est ce qu'on veut sous la main pour aller
-  // vérifier, pas une annexe à chercher en bas de fiche.
+/* Les sources, tout en haut : c'est ce qu'on veut sous la main pour aller
+   vérifier, pas une annexe à chercher en bas de fiche. */
+function sourcesDeLaFiche(d) {
   const sources = el("div", "liens");
   for (const [url, nom, classe] of [
         [d.url_an, "Dossier à l'Assemblée", "officiel"],
@@ -371,66 +382,37 @@ async function ouvrirFiche(uid) {
     a.href = url; a.target = "_blank"; a.rel = "noopener";
     sources.append(a);
   }
-  if (sources.children.length) f.append(sources);
+  return sources.children.length ? sources : null;
+}
 
-  if (d.auteur) f.append(personne(d.auteur, "Auteur du texte"));
-  if (d.cosignatairesTotal) {
-    const b = bloc(`Cosignataires — ${nb.format(d.cosignatairesTotal)}`);
-    for (const p of d.cosignataires) b.append(personne(p));
-    if (d.cosignatairesTotal > d.cosignataires.length) {
-      b.append(el("p", "avertissement",
-        `et ${nb.format(d.cosignatairesTotal - d.cosignataires.length)} autres.`));
-    }
-    f.append(b);
-  }
-
-  // Les rubriques de fond, en onglets. Chacune garde son titre exact, avec
-  // ses comptes : l'onglet dit laquelle on regarde, le titre dit ce qu'elle
-  // contient.
-  const rubriques = [];
-
-  // Le vote qui décide : celui sur l'ensemble du texte, et il ouvre la fiche.
-  // Le plus récent, car un texte peut être voté dans les deux chambres. Peu de
-  // textes en ont un — 71 sur 1 990 — et ceux-là commencent donc par leurs
-  // articles ou leur parcours, sans onglet vide.
-  const finaux = (d.votes || []).filter((v) => v.portee === "ensemble");
-  if (finaux.length) {
-    rubriques.push(["Vote", blocVote(finaux.reduce((a, b) => (a.date >= b.date ? a : b)))]);
-  }
-
-  // Ce que la loi change au droit, en entier : la liste des articles s'affiche
-  // ici même, et se demande à l'ouverture de l'onglet.
-  if (loi) rubriques.push(["Articles", ...blocChangements(uid, loi)]);
-
-  // Le texte lui-même, juste après le vote — sauf pour une loi promulguée, où
-  // il passe **après les débats, juste avant le parcours** : ce qui compte
-  // alors est ce que la loi change au droit, pas le brouillon qu'elle était.
-  const versions = d.versions || [];
-  const ongletTexte = ["Texte", ...blocTexte(uid, versions, true)];
-  if (d.statut !== "promulgue") rubriques.push(ongletTexte);
-
-  // Ce qui a été dit en séance. Juste après les articles, et juste après le
-  // vote qui le précède à l'écran : c'est l'argumentaire du texte entier, pas
-  // le détail d'une étape.
-  const nbParoles = (TEXTES.find((t) => t.uid === uid) || {}).paroles || 0;
-  if (nbParoles) {
-    rubriques.push(["Débats",
-                    await blocParoles(uid, nbParoles, true, d.resumeDebats)]);
-  } else if (ETAT.debatsIndisponibles) {
-    // Ne pas laisser croire que personne n'a parlé du texte alors que c'est
-    // la source qui a manqué.
-    const b = bloc("Ce que les groupes en ont dit", false, true);
+function blocCosignataires(d) {
+  const b = bloc(`Cosignataires — ${nb.format(d.cosignatairesTotal)}`);
+  for (const p of d.cosignataires) b.append(personne(p));
+  if (d.cosignatairesTotal > d.cosignataires.length) {
     b.append(el("p", "avertissement",
-      "Les comptes rendus de séance n'ont pas pu être récupérés ce matin : leur "
-      + "archive de 55,8 Mo n'est pas arrivée entière. Le reste de la fiche est "
-      + "à jour. La récupération est retentée chaque matin."));
-    rubriques.push(["Débats", b]);
+      `et ${nb.format(d.cosignatairesTotal - d.cosignataires.length)} autres.`));
   }
+  return b;
+}
 
-  // Pour une loi promulguée, l'onglet « Texte » se pose ici, juste avant le
-  // parcours.
-  if (d.statut === "promulgue") rubriques.push(ongletTexte);
+/* Ce qui a été dit en séance. Juste après les articles, et juste après le
+   vote qui le précède à l'écran : c'est l'argumentaire du texte entier, pas
+   le détail d'une étape. */
+async function rubriqueDebats(uid, d) {
+  const nbParoles = (TEXTES.find((t) => t.uid === uid) || {}).paroles || 0;
+  if (nbParoles) return ["Débats", await blocParoles(uid, nbParoles, true, d.resumeDebats)];
+  if (!ETAT.debatsIndisponibles) return null;
+  // Ne pas laisser croire que personne n'a parlé du texte alors que c'est
+  // la source qui a manqué.
+  const b = bloc("Ce que les groupes en ont dit", false, true);
+  b.append(el("p", "avertissement",
+    "Les comptes rendus de séance n'ont pas pu être récupérés ce matin : leur "
+    + "archive de 55,8 Mo n'est pas arrivée entière. Le reste de la fiche est "
+    + "à jour. La récupération est retentée chaque matin."));
+  return ["Débats", b];
+}
 
+function rubriqueParcours(uid, d) {
   const items = filDuParcours(d);
   const nbVotes = (d.votes || []).length;
   const parcours = bloc(
@@ -456,24 +438,99 @@ async function ouvrirFiche(uid) {
     }
   }
   parcours.append(ul);
-  rubriques.push(["Parcours", parcours]);
+  return ["Parcours", parcours];
+}
 
+async function rubriqueAmendements(uid) {
   const nbAmdt = (TEXTES.find((t) => t.uid === uid) || {}).amendements || 0;
-  if (nbAmdt) {
-    rubriques.push(["Amendements", await blocAmendements(uid, nbAmdt, true)]);
-  } else if (ETAT.amendementsIndisponibles) {
-    // Ne pas laisser croire qu'un texte n'a pas d'amendements alors que
-    // c'est la source qui a manqué. L'archive pèse 297 Mo et n'arrive pas
-    // toujours ; le reste des données, lui, est à jour.
-    const b = bloc("Amendements", false, true);
-    b.append(el("p", "avertissement",
-      "Les amendements n'ont pas pu être récupérés ce matin : leur archive de "
-      + "297 Mo n'est pas arrivée entière. Le reste de la fiche est à jour. "
-      + "La récupération est retentée chaque matin."));
-    rubriques.push(["Amendements", b]);
+  if (nbAmdt) return ["Amendements", await blocAmendements(uid, nbAmdt, true)];
+  if (!ETAT.amendementsIndisponibles) return null;
+  // Ne pas laisser croire qu'un texte n'a pas d'amendements alors que
+  // c'est la source qui a manqué. L'archive pèse 297 Mo et n'arrive pas
+  // toujours ; le reste des données, lui, est à jour.
+  const b = bloc("Amendements", false, true);
+  b.append(el("p", "avertissement",
+    "Les amendements n'ont pas pu être récupérés ce matin : leur archive de "
+    + "297 Mo n'est pas arrivée entière. Le reste de la fiche est à jour. "
+    + "La récupération est retentée chaque matin."));
+  return ["Amendements", b];
+}
+
+/* Les rubriques de fond, en onglets. Chacune garde son titre exact, avec
+   ses comptes : l'onglet dit laquelle on regarde, le titre dit ce qu'elle
+   contient. */
+async function rubriquesDeLaFiche(uid, d, loi) {
+  const rubriques = [];
+
+  // Le vote qui décide : celui sur l'ensemble du texte, et il ouvre la fiche.
+  // Le plus récent, car un texte peut être voté dans les deux chambres. Peu de
+  // textes en ont un — 71 sur 1 990 — et ceux-là commencent donc par leurs
+  // articles ou leur parcours, sans onglet vide.
+  const finaux = (d.votes || []).filter((v) => v.portee === "ensemble");
+  if (finaux.length) {
+    rubriques.push(["Vote", blocVote(finaux.reduce((a, b) => (a.date >= b.date ? a : b)))]);
   }
 
-  f.append(...ongletsDeFiche(rubriques));
+  // Ce que la loi change au droit, en entier : la liste des articles s'affiche
+  // ici même, et se demande à l'ouverture de l'onglet.
+  if (loi) rubriques.push(["Articles", ...blocChangements(uid, loi)]);
+
+  // Le texte lui-même, juste après le vote — sauf pour une loi promulguée, où
+  // il passe **après les débats, juste avant le parcours** : ce qui compte
+  // alors est ce que la loi change au droit, pas le brouillon qu'elle était.
+  const versions = d.versions || [];
+  const ongletTexte = ["Texte", ...blocTexte(uid, versions, true)];
+  if (d.statut !== "promulgue") rubriques.push(ongletTexte);
+
+  const debats = await rubriqueDebats(uid, d);
+  if (debats) rubriques.push(debats);
+
+  // Pour une loi promulguée, l'onglet « Texte » se pose ici, juste avant le
+  // parcours.
+  if (d.statut === "promulgue") rubriques.push(ongletTexte);
+
+  rubriques.push(rubriqueParcours(uid, d));
+
+  const amendements = await rubriqueAmendements(uid);
+  if (amendements) rubriques.push(amendements);
+  return rubriques;
+}
+
+async function ouvrirFiche(uid) {
+  const [f, retour] = preparerLaFiche();
+
+  let d;
+  try {
+    d = await lire(`textes/${uid}.json`, true);
+  } catch (e) {
+    f.append(el("div", "vide", "Fiche indisponible : " + e.message));
+    return;
+  }
+  f.textContent = "";
+  f.append(retour);
+
+  const loi = laLoiDeLaFiche(uid, d);
+  if (loi) {
+    const vigueur = laVigueur(loi);
+    if (vigueur) f.append(vigueur);
+  }
+
+  f.append(el("h2", "fiche-titre", d.titre));
+  f.append(etiquettesDeLaFiche(uid, d));
+
+  // La description du texte, avant les sources. **C'est la seule exception à
+  // la règle « rien n'est écrit par une IA »**, décidée pour cette rubrique et
+  // pour elle seule : le reste de la fiche est recopié de la source ou calculé.
+  // Elle ne s'affiche que si le socle en publie une — pas de cadre vide.
+  if (d.description && d.description.accroche) f.append(blocDescription(d.description));
+
+  const sources = sourcesDeLaFiche(d);
+  if (sources) f.append(sources);
+
+  if (d.auteur) f.append(personne(d.auteur, "Auteur du texte"));
+  if (d.cosignatairesTotal) f.append(blocCosignataires(d));
+
+  f.append(...ongletsDeFiche(await rubriquesDeLaFiche(uid, d, loi)));
 }
 
 /* ------------------------------------------------------------------ *

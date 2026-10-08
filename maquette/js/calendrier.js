@@ -43,11 +43,9 @@ async function ouvrirAgenda() {
   await dessinerMois(zone, CALENDRIER_AN);
 }
 
-async function dessinerMois(zone, source) {
-  const evenements = await source.charger(MOIS_VU);
-  const connus = source.mois();
-  zone.textContent = "";
-
+/* La barre des mois : le mois affiché, et une flèche de chaque côté tant
+   qu'il y a un mois à voir dans ce sens. */
+function barreDesMois(zone, source, connus) {
   const barre = el("div", "mois-barre");
   const fleche = (signe, pas, actif) => {
     const b = el("button", null, signe);
@@ -63,7 +61,15 @@ async function dessinerMois(zone, source) {
   barre.append(fleche("‹", -1, MOIS_VU > connus[0]),
                el("b", null, moisLong.format(enDate(MOIS_VU + "-01"))),
                fleche("›", 1, MOIS_VU < connus[connus.length - 1]));
-  zone.append(barre);
+  return barre;
+}
+
+async function dessinerMois(zone, source) {
+  const evenements = await source.charger(MOIS_VU);
+  const connus = source.mois();
+  zone.textContent = "";
+
+  zone.append(barreDesMois(zone, source, connus));
 
   const parJour = new Map();
   for (const e of evenements) {

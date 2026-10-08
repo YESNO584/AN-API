@@ -128,6 +128,73 @@ function carteParole(p) {
    la version déposée ne vient d'aucun amendement. */
 const A_CHANGE = new Set(["modifie", "nouveau", "retire"]);
 
+/* Un groupe et ses arguments, sous sa couleur. */
+function carteDuGroupe(g) {
+  const carte = el("div", "groupe-dit");
+  const tete = el("div", "qui");
+  const teinte = el("i");
+  const connu = GROUPES.get(g.sigle);
+  if (connu?.couleur) teinte.style.background = connu.couleur;
+  tete.append(teinte, el("b", null, g.sigle));
+  if (connu?.nom) tete.append(el("span", null, connu.nom));
+  carte.append(tete);
+  const liste = el("ul");
+  for (const a of g.arguments) liste.append(el("li", null, a));
+  carte.append(liste);
+  return carte;
+}
+
+function carteDOrateur(o) {
+  const carte = el("div", "groupe-dit");
+  const tete = el("div", "qui");
+  tete.append(el("b", null, o.nom));
+  carte.append(tete);
+  const liste = el("ul");
+  for (const a of o.arguments) liste.append(el("li", null, a));
+  carte.append(liste);
+  return carte;
+}
+
+/* Les camps dans cet ordre, puis les groupes que le scrutin ne nomme pas. */
+function campsDuResume(resume) {
+  const zones = [];
+  const camps = [["pour", []], ["contre", []], ["abstention", []],
+                 ["partagé", []], ["aucun_vote", []], [null, []]];
+  for (const g of resume.groupes) {
+    (camps.find(([nom]) => nom === (g.position || null)) || camps[5])[1].push(g);
+  }
+  for (const [nom, groupes] of camps) {
+    if (!groupes.length) continue;
+    const zone = el("div", "camp " + (nom ? nom.replace("é", "e") : "sans-vote"));
+    // Sans position et sans scrutin, il n'y a rien à annoncer qu'une parole.
+    // Sans position mais avec un scrutin, le groupe n'y figure pas : le dire
+    // ainsi, plutôt que de le ranger parmi ceux qui n'ont pas voté.
+    zone.append(el("h5", null, nom ? CAMPS[nom]
+      : (resume.vote ? "Groupes absents de ce scrutin" : "Ce qui a été dit")));
+    for (const g of groupes) zone.append(carteDuGroupe(g));
+    zones.push(zone);
+  }
+  return zones;
+}
+
+/* Les orateurs que la source n'a rattachés à aucun groupe : un ministre, un
+   non-inscrit. **Ils viennent après les camps, jamais dedans** — un ministre
+   n'est pas député, il ne vote pas, il n'a donc pas de camp. Les afficher
+   sous un sigle inventé ferait dire à un groupe ce qu'il n'a pas dit. */
+function blocDesOrateurs(orateurs) {
+  const zone = el("div", "camp orateurs");
+  zone.append(el("h5", null, "Dit aussi en séance"));
+  // La mention une fois pour toutes, sous le titre : répétée sur chaque
+  // carte, elle tenait sur la ligne d'un nom court et passait à la ligne
+  // sur un nom long, ce qui donnait deux mises en page pour une même chose.
+  zone.append(el("p", "pourquoi-orateurs",
+    "Le compte rendu ne rattache ces orateurs à aucun groupe : ce sont des "
+    + "membres du gouvernement ou des députés sans groupe. Ils ne votent "
+    + "donc pas dans les camps ci-dessus."));
+  for (const o of orateurs) zone.append(carteDOrateur(o));
+  return zone;
+}
+
 function blocResumeDebats(resume) {
   const boite = el("div", "description resume-debats");
   const origine = ORIGINE_RESUME[resume.origine] || ORIGINE_RESUME.ia;
@@ -146,78 +213,11 @@ function blocResumeDebats(resume) {
       + "rangés comme dans l'hémicycle, de la gauche à la droite."));
   }
 
-  // Les camps dans cet ordre, puis les groupes que le scrutin ne nomme pas.
-  const camps = [["pour", []], ["contre", []], ["abstention", []],
-                 ["partagé", []], ["aucun_vote", []], [null, []]];
-  for (const g of resume.groupes) {
-    (camps.find(([nom]) => nom === (g.position || null)) || camps[5])[1].push(g);
-  }
-  for (const [nom, groupes] of camps) {
-    if (!groupes.length) continue;
-    const zone = el("div", "camp " + (nom ? nom.replace("é", "e") : "sans-vote"));
-    // Sans position et sans scrutin, il n'y a rien à annoncer qu'une parole.
-    // Sans position mais avec un scrutin, le groupe n'y figure pas : le dire
-    // ainsi, plutôt que de le ranger parmi ceux qui n'ont pas voté.
-    zone.append(el("h5", null, nom ? CAMPS[nom]
-      : (resume.vote ? "Groupes absents de ce scrutin" : "Ce qui a été dit")));
-    for (const g of groupes) {
-      const carte = el("div", "groupe-dit");
-      const tete = el("div", "qui");
-      const teinte = el("i");
-      const connu = GROUPES.get(g.sigle);
-      if (connu?.couleur) teinte.style.background = connu.couleur;
-      tete.append(teinte, el("b", null, g.sigle));
-      if (connu?.nom) tete.append(el("span", null, connu.nom));
-      carte.append(tete);
-      const liste = el("ul");
-      for (const a of g.arguments) liste.append(el("li", null, a));
-      carte.append(liste);
-      zone.append(carte);
-    }
-    boite.append(zone);
-  }
+  for (const zone of campsDuResume(resume)) boite.append(zone);
 
-  // Les orateurs que la source n'a rattachés à aucun groupe : un ministre, un
-  // non-inscrit. **Ils viennent après les camps, jamais dedans** — un ministre
-  // n'est pas député, il ne vote pas, il n'a donc pas de camp. Les afficher
-  // sous un sigle inventé ferait dire à un groupe ce qu'il n'a pas dit.
-  if ((resume.orateurs || []).length) {
-    const zone = el("div", "camp orateurs");
-    zone.append(el("h5", null, "Dit aussi en séance"));
-    // La mention une fois pour toutes, sous le titre : répétée sur chaque
-    // carte, elle tenait sur la ligne d'un nom court et passait à la ligne
-    // sur un nom long, ce qui donnait deux mises en page pour une même chose.
-    zone.append(el("p", "pourquoi-orateurs",
-      "Le compte rendu ne rattache ces orateurs à aucun groupe : ce sont des "
-      + "membres du gouvernement ou des députés sans groupe. Ils ne votent "
-      + "donc pas dans les camps ci-dessus."));
-    for (const o of resume.orateurs) {
-      const carte = el("div", "groupe-dit");
-      const tete = el("div", "qui");
-      tete.append(el("b", null, o.nom));
-      carte.append(tete);
-      const liste = el("ul");
-      for (const a of o.arguments) liste.append(el("li", null, a));
-      carte.append(liste);
-      zone.append(carte);
-    }
-    boite.append(zone);
-  }
+  if ((resume.orateurs || []).length) boite.append(blocDesOrateurs(resume.orateurs));
 
-  const mention = el("button", "origine");
-  mention.append(iconeOrigine(resume.origine));
-  mention.append(el("u", null, origine.court));
-  mention.title = origine.mot + " — touchez pour en savoir plus.";
-  mention.setAttribute("aria-label", origine.mot);
-  mention.addEventListener("click", (ev) => {
-    ev.preventDefault();
-    const quand = resume.le
-      ? "écrit le " + dateLongue.format(enDate(resume.le)) : null;
-    const par = resume.modele ? "modèle " + resume.modele : null;
-    expliquer(origine.titre, origine.quoi,
-              [quand, par].filter(Boolean).join(" · ") || null);
-  });
-  boite.append(mention);
+  boite.append(boutonOrigine(resume.origine, origine, resume.le, resume.modele, "écrit"));
   return boite;
 }
 

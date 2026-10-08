@@ -81,6 +81,56 @@ function bandeauVote(t) {
   return b;
 }
 
+function legendeDesVotes() {
+  const legende = el("div", "legende");
+  for (const [cle, mot] of [["pour", "pour"], ["contre", "contre"],
+                            ["abstention", "abstention"]]) {
+    const item = el("span", null);
+    item.append(el("i", cle));
+    item.append(document.createTextNode(mot));
+    legende.append(item);
+  }
+  return legende;
+}
+
+/* Un groupe au scrutin : sa pastille, son sigle, sa barre pour / contre /
+   abstention, et son décompte. */
+function ligneDuGroupeAuVote(g) {
+  const total = (g.pour || 0) + (g.contre || 0) + (g.abstentions || 0);
+  const ligne = el("div", "groupe");
+  const connu = GROUPES.get(g.sigle);
+  const teinte = g.couleur || connu?.couleur;
+  const pastille = el("i", "teinte");
+  if (teinte) pastille.style.background = teinte;
+  ligne.append(pastille);
+  const sigle = el("button", "sigle", g.sigle);
+  sigle.addEventListener("click", () => expliquer(
+    connu?.nom || g.nom || g.sigle,
+    connu || g.nom
+      ? "Un groupe politique de l'Assemblée nationale. Sa place dans la liste " +
+        "est celle qu'il occupe dans l'hémicycle, calculée sur les numéros de " +
+        "siège de ses députés. Sa couleur, elle, est une convention " +
+        "d'affichage : l'open data n'en publie aucune."
+      : "L'Assemblée ne nomme plus ce groupe — le plus souvent parce qu'il " +
+        "n'existe plus. Seuls les groupes actuels figurent dans ses données.",
+    `${g.pour} pour · ${g.contre} contre · ${g.abstentions} abstentions`));
+  ligne.append(sigle);
+  const barre = el("span", "barre");
+  for (const [cle, n] of [["pour", g.pour], ["contre", g.contre],
+                          ["abstention", g.abstentions]]) {
+    if (!n) continue;
+    const part = el("i", cle);
+    part.style.flexGrow = String(n);
+    part.title = `${n} ${cle}`;
+    barre.append(part);
+  }
+  if (!total) barre.append(el("i", "vide"));
+  ligne.append(barre);
+  ligne.append(el("span", "detail",
+    total ? `${g.pour}/${g.contre}/${g.abstentions}` : "n'a pas voté"));
+  return ligne;
+}
+
 async function detailVotes(t) {
   const e = t.voteEnsemble;
   const [titre, quoi] = e ? EXPLICATIONS.voteEnsemble : EXPLICATIONS.votesAmendements;
@@ -107,50 +157,8 @@ async function detailVotes(t) {
     rappel.textContent = "Groupes rangés comme dans l'hémicycle, de la gauche à la droite.";
     zone.append(rappel);
 
-    const legende = el("div", "legende");
-    for (const [cle, mot] of [["pour", "pour"], ["contre", "contre"],
-                              ["abstention", "abstention"]]) {
-      const item = el("span", null);
-      item.append(el("i", cle));
-      item.append(document.createTextNode(mot));
-      legende.append(item);
-    }
-    zone.append(legende);
-    for (const g of principal.groupes) {
-      const total = (g.pour || 0) + (g.contre || 0) + (g.abstentions || 0);
-      const ligne = el("div", "groupe");
-      const connu = GROUPES.get(g.sigle);
-      const teinte = g.couleur || connu?.couleur;
-      const pastille = el("i", "teinte");
-      if (teinte) pastille.style.background = teinte;
-      ligne.append(pastille);
-      const sigle = el("button", "sigle", g.sigle);
-      sigle.addEventListener("click", () => expliquer(
-        connu?.nom || g.nom || g.sigle,
-        connu || g.nom
-          ? "Un groupe politique de l'Assemblée nationale. Sa place dans la liste " +
-            "est celle qu'il occupe dans l'hémicycle, calculée sur les numéros de " +
-            "siège de ses députés. Sa couleur, elle, est une convention " +
-            "d'affichage : l'open data n'en publie aucune."
-          : "L'Assemblée ne nomme plus ce groupe — le plus souvent parce qu'il " +
-            "n'existe plus. Seuls les groupes actuels figurent dans ses données.",
-        `${g.pour} pour · ${g.contre} contre · ${g.abstentions} abstentions`));
-      ligne.append(sigle);
-      const barre = el("span", "barre");
-      for (const [cle, n] of [["pour", g.pour], ["contre", g.contre],
-                              ["abstention", g.abstentions]]) {
-        if (!n) continue;
-        const part = el("i", cle);
-        part.style.flexGrow = String(n);
-        part.title = `${n} ${cle}`;
-        barre.append(part);
-      }
-      if (!total) barre.append(el("i", "vide"));
-      ligne.append(barre);
-      ligne.append(el("span", "detail",
-        total ? `${g.pour}/${g.contre}/${g.abstentions}` : "n'a pas voté"));
-      zone.append(ligne);
-    }
+    zone.append(legendeDesVotes());
+    for (const g of principal.groupes) zone.append(ligneDuGroupeAuVote(g));
     if (votes.length > 1) {
       zone.append(el("p", "attente",
         `Ce texte compte ${nb.format(votes.length)} votes enregistrés en tout.`));
@@ -161,15 +169,9 @@ async function detailVotes(t) {
   }
 }
 
-function carte(t) {
-  const c = el("article", "carte");
-
-  const h = el("h2");
-  const a = el("a", null, t.titre);
-  a.href = "#/texte/" + t.uid;
-  h.append(a);
-  c.append(h);
-
+/* Les étiquettes de la carte : la chambre, la nature, le groupe de l'auteur,
+   le sujet, la lecture, le dernier acte, la date — et ce qui est prévu. */
+function etiquettesDeLaCarte(t) {
   const l = el("div", "lignes");
   const ch = t.chambre || null;
   l.append(etiquette("chambre-" + (ch || "aucune"), CHAMBRES[ch][0], CHAMBRES[ch]));
@@ -205,19 +207,18 @@ function carte(t) {
   // texte ouvert — et le repère y mène directement.
   const dispute = repereDisputes(t);
   if (dispute) l.append(dispute);
-  c.append(l);
+  return l;
+}
 
-  // Dans l'onglet « Sénat », la carte doit dire où le texte en est **là-bas**.
-  // Les étiquettes du dessus décrivent le parcours vu de l'Assemblée : sans
-  // cette ligne, la colonne dirait « Décidé » et la carte parlerait d'autre
-  // chose.
-  if (ONGLET === "senat" && t.senat) c.append(ligneSenat(t.senat));
-
+/* Comment le texte a fini, quand il a fini : l'issue d'un texte arrêté, ou le
+   numéro de la loi promulguée. */
+function lignesDIssue(t) {
+  const lignes = [];
   if (t.etape === ARRETE && ISSUES[t.statut]) {
     const issue = el("div", "lignes");
     issue.append(etiquette("arrete", ISSUES[t.statut][0], ISSUES[t.statut],
       t.etat_senat && t.statut !== "rejete" ? "le Sénat écrit « " + t.etat_senat + " »" : null));
-    c.append(issue);
+    lignes.push(issue);
   }
 
   if (t.etape === PROMULGUEE && t.loiNumero) {
@@ -232,8 +233,29 @@ function carte(t) {
       jo.href = t.loiUrlJO; jo.target = "_blank"; jo.rel = "noopener";
       loi.append(jo);
     }
-    c.append(loi);
+    lignes.push(loi);
   }
+  return lignes;
+}
+
+function carte(t) {
+  const c = el("article", "carte");
+
+  const h = el("h2");
+  const a = el("a", null, t.titre);
+  a.href = "#/texte/" + t.uid;
+  h.append(a);
+  c.append(h);
+
+  c.append(etiquettesDeLaCarte(t));
+
+  // Dans l'onglet « Sénat », la carte doit dire où le texte en est **là-bas**.
+  // Les étiquettes du dessus décrivent le parcours vu de l'Assemblée : sans
+  // cette ligne, la colonne dirait « Décidé » et la carte parlerait d'autre
+  // chose.
+  if (ONGLET === "senat" && t.senat) c.append(ligneSenat(t.senat));
+
+  c.append(...lignesDIssue(t));
 
   if (t.voteEnsemble || t.votes) c.append(bandeauVote(t));
 

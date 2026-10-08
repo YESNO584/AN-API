@@ -282,6 +282,53 @@ function rangDansLOrdre(cle) {
   return vue().ordre().findIndex((c) => vue().cleDe(c) === cle);
 }
 
+/* Le trait d'une catégorie sur la frise : passée, en cours, ou vide — et où
+   il mène. */
+function traitDeLaFrise(categorie, cle, fini, arret, rangDe) {
+  const n = vue().cleDe(categorie);
+  const estFin = ONGLET === "textes" && n === PROMULGUEE;
+  const estArret = ONGLET === "textes" && n === ARRETE;
+  // « Passée » n'a de sens que pour un parcours. Les travaux ne se
+  // traversent pas : aucune de leurs catégories n'est derrière une autre.
+  // Une colonne est « derrière » celle qu'on regarde. Pour les textes, le
+  // rang est un numéro d'étape ; pour le Sénat, c'est la place dans l'ordre
+  // des colonnes. Les travaux, eux, ne se traversent pas.
+  const passee = vue().parcours && !arret && !estArret
+                 && (ONGLET === "textes"
+                     ? (fini ? !estFin : n < cle)
+                     : rangDansLOrdre(n) < rangDansLOrdre(cle));
+  const ici = n === cle;
+  const b = el("button", [estFin ? "fini" : "", estArret ? "arret" : "",
+                          passee ? "faite" : "", ici ? "ici" : ""]
+                         .filter(Boolean).join(" "));
+  b.setAttribute("aria-label", categorie.nom);
+  if (ici) b.setAttribute("aria-current", "step");
+  const rang = rangDe(n);
+  const vide = rang === -1;
+  // Une catégorie vide garde son trait : la frise doit garder la même forme
+  // d'un jour à l'autre, sinon elle cesse d'être un repère. Elle ne mène
+  // nulle part, mais elle dit ce qu'elle est.
+  b.classList.toggle("absent", vide);
+  b.append(el("i"));
+  b.addEventListener("click", () => vide
+    ? expliquer(categorie.nom, categorie.quoi, "Rien dans cette catégorie en ce moment")
+    : versColonne(rang));
+  return b;
+}
+
+function aideDeLaFrise(e, situation) {
+  const aide = el("button", "aide", "ⓘ");
+  aide.setAttribute("aria-label", "Ce que veut dire cette catégorie");
+  aide.addEventListener("click", () => expliquer(
+    EXPLICATIONS[ONGLET === "textes" ? "frise"
+                 : ONGLET === "senat" ? "friseSenat" : "travaux"][0],
+    EXPLICATIONS[ONGLET === "textes" ? "frise"
+                 : ONGLET === "senat" ? "friseSenat" : "travaux"][1]
+    + "\n\n" + e.nom + " : " + (e.quoi || ""),
+    situation ? situation[0].toUpperCase() + situation.slice(1) : ""));
+  return aide;
+}
+
 function dessinerFriseBas(cle) {
   const barre = $("frise-bas");
   // La frise décrit le fil. Elle ne doit pas réapparaître par-dessus une
@@ -298,35 +345,7 @@ function dessinerFriseBas(cle) {
 
   const traits = el("div", "traits");
   for (const categorie of vue().ordre()) {
-    const n = vue().cleDe(categorie);
-    const estFin = ONGLET === "textes" && n === PROMULGUEE;
-    const estArret = ONGLET === "textes" && n === ARRETE;
-    // « Passée » n'a de sens que pour un parcours. Les travaux ne se
-    // traversent pas : aucune de leurs catégories n'est derrière une autre.
-    // Une colonne est « derrière » celle qu'on regarde. Pour les textes, le
-    // rang est un numéro d'étape ; pour le Sénat, c'est la place dans l'ordre
-    // des colonnes. Les travaux, eux, ne se traversent pas.
-    const passee = vue().parcours && !arret && !estArret
-                   && (ONGLET === "textes"
-                       ? (fini ? !estFin : n < cle)
-                       : rangDansLOrdre(n) < rangDansLOrdre(cle));
-    const ici = n === cle;
-    const b = el("button", [estFin ? "fini" : "", estArret ? "arret" : "",
-                            passee ? "faite" : "", ici ? "ici" : ""]
-                           .filter(Boolean).join(" "));
-    b.setAttribute("aria-label", categorie.nom);
-    if (ici) b.setAttribute("aria-current", "step");
-    const rang = rangDe(n);
-    const vide = rang === -1;
-    // Une catégorie vide garde son trait : la frise doit garder la même forme
-    // d'un jour à l'autre, sinon elle cesse d'être un repère. Elle ne mène
-    // nulle part, mais elle dit ce qu'elle est.
-    b.classList.toggle("absent", vide);
-    b.append(el("i"));
-    b.addEventListener("click", () => vide
-      ? expliquer(categorie.nom, categorie.quoi, "Rien dans cette catégorie en ce moment")
-      : versColonne(rang));
-    traits.append(b);
+    traits.append(traitDeLaFrise(categorie, cle, fini, arret, rangDe));
   }
   barre.append(traits);
 
@@ -335,16 +354,7 @@ function dessinerFriseBas(cle) {
   const dit = el("div", "dit");
   dit.append(el("b", fini ? "fini" : arret ? "arret" : null, e.nom || ""));
   if (situation) dit.append(document.createTextNode(situation));
-  const aide = el("button", "aide", "ⓘ");
-  aide.setAttribute("aria-label", "Ce que veut dire cette catégorie");
-  aide.addEventListener("click", () => expliquer(
-    EXPLICATIONS[ONGLET === "textes" ? "frise"
-                 : ONGLET === "senat" ? "friseSenat" : "travaux"][0],
-    EXPLICATIONS[ONGLET === "textes" ? "frise"
-                 : ONGLET === "senat" ? "friseSenat" : "travaux"][1]
-    + "\n\n" + e.nom + " : " + (e.quoi || ""),
-    situation ? situation[0].toUpperCase() + situation.slice(1) : ""));
-  dit.append(aide);
+  dit.append(aideDeLaFrise(e, situation));
   barre.append(dit);
   dessinerOnglets(barre);
 }

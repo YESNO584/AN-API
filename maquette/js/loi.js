@@ -33,14 +33,11 @@ async function ouvrirChangements(uid) {
  * endroits — l'onglet « Articles » de la fiche et cet écran, atteint depuis
  * la carte du fil. Deux copies auraient divergé au premier changement.
  * ------------------------------------------------------------------ */
-function contenuDesChangements(uid, d) {
-  const f = [];
-  const ajouts = d.articlesAjoutes || [];
-
-  // Le résumé : combien d'articles modifiés, créés, abrogés. Un compte, pas
-  // une appréciation. La quatrième tuile ne s'affiche que si la loi a écrit
-  // ses propres articles — annoncer un zéro pour toutes les autres lois
-  // ferait chercher un chiffre qui n'a rien à dire.
+/* Le résumé : combien d'articles modifiés, créés, abrogés. Un compte, pas
+   une appréciation. La quatrième tuile ne s'affiche que si la loi a écrit
+   ses propres articles — annoncer un zéro pour toutes les autres lois
+   ferait chercher un chiffre qui n'a rien à dire. */
+function tuilesDuResume(d, ajouts) {
   const actions = d.actions || {};
   const resume = el("div", "resume-change");
   // Les trois premières restent même à zéro : un « 0 abrogés » se lit, et la
@@ -58,61 +55,77 @@ function contenuDesChangements(uid, d) {
     tuile.append(el("b", null, nb.format(valeur)), el("span", null, nom));
     resume.append(tuile);
   }
-  f.push(resume);
+  return resume;
+}
+
+/* Les articles d'un code que la loi change, repliés ou non. */
+function groupeDArticles(uid, groupe, ouvert) {
+  const boite = el("details", "code-groupe");
+  boite.open = ouvert;
+  const titre = el("summary");
+  const zone = el("div");
+  zone.append(el("b", null, groupe.ou));
+  zone.append(el("i", null,
+    `${nb.format(groupe.articles.length)} article${groupe.articles.length > 1 ? "s" : ""}`));
+  titre.append(zone);
+  boite.append(titre);
+  for (const a of groupe.articles) boite.append(ligneArticle(uid, a));
+  return boite;
+}
+
+/* Les articles retouchés sans changement de fond : hors du compte, mais pas
+   cachés. Les compter comme modifiés ferait dire à l'application qu'une loi
+   a changé quelque chose là où elle n'a rien changé. */
+function blocRetouches(uid, retouches) {
+  const boite = el("details", "retouches");
+  const titre = el("summary");
+  titre.append(el("b", null,
+    `${nb.format(retouches.length)} article${retouches.length > 1 ? "s" : ""} retouché`
+    + `${retouches.length > 1 ? "s" : ""}`));
+  titre.append(document.createTextNode(" sans changement de fond — "
+    + "seule la ponctuation ou les espaces ont bougé."));
+  boite.append(titre);
+  for (const a of retouches) boite.append(ligneArticle(uid, a, true));
+  return boite;
+}
+
+/* Ce que la loi **ajoute** : ses propres articles. Une liste à part, parce
+   qu'ils n'ont pas d'avant — il n'y a rien à superposer, seulement un texte
+   à lire. Les mêler aux articles changés obligerait à afficher une « part
+   de texte changé » qui ne veut rien dire pour un article neuf. */
+function blocAjouts(uid, d, ajouts) {
+  const boite = el("details", "code-groupe");
+  // Le même seuil que les groupes d'articles changés, pour la même raison :
+  // sur un texte qui touche à vingt codes, tout déplier noie l'écran ; sur
+  // une loi de finances, qui n'en change que deux, replier ses propres
+  // articles reviendrait à cacher toute sa matière.
+  boite.open = (d.groupes || []).length <= 3;
+  const titre = el("summary");
+  const zone = el("div");
+  zone.append(el("b", null, "Ce que cette loi ajoute"));
+  zone.append(el("i", null,
+    `${nb.format(ajouts.length)} article${ajouts.length > 1 ? "s" : ""} `
+    + `qu'elle a écrit${ajouts.length > 1 ? "s" : ""}`));
+  titre.append(zone);
+  boite.append(titre);
+  for (const a of ajouts) boite.append(ligneArticle(uid, a));
+  return boite;
+}
+
+function contenuDesChangements(uid, d) {
+  const f = [];
+  const ajouts = d.articlesAjoutes || [];
+
+  f.push(tuilesDuResume(d, ajouts));
 
   for (const groupe of d.groupes || []) {
-    const boite = el("details", "code-groupe");
-    boite.open = (d.groupes.length <= 3);
-    const titre = el("summary");
-    const zone = el("div");
-    zone.append(el("b", null, groupe.ou));
-    zone.append(el("i", null,
-      `${nb.format(groupe.articles.length)} article${groupe.articles.length > 1 ? "s" : ""}`));
-    titre.append(zone);
-    boite.append(titre);
-    for (const a of groupe.articles) boite.append(ligneArticle(uid, a));
-    f.push(boite);
+    f.push(groupeDArticles(uid, groupe, d.groupes.length <= 3));
   }
 
-  // Les articles retouchés sans changement de fond : hors du compte, mais pas
-  // cachés. Les compter comme modifiés ferait dire à l'application qu'une loi
-  // a changé quelque chose là où elle n'a rien changé.
   const retouches = d.articlesRetouches || [];
-  if (retouches.length) {
-    const boite = el("details", "retouches");
-    const titre = el("summary");
-    titre.append(el("b", null,
-      `${nb.format(retouches.length)} article${retouches.length > 1 ? "s" : ""} retouché`
-      + `${retouches.length > 1 ? "s" : ""}`));
-    titre.append(document.createTextNode(" sans changement de fond — "
-      + "seule la ponctuation ou les espaces ont bougé."));
-    boite.append(titre);
-    for (const a of retouches) boite.append(ligneArticle(uid, a, true));
-    f.push(boite);
-  }
+  if (retouches.length) f.push(blocRetouches(uid, retouches));
 
-  // Ce que la loi **ajoute** : ses propres articles. Une liste à part, parce
-  // qu'ils n'ont pas d'avant — il n'y a rien à superposer, seulement un texte
-  // à lire. Les mêler aux articles changés obligerait à afficher une « part
-  // de texte changé » qui ne veut rien dire pour un article neuf.
-  if (ajouts.length) {
-    const boite = el("details", "code-groupe");
-    // Le même seuil que les groupes d'articles changés, pour la même raison :
-    // sur un texte qui touche à vingt codes, tout déplier noie l'écran ; sur
-    // une loi de finances, qui n'en change que deux, replier ses propres
-    // articles reviendrait à cacher toute sa matière.
-    boite.open = (d.groupes || []).length <= 3;
-    const titre = el("summary");
-    const zone = el("div");
-    zone.append(el("b", null, "Ce que cette loi ajoute"));
-    zone.append(el("i", null,
-      `${nb.format(ajouts.length)} article${ajouts.length > 1 ? "s" : ""} `
-      + `qu'elle a écrit${ajouts.length > 1 ? "s" : ""}`));
-    titre.append(zone);
-    boite.append(titre);
-    for (const a of ajouts) boite.append(ligneArticle(uid, a));
-    f.push(boite);
-  }
+  if (ajouts.length) f.push(blocAjouts(uid, d, ajouts));
 
   f.push(el("p", "avertissement",
     "Les articles que la loi se contente de citer ne sont pas comptés ici : "
@@ -231,11 +244,8 @@ function texteCompare(morceaux, mode, texte) {
   return corps;
 }
 
-function dessinerArticle(f, retour, uid, a) {
-  f.textContent = "";
-  f.append(retour);
-  f.append(el("h2", "fiche-titre", a.numero ? "Article " + a.numero
-                                            : a.intitule || "Article sans numéro"));
+/* Ce que l'article est devenu, et quand. */
+function sousTitreDArticle(a) {
   // Une abrogation ne met rien en vigueur : elle met fin à une rédaction. Dire
   // « rédaction en vigueur le… » pour un article abrogé serait le contraire de
   // ce qui s'est passé.
@@ -249,7 +259,58 @@ function dessinerArticle(f, retour, uid, a) {
   // n'est pas paru. Le dire vaut mieux que de se taire.
   const quand = a.effet ? " le " + dateLongue.format(enDate(a.effet))
                         : " à une date non encore fixée";
-  f.append(el("p", "fiche-sous", (a.ou || "") + " — " + verbe + quand));
+  return el("p", "fiche-sous", (a.ou || "") + " — " + verbe + quand);
+}
+
+/* Ce qu'il faut dire d'un article qui n'a pas d'avant — ou dont la source
+   n'a pas encore saisi le texte. Rien, sinon. */
+function notaDuNeuf(a, neuf) {
+  if (a.enAttente) {
+    return el("p", "nota",
+      "La source a publié cet article sans encore en saisir le texte. La "
+      + "phrase ci-dessous est la sienne, en attendant : ce n'est pas le texte "
+      + "de la loi. Il arrivera dans une prochaine mise à jour du droit "
+      + "consolidé.");
+  } else if (neuf) {
+    return el("p", "nota", a.avant === "manquant"
+      ? "La rédaction précédente de cet article n'a pas été retrouvée dans les "
+        + "archives lues : le texte ci-dessous est celui en vigueur, sans "
+        + "comparaison possible."
+      : a.quoi === "AJOUTE"
+      ? "Cet article est l'un de ceux que la loi a écrits. Il n'a pas de "
+        + "rédaction précédente : il n'existait pas avant elle."
+      : "La loi a créé cet article : il n'a pas de rédaction précédente à lui "
+        + "superposer.");
+  }
+  return null;
+}
+
+/* Les trois façons de lire l'article : ce qui change, le texte en vigueur,
+   le texte précédent. */
+function basculeDuMode(f, retour, uid, a) {
+  const bascule = el("div", "bascule-texte");
+  const noms = a.quoi === "ABROGE"
+    ? [["diff", "Ce qui change"], ["apres", "Dernier texte"], ["avant", "Texte précédent"]]
+    : [["diff", "Ce qui change"], ["apres", "Texte en vigueur"], ["avant", "Texte précédent"]];
+  for (const [cle, nom] of noms) {
+    const b = el("button", null, nom);
+    b.setAttribute("aria-pressed", String(MODE_TEXTE === cle));
+    b.addEventListener("click", () => {
+      MODE_TEXTE = cle;
+      dessinerArticle(f, retour, uid, a);
+      window.scrollTo(0, 0);
+    });
+    bascule.append(b);
+  }
+  return bascule;
+}
+
+function dessinerArticle(f, retour, uid, a) {
+  f.textContent = "";
+  f.append(retour);
+  f.append(el("h2", "fiche-titre", a.numero ? "Article " + a.numero
+                                            : a.intitule || "Article sans numéro"));
+  f.append(sousTitreDArticle(a));
   // Le titre ci-dessus est alors le début du texte, pas un intitulé : le dire,
   // pour qu'on ne le prenne pas pour un nom officiel.
   if (!a.numero) {
@@ -260,40 +321,9 @@ function dessinerArticle(f, retour, uid, a) {
   }
 
   const neuf = a.commun === null;
-  if (a.enAttente) {
-    f.append(el("p", "nota",
-      "La source a publié cet article sans encore en saisir le texte. La "
-      + "phrase ci-dessous est la sienne, en attendant : ce n'est pas le texte "
-      + "de la loi. Il arrivera dans une prochaine mise à jour du droit "
-      + "consolidé."));
-  } else if (neuf) {
-    f.append(el("p", "nota", a.avant === "manquant"
-      ? "La rédaction précédente de cet article n'a pas été retrouvée dans les "
-        + "archives lues : le texte ci-dessous est celui en vigueur, sans "
-        + "comparaison possible."
-      : a.quoi === "AJOUTE"
-      ? "Cet article est l'un de ceux que la loi a écrits. Il n'a pas de "
-        + "rédaction précédente : il n'existait pas avant elle."
-      : "La loi a créé cet article : il n'a pas de rédaction précédente à lui "
-        + "superposer."));
-  }
-  if (!neuf) {
-    const bascule = el("div", "bascule-texte");
-    const noms = a.quoi === "ABROGE"
-      ? [["diff", "Ce qui change"], ["apres", "Dernier texte"], ["avant", "Texte précédent"]]
-      : [["diff", "Ce qui change"], ["apres", "Texte en vigueur"], ["avant", "Texte précédent"]];
-    for (const [cle, nom] of noms) {
-      const b = el("button", null, nom);
-      b.setAttribute("aria-pressed", String(MODE_TEXTE === cle));
-      b.addEventListener("click", () => {
-        MODE_TEXTE = cle;
-        dessinerArticle(f, retour, uid, a);
-        window.scrollTo(0, 0);
-      });
-      bascule.append(b);
-    }
-    f.append(bascule);
-  }
+  const nota = notaDuNeuf(a, neuf);
+  if (nota) f.append(nota);
+  if (!neuf) f.append(basculeDuMode(f, retour, uid, a));
 
   const mode = neuf ? "apres" : MODE_TEXTE;
   if (mode === "diff") f.append(legendeDiff(a.morceaux, "par la loi"));

@@ -64,16 +64,11 @@ async function versionLue(uid, nom) {
   return VERSIONS_LUES.get(cle);
 }
 
-function blocTexte(uid, versions, plat) {
-  const b = bloc("Le texte", false, plat);
-  if (!versions.length) {
-    b.append(el("p", "avertissement",
-      "Le texte de ce projet ou de cette proposition n'est pas publié ici. "
-      + "Le socle lit les documents de l'Assemblée nationale ; un texte déposé "
-      + "au Sénat a ses versions sur le site du Sénat, qui ne les sert pas de "
-      + "la même façon. Le parcours donne le numéro de chaque document."));
-    return [b, null];
-  }
+/* Les vues qu'un texte propose : la version déposée, et — dès qu'il en a deux —
+   ce qui a changé depuis le dépôt et la version à jour. Chaque vue dit quelle
+   version elle montre et de quand : sans cela, trois boutons courts
+   laisseraient croire qu'on lit toujours le même document. */
+function vuesDuTexte(versions) {
   const initiale = versions[0];
   const derniere = versions[versions.length - 1];
   const quand = (v) => dateLongue.format(enDate(v.date));
@@ -115,6 +110,36 @@ function blocTexte(uid, versions, plat) {
         sous: derniere.nom + ", " + quand(derniere)
               + " — le texte tel qu'il se lit aujourd'hui, sans les différences" });
   }
+  return vues;
+}
+
+/* Les mêmes trois boutons côte à côte que pour un article de loi : un seul
+   geste à apprendre pour choisir ce qu'on regarde, partout dans la fiche. */
+function basculeDesVues(vues, boutons, montrer) {
+  const bascule = el("div", "bascule-texte");
+  for (const vue of vues) {
+    const bt = el("button", null, vue.bouton);
+    bt.type = "button";
+    bt.dataset.cle = vue.cle;
+    bt.setAttribute("aria-pressed", String(vue === vues[0]));
+    bt.addEventListener("click", () => montrer(vue));
+    bascule.append(bt);
+    boutons.push(bt);
+  }
+  return bascule;
+}
+
+function blocTexte(uid, versions, plat) {
+  const b = bloc("Le texte", false, plat);
+  if (!versions.length) {
+    b.append(el("p", "avertissement",
+      "Le texte de ce projet ou de cette proposition n'est pas publié ici. "
+      + "Le socle lit les documents de l'Assemblée nationale ; un texte déposé "
+      + "au Sénat a ses versions sur le site du Sénat, qui ne les sert pas de "
+      + "la même façon. Le parcours donne le numéro de chaque document."));
+    return [b, null];
+  }
+  const vues = vuesDuTexte(versions);
 
   const sous = el("p", "sous-texte");
   const zone = el("div");
@@ -139,17 +164,7 @@ function blocTexte(uid, versions, plat) {
   if (vues.length > 1) {
     // Les mêmes trois boutons côte à côte que pour un article de loi : un seul
     // geste à apprendre pour choisir ce qu'on regarde, partout dans la fiche.
-    const bascule = el("div", "bascule-texte");
-    for (const vue of vues) {
-      const bt = el("button", null, vue.bouton);
-      bt.type = "button";
-      bt.dataset.cle = vue.cle;
-      bt.setAttribute("aria-pressed", String(vue === vues[0]));
-      bt.addEventListener("click", () => montrer(vue));
-      bascule.append(bt);
-      boutons.push(bt);
-    }
-    b.append(bascule);
+    b.append(basculeDesVues(vues, boutons, montrer));
   } else {
     b.append(el("p", "avertissement",
       "Une seule version de ce texte est publiée : il n'y a donc rien à "

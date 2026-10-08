@@ -1,29 +1,6 @@
 /* Les deux écrans du Sénat : sa composition et ses séances à venir — les mêmes dessins que ceux de l'Assemblée. */
 
-async function ouvrirCompositionSenat(sigle = null) {
-  const f = ouvrirEcran();
-  f.append(boutonRetour("", "Retour au fil"));
-  f.append(el("h2", "fiche-titre", "Le Sénat"));
-  f.append(el("p", "avertissement", "Chargement…"));
-
-  const d = await lire("senat/composition.json");
-  f.textContent = "";
-  f.append(boutonRetour("", "Retour au fil"));
-  f.append(el("h2", "fiche-titre", "Le Sénat"));
-  if (!d || !(d.groupes || []).length) {
-    f.append(el("div", "vide",
-      "La composition du Sénat n'est pas publiée aujourd'hui. Les données du "
-      + "Sénat sont une source facultative : le reste du site est à jour."));
-    return;
-  }
-
-  const groupes = d.groupes.filter((g) => g.effectif > 0);
-  const choisi = groupes.find((g) => g.sigle === sigle) || null;
-  // Le dessin montre les sénateurs **qui ont un groupe**. Les 179 qui n'en ont
-  // pas encore ne sont pas des non-inscrits : les faire figurer en gris les
-  // donnerait pour tels.
-  const places = groupes.reduce((n, g) => n + g.effectif, 0);
-
+function sousTitreDuSenat(d, groupes) {
   const sous = el("p", "fiche-sous",
     `${nb.format(d.effectif)} sénateurs, ${groupes.length} groupes, `
     + "de la gauche à la droite de l'hémicycle. ");
@@ -32,13 +9,13 @@ async function ouvrirCompositionSenat(sigle = null) {
   aide.addEventListener("click", () => expliquer(...EXPLICATIONS.compositionSenat,
                                                  "Ordre mesuré, sens convenu"));
   sous.append(aide);
-  f.append(sous);
+  return sous;
+}
 
-  const veille = avisDuSenat();
-  if (veille) f.append(veille);
-
-  const zone = el("div", "hemicycle");
-  f.append(zone);
+/* L'hémicycle du Sénat, et ce que l'écran doit dire au lieu de le cacher : un
+   hémicycle de 169 sièges sans explication laisserait croire à un Sénat à
+   moitié vide. */
+function dessinDuSenat(zone, d, groupes, places, choisi, sigle) {
   const svg = dessinerHemicycle(groupes, places);
   svg.setAttribute("aria-label",
     `${nb.format(places)} sièges coloriés par groupe, de la gauche à la droite`);
@@ -63,38 +40,12 @@ async function ouvrirCompositionSenat(sigle = null) {
       + "clos et ne se sont pas encore reformés. Le dessin se remplira de "
       + "lui-même."));
   }
+}
 
-  const liste = el("div", "hemi-liste");
-  f.append(liste);
-  for (const g of (choisi ? [choisi] : groupes)) {
-    const ligne = el("button", "hemi-groupe");
-    ligne.setAttribute("aria-expanded", String(g === choisi));
-    const teinte = el("i");
-    if (g.couleur) teinte.style.background = g.couleur;
-    ligne.append(teinte);
-    ligne.append(el("span", "sigle", g.nom || g.sigle));
-    ligne.append(el("span", "nom", g.nomComplet || ""));
-    const compte = el("span", "n", nb.format(g.effectif));
-    compte.append(el("span", null, " sén."));
-    ligne.append(compte);
-    ligne.append(el("span", "chevron", g === choisi ? "‹" : "›"));
-    ligne.addEventListener("click", () => {
-      location.hash = g === choisi
-        ? "#/senat/composition" : "#/senat/composition/" + encodeURIComponent(g.sigle);
-    });
-    liste.append(ligne);
-  }
-
-  f.append(el("p", "avertissement",
-    "L'ordre des groupes est mesuré sur leur façon de voter, et non sur leurs "
-    + "sièges : la numérotation du Sénat tourne rang par rang, et le groupe y "
-    + "change 152 fois quand on suit les numéros. Il sépare nettement la "
-    + "gauche, le centre et la droite ; à l'intérieur de ces blocs il ne "
-    + "départage pas, et le sens — quel bout est la gauche — est une "
-    + "convention assumée. Les couleurs, elles, sont celles du Sénat."));
-
-  if (!choisi) return;
-
+/* Les sénateurs du groupe ouvert — la même ligne qu'un député, sans la photo :
+   les mentions légales du Sénat couvrent les photographies par le droit
+   d'auteur. */
+function senateursDuGroupe(f, d, choisi) {
   const membres = (d.senateurs || []).filter((x) => x.groupe === choisi.sigle);
   const detail = el("p", "fiche-sous",
     `${nb.format(membres.length)} sénateurs, classés par nom. `);
@@ -110,6 +61,60 @@ async function ouvrirCompositionSenat(sigle = null) {
   const lignes = el("div", "deputes");
   for (const x of membres) lignes.append(ligneSenateur(x));
   f.append(lignes);
+}
+
+async function ouvrirCompositionSenat(sigle = null) {
+  const f = ouvrirEcran();
+  f.append(boutonRetour("", "Retour au fil"));
+  f.append(el("h2", "fiche-titre", "Le Sénat"));
+  f.append(el("p", "avertissement", "Chargement…"));
+
+  const d = await lire("senat/composition.json");
+  f.textContent = "";
+  f.append(boutonRetour("", "Retour au fil"));
+  f.append(el("h2", "fiche-titre", "Le Sénat"));
+  if (!d || !(d.groupes || []).length) {
+    f.append(el("div", "vide",
+      "La composition du Sénat n'est pas publiée aujourd'hui. Les données du "
+      + "Sénat sont une source facultative : le reste du site est à jour."));
+    return;
+  }
+
+  const groupes = d.groupes.filter((g) => g.effectif > 0);
+  const choisi = groupes.find((g) => g.sigle === sigle) || null;
+  // Le dessin montre les sénateurs **qui ont un groupe**. Les 179 qui n'en ont
+  // pas encore ne sont pas des non-inscrits : les faire figurer en gris les
+  // donnerait pour tels.
+  const places = groupes.reduce((n, g) => n + g.effectif, 0);
+
+  f.append(sousTitreDuSenat(d, groupes));
+
+  const veille = avisDuSenat();
+  if (veille) f.append(veille);
+
+  const zone = el("div", "hemicycle");
+  f.append(zone);
+  dessinDuSenat(zone, d, groupes, places, choisi, sigle);
+
+  const liste = el("div", "hemi-liste");
+  f.append(liste);
+  for (const g of (choisi ? [choisi] : groupes)) {
+    liste.append(ligneDeGroupe(g, choisi, g.nom || g.sigle, g.nomComplet || "",
+                               " sén.", "#/senat/composition"));
+  }
+
+  f.append(el("p", "avertissement",
+    "L'ordre des groupes est mesuré sur leur façon de voter, et non sur leurs "
+    + "sièges : la numérotation du Sénat tourne rang par rang, et le groupe y "
+    + "change 152 fois quand on suit les numéros. Il sépare nettement la "
+    + "gauche, le centre et la droite ; à l'intérieur de ces blocs il ne "
+    + "départage pas, et le sens — quel bout est la gauche — est une "
+    + "convention assumée. Les couleurs, elles, sont celles du Sénat."));
+
+  if (!choisi) return;
+
+  senateursDuGroupe(f, d, choisi);
+
 }
 
 function ligneSenateur(x) {
