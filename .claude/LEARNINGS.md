@@ -1365,3 +1365,39 @@ garde-fous était **aveugle** — le refus d'une base vide passait toujours,
 parce qu'un autre contrôle l'attrapait d'abord. Le seul cas où il compte
 vraiment est celui qui est arrivé : une première construction, sans base de la
 veille à comparer.
+
+## 2026-10-08 — Les journées de niche : la source ne les nomme presque jamais
+
+Mesuré sur l'agenda relevé le 2026-09-23 (`tmp/archives/agenda.zip`, 1 054
+séances publiques) et sur `parlement.db`. Discussion seulement, rien n'est
+codé. Les scripts sont dans `tmp/niches/`.
+
+- **Le type de point « Séances réservées à un groupe de l'opposition ou
+  minoritaire » existe, mais n'est employé que pour deux journées** : la niche
+  DR du 2025-01-16 (annulée, remplacée par une motion de censure) et la niche
+  RN du 2025-10-30. Toutes les autres niches sont des points « Discussion »
+  ordinaires, de nature `ODJPR`. `ODJSN` (146 jours) et `ODJAN` (2 jours) ne
+  les marquent pas non plus. Les comptes rendus ne les nomment qu'en passant,
+  dans la bouche d'un orateur. `demandeurPoint` est vide sur les 3 735 points.
+- **La rotation se voit pourtant dans les données.** Règle : un jeudi où au
+  moins deux textes discutés en séance ont un auteur du même groupe, et aucun
+  texte d'un autre groupe connu. Elle retient 15 jeudis, tous plausibles, et
+  les groupes reviennent dans le même ordre d'une session à l'autre (RN, LFI,
+  SOC, DR, EcoS, Dem, HOR, LIOT, GDR…). Elle manque au moins quatre niches :
+  celle de LFI du 2024-11-28 (un seul texte atteint), SOC du 2025-01-23 (un
+  auteur aujourd'hui NI), GDR du 2026-06-11 (un texte LFI en deuxième lecture
+  inscrit ce jour-là), et la niche UDR. **L'auteur d'un texte n'est pas le
+  groupe qui l'inscrit** : une niche inscrit aussi des textes adoptés par le
+  Sénat, dont l'auteur n'a pas de groupe. Et `acteur.groupe_ref` est le groupe
+  d'aujourd'hui.
+- **L'agenda garde l'ordre du jour complet de la journée, ce que le site
+  n'affiche nulle part.** La séance de 9 h inscrit les 8 à 10 textes du
+  groupe ; un point « Supprimé » est un texte repoussé à la séance suivante, et
+  celui qui l'est encore à 21 h 30 n'a jamais été atteint avant minuit. Le
+  2024-11-28, 8 textes LFI sur 9 n'ont pas été examinés. **Un point non
+  atteint n'a pas de `dossiersLegislatifsRefs`** : le retrouver demande de
+  comparer son intitulé au champ `description` du dossier (« visant à… »), qui
+  retrouve 102 points sur 181 sans ambiguïté, 10 en désignent plusieurs.
+- **Le calendrier cache les résolutions des niches** : il filtre
+  `est_loi = 1`, si bien que la résolution sur les accords franco-algériens du
+  2025-10-30, adoptée à une voix près, n'y figure pas.
