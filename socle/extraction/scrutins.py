@@ -62,6 +62,40 @@ def classer_portee(libelle: str) -> str:
     return AUTRE
 
 
+def _entier(valeur):
+    try:
+        return int(valeur)
+    except (TypeError, ValueError):
+        return None
+
+
+def votes_des_groupes(s: dict, groupes: dict[str, tuple[str, str]] | None) -> list[dict]:
+    """Ce que chaque groupe a fait, tel que le scrutin le ventile."""
+    votes: list[dict] = []
+    liste = (((s.get("ventilationVotes") or {}).get("organe") or {})
+             .get("groupes") or {}).get("groupe")
+    if isinstance(liste, dict):
+        liste = [liste]
+    for g in liste or []:
+        detail = (g.get("vote") or {}).get("decompteVoix") or {}
+        sigle, nom = (groupes or {}).get(g.get("organeRef"), (g.get("organeRef"), ""))
+        pour = _entier(detail.get("pour")) or 0
+        contre = _entier(detail.get("contre")) or 0
+        abstentions = _entier(detail.get("abstentions")) or 0
+        votes.append({
+            "ref": g.get("organeRef"),
+            "sigle": sigle,
+            "nom": nom,
+            "membres": _entier(g.get("nombreMembresGroupe")),
+            "position": position_dominante(pour, contre, abstentions),
+            "pour": pour,
+            "contre": contre,
+            "abstentions": abstentions,
+            "nonVotants": _entier(detail.get("nonVotants")),
+        })
+    return votes
+
+
 def analyser_scrutin(brut: dict, groupes: dict[str, tuple[str, str]] | None = None) -> dict:
     """Un scrutin tel que publié → un scrutin tel que la base le range."""
     s = brut["scrutin"]
@@ -75,53 +109,26 @@ def analyser_scrutin(brut: dict, groupes: dict[str, tuple[str, str]] | None = No
     decompte = synthese.get("decompte") or {}
     demandeur = s.get("demandeur") or {}
 
-    def entier(valeur):
-        try:
-            return int(valeur)
-        except (TypeError, ValueError):
-            return None
-
     vote = {
         "uid": s["uid"],
         "dossier": dossier,
         "date": (s.get("dateScrutin") or "")[:10],
-        "numero": entier(s.get("numero")),
+        "numero": _entier(s.get("numero")),
         "type": (s.get("typeVote") or {}).get("libelleTypeVote"),
         "portee": classer_portee(libelle),
         "objet": libelle,
         "sort": (s.get("sort") or {}).get("code"),
         "annonce": (s.get("sort") or {}).get("libelle") or synthese.get("annonce"),
         "demandeur": demandeur.get("texte"),
-        "votants": entier(synthese.get("nombreVotants")),
-        "requis": entier(synthese.get("nbrSuffragesRequis")),
-        "pour": entier(decompte.get("pour")),
-        "contre": entier(decompte.get("contre")),
-        "abstentions": entier(decompte.get("abstentions")),
-        "nonVotants": entier(decompte.get("nonVotants")),
-        "groupes": [],
+        "votants": _entier(synthese.get("nombreVotants")),
+        "requis": _entier(synthese.get("nbrSuffragesRequis")),
+        "pour": _entier(decompte.get("pour")),
+        "contre": _entier(decompte.get("contre")),
+        "abstentions": _entier(decompte.get("abstentions")),
+        "nonVotants": _entier(decompte.get("nonVotants")),
+        "groupes": votes_des_groupes(s, groupes),
     }
 
-    liste = (((s.get("ventilationVotes") or {}).get("organe") or {})
-             .get("groupes") or {}).get("groupe")
-    if isinstance(liste, dict):
-        liste = [liste]
-    for g in liste or []:
-        detail = (g.get("vote") or {}).get("decompteVoix") or {}
-        sigle, nom = (groupes or {}).get(g.get("organeRef"), (g.get("organeRef"), ""))
-        pour = entier(detail.get("pour")) or 0
-        contre = entier(detail.get("contre")) or 0
-        abstentions = entier(detail.get("abstentions")) or 0
-        vote["groupes"].append({
-            "ref": g.get("organeRef"),
-            "sigle": sigle,
-            "nom": nom,
-            "membres": entier(g.get("nombreMembresGroupe")),
-            "position": position_dominante(pour, contre, abstentions),
-            "pour": pour,
-            "contre": contre,
-            "abstentions": abstentions,
-            "nonVotants": entier(detail.get("nonVotants")),
-        })
     return vote
 
 

@@ -169,16 +169,24 @@ def deux_passes(chemin: pathlib.Path, lois: set[str], base: sqlite3.Connection) 
     voulues -= {ligne["id"] for ligne in base.execute(
         "SELECT id FROM redaction WHERE texte IS NOT NULL")}
     if voulues:
-        with chemin.open("rb") as flux:
-            for _, brut in legi.parcourir_archive(flux):
-                xml = brut.decode("utf-8", "replace")
-                identifiant = legi.champ(legi.champ(xml, "META_COMMUN"), "ID")
-                if identifiant in voulues:
-                    ranger(base, legi.lire_article(xml))
-                    gardees += 1
-                    voulues.discard(identifiant)
-                    if not voulues:
-                        break
+        gardees += seconde_passe(chemin, voulues, base)
+    return gardees
+
+
+def seconde_passe(chemin: pathlib.Path, voulues: set[str], base: sqlite3.Connection) -> int:
+    """Va chercher les rédactions d'avant que la première passe a notées, et
+    s'arrête dès qu'elle les a toutes. Rend combien ont été rangées."""
+    gardees = 0
+    with chemin.open("rb") as flux:
+        for _, brut in legi.parcourir_archive(flux):
+            xml = brut.decode("utf-8", "replace")
+            identifiant = legi.champ(legi.champ(xml, "META_COMMUN"), "ID")
+            if identifiant in voulues:
+                ranger(base, legi.lire_article(xml))
+                gardees += 1
+                voulues.discard(identifiant)
+                if not voulues:
+                    break
     base.commit()
     return gardees
 

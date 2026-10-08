@@ -71,6 +71,79 @@ def numeros_de_texte(valeur: str | None) -> list[str]:
     return re.findall(r"\d{1,5}", valeur or "")
 
 
+def fragments_de_parole(racine, sigles: set[str]) -> Iterator[dict | None]:
+    """Chaque paragraphe d'argumentaire de la séance, avec qui le prononce — et
+    `None` partout où une prise de parole ne peut pas continuer : un changement
+    de section, une phrase de la présidence, un paragraphe d'une autre nature.
+    Les interruptions venues des bancs ne coupent rien : l'orateur reprend son
+    propos au paragraphe suivant."""
+    contenu = racine.find(NS_DEBATS + "contenu")
+    if contenu is None:
+        return
+    brut = racine.findtext(f"{NS_DEBATS}metadonnees/{NS_DEBATS}dateSeance") or ""
+    jour = f"{brut[:4]}-{brut[4:6]}-{brut[6:8]}" if len(brut) >= 8 else None
+    seance = racine.findtext(NS_DEBATS + "uid")
+
+    numeros: list[str] = []
+    section: str | None = None
+    for point in contenu:
+        if point.tag != NS_DEBATS + "point":
+            continue
+        niveau = point.get("nivpoint")
+        titre = _texte_du_noeud(point.find(NS_DEBATS + "texte"))
+        if niveau == "1":
+            yield None
+            numeros, section = [], None
+            if point.get("code_grammaire") == "TITRE_TEXTE_DISCUSSION":
+                numeros = numeros_de_texte(point.get("valeur"))
+        elif niveau == "2":
+            yield None
+            section = titre if titre.startswith(SECTIONS_ARGUMENTAIRE) else None
+        if not (numeros and section):
+            continue
+
+        for para in point.findall(NS_DEBATS + "paragraphe"):
+            code = para.get("code_grammaire")
+            if code == INTERRUPTION:
+                continue
+            if code != PAROLE:
+                yield None
+                continue
+            noms = _noms_des_orateurs(para)
+            if any(est_la_presidence(n) for n in noms):
+                yield None
+                continue
+            corps = _texte_du_noeud(para.find(NS_DEBATS + "texte"))
+            if not corps:
+                continue
+            yield {"seance": seance, "date": jour, "numeros": list(numeros),
+                   "section": section, **_paragraphe_prononce(para, noms, corps, sigles)}
+    yield None
+
+
+def _noms_des_orateurs(para) -> list[str]:
+    orateurs = para.find(NS_DEBATS + "orateurs")
+    return [o.findtext(NS_DEBATS + "nom") or ""
+            for o in (orateurs if orateurs is not None else [])]
+
+
+def _paragraphe_prononce(para, noms: list[str], corps: str, sigles: set[str]) -> dict:
+    """Un paragraphe et qui le prononce : l'acteur, son nom, sa qualité, son groupe."""
+    orateurs = para.find(NS_DEBATS + "orateurs")
+    qualite = next((o.findtext(NS_DEBATS + "qualite") or ""
+                    for o in (orateurs if orateurs is not None else [])), "")
+    return {
+        "acteur_ref": para.get("id_acteur"),
+        # Le nom tel que la source l'imprime, sigle compris. On le
+        # nettoie du sigle pour l'affichage : il est rangé à part.
+        "nom": re.sub(r"\s*\([^()]+\)\s*$", "", noms[0]).strip() if noms else "",
+        "qualite": qualite,
+        "sigle": next((s for s in (sigle_d_orateur(n, sigles) for n in noms) if s),
+                      None),
+        "texte": corps,
+    }
+
+
 def prises_de_parole(racine, sigles: set[str]) -> Iterator[dict]:
     """Les argumentaires d'une séance, dans l'ordre où ils ont été prononcés.
 
@@ -83,82 +156,19 @@ def prises_de_parole(racine, sigles: set[str]) -> Iterator[dict]:
     discuté — et non un identifiant de dossier : le rapprochement demande la
     liste des documents, que ce module ne charge pas.
     """
-    contenu = racine.find(NS_DEBATS + "contenu")
-    if contenu is None:
-        return
-    brut = racine.findtext(f"{NS_DEBATS}metadonnees/{NS_DEBATS}dateSeance") or ""
-    jour = f"{brut[:4]}-{brut[4:6]}-{brut[6:8]}" if len(brut) >= 8 else None
-    seance = racine.findtext(NS_DEBATS + "uid")
-
-    numeros: list[str] = []
-    section: str | None = None
     courante: dict | None = None
     rang = 0
-
-    def clore() -> Iterator[dict]:
-        nonlocal courante
-        if courante and courante["texte"]:
+    for fragment in fragments_de_parole(racine, sigles):
+        if (fragment and courante and courante["acteur_ref"] == fragment["acteur_ref"]
+                and courante["section"] == fragment["section"]):
+            courante["texte"] += "\n\n" + fragment["texte"]
+            continue
+        if courante:
             yield courante
         courante = None
-
-    for point in contenu:
-        if point.tag != NS_DEBATS + "point":
-            continue
-        niveau = point.get("nivpoint")
-        titre = _texte_du_noeud(point.find(NS_DEBATS + "texte"))
-        if niveau == "1":
-            yield from clore()
-            numeros, section = [], None
-            if point.get("code_grammaire") == "TITRE_TEXTE_DISCUSSION":
-                numeros = numeros_de_texte(point.get("valeur"))
-        elif niveau == "2":
-            yield from clore()
-            section = titre if titre.startswith(SECTIONS_ARGUMENTAIRE) else None
-        if not (numeros and section):
-            continue
-
-        for para in point.findall(NS_DEBATS + "paragraphe"):
-            code = para.get("code_grammaire")
-            if code == INTERRUPTION:
-                # Elle ne rompt pas la prise de parole en cours : l'orateur
-                # reprend son propos au paragraphe suivant.
-                continue
-            if code != PAROLE:
-                yield from clore()
-                continue
-            orateurs = para.find(NS_DEBATS + "orateurs")
-            noms = [o.findtext(NS_DEBATS + "nom") or ""
-                    for o in (orateurs if orateurs is not None else [])]
-            if any(est_la_presidence(n) for n in noms):
-                yield from clore()
-                continue
-            corps = _texte_du_noeud(para.find(NS_DEBATS + "texte"))
-            if not corps:
-                continue
-            ref = para.get("id_acteur")
-            if courante and courante["acteur_ref"] == ref and courante["section"] == section:
-                courante["texte"] += "\n\n" + corps
-                continue
-            yield from clore()
-            qualite = next((o.findtext(NS_DEBATS + "qualite") or ""
-                            for o in (orateurs if orateurs is not None else [])), "")
+        if fragment:
             rang += 1
-            courante = {
-                "seance": seance,
-                "date": jour,
-                "numeros": list(numeros),
-                "section": section,
-                "ordre": rang,
-                "acteur_ref": ref,
-                # Le nom tel que la source l'imprime, sigle compris. On le
-                # nettoie du sigle pour l'affichage : il est rangé à part.
-                "nom": re.sub(r"\s*\([^()]+\)\s*$", "", noms[0]).strip() if noms else "",
-                "qualite": qualite,
-                "sigle": next((s for s in (sigle_d_orateur(n, sigles) for n in noms) if s),
-                              None),
-                "texte": corps,
-            }
-    yield from clore()
+            courante = {**fragment, "ordre": rang}
 
 
 def lire_debats(archive: pathlib.Path, sigles: set[str]) -> list[dict]:
@@ -281,6 +291,40 @@ def _nom_d_orateur(para) -> str | None:
     return None
 
 
+def evenements_d_amendement(racine) -> Iterator[tuple]:
+    """Ce que la séance dit des amendements, dans l'ordre : le texte qu'annonce
+    chaque point de niveau 1 — `("texte", numéros)` —, chaque amendement
+    défendu — `("defendu", numéro)` —, et chaque autre paragraphe d'un texte
+    annoncé — `("parole", nom de l'orateur, un sort est annoncé)`."""
+    contenu = racine.find(NS_DEBATS + "contenu")
+    if contenu is None:
+        return
+    numeros: list[str] = []
+    for point in contenu:
+        if point.tag != NS_DEBATS + "point":
+            continue
+        if point.get("nivpoint") == "1":
+            numeros = (numeros_de_texte(point.get("valeur"))
+                       if point.get("code_grammaire") == "TITRE_TEXTE_DISCUSSION"
+                       else [])
+            yield "texte", numeros
+        if not numeros:
+            continue
+        # `iter` et non `findall` : dans la discussion des articles, les
+        # paragraphes sont enfouis sous un point d'amendement et un
+        # `interExtraction`, alors qu'ils sont posés à plat dans les sections
+        # d'argumentaire.
+        for para in point.iter(NS_DEBATS + "paragraphe"):
+            corps = _texte_du_noeud(para.find(NS_DEBATS + "texte"))
+            if not corps:
+                continue
+            annonce = SOUTENIR_AMENDEMENT.search(corps)
+            if annonce:
+                yield "defendu", annonce.group(1)
+            else:
+                yield "parole", _nom_d_orateur(para), bool(SORT_AMENDEMENT.search(corps))
+
+
 def debats_par_amendement(racine) -> Iterator[dict]:
     """Par amendement discuté seul dans cette séance : combien en ont parlé.
 
@@ -291,9 +335,6 @@ def debats_par_amendement(racine) -> Iterator[dict]:
     Le texte est celui qu'annonce le point de niveau 1, jamais l'attribut
     `bibard` du paragraphe, qui traîne comme `adt`.
     """
-    contenu = racine.find(NS_DEBATS + "contenu")
-    if contenu is None:
-        return
     brut = racine.findtext(f"{NS_DEBATS}metadonnees/{NS_DEBATS}dateSeance") or ""
     jour = f"{brut[:4]}-{brut[4:6]}-{brut[6:8]}" if len(brut) >= 8 else None
     seance = racine.findtext(NS_DEBATS + "uid")
@@ -311,42 +352,25 @@ def debats_par_amendement(racine) -> Iterator[dict]:
                    "paragraphes": bloc["paragraphes"]}
         bloc = None
 
-    for point in contenu:
-        if point.tag != NS_DEBATS + "point":
-            continue
-        if point.get("nivpoint") == "1":
+    for evenement in evenements_d_amendement(racine):
+        if evenement[0] == "texte":
             yield from clore()
-            numeros = (numeros_de_texte(point.get("valeur"))
-                       if point.get("code_grammaire") == "TITRE_TEXTE_DISCUSSION"
-                       else [])
-        if not numeros:
-            continue
-        # `iter` et non `findall` : dans la discussion des articles, les
-        # paragraphes sont enfouis sous un point d'amendement et un
-        # `interExtraction`, alors qu'ils sont posés à plat dans les sections
-        # d'argumentaire.
-        for para in point.iter(NS_DEBATS + "paragraphe"):
-            corps = _texte_du_noeud(para.find(NS_DEBATS + "texte"))
-            if not corps:
-                continue
-            annonce = SOUTENIR_AMENDEMENT.search(corps)
-            if annonce:
-                # Un sort a été annoncé depuis la dernière annonce : le bloc
-                # précédent est clos, celui-ci commence.
-                if bloc and bloc["ferme"]:
-                    yield from clore()
-                if bloc is None:
-                    bloc = {"numeros": numeros, "amendements": [], "orateurs": set(),
-                            "paragraphes": 0, "ferme": False}
-                bloc["amendements"].append(annonce.group(1))
-                continue
+            numeros = evenement[1]
+        elif evenement[0] == "defendu":
+            # Un sort a été annoncé depuis la dernière annonce : le bloc
+            # précédent est clos, celui-ci commence.
+            if bloc and bloc["ferme"]:
+                yield from clore()
             if bloc is None:
-                continue
+                bloc = {"numeros": numeros, "amendements": [], "orateurs": set(),
+                        "paragraphes": 0, "ferme": False}
+            bloc["amendements"].append(evenement[1])
+        elif bloc is not None:
+            _, nom, sort = evenement
             bloc["paragraphes"] += 1
-            nom = _nom_d_orateur(para)
             if nom:
                 bloc["orateurs"].add(nom)
-            if SORT_AMENDEMENT.search(corps):
+            if sort:
                 bloc["ferme"] = True
     yield from clore()
 

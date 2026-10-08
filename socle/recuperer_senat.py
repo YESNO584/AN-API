@@ -54,19 +54,39 @@ def ouvrir(chemin: pathlib.Path) -> sqlite3.Connection:
     return cx
 
 
+def telecharger_les_sources(dossier: pathlib.Path) -> pathlib.Path:
+    """Les quatre fichiers du Sénat, dans le dossier de travail. Rend l'archive
+    des dossiers législatifs."""
+    print("  dosleg", file=sys.stderr)
+    archive = dossier / "dosleg.zip"
+    extraction.telecharger(archive, None, senat.URL_DOSLEG)
+    for nom, url in (("senateurs", senat.URL_SENATEURS),
+                     ("histogroupes", senat.URL_HISTOGROUPES),
+                     ("dossiers", senat.URL_DOSSIERS)):
+        print(f"  {nom}", file=sys.stderr)
+        extraction.telecharger(dossier / f"{nom}.csv", None, url)
+    return archive
+
+
+def sessions_a_relire(cx: sqlite3.Connection, options) -> list[int]:
+    """Les sessions à relire : celle en cours toujours, les closes une seule
+    fois — elles sont figées."""
+    en_cours = session_en_cours()
+    deja = {l["session"] for l in cx.execute(
+        "SELECT DISTINCT session FROM scrutin_senat WHERE signet IS NOT NULL")}
+    sessions = [s for s in range(PREMIERE_SESSION, en_cours + 1)
+                if s == en_cours or s not in deja]
+    if options.sessions:
+        sessions = sessions[-options.sessions:]
+    return sessions
+
+
 def construire(chemin: pathlib.Path, options) -> list[str]:
     """Remplit une base du Sénat. Rend les alertes, lève sur un vrai échec."""
     cx = ouvrir(chemin)
     with tempfile.TemporaryDirectory() as travail:
         dossier = pathlib.Path(travail)
-        print("  dosleg", file=sys.stderr)
-        archive = dossier / "dosleg.zip"
-        extraction.telecharger(archive, None, senat.URL_DOSLEG)
-        for nom, url in (("senateurs", senat.URL_SENATEURS),
-                         ("histogroupes", senat.URL_HISTOGROUPES),
-                         ("dossiers", senat.URL_DOSSIERS)):
-            print(f"  {nom}", file=sys.stderr)
-            extraction.telecharger(dossier / f"{nom}.csv", None, url)
+        archive = telecharger_les_sources(dossier)
 
         with cx:
             n_dos = ranger_dossiers(cx, archive)
@@ -76,15 +96,7 @@ def construire(chemin: pathlib.Path, options) -> list[str]:
 
             n_sen, noms, alertes_sources = senateurs_a_jour(
                 cx, actifs, historique)
-            # Les sessions à relire : celle en cours toujours, les closes une
-            # seule fois — elles sont figées.
-            en_cours = session_en_cours()
-            deja = {l["session"] for l in cx.execute(
-                "SELECT DISTINCT session FROM scrutin_senat WHERE signet IS NOT NULL")}
-            sessions = [s for s in range(PREMIERE_SESSION, en_cours + 1)
-                        if s == en_cours or s not in deja]
-            if options.sessions:
-                sessions = sessions[-options.sessions:]
+            sessions = sessions_a_relire(cx, options)
             n_scr, alertes = ranger_scrutins(cx, archive, sessions)
             alertes += alertes_sources
             # Sans l'historique, aucun vote ne peut être attribué à un

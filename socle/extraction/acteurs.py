@@ -151,6 +151,47 @@ def ordonner_groupes(sieges: dict[str, dict[int, int]],
     return groupes
 
 
+def mandats_en_cours(a: dict) -> tuple[str | None, str | None, str | None, str | None]:
+    """Le groupe, le département, la circonscription et le siège d'un acteur,
+    lus dans ses mandats encore ouverts.
+
+    Le groupe politique se lit dans les mandats : celui de type « GP »
+    encore ouvert. Un député peut en avoir changé au cours du mandat.
+
+    La circonscription se lit dans le mandat de type « ASSEMBLEE », lui
+    aussi encore ouvert : c'est le mandat de député, et lui seul porte le
+    lieu d'élection. **Un mandat fini ne compte pas** — un député battu
+    puis revenu par une élection partielle porte les deux, et le
+    précédent nommerait l'ancienne circonscription.
+    """
+    groupe = departement = circo = siege = None
+    mandats = (a.get("mandats") or {}).get("mandat")
+    if isinstance(mandats, dict):
+        mandats = [mandats]
+    for m in mandats or []:
+        if m.get("dateFin"):
+            continue
+        if m.get("typeOrgane") == "GP":
+            organes = (m.get("organes") or {}).get("organeRef")
+            if isinstance(organes, str):
+                organes = [organes]
+            groupe = (organes or [None])[0]
+        elif m.get("typeOrgane") == "ASSEMBLEE":
+            lieu = ((m.get("election") or {}).get("lieu")) or {}
+            departement = lieu.get("departement")
+            circo = lieu.get("numCirco")
+            # Le numéro de siège dans l'hémicycle. La source l'écrit sur
+            # trois chiffres (« 077 ») ; on garde le nombre, l'affichage
+            # n'a pas à recopier un zéro de remplissage. C'est **la même
+            # numérotation que celle des scrutins**, sur laquelle l'ordre
+            # des groupes est calculé : vérifié le 2026-09-19, les médianes
+            # par groupe concordent à quelques places près (RN 72 contre 72,
+            # LFI-NFP 603 contre 604).
+            place = (m.get("mandature") or {}).get("placeHemicycle")
+            siege = str(int(place)) if (place or "").strip().isdigit() else None
+    return groupe, departement, circo, siege
+
+
 def lire_acteurs(archive: pathlib.Path, groupe_et_photo: bool = True) -> dict[str, dict]:
     """Un acteur : nom, civilité, photo, groupe, circonscription, siège.
 
@@ -166,39 +207,7 @@ def lire_acteurs(archive: pathlib.Path, groupe_et_photo: bool = True) -> dict[st
         uid = a["uid"]["#text"] if isinstance(a.get("uid"), dict) else a.get("uid")
         ident = (a.get("etatCivil") or {}).get("ident") or {}
 
-        # Le groupe politique se lit dans les mandats : celui de type « GP »
-        # encore ouvert. Un député peut en avoir changé au cours du mandat.
-        #
-        # La circonscription se lit dans le mandat de type « ASSEMBLEE », lui
-        # aussi encore ouvert : c'est le mandat de député, et lui seul porte le
-        # lieu d'élection. **Un mandat fini ne compte pas** — un député battu
-        # puis revenu par une élection partielle porte les deux, et le
-        # précédent nommerait l'ancienne circonscription.
-        groupe = departement = circo = siege = None
-        mandats = (a.get("mandats") or {}).get("mandat")
-        if isinstance(mandats, dict):
-            mandats = [mandats]
-        for m in mandats or []:
-            if m.get("dateFin"):
-                continue
-            if m.get("typeOrgane") == "GP":
-                organes = (m.get("organes") or {}).get("organeRef")
-                if isinstance(organes, str):
-                    organes = [organes]
-                groupe = (organes or [None])[0]
-            elif m.get("typeOrgane") == "ASSEMBLEE":
-                lieu = ((m.get("election") or {}).get("lieu")) or {}
-                departement = lieu.get("departement")
-                circo = lieu.get("numCirco")
-                # Le numéro de siège dans l'hémicycle. La source l'écrit sur
-                # trois chiffres (« 077 ») ; on garde le nombre, l'affichage
-                # n'a pas à recopier un zéro de remplissage. C'est **la même
-                # numérotation que celle des scrutins**, sur laquelle l'ordre
-                # des groupes est calculé : vérifié le 2026-09-19, les médianes
-                # par groupe concordent à quelques places près (RN 72 contre 72,
-                # LFI-NFP 603 contre 604).
-                place = (m.get("mandature") or {}).get("placeHemicycle")
-                siege = str(int(place)) if (place or "").strip().isdigit() else None
+        groupe, departement, circo, siege = mandats_en_cours(a)
         acteurs[uid] = {
             "ref": uid,
             "civilite": ident.get("civ"),

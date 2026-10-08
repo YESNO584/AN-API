@@ -129,21 +129,10 @@ def precision_acte(acte: dict, reunions: dict[str, dict] | None = None) -> str |
     return f"{heure[:2]} h {heure[3:]}" if heure and heure != "00:00" else None
 
 
-def details_acte(acte: dict, organes: dict[str, dict] | None = None,
-                 documents: dict[str, dict] | None = None,
-                 acteurs: dict[str, dict] | None = None) -> dict:
-    """Ce que l'acte dit de lui-même, champ par champ.
-
-    **Rien n'est rédigé ici.** Chaque valeur est recopiée de l'open data ou
-    d'un référentiel qu'il désigne — le nom d'une commission, le numéro d'un
-    texte, le motif d'une saisine. Une clé absente veut dire que la source
-    ne dit rien, pas qu'il n'y a rien à dire.
-    """
+def textes_de_l_acte(acte: dict, documents: dict[str, dict] | None) -> dict:
+    """Les textes que l'acte désigne : celui qu'il adopte, celui auquel il
+    se rapporte — avec le numéro et le type que le référentiel leur donne."""
     d: dict = {}
-
-    organe = (organes or {}).get(acte.get("organeRef") or "")
-    if organe and organe.get("type") not in ("ASSEMBLEE", "SENAT"):
-        d["organe"] = organe.get("libelle")
 
     def document(ref: str) -> dict:
         doc = (documents or {}).get(ref) or {}
@@ -165,7 +154,11 @@ def details_acte(acte: dict, organes: dict[str, dict] | None = None,
         if isinstance(x, dict) and x.get("typeTexte") == "BTA" and x.get("refTexteAssocie"):
             d["texteAdopte"] = document(x["refTexteAssocie"])
             break
+    return d
 
+
+def rapporteurs_de_l_acte(acte: dict, acteurs: dict[str, dict] | None) -> list[str]:
+    """Les rapporteurs de l'acte, nommés tels que le référentiel les écrit."""
     rapporteurs = (acte.get("rapporteurs") or {}).get("rapporteur")
     if isinstance(rapporteurs, dict):
         rapporteurs = [rapporteurs]
@@ -176,6 +169,27 @@ def details_acte(acte: dict, organes: dict[str, dict] | None = None,
         personne = (acteurs or {}).get(ref or "")
         if personne:
             noms.append(f'{personne.get("prenom", "")} {personne.get("nom", "")}'.strip())
+    return noms
+
+
+def details_acte(acte: dict, organes: dict[str, dict] | None = None,
+                 documents: dict[str, dict] | None = None,
+                 acteurs: dict[str, dict] | None = None) -> dict:
+    """Ce que l'acte dit de lui-même, champ par champ.
+
+    **Rien n'est rédigé ici.** Chaque valeur est recopiée de l'open data ou
+    d'un référentiel qu'il désigne — le nom d'une commission, le numéro d'un
+    texte, le motif d'une saisine. Une clé absente veut dire que la source
+    ne dit rien, pas qu'il n'y a rien à dire.
+    """
+    d: dict = {}
+
+    organe = (organes or {}).get(acte.get("organeRef") or "")
+    if organe and organe.get("type") not in ("ASSEMBLEE", "SENAT"):
+        d["organe"] = organe.get("libelle")
+
+    d.update(textes_de_l_acte(acte, documents))
+    noms = rapporteurs_de_l_acte(acte, acteurs)
     if noms:
         d["rapporteurs"] = noms
 
@@ -265,28 +279,12 @@ def fusionner_actes(etapes: list[dict]) -> list[dict]:
     return resultat
 
 
-def analyser(brut: dict, aujourdhui: str, etats_senat: dict[str, str] | None = None,
-             reunions: dict[str, dict] | None = None,
-             organes: dict[str, dict] | None = None,
-             documents: dict[str, dict] | None = None,
-             acteurs: dict[str, dict] | None = None) -> dict:
-    """Un dossier tel que publié → un dossier tel que la base le range.
-
-    Rend toujours un résultat, même pour un dossier qui ne fabrique pas de loi
-    ou déjà promulgué : c'est `statut` et `est_loi` qui le disent. Trier est
-    le travail de l'affichage, pas celui du socle.
-    """
-    dossier = brut["dossierParlementaire"]
-    titres = dossier.get("titreDossier") or {}
-    procedure = (dossier.get("procedureParlementaire") or {}).get("libelle") or ""
-    actes = aplatir(dossier.get("actesLegislatifs") or {})
-
-    depots = [a for a in actes if a.get("@xsi:type") == "DepotInitiative_Type"]
-    chambre_initiale = (
-        chambre_du_code((depots[0].get("codeActe") or "").partition("-")[0])
-        if depots else None
-    )
-
+def etapes_du_dossier(actes: list[dict], aujourdhui: str, chambre_initiale: str | None,
+                      reunions: dict[str, dict] | None, organes: dict[str, dict] | None,
+                      documents: dict[str, dict] | None, acteurs: dict[str, dict] | None
+                      ) -> list[dict]:
+    """Chaque acte daté du dossier, placé sur l'échelle des six étapes et
+    rangé dans l'ordre où il a eu lieu."""
     # Le fichier contient des séances déjà programmées : leurs dates sont dans
     # le futur. Un texte ne doit pas être classé sur une étape qui n'a pas eu
     # lieu — on garde les deux, en les distinguant.
@@ -319,38 +317,73 @@ def analyser(brut: dict, aujourdhui: str, etats_senat: dict[str, str] | None = N
             "details": details_acte(acte, organes, documents, acteurs),
         })
     etapes.sort(key=lambda e: (e["date"], e["rang"]))
-    etapes = fusionner_actes(etapes)
+    return fusionner_actes(etapes)
+
+
+def statut_des_actes(actes: list[dict], passees: list[dict],
+                     promulgation: dict | None) -> str:
+    """Où en est le texte, d'après ses actes : promulgué, retiré, rejeté, en
+    cours — ou sans aucun acte passé."""
+    retrait = any((a.get("codeActe") or "").endswith("RTRINI") for a in actes)
+    if promulgation is not None:
+        return PROMULGUE
+    if retrait:
+        return RETIRE
+    if not passees:
+        return SANS_ACTE
+    if est_rejete(passees):
+        return REJETE
+    return EN_COURS
+
+
+def acte_le_plus_avance(passees: list[dict]) -> dict | None:
+    """Où en est le texte : l'acte le plus avancé du jour le plus récent.
+
+    Deux pièges obligent à cette formulation. D'abord, plusieurs actes
+    portent la même date : entre eux, on retient le plus avancé, puis le
+    dernier publié (voir `rang` dans `etapes_du_dossier`). Ensuite, le
+    parcours n'est pas une ligne droite — après une commission mixte
+    paritaire qui échoue, le texte repart en nouvelle lecture. Prendre
+    « l'étape la plus avancée jamais atteinte » le laisserait affiché en
+    sortie de navette alors qu'il est reparti chez l'autre chambre.
+    """
+    if not passees:
+        return None
+    dernier_jour = passees[-1]["date"]
+    return max((e for e in passees if e["date"] == dernier_jour),
+               key=lambda e: (e["numero"], e["rang"]))
+
+
+def analyser(brut: dict, aujourdhui: str, etats_senat: dict[str, str] | None = None,
+             reunions: dict[str, dict] | None = None,
+             organes: dict[str, dict] | None = None,
+             documents: dict[str, dict] | None = None,
+             acteurs: dict[str, dict] | None = None) -> dict:
+    """Un dossier tel que publié → un dossier tel que la base le range.
+
+    Rend toujours un résultat, même pour un dossier qui ne fabrique pas de loi
+    ou déjà promulgué : c'est `statut` et `est_loi` qui le disent. Trier est
+    le travail de l'affichage, pas celui du socle.
+    """
+    dossier = brut["dossierParlementaire"]
+    titres = dossier.get("titreDossier") or {}
+    procedure = (dossier.get("procedureParlementaire") or {}).get("libelle") or ""
+    actes = aplatir(dossier.get("actesLegislatifs") or {})
+
+    depots = [a for a in actes if a.get("@xsi:type") == "DepotInitiative_Type"]
+    chambre_initiale = (
+        chambre_du_code((depots[0].get("codeActe") or "").partition("-")[0])
+        if depots else None
+    )
+
+    etapes = etapes_du_dossier(actes, aujourdhui, chambre_initiale,
+                               reunions, organes, documents, acteurs)
 
     passees = [e for e in etapes if not e["future"]]
     promulgation = next((a for a in actes if (a.get("codeActe") or "") == "PROM-PUB"), None)
-    retrait = any((a.get("codeActe") or "").endswith("RTRINI") for a in actes)
-
-    if promulgation is not None:
-        statut = PROMULGUE
-    elif retrait:
-        statut = RETIRE
-    elif not passees:
-        statut = SANS_ACTE
-    elif est_rejete(passees):
-        statut = REJETE
-    else:
-        statut = EN_COURS
-
-    acte_courant = None
-    date_mouvement = None
-    if passees:
-        # Où en est le texte : l'acte le plus avancé du jour le plus récent.
-        #
-        # Deux pièges obligent à cette formulation. D'abord, plusieurs actes
-        # portent la même date : entre eux, on retient le plus avancé, puis le
-        # dernier publié (voir `rang` ci-dessus). Ensuite, le parcours n'est
-        # pas une ligne droite — après une commission mixte paritaire qui
-        # échoue, le texte repart en nouvelle lecture. Prendre « l'étape la
-        # plus avancée jamais atteinte » le laisserait affiché en sortie de
-        # navette alors qu'il est reparti chez l'autre chambre.
-        date_mouvement = passees[-1]["date"]
-        acte_courant = max((e for e in passees if e["date"] == date_mouvement),
-                           key=lambda e: (e["numero"], e["rang"]))
+    statut = statut_des_actes(actes, passees, promulgation)
+    acte_courant = acte_le_plus_avance(passees)
+    date_mouvement = passees[-1]["date"] if passees else None
 
     info_jo = (promulgation or {}).get("infoJO") or {}
     chemin_senat = titres.get("senatChemin")

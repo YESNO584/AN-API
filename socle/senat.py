@@ -344,6 +344,53 @@ def themes_de(valeur: str | None) -> list[str]:
 
 # ------------------------------- l'ordre des groupes, mesuré sur les votes
 
+def profils_centres(positions: dict[str, dict[str, int]], sigles: list[str]
+                    ) -> dict[str, list[float]]:
+    """La part de « pour » de chaque groupe à chaque scrutin, centrée scrutin
+    par scrutin : ce qui compte est l'écart entre groupes, pas le fait qu'un
+    texte soit consensuel."""
+    scrutins = sorted(set().union(*(set(p) for p in positions.values())))
+    centre = {}
+    for s in scrutins:
+        valeurs = [positions[g][s] for g in sigles if s in positions[g]]
+        centre[s] = sum(valeurs) / len(valeurs) if valeurs else 0.0
+    return {g: [positions[g].get(s, centre[s]) - centre[s] for s in scrutins]
+            for g in sigles}
+
+
+def premiere_composante(profils: dict[str, list[float]], sigles: list[str]
+                        ) -> dict[str, float] | None:
+    """Le poids de chaque groupe sur la première composante de ses profils —
+    ou `None` quand tous votent pareil et qu'il n'y a rien à ranger.
+
+    Le départ est **le profil le plus marqué**, et non un vecteur alterné.
+    Un vecteur alterné peut être exactement orthogonal au signal — deux
+    groupes opposés pris avec des signes opposés s'annulent — et la méthode
+    rendait alors l'ordre alphabétique **sans rien dire**. Attrapé par un
+    test le 2026-10-04. Le profil d'un groupe, lui, est dans le signal par
+    construction. Puis la méthode des puissances : pas de dépendance, et
+    quelques dizaines d'itérations suffisent largement.
+    """
+    def norme(v):
+        return sum(x * x for x in v) ** 0.5
+
+    axe = max(profils.values(), key=norme)
+    if not norme(axe):
+        return None
+    axe = [x / norme(axe) for x in axe]
+    poids = {g: 0.0 for g in sigles}
+    for _ in range(200):
+        poids = {g: sum(profils[g][i] * axe[i] for i in range(len(axe)))
+                 for g in sigles}
+        suivant = [sum(poids[g] * profils[g][i] for g in sigles)
+                   for i in range(len(axe))]
+        n = norme(suivant)
+        if not n:
+            return None
+        axe = [x / n for x in suivant]
+    return poids
+
+
 def rang_par_les_votes(positions: dict[str, dict[str, int]],
                        gauche: str | None = None) -> list[str]:
     """Les groupes rangés de la gauche à la droite, d'après leur façon de voter.
@@ -372,41 +419,10 @@ def rang_par_les_votes(positions: dict[str, dict[str, int]],
     sigles = sorted(positions)
     if len(sigles) < 2:
         return sigles
-    scrutins = sorted(set().union(*(set(p) for p in positions.values())))
-    # Centrer chaque scrutin : ce qui compte est l'écart entre groupes, pas le
-    # fait qu'un texte soit consensuel.
-    centre = {}
-    for s in scrutins:
-        valeurs = [positions[g][s] for g in sigles if s in positions[g]]
-        centre[s] = sum(valeurs) / len(valeurs) if valeurs else 0.0
-    profils = {g: [positions[g].get(s, centre[s]) - centre[s] for s in scrutins]
-               for g in sigles}
-
-    def norme(v):
-        return sum(x * x for x in v) ** 0.5
-
-    # Le départ est **le profil le plus marqué**, et non un vecteur alterné.
-    # Un vecteur alterné peut être exactement orthogonal au signal — deux
-    # groupes opposés pris avec des signes opposés s'annulent — et la méthode
-    # rendait alors l'ordre alphabétique **sans rien dire**. Attrapé par un
-    # test le 2026-10-04. Le profil d'un groupe, lui, est dans le signal par
-    # construction.
-    axe = max(profils.values(), key=norme)
-    if not norme(axe):
+    profils = profils_centres(positions, sigles)
+    poids = premiere_composante(profils, sigles)
+    if poids is None:
         return sigles          # tous les groupes votent pareil : rien à ranger
-    axe = [x / norme(axe) for x in axe]
-    # La première composante, par la méthode des puissances : pas de
-    # dépendance, et quelques dizaines d'itérations suffisent largement.
-    poids = {g: 0.0 for g in sigles}
-    for _ in range(200):
-        poids = {g: sum(profils[g][i] * axe[i] for i in range(len(scrutins)))
-                 for g in sigles}
-        suivant = [sum(poids[g] * profils[g][i] for g in sigles)
-                   for i in range(len(scrutins))]
-        n = norme(suivant)
-        if not n:
-            return sigles
-        axe = [x / n for x in suivant]
     ordre = sorted(sigles, key=lambda g: poids[g])
     # Le seul choix qui ne se mesure pas : de quel côté est la gauche.
     if gauche in poids and ordre.index(gauche) > (len(ordre) - 1) / 2:

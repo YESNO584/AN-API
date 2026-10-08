@@ -58,6 +58,21 @@ def _requete(url: str, entetes: dict[str, str]) -> urllib.request.Request:
         url, headers={"User-Agent": "AN-API/socle (recuperation open data)", **entetes})
 
 
+def _accueillir(reponse, fichier, recu: int) -> tuple[int, dict]:
+    """Ce qu'une réponse dit avant son contenu : d'où reprendre, et ce qu'on
+    retiendra d'elle. Une reprise refusée — le serveur renvoie tout, l'archive
+    a changé — fait repartir le fichier de zéro."""
+    if reponse.status != 206 and recu:
+        fichier.seek(0)
+        fichier.truncate()
+        recu = 0
+    return recu, {
+        "modifie": True,
+        "etag": reponse.headers.get("ETag"),
+        "modifieLe": reponse.headers.get("Last-Modified"),
+    }
+
+
 def telecharger(destination: pathlib.Path, entetes: dict[str, str] | None = None,
                 url: str = URL_ARCHIVE, essais: int = ESSAIS_SANS_PROGRES,
                 patienter=None) -> dict:
@@ -85,17 +100,8 @@ def telecharger(destination: pathlib.Path, entetes: dict[str, str] | None = None
                 demande["If-Range"] = empreinte
             try:
                 with urllib.request.urlopen(_requete(url, demande), timeout=600) as reponse:
-                    if reponse.status != 206 and recu:
-                        # Reprise refusée : l'archive a changé, on recommence.
-                        fichier.seek(0)
-                        fichier.truncate()
-                        recu = 0
+                    recu, compte_rendu = _accueillir(reponse, fichier, recu)
                     empreinte = reponse.headers.get("ETag") or empreinte
-                    compte_rendu = {
-                        "modifie": True,
-                        "etag": reponse.headers.get("ETag"),
-                        "modifieLe": reponse.headers.get("Last-Modified"),
-                    }
                     total = _taille_annoncee(reponse.headers, recu)
                     avant = recu
                     while morceau := reponse.read(MORCEAU):
