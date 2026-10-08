@@ -78,6 +78,19 @@ commissions, décisions, votes et promulgations**, de juillet 2024 à septembre
 2026. Une vue mois, les jours porteurs marqués d'un à trois points, la liste du
 jour choisi en dessous. **Chaque ligne mène à la fiche de son texte.**
 
+**Il montre aussi ce qu'aucun texte ne porte** (2026-10-08) : les questions au
+Gouvernement et les débats en séance, lus dans l'agenda de l'Assemblée. Leur
+ligne ne mène nulle part — il n'y a pas de texte à ouvrir — et leur intitulé
+tient lieu de titre. Les **résolutions** y figurent avec leurs séances et leurs
+décisions ; elles n'ont pas de fiche, et leur ligne ouvre leur dossier sur le
+site de l'Assemblée, comme leur carte dans l'onglet « Travaux ».
+
+**Chaque ligne de texte dit qui l'a déposé** : « Déposé par le Gouvernement »
+pour un projet de loi, sinon le nom de l'auteur et l'étiquette de son groupe —
+la même que sur la carte du fil. Le groupe est celui d'aujourd'hui, et
+l'explication au toucher le dit. Un sénateur ou un député sans groupe a son nom
+seul.
+
 Une décision affiche son résultat quand un scrutin public a eu lieu :
 « adopté — 187 pour, 0 contre, 0 abstention ».
 

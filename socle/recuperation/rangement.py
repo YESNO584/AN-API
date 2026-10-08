@@ -212,12 +212,26 @@ def reprendre_la_veille(connexion: sqlite3.Connection,
     return repris
 
 
+def lignes_d_agenda(archives: dict[str, pathlib.Path]) -> list[tuple]:
+    """Les questions et les débats de séance, que seul l'agenda publie."""
+    return [(p["seance"], p["point"], p["date"], p["heure"], p["genre"],
+             p["type"], p["objet"])
+            for p in extraction.lire_points_hors_texte(archives["agenda"])]
+
+
+def ecrire_les_points(connexion: sqlite3.Connection, points: list[tuple]) -> None:
+    """Remplace les points d'agenda — dans la transaction de l'appelant."""
+    connexion.execute("DELETE FROM point_agenda")
+    connexion.executemany("INSERT INTO point_agenda VALUES (?,?,?,?,?,?,?)", points)
+
+
 def ecrire_la_base(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
                    connus: set[str], ref: dict, rangs: list[dict],
                    dossiers: list[tuple], etapes: list[tuple],
                    lignes_vote: list[tuple], lignes_groupe: list[tuple],
                    lignes_amdt: list[tuple], lignes_parole: list[tuple],
-                   debats_amdt: dict[tuple, tuple]) -> tuple[list[tuple], list[tuple]]:
+                   debats_amdt: dict[tuple, tuple], points: list[tuple]
+                   ) -> tuple[list[tuple], list[tuple]]:
     """Une transaction, tout ou rien — les lignes de la veille reposées dedans."""
     acteurs = ref["acteurs"]
     repris = reprendre_la_veille(connexion, archives)
@@ -252,6 +266,7 @@ def ecrire_la_base(connexion: sqlite3.Connection, archives: dict[str, pathlib.Pa
             "INSERT INTO amendement VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", lignes_amdt)
         connexion.executemany(
             "INSERT INTO parole VALUES (?,?,?,?,?,?,?,?,?,?)", lignes_parole)
+        ecrire_les_points(connexion, points)
         connexion.executemany(
             "INSERT INTO debat_amendement VALUES (?,?,?,?,?,?,?)",
             [(uid, numero_texte, numero, seance, date, orateurs, paragraphes)
@@ -279,5 +294,6 @@ def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
         archives, ref["documents"], etapes, rangs, connus)
     lignes_amdt, lignes_parole = ecrire_la_base(
         connexion, archives, connus, ref, rangs, dossiers, etapes,
-        lignes_vote, lignes_groupe, lignes_amdt, lignes_parole, debats_amdt)
+        lignes_vote, lignes_groupe, lignes_amdt, lignes_parole, debats_amdt,
+        lignes_d_agenda(archives))
     return len(dossiers), len(etapes), len(lignes_vote), len(lignes_amdt), len(lignes_parole)

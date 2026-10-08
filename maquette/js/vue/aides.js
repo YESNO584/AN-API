@@ -38,8 +38,11 @@ function etiquette(classe, libelle, explication, valeur) {
   const b = el("button", "etiq " + (classe || ""), libelle);
   b.addEventListener("click", (ev) => {
     // Dans le parcours, ces étiquettes vivent à l'intérieur d'un dépliant :
-    // sans ça, demander une explication ouvrirait ou fermerait l'étape.
+    // sans ça, demander une explication ouvrirait ou fermerait l'étape. Et
+    // dans le calendrier, à l'intérieur d'une ligne qui mène à une fiche :
+    // sans le second, l'explication s'ouvrait pendant que la page partait.
     ev.preventDefault();
+    ev.stopPropagation();
     expliquer(explication[0], explication[1], valeur ?? libelle);
   });
   return b;

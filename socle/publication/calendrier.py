@@ -24,6 +24,57 @@ def votes_qui_decident(cx: sqlite3.Connection) -> dict[tuple[str, str], dict]:
     return votes
 
 
+def auteur_du_texte(l) -> dict | None:
+    """Qui a déposé le texte, et son groupe quand on le connaît.
+
+    **Un projet de loi est celui du Gouvernement**, même quand le Premier
+    ministre qui le signe siège aujourd'hui à l'Assemblée : 15 projets ont un
+    signataire qui a un groupe (13 de Michel Barnier, DR ; 2 de Gabriel Attal,
+    EPR), et ce groupe ne les a pas déposés. Le type du document tranche, pas
+    celui du dossier — « Projet ou proposition de loi organique » ne dit pas
+    lequel des deux.
+
+    Le groupe est celui de l'auteur **aujourd'hui** : la source ne garde pas
+    celui du jour du dépôt. Un sénateur, un ancien député, un député sans
+    groupe a son nom sans groupe — rien n'est rapproché par le nom.
+    """
+    projet = l["type_document"] or ("Projet de loi" if (l["type"] or "").startswith(
+        "Projet de loi") else "")
+    if projet.startswith("Projet de loi"):
+        return {"gouvernement": True}
+    if not l["nom"]:
+        return None
+    auteur = {"nom": " ".join(x for x in (l["prenom"], l["nom"]) if x)}
+    if l["sigle"]:
+        auteur.update(sigle=l["sigle"], groupe=l["nom_groupe"], couleur=l["couleur"])
+    return auteur
+
+
+def auteurs_des_textes(cx: sqlite3.Connection) -> dict[str, dict]:
+    """L'auteur de chaque texte qui peut paraître au calendrier."""
+    auteurs = {}
+    for l in cx.execute(
+            "SELECT d.uid, d.type, d.type_document, a.prenom, a.nom,"
+            " g.sigle, g.nom nom_groupe, g.couleur"
+            " FROM dossier d LEFT JOIN acteur a ON a.ref = d.auteur_ref"
+            " LEFT JOIN groupe g ON g.ref = a.groupe_ref"):
+        auteur = auteur_du_texte(l)
+        if auteur:
+            auteurs[l["uid"]] = auteur
+    return auteurs
+
+
+def points_d_agenda(cx: sqlite3.Connection) -> list[dict]:
+    """Les questions au Gouvernement et les débats : des moments de séance
+    qu'aucun texte ne porte. Absents d'une base construite avant eux."""
+    if not cx.execute("SELECT 1 FROM sqlite_master WHERE name = 'point_agenda'").fetchone():
+        return []
+    return [{"date": l["date"], "genre": l["genre"], "quoi": l["objet"],
+             "chambre": "assemblee", **({"heure": l["heure"]} if l["heure"] else {})}
+            for l in cx.execute(
+                "SELECT date, heure, genre, objet FROM point_agenda ORDER BY date, heure")]
+
+
 def evenement_de_l_etape(l, genre: str, votes: dict) -> dict:
     """Une ligne du calendrier, avec son vote quand c'est une décision."""
     evenement = {
@@ -38,6 +89,14 @@ def evenement_de_l_etape(l, genre: str, votes: dict) -> dict:
     if vote and genre == "decision":
         evenement["vote"] = vote
     return evenement
+
+
+def signer(par_mois: dict, auteurs: dict) -> None:
+    """Chaque ligne qui porte un texte reçoit son auteur, quand on le connaît."""
+    for mois in par_mois.values():
+        for e in mois:
+            if e.get("texte") in auteurs:
+                e["auteur"] = auteurs[e["texte"]]
 
 
 def votes_sans_decision(par_mois: dict, votes: dict) -> None:
@@ -67,12 +126,14 @@ def calendrier(cx: sqlite3.Connection) -> dict[str, list[dict]]:
     votes = votes_qui_decident(cx)
 
     vus: set[tuple] = set()
+    trous = ",".join("?" * len(affichage.RESOLUTIONS))
     for l in cx.execute(
             "SELECT e.dossier_uid, e.code, e.date, e.libelle, e.chambre, e.lecture,"
             " e.conclusion, e.precision"
             " FROM etape e JOIN dossier d ON d.uid = e.dossier_uid"
-            " WHERE d.est_loi = 1 AND e.date IS NOT NULL AND e.date != ''"
-            " ORDER BY e.date, e.rang"):
+            f" WHERE (d.est_loi = 1 OR d.type IN ({trous}))"
+            " AND e.date IS NOT NULL AND e.date != ''"
+            " ORDER BY e.date, e.rang", tuple(affichage.RESOLUTIONS)):
         genre = affichage.genre_d_evenement(l["code"])
         if not genre:
             continue
@@ -86,6 +147,9 @@ def calendrier(cx: sqlite3.Connection) -> dict[str, list[dict]]:
             evenement_de_l_etape(l, genre, votes))
 
     votes_sans_decision(par_mois, votes)
+    signer(par_mois, auteurs_des_textes(cx))
+    for e in points_d_agenda(cx):
+        par_mois.setdefault(e["date"][:7], []).append(e)
     for mois in par_mois.values():
         mois.sort(key=lambda e: (e["date"], e.get("heure") or "", e["genre"]))
     return par_mois

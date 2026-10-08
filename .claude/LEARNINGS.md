@@ -1366,6 +1366,40 @@ parce qu'un autre contrôle l'attrapait d'abord. Le seul cas où il compte
 vraiment est celui qui est arrivé : une première construction, sans base de la
 veille à comparer.
 
+## 2026-10-08 — Le calendrier prend l'agenda : questions, débats, résolutions, auteurs
+
+- **L'archive de l'agenda porte aussi les séances du Sénat** (148 sur 1 111,
+  organe `PO78718`, identifiants `RUSN…`). Mes premiers comptes de la journée
+  les mêlaient sans que les totaux de questions au Gouvernement changent — par
+  chance, les séances du Sénat n'en portaient pas sous ce type. La règle les
+  écarte par la structure de l'identifiant (`RUAN…`), pas par l'organe, dont le
+  numéro change à chaque législature.
+- **Un projet de loi n'a pas de groupe, même quand son signataire en a un
+  aujourd'hui.** 15 projets ont pour auteur un Premier ministre qui siège
+  maintenant à l'Assemblée (13 Barnier, DR ; 2 Attal, EPR) : la jointure naïve
+  auteur → groupe les aurait attribués à ces groupes. Et le type du **dossier**
+  ne suffit pas à reconnaître un projet : « Projet ou proposition de loi
+  organique » couvre les deux. C'est `dossier.type_document` qui tranche.
+- **Une résolution n'a pas de fiche publiée** : `publication/fiches.py` ne les
+  écrit que pour `est_loi = 1`. J'avais promis l'inverse à l'utilisateur en
+  reformulant — vérifier une affirmation sur ce qui existe avant de la mettre
+  dans une reformulation, pas après.
+- **Une étiquette posée dans une ligne cliquable déclenchait les deux** :
+  dans le calendrier, toucher « Assemblée nationale » ouvrait l'explication
+  **et** partait sur la fiche (vérifié sur le site publié, avant toute
+  modification). `preventDefault` ne suffit pas, il arrête le dépliant du
+  parcours mais pas la remontée du clic : `etiquette` et `etiquetteGroupe`
+  appellent maintenant aussi `stopPropagation`, comme l'aide des puces de
+  filtre le faisait déjà. Sans cela, l'étiquette de groupe ajoutée au
+  calendrier était illisible.
+- **Une classe CSS nommée comme un écran en hérite le style** : la ligne
+  « Déposé par » s'appelait `.auteur`, et prenait le cadre de la carte
+  d'auteur de la fiche (`fiche.css`). Vu sur la capture d'écran, pas dans le
+  code : le DOM était juste. Elle s'appelle `.depose-par`.
+- **Une base de la veille n'a pas la table neuve** : le cache peut restituer
+  une `parlement.db` construite avant elle. La publication teste donc la
+  présence de `point_agenda` plutôt que de supposer le schéma à jour.
+
 ## 2026-10-08 — Les journées de niche : la source ne les nomme presque jamais
 
 Mesuré sur l'agenda relevé le 2026-09-23 (`tmp/archives/agenda.zip`, 1 054

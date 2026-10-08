@@ -69,44 +69,81 @@ function listeDuJour(evenements, source) {
   return zone;
 }
 
-function ligneEvenement(e) {
-  const b = el("button", "evt");
-  b.append(el("div", "quand", e.heure || "—"));
-  const corps = el("div", "corps");
-  // Le titre du texte vient de la liste déjà chargée : le calendrier ne le
-  // répète pas dans ses fichiers.
-  const texte = TEXTES.find((t) => t.uid === e.texte);
-  corps.append(el("h4", null, texte ? texte.titre : e.quoi || "Texte"));
+/* Qui a déposé le texte : le Gouvernement, ou le nom de l'auteur et
+   l'étiquette de son groupe — la même que sur la carte du fil. Un sénateur ou
+   un député sans groupe a son nom seul : rien n'est rapproché par le nom. */
+function auteurDeLEvenement(a) {
+  const ligne = el("div", "depose-par");
+  if (a.gouvernement) {
+    ligne.append(document.createTextNode("Déposé par le Gouvernement"));
+    return ligne;
+  }
+  ligne.append(document.createTextNode("Déposé par " + a.nom));
+  if (a.sigle) {
+    ligne.append(etiquetteGroupe({ auteur_sigle: a.sigle, auteur_groupe: a.groupe,
+                                   auteur_couleur: a.couleur }));
+  }
+  return ligne;
+}
 
+/* Une résolution porte sa catégorie, telle que l'onglet « Travaux » la nomme. */
+function etiquetteDeTravail(t) {
+  const c = CATEGORIES_TRAVAUX.find((x) => x.nom === t.type);
+  return etiquette("", t.type, c ? [c.nom, c.quoi] : [t.type, ""]);
+}
+
+function lignesDeLEvenement(e, texte) {
   const l = el("div", "lignes");
-  const [nom, quoi] = GENRES[e.genre] || [e.genre, ""];
-  const genre = el("span", "genre " + e.genre, nom);
-  l.append(genre);
+  const [nom] = GENRES[e.genre] || [e.genre, ""];
+  l.append(el("span", "genre " + e.genre, nom));
+  if (texte && !TEXTES.includes(texte)) l.append(etiquetteDeTravail(texte));
   if (e.chambre) l.append(etiquette("chambre-" + e.chambre, CHAMBRES[e.chambre][0],
                                     CHAMBRES[e.chambre]));
   if (e.lecture) l.append(etiquette("", e.lecture, EXPLICATIONS.lecture));
   if (e.conclusion) l.append(etiquette("", e.conclusion, EXPLICATIONS.conclusion));
-  corps.append(l);
+  return l;
+}
 
-  if (texte && e.quoi && e.quoi !== texte.titre) {
-    corps.append(el("div", "resultat", e.quoi));
-  }
-  if (e.vote) {
-    const r = el("div", "resultat");
-    r.append(el("b", null, e.vote.sort || "Scrutin"));
-    r.append(document.createTextNode(
-      ` — ${nb.format(e.vote.pour)} pour, ${nb.format(e.vote.contre)} contre, `
-      + `${nb.format(e.vote.abstentions)} abstention${e.vote.abstentions > 1 ? "s" : ""}`));
-    corps.append(r);
-  }
-  b.append(corps);
+function resultatDuVote(vote) {
+  const r = el("div", "resultat");
+  r.append(el("b", null, vote.sort || "Scrutin"));
+  r.append(document.createTextNode(
+    ` — ${nb.format(vote.pour)} pour, ${nb.format(vote.contre)} contre, `
+    + `${nb.format(vote.abstentions)} abstention${vote.abstentions > 1 ? "s" : ""}`));
+  return r;
+}
 
-  if (texte) {
+/* Où mène la ligne : la fiche d'un texte de loi ; le dossier d'une résolution
+   sur le site de l'Assemblée, comme sa carte dans l'onglet « Travaux » ; nulle
+   part pour une question ou un débat, qui ne portent sur aucun texte. */
+function destinationDeLEvenement(b, e, texte) {
+  const lien = texte && (texte.url_an || texte.url_senat);
+  if (texte && TEXTES.includes(texte)) {
     b.addEventListener("click", () => { location.hash = "#/texte/" + e.texte; });
+  } else if (lien) {
+    b.addEventListener("click", () => window.open(lien, "_blank", "noopener"));
   } else {
     // Sans le texte dans la liste chargée, la fiche s'ouvrirait sur du vide.
     b.disabled = true;
     b.style.cursor = "default";
   }
+}
+
+function ligneEvenement(e) {
+  const b = el("button", "evt");
+  b.append(el("div", "quand", e.heure || "—"));
+  const corps = el("div", "corps");
+  // Le titre du texte vient des listes déjà chargées ; une question ou un débat
+  // n'a pas de texte, et son intitulé tient lieu de titre.
+  const texte = texteDuCalendrier(e.texte);
+  corps.append(el("h4", null, texte ? texte.titre : e.quoi || "Texte"));
+  corps.append(lignesDeLEvenement(e, texte));
+  if (texte && e.quoi && e.quoi !== texte.titre) {
+    corps.append(el("div", "resultat", e.quoi));
+  }
+  if (e.auteur) corps.append(auteurDeLEvenement(e.auteur));
+  if (e.vote) corps.append(resultatDuVote(e.vote));
+  b.append(corps);
+  destinationDeLEvenement(b, e, texte);
   return b;
 }

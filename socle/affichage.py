@@ -134,6 +134,11 @@ GENRES = (
 # 2026-09-02) : les afficher noierait le calendrier sous des scrutins de
 # détail, alors que la séance du jour est déjà là pour les porter.
 VOTES_AU_CALENDRIER = frozenset({"ensemble", "motion"})
+# Les dossiers qui ne font pas de loi mais ont leur place au calendrier : les
+# propositions de résolution, discutées et votées en séance comme un texte. Les
+# autres travaux — commissions d'enquête, missions, rapports — ne se votent pas
+# en séance et resteraient muets au calendrier (décidé le 2026-10-08).
+RESOLUTIONS = frozenset({"Résolution", "Résolution Article 34-1"})
 def genre_d_evenement(code: str) -> str | None:
     """Ce qu'une étape est, pour un calendrier — ou `None` si elle n'y a pas sa place.
 

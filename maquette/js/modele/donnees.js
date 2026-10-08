@@ -76,6 +76,14 @@ async function chargerLesDonnees() {
   return textes;
 }
 
+/* Le texte d'une ligne du calendrier, cherché dans les listes déjà chargées :
+   un texte de loi dans `TEXTES`, une résolution dans `TRAVAUX`. Le calendrier
+   ne répète pas les titres dans ses fichiers. */
+function texteDuCalendrier(uid) {
+  if (!uid) return null;
+  return TEXTES.find((t) => t.uid === uid) || TRAVAUX.find((t) => t.uid === uid) || null;
+}
+
 // Le texte demandé, gardé une fois lu : passer d'un bouton à l'autre ne doit
 // pas retélécharger 2,8 Mo. La clé est le nom du fichier, pas le mode — deux
 // des trois vues se dessinent à partir du même.

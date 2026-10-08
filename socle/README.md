@@ -9,7 +9,7 @@ lire aucune donnée.
 
 | Fichier | Ce qu'il fait |
 |---|---|
-| `extraction/` | Lit l'archive de l'Assemblée et classe chaque dossier — un module par source : `sources`, `archives`, `dossiers`, `actes`, `scrutins`, `acteurs`, `amendements`, `debats`, et `__init__.py` qui réexporte tout sous `extraction.X`. **Ne télécharge rien de sa propre initiative, n'écrit nulle part.** C'est ici que vivent les règles, et elles sont testées |
+| `extraction/` | Lit l'archive de l'Assemblée et classe chaque dossier — un module par source : `sources`, `archives`, `dossiers`, `actes`, `scrutins`, `acteurs`, `amendements`, `debats`, `agenda`, et `__init__.py` qui réexporte tout sous `extraction.X`. **Ne télécharge rien de sa propre initiative, n'écrit nulle part.** C'est ici que vivent les règles, et elles sont testées |
 | `recuperer.py` | Le programme quotidien : télécharge si ça a changé, range dans la base, écrit au journal. Ses étapes sont dans `recuperation/` (`telechargement`, `reprise`, `rangement`, `journal`) |
 | `publier.py` | Écrit la base en fichiers tout prêts — **c'est ce qui est mis en ligne**. Enchaîne les étapes de `publication/`, une par module (`etat`, `listes`, `fiches`, `versions`, `amendements`, `debats`, `calendrier`, `loi`, `senat`), qui se passent un même état `Publication` (`contexte.py`) |
 | `serveur.py` | Sert la base en direct. **Outil de développement local**, pas ce qui tourne en production |
@@ -1017,6 +1017,27 @@ administratifs, sans heure ni public. Et sur les 2 748 votes rattachés à un
 texte, **2 260 portent sur un amendement** : les afficher noierait le calendrier
 sous des scrutins de détail, alors que la séance du jour est déjà là pour les
 porter. Voir `genre_d_evenement` et `VOTES_AU_CALENDRIER` dans `affichage.py`.
+
+**Ce que le calendrier prend ailleurs que dans les dossiers** (2026-10-08). Les
+questions au Gouvernement et les débats — débats d'initiative parlementaire,
+déclarations du Gouvernement suivies d'un débat — ne sont portés par aucun
+dossier : **seul l'agenda les publie**, et le socle le lisait jusque-là pour en
+jeter tout sauf l'heure des séances. `extraction/agenda.py` en garde les points
+confirmés de séances confirmées, à venir compris, dans la table
+`point_agenda` : 140 questions, 70 débats et 12 déclarations sur l'agenda du
+2026-10-08. Deux pièges : **l'archive porte aussi 148 séances du Sénat**, qu'on
+écarte par l'identifiant (`RUAN…`) ; et un point « Supprimé » d'une séance
+tenue a été retiré ou reporté. Les **résolutions** entrent avec leurs étapes,
+comme un texte de loi (`affichage.RESOLUTIONS`) ; les autres travaux — commissions
+d'enquête, missions, rapports — ne se votent pas en séance et n'y sont pas.
+
+**Chaque ligne de texte porte son auteur** (`auteur_du_texte`). Un projet de loi
+est **celui du Gouvernement** : 15 projets ont un signataire qui siège
+aujourd'hui dans un groupe (13 de Michel Barnier, DR ; 2 de Gabriel Attal, EPR),
+et ce groupe ne les a pas déposés. Le type du **document** tranche, pas celui
+du dossier — « Projet ou proposition de loi organique » ne dit pas lequel. Le
+groupe est celui de l'auteur aujourd'hui. Un sénateur ou un ancien député a son
+nom sans groupe : rien n'est rapproché par le nom.
 
 ### Ce que les groupes ont dit : recopié, jamais résumé
 

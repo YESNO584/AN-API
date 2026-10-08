@@ -249,6 +249,10 @@ const GENRES = {
   decision: ["Décision", "Le texte est adopté, rejeté ou renvoyé à ce moment-là."],
   vote: ["Scrutin public", "Un vote dont le détail, groupe par groupe, est enregistré."],
   promulgation: ["Promulgation", "Le Président signe : le texte devient une loi."],
+  // Deux moments de séance qu'aucun texte ne porte : seul l'agenda de
+  // l'Assemblée les publie.
+  questions: ["Questions", "Les députés interrogent le Gouvernement en séance publique."],
+  debat: ["Débat", "Un débat en séance sur un thème, sans texte à voter."],
 };
 
 const JOURS = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];

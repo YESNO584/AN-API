@@ -12,11 +12,14 @@ function etiquetteGroupe(t) {
   b.append(point, document.createTextNode(t.auteur_sigle));
   b.addEventListener("click", (ev) => {
     ev.preventDefault();
+    ev.stopPropagation();
     expliquer("Le groupe politique de l'auteur",
       "Le groupe auquel appartient le parlementaire qui a déposé le texte. Les " +
       "couleurs sont une convention d'affichage : l'open data n'en publie aucune. " +
       "Un texte déposé par le Gouvernement ou par un sénateur n'a pas de groupe " +
-      "à l'Assemblée, et n'affiche donc rien ici.",
+      "à l'Assemblée, et n'affiche donc rien ici. C'est le groupe du " +
+      "parlementaire aujourd'hui : s'il en a changé depuis le dépôt, la source " +
+      "ne garde pas celui d'alors.",
       t.auteur_groupe || t.auteur_sigle);
   });
   return b;

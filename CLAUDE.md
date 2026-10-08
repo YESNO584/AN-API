@@ -68,6 +68,20 @@ a pas encore d'application, de base de données ni de dépendances.
   contrôleurs, et `controleur/demarrage.js` porte **toutes** les instructions
   exécutées au chargement — une fonction appelée au chargement doit être
   définie dans un script chargé avant.
+- **Le calendrier de l'Assemblée montre aussi ce qu'aucun dossier ne porte**
+  (2026-10-08) : les questions au Gouvernement et les débats viennent de
+  l'agenda (`extraction/agenda.py` → table `point_agenda`), seule source qui
+  les publie ; les résolutions y entrent avec leurs étapes
+  (`affichage.RESOLUTIONS`), mais pas les autres travaux. **L'archive de
+  l'agenda porte aussi les séances du Sénat** (148 sur 1 111) : une séance de
+  l'Assemblée se reconnaît à son identifiant `RUAN…`. Chaque ligne de texte
+  porte son auteur et son groupe (`publication.calendrier.auteur_du_texte`) :
+  **un projet de loi est celui du Gouvernement**, même signé par un Premier
+  ministre qui siège aujourd'hui dans un groupe (15 cas), et c'est le type du
+  document qui le dit, pas celui du dossier ; le groupe est celui
+  d'**aujourd'hui**, et l'écran le dit. Une résolution n'a pas de fiche : sa
+  ligne ouvre son dossier sur le site de l'Assemblée, comme sa carte dans
+  « Travaux ».
 - **Aucune donnée du Parlement n'est versionnée.** Les bases
   `socle/parlement.db` et `socle/legi.db`, le dossier `socle/public/` et les
   archives téléchargées sont ignorés par git — ils se reconstruisent avec

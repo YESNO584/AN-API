@@ -60,3 +60,6 @@
                              color: var(--ok); }
   .evt .resultat { font-size: .75rem; color: var(--gris); margin-top: .3rem; }
   .evt .resultat b { color: var(--texte); }
+  /* Qui a déposé le texte, et l'étiquette de son groupe. */
+  .evt .depose-par { font-size: .75rem; color: var(--gris); margin-top: .3rem;
+                 display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
