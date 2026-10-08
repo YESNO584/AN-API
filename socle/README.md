@@ -1039,6 +1039,20 @@ du dossier — « Projet ou proposition de loi organique » ne dit pas lequel. L
 groupe est celui de l'auteur aujourd'hui. Un sénateur ou un ancien député a son
 nom sans groupe : rien n'est rapproché par le nom.
 
+**Les votes solennels annoncés** (2026-10-08) viennent aussi de l'agenda, avec
+la colonne `point_agenda.dossier` : le lien que la source publie vers le texte
+voté. Il existe pour 42 votes sur 48, et **manque pour tous les votes à
+venir** — l'agenda les annonce par leur seul intitulé (« Vote solennel sur le
+projet de loi de finances pour 2027 »). Ceux-là s'affichent sans texte ni
+auteur : on ne cherche pas un texte par son titre. Un vote passé dont la
+décision du même jour est déjà au calendrier, avec son résultat chiffré, ne
+s'ajoute pas (`publication.calendrier.ajouter_les_points`). La règle de l'auteur
+est dans `publication/auteurs.py`, partagée avec `travaux.json`, qui publie
+désormais `auteur_sigle`, `auteur_groupe` et `auteur_couleur` comme la liste des
+textes — pour les seuls dossiers qui ont un auteur dans la source : les
+propositions de résolution et de destitution. Une commission d'enquête, une
+mission, un rapport, une motion de censure n'en ont pas.
+
 ### Ce que les groupes ont dit : recopié, jamais résumé
 
 Le compte rendu de séance est **la seule source du projet où un député

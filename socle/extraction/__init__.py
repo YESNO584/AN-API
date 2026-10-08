@@ -27,7 +27,7 @@ from extraction.sources import (  # noqa: F401
 )
 from extraction.archives import ESSAIS_SANS_PROGRES, MORCEAU, telecharger  # noqa: F401
 from extraction.agenda import (  # noqa: F401
-    GENRES_HORS_TEXTE, PREFIXE_SEANCE_AN, points_hors_texte, lire_points_hors_texte,
+    GENRES_DE_L_AGENDA, PREFIXE_SEANCE_AN, points_de_seance, lire_points_de_seance,
 )
 from extraction.actes import (  # noqa: F401
     CHAMBRES, QUANTIEMES, chambre_du_code, libelle, aplatir, precision_acte,

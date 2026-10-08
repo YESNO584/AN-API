@@ -82,6 +82,15 @@ a pas encore d'application, de base de données ni de dépendances.
   d'**aujourd'hui**, et l'écran le dit. Une résolution n'a pas de fiche : sa
   ligne ouvre son dossier sur le site de l'Assemblée, comme sa carte dans
   « Travaux ».
+  **Les votes solennels annoncés** viennent aussi de l'agenda, avec le lien
+  vers leur dossier quand la source le publie — **jamais pour un vote à
+  venir** (6 sur 48 sans lien le 2026-10-08, dont les 5 à venir) : ceux-là
+  s'affichent sous leur seul intitulé, sans texte ni auteur, puisqu'on ne
+  cherche jamais un texte par son titre. Un vote passé déjà porté par une
+  décision du même jour ne s'ajoute pas (`ajouter_les_points`). Le groupe de
+  l'auteur s'affiche aussi sur les cartes « Travaux » : seules les
+  propositions de résolution et de destitution en ont un. La règle de
+  l'auteur vit dans `publication/auteurs.py`, partagée.
 - **Aucune donnée du Parlement n'est versionnée.** Les bases
   `socle/parlement.db` et `socle/legi.db`, le dossier `socle/public/` et les
   archives téléchargées sont ignorés par git — ils se reconstruisent avec

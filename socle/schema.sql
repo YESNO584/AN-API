@@ -198,20 +198,22 @@ CREATE TABLE IF NOT EXISTS groupe (
     couleur       TEXT NOT NULL
 );
 
--- Les moments de séance qui ne portent sur aucun texte : les questions au
+-- Les moments de séance que seul l'agenda publie : les questions au
 -- Gouvernement, les débats d'initiative parlementaire, les déclarations du
--- Gouvernement suivies d'un débat. **Seul l'agenda les publie** : aucun
--- dossier ne les porte, si bien que le parcours d'un texte ne peut pas les
--- donner. Séances et points confirmés seulement, à venir compris. `objet` est
--- l'intitulé de la source, mot pour mot. Voir `extraction/agenda.py`.
+-- Gouvernement suivies d'un débat — aucun dossier ne les porte — et les votes
+-- solennels qu'il annonce. Séances et points confirmés seulement, à venir
+-- compris. `objet` est l'intitulé de la source, mot pour mot ; `dossier` le
+-- lien qu'elle publie, jamais déduit de l'intitulé — et absent pour un vote
+-- encore à venir. Voir `extraction/agenda.py`.
 CREATE TABLE IF NOT EXISTS point_agenda (
     seance  TEXT NOT NULL,      -- RUANR5L17S2026IDS30123
     point   TEXT,
     date    TEXT NOT NULL,
     heure   TEXT,               -- « 15 h 00 »
-    genre   TEXT NOT NULL,      -- questions | debat
+    genre   TEXT NOT NULL,      -- questions | debat | vote_solennel
     type    TEXT NOT NULL,      -- le type de point, mot pour mot
-    objet   TEXT
+    objet   TEXT,
+    dossier TEXT                -- le dossier que la source désigne, s'il y en a un
 );
 
 CREATE INDEX IF NOT EXISTS point_agenda_par_date ON point_agenda (date);

@@ -213,16 +213,17 @@ def reprendre_la_veille(connexion: sqlite3.Connection,
 
 
 def lignes_d_agenda(archives: dict[str, pathlib.Path]) -> list[tuple]:
-    """Les questions et les débats de séance, que seul l'agenda publie."""
+    """Les questions, les débats et les votes solennels de séance, tels que
+    l'agenda les publie."""
     return [(p["seance"], p["point"], p["date"], p["heure"], p["genre"],
-             p["type"], p["objet"])
-            for p in extraction.lire_points_hors_texte(archives["agenda"])]
+             p["type"], p["objet"], p["dossier"])
+            for p in extraction.lire_points_de_seance(archives["agenda"])]
 
 
 def ecrire_les_points(connexion: sqlite3.Connection, points: list[tuple]) -> None:
     """Remplace les points d'agenda — dans la transaction de l'appelant."""
     connexion.execute("DELETE FROM point_agenda")
-    connexion.executemany("INSERT INTO point_agenda VALUES (?,?,?,?,?,?,?)", points)
+    connexion.executemany("INSERT INTO point_agenda VALUES (?,?,?,?,?,?,?,?)", points)
 
 
 def ecrire_la_base(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],

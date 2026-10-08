@@ -91,6 +91,16 @@ la même que sur la carte du fil. Le groupe est celui d'aujourd'hui, et
 l'explication au toucher le dit. Un sénateur ou un député sans groupe a son nom
 seul.
 
+**Les votes solennels annoncés** ont leur ligne, « Vote solennel ». Ceux qui
+sont encore à venir n'ont que leur intitulé dans la source, sans lien vers le
+texte : la ligne le montre tel quel, sans auteur et sans lien. Un vote déjà
+passé n'a pas de ligne à lui quand la décision du jour, avec son résultat,
+est déjà là.
+
+**Les cartes de l'onglet « Travaux »** portent l'étiquette du groupe de
+l'auteur, comme celles des textes, quand la source donne un auteur : les
+propositions de résolution et de destitution.
+
 Une décision affiche son résultat quand un scrutin public a eu lieu :
 « adopté — 187 pour, 0 contre, 0 abstention ».
 

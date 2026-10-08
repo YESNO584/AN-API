@@ -253,7 +253,7 @@ affiché doit pouvoir dire, en français simple, ce qu'il est.
 | Descriptions de chambre (`CHAMBRES`) | 3 | `maquette/feed.html` |
 | Explications générales (`EXPLICATIONS`) | 15 | `maquette/feed.html` |
 | Descriptions de portée de vote (`PORTEES`) | 5 | `maquette/feed.html` |
-| Descriptions de genre d'événement (`GENRES`) | 7 | `maquette/js/modele/vocabulaire.js` |
+| Descriptions de genre d'événement (`GENRES`) | 8 | `maquette/js/modele/vocabulaire.js` |
 | Descriptions de champ d'étape (`CHAMPS_ETAPE`) | 11 | `maquette/feed.html` |
 | Descriptions d'issue publiées avec les données (`FINS`) | 6 | `socle/extraction.py` |
 | Descriptions de portée publiées avec les données (`PORTEES`) | 5 | `socle/extraction.py` |
@@ -396,7 +396,7 @@ différente partageaient un seul nom. Elles ont désormais chacune le leur.
 |---|---|
 | Noms de mois et de jours | **C** (mise en forme française, avec « 1er ») |
 | « Séance publique », « Commission », « Décision », « Scrutin public », « Promulgation » | **N** — notre classement des codes d'actes |
-| « Questions », « Débat » (depuis le 2026-10-08) | **N** — notre classement des types de point de l'agenda |
+| « Questions », « Débat », « Vote solennel » (depuis le 2026-10-08) | **N** — notre classement des types de point de l'agenda |
 | L'intitulé d'une question ou d'un débat (« Débat sur le thème : … ») | **S**, mot pour mot |
 | « Déposé par le Gouvernement », « Déposé par » suivi du nom | **N** (les mots) + **S** (le nom) |
 | L'étiquette du groupe de l'auteur | **S** (le sigle) + **C** (le groupe d'aujourd'hui, rapproché par l'identifiant de l'auteur) |
@@ -507,7 +507,7 @@ chiffres du document sont des exemples de mise en page.
 | Descriptions de chambre | 3 | `CHAMBRES`, `maquette/feed.html` |
 | Explications générales | 15 | `EXPLICATIONS`, `maquette/feed.html` |
 | Descriptions de portée de vote | 5 | `PORTEES`, `maquette/feed.html` |
-| Descriptions de genre d'événement | 7 | `GENRES`, `maquette/js/modele/vocabulaire.js` |
+| Descriptions de genre d'événement | 8 | `GENRES`, `maquette/js/modele/vocabulaire.js` |
 | Descriptions de champ d'étape | 11 | `CHAMPS_ETAPE`, `maquette/feed.html` |
 | Descriptions d'issue publiées avec les données | 6 | `FINS`, `socle/extraction.py` |
 | Descriptions de portée publiées avec les données | 5 | `PORTEES`, `socle/extraction.py` |

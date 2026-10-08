@@ -12,6 +12,7 @@ import sqlite3
 import sys
 import unittest
 
+from publication import auteurs
 from publication import calendrier as cal
 
 SCHEMA = pathlib.Path(__file__).resolve().parent / "schema.sql"
@@ -51,7 +52,7 @@ class QuiSigne(unittest.TestCase):
         self.cx = base()
 
     def auteur(self, uid):
-        return cal.auteurs_des_textes(self.cx).get(uid)
+        return auteurs.auteurs_des_textes(self.cx).get(uid)
 
     def test_un_projet_de_loi_est_celui_du_gouvernement(self):
         """Même signé par un Premier ministre qui siège aujourd'hui au groupe
@@ -103,11 +104,36 @@ class CeQuiEntre(unittest.TestCase):
     def test_les_questions_et_les_debats_viennent_de_l_agenda(self):
         self.cx.execute(
             "INSERT INTO point_agenda VALUES ('RUAN1', 'P1', '2026-10-13', '15 h 00',"
-            " 'questions', 'Questions au Gouvernement', 'Questions au Gouvernement')")
+            " 'questions', 'Questions au Gouvernement', 'Questions au Gouvernement', NULL)")
         e = [x for x in self.evenements() if x["genre"] == "questions"]
         self.assertEqual(len(e), 1)
         self.assertEqual((e[0]["heure"], e[0]["chambre"]), ("15 h 00", "assemblee"))
         self.assertNotIn("texte", e[0], "une question ne porte sur aucun texte")
+
+    def vote_solennel(self, date, dossier=None):
+        self.cx.execute(
+            "INSERT INTO point_agenda VALUES ('RUAN2', 'P2', ?, '15 h 00', 'vote_solennel',"
+            " 'Vote solennel', 'Vote solennel sur le texte', ?)", (date, dossier))
+        return [e for e in self.evenements() if e["genre"] == "vote_solennel"]
+
+    def test_un_vote_solennel_annonce_garde_son_texte_et_son_auteur(self):
+        (v,) = self.vote_solennel("2026-10-20", "LOI")
+        self.assertEqual((v["texte"], v["auteur"]["sigle"]), ("LOI", "DR"))
+
+    def test_un_vote_solennel_sans_lien_ne_porte_aucun_texte(self):
+        """L'agenda annonce les votes à venir par leur seul intitulé : on ne
+        cherche pas le texte par son titre."""
+        (v,) = self.vote_solennel("2026-10-20")
+        self.assertNotIn("texte", v)
+        self.assertNotIn("auteur", v)
+
+    def test_un_vote_passe_deja_decide_ne_fait_pas_doublon(self):
+        """La décision du jour porte déjà le résultat chiffré."""
+        self.cx.execute(
+            "INSERT INTO etape (dossier_uid, code, libelle, chambre, date, rang, numero,"
+            " future) VALUES ('LOI', 'AN1-DEBATS-DEC', 'Décision', 'assemblee',"
+            " '2026-10-13', 1, 4, 0)")
+        self.assertEqual(self.vote_solennel("2026-10-13", "LOI"), [])
 
     def test_une_base_d_avant_l_agenda_ne_casse_rien(self):
         """Une base construite avant la table — celle de la veille, gardée en

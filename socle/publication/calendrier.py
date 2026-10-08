@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 import affichage
+from publication.auteurs import auteurs_des_textes
 from publication.commun import ecrire
 from publication.contexte import Publication
 
@@ -24,55 +25,38 @@ def votes_qui_decident(cx: sqlite3.Connection) -> dict[tuple[str, str], dict]:
     return votes
 
 
-def auteur_du_texte(l) -> dict | None:
-    """Qui a déposé le texte, et son groupe quand on le connaît.
-
-    **Un projet de loi est celui du Gouvernement**, même quand le Premier
-    ministre qui le signe siège aujourd'hui à l'Assemblée : 15 projets ont un
-    signataire qui a un groupe (13 de Michel Barnier, DR ; 2 de Gabriel Attal,
-    EPR), et ce groupe ne les a pas déposés. Le type du document tranche, pas
-    celui du dossier — « Projet ou proposition de loi organique » ne dit pas
-    lequel des deux.
-
-    Le groupe est celui de l'auteur **aujourd'hui** : la source ne garde pas
-    celui du jour du dépôt. Un sénateur, un ancien député, un député sans
-    groupe a son nom sans groupe — rien n'est rapproché par le nom.
-    """
-    projet = l["type_document"] or ("Projet de loi" if (l["type"] or "").startswith(
-        "Projet de loi") else "")
-    if projet.startswith("Projet de loi"):
-        return {"gouvernement": True}
-    if not l["nom"]:
-        return None
-    auteur = {"nom": " ".join(x for x in (l["prenom"], l["nom"]) if x)}
-    if l["sigle"]:
-        auteur.update(sigle=l["sigle"], groupe=l["nom_groupe"], couleur=l["couleur"])
-    return auteur
-
-
-def auteurs_des_textes(cx: sqlite3.Connection) -> dict[str, dict]:
-    """L'auteur de chaque texte qui peut paraître au calendrier."""
-    auteurs = {}
-    for l in cx.execute(
-            "SELECT d.uid, d.type, d.type_document, a.prenom, a.nom,"
-            " g.sigle, g.nom nom_groupe, g.couleur"
-            " FROM dossier d LEFT JOIN acteur a ON a.ref = d.auteur_ref"
-            " LEFT JOIN groupe g ON g.ref = a.groupe_ref"):
-        auteur = auteur_du_texte(l)
-        if auteur:
-            auteurs[l["uid"]] = auteur
-    return auteurs
-
-
 def points_d_agenda(cx: sqlite3.Connection) -> list[dict]:
-    """Les questions au Gouvernement et les débats : des moments de séance
-    qu'aucun texte ne porte. Absents d'une base construite avant eux."""
-    if not cx.execute("SELECT 1 FROM sqlite_master WHERE name = 'point_agenda'").fetchone():
+    """Les questions au Gouvernement, les débats et les votes solennels, tels
+    que l'agenda les publie. Absents d'une base construite avant eux."""
+    colonnes = {c[1] for c in cx.execute("PRAGMA table_info(point_agenda)")}
+    if not colonnes:
         return []
-    return [{"date": l["date"], "genre": l["genre"], "quoi": l["objet"],
-             "chambre": "assemblee", **({"heure": l["heure"]} if l["heure"] else {})}
-            for l in cx.execute(
-                "SELECT date, heure, genre, objet FROM point_agenda ORDER BY date, heure")]
+    dossier = "dossier" if "dossier" in colonnes else "NULL"
+    points = []
+    for l in cx.execute(f"SELECT date, heure, genre, objet, {dossier} dossier"
+                        " FROM point_agenda ORDER BY date, heure"):
+        e = {"date": l["date"], "genre": l["genre"], "quoi": l["objet"],
+             "chambre": "assemblee"}
+        if l["heure"]:
+            e["heure"] = l["heure"]
+        if l["dossier"]:
+            e["texte"] = l["dossier"]
+        points.append(e)
+    return points
+
+
+def ajouter_les_points(par_mois: dict, points: list[dict]) -> None:
+    """Les points d'agenda au calendrier. **Un vote solennel déjà passé ne
+    s'ajoute pas** quand la décision ou le scrutin du même jour est déjà là pour
+    le même texte, avec son résultat chiffré : l'annonce ferait doublon. Il ne
+    reste donc, en pratique, que les votes à venir et ceux dont le résultat
+    n'est pas enregistré."""
+    decides = {(e["texte"], e["date"]) for mois in par_mois.values() for e in mois
+               if e.get("texte") and e["genre"] in ("decision", "vote")}
+    for e in points:
+        if e["genre"] == "vote_solennel" and (e.get("texte"), e["date"]) in decides:
+            continue
+        par_mois.setdefault(e["date"][:7], []).append(e)
 
 
 def evenement_de_l_etape(l, genre: str, votes: dict) -> dict:
@@ -147,9 +131,8 @@ def calendrier(cx: sqlite3.Connection) -> dict[str, list[dict]]:
             evenement_de_l_etape(l, genre, votes))
 
     votes_sans_decision(par_mois, votes)
+    ajouter_les_points(par_mois, points_d_agenda(cx))
     signer(par_mois, auteurs_des_textes(cx))
-    for e in points_d_agenda(cx):
-        par_mois.setdefault(e["date"][:7], []).append(e)
     for mois in par_mois.values():
         mois.sort(key=lambda e: (e["date"], e.get("heure") or "", e["genre"]))
     return par_mois

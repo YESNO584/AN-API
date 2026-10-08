@@ -253,6 +253,8 @@ const GENRES = {
   // l'Assemblée les publie.
   questions: ["Questions", "Les députés interrogent le Gouvernement en séance publique."],
   debat: ["Débat", "Un débat en séance sur un thème, sans texte à voter."],
+  vote_solennel: ["Vote solennel",
+    "Un scrutin public annoncé à l'avance, sur un texte ou sur une partie d'un texte."],
 };
 
 const JOURS = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"];

@@ -5,6 +5,7 @@ from __future__ import annotations
 import sqlite3
 import extraction
 from publication.amendements import groupes_du_scrutin
+from publication.auteurs import auteurs_des_textes
 from publication.commun import ecrire
 from publication.contexte import Publication
 
@@ -205,12 +206,22 @@ def ecrire_travaux(p: Publication) -> None:
     # colonne par catégorie. Rien n'est écarté.
     rangs = {nom: rang for rang, (nom, _) in enumerate(TRAVAUX)}
     travaux = []
+    # Le groupe de l'auteur, sous les mêmes noms que dans la liste des textes :
+    # la carte le montre avec la même étiquette. Seuls les propositions de
+    # résolution et de destitution en ont un — une commission d'enquête, un
+    # rapport, une motion de censure n'ont pas d'auteur dans la source.
+    auteurs = auteurs_des_textes(cx)
     for l in cx.execute(
             "SELECT uid, titre, type, chambre, date_dernier_mouvement, lecture,"
             " dernier_acte, conclusion, statut, url_an, url_senat"
             " FROM dossier WHERE est_loi = 0"
             " ORDER BY date_dernier_mouvement DESC, uid"):
-        travaux.append(dict(l))
+        travail = dict(l)
+        auteur = auteurs.get(l["uid"]) or {}
+        if auteur.get("sigle"):
+            travail.update(auteur_sigle=auteur["sigle"], auteur_groupe=auteur["groupe"],
+                           auteur_couleur=auteur["couleur"])
+        travaux.append(travail)
     tailles["travaux.json"] = ecrire(sortie / "travaux.json", {
         "genereLe": genere_le, "total": len(travaux),
         # Les catégories servent de colonnes. On ne publie que celles qui ont

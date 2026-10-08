@@ -1396,6 +1396,22 @@ veille à comparer.
   « Déposé par » s'appelait `.auteur`, et prenait le cadre de la carte
   d'auteur de la fiche (`fiche.css`). Vu sur la capture d'écran, pas dans le
   code : le DOM était juste. Elle s'appelle `.depose-par`.
+- **L'agenda n'annonce un vote solennel à venir que par son intitulé** : 0
+  lien vers un dossier sur les 5 votes à venir du 2026-10-08, alors que 42 des
+  43 votes passés en ont un. Le lien arrive après coup. On n'en déduit rien
+  par le titre ; la ligne s'affiche sans texte ni auteur.
+- **Ajouter une colonne à une table existante casse une base gardée** :
+  `CREATE TABLE IF NOT EXISTS` ne la modifie pas, et l'insertion de huit
+  valeurs dans une table de sept échoue. La publication ne le voit pas parce
+  que la clé du cache de `parlement.db` porte l'empreinte de `schema.sql` : une
+  base d'avant n'est jamais restituée. Une base locale, elle, doit être
+  reconstruite — `tmp/ab/` l'a été.
+- **Les cartes du fil pour un projet de loi affichent encore le groupe du
+  signataire** : `publication/listes.ecrire_listes` joint l'auteur à son groupe
+  sans la règle de `publication/auteurs.py`. 12 cartes de projet de loi
+  s'affichent ainsi « DR » dans l'onglet « Textes » (mesuré sur la publication
+  locale du 2026-10-08), alors que le calendrier les dit du Gouvernement.
+  Signalé à l'utilisateur, pas corrigé.
 - **Une base de la veille n'a pas la table neuve** : le cache peut restituer
   une `parlement.db` construite avant elle. La publication teste donc la
   présence de `point_agenda` plutôt que de supposer le schéma à jour.

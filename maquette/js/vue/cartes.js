@@ -361,6 +361,9 @@ function carteTravail(t) {
   const l = el("div", "lignes");
   const ch = t.chambre || null;
   l.append(etiquette("chambre-" + (ch || "aucune"), CHAMBRES[ch][0], CHAMBRES[ch]));
+  // Le groupe de l'auteur, comme sur la carte d'un texte. Seules les
+  // propositions de résolution et de destitution en ont un.
+  if (t.auteur_sigle) l.append(etiquetteGroupe(t));
   if (t.lecture) l.append(etiquette("", t.lecture, EXPLICATIONS.lecture));
   if (t.dernier_acte) l.append(etiquette("", t.dernier_acte, EXPLICATIONS.acte));
   if (t.conclusion) l.append(etiquette("", t.conclusion, EXPLICATIONS.conclusion));
