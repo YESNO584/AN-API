@@ -8,6 +8,51 @@ from publication.commun import ecrire
 from publication.contexte import Publication
 
 
+def votes_qui_decident(cx: sqlite3.Connection) -> dict[tuple[str, str], dict]:
+    """Les votes sur l'ensemble, indexés par (texte, date) : une décision les
+    récupère pour afficher le résultat chiffré sur la même ligne."""
+    votes: dict[tuple[str, str], dict] = {}
+    trous = ",".join("?" * len(affichage.VOTES_AU_CALENDRIER))
+    for l in cx.execute(
+            f"SELECT dossier_uid, date, sort, pour, contre, abstentions, portee, objet"
+            f" FROM vote WHERE dossier_uid IS NOT NULL AND portee IN ({trous})"
+            " ORDER BY date", tuple(affichage.VOTES_AU_CALENDRIER)):
+        votes[(l["dossier_uid"], l["date"])] = {
+            "sort": l["sort"], "pour": l["pour"], "contre": l["contre"],
+            "abstentions": l["abstentions"], "portee": l["portee"],
+        }
+    return votes
+
+
+def evenement_de_l_etape(l, genre: str, votes: dict) -> dict:
+    """Une ligne du calendrier, avec son vote quand c'est une décision."""
+    evenement = {
+        "date": l["date"], "genre": genre, "texte": l["dossier_uid"],
+        "quoi": l["libelle"], "chambre": l["chambre"],
+    }
+    for champ, valeur in (("heure", l["precision"]), ("lecture", l["lecture"]),
+                          ("conclusion", l["conclusion"])):
+        if valeur:
+            evenement[champ] = valeur
+    vote = votes.get((l["dossier_uid"], l["date"]))
+    if vote and genre == "decision":
+        evenement["vote"] = vote
+    return evenement
+
+
+def votes_sans_decision(par_mois: dict, votes: dict) -> None:
+    """Les votes qui décident sans qu'une « décision » soit enregistrée le
+    même jour : sans eux, un scrutin public disparaîtrait du calendrier."""
+    dates_vues = {(e["texte"], e["date"]) for mois in par_mois.values() for e in mois}
+    for (uid, date), vote in votes.items():
+        if (uid, date) in dates_vues:
+            continue
+        par_mois.setdefault(date[:7], []).append({
+            "date": date, "genre": "vote", "texte": uid, "vote": vote,
+            "quoi": "Scrutin public", "chambre": None,
+        })
+
+
 def calendrier(cx: sqlite3.Connection) -> dict[str, list[dict]]:
     """Les moments où le Parlement se réunit et décide, rangés par mois.
 
@@ -19,19 +64,7 @@ def calendrier(cx: sqlite3.Connection) -> dict[str, list[dict]]:
     retrouver toute seule.
     """
     par_mois: dict[str, list[dict]] = {}
-
-    # Les votes qui décident, indexés par (texte, date) : une décision les
-    # récupère pour afficher le résultat chiffré sur la même ligne.
-    votes: dict[tuple[str, str], dict] = {}
-    trous = ",".join("?" * len(affichage.VOTES_AU_CALENDRIER))
-    for l in cx.execute(
-            f"SELECT dossier_uid, date, sort, pour, contre, abstentions, portee, objet"
-            f" FROM vote WHERE dossier_uid IS NOT NULL AND portee IN ({trous})"
-            " ORDER BY date", tuple(affichage.VOTES_AU_CALENDRIER)):
-        votes[(l["dossier_uid"], l["date"])] = {
-            "sort": l["sort"], "pour": l["pour"], "contre": l["contre"],
-            "abstentions": l["abstentions"], "portee": l["portee"],
-        }
+    votes = votes_qui_decident(cx)
 
     vus: set[tuple] = set()
     for l in cx.execute(
@@ -49,30 +82,10 @@ def calendrier(cx: sqlite3.Connection) -> dict[str, list[dict]]:
         if cle in vus:
             continue
         vus.add(cle)
-        evenement = {
-            "date": l["date"], "genre": genre, "texte": l["dossier_uid"],
-            "quoi": l["libelle"], "chambre": l["chambre"],
-        }
-        for champ, valeur in (("heure", l["precision"]), ("lecture", l["lecture"]),
-                              ("conclusion", l["conclusion"])):
-            if valeur:
-                evenement[champ] = valeur
-        vote = votes.get((l["dossier_uid"], l["date"]))
-        if vote and genre == "decision":
-            evenement["vote"] = vote
-        par_mois.setdefault(l["date"][:7], []).append(evenement)
+        par_mois.setdefault(l["date"][:7], []).append(
+            evenement_de_l_etape(l, genre, votes))
 
-    # Les votes qui décident sans qu'une « décision » soit enregistrée le même
-    # jour : sans eux, un scrutin public disparaîtrait du calendrier.
-    dates_vues = {(e["texte"], e["date"]) for mois in par_mois.values() for e in mois}
-    for (uid, date), vote in votes.items():
-        if (uid, date) in dates_vues:
-            continue
-        par_mois.setdefault(date[:7], []).append({
-            "date": date, "genre": "vote", "texte": uid, "vote": vote,
-            "quoi": "Scrutin public", "chambre": None,
-        })
-
+    votes_sans_decision(par_mois, votes)
     for mois in par_mois.values():
         mois.sort(key=lambda e: (e["date"], e.get("heure") or "", e["genre"]))
     return par_mois
@@ -105,4 +118,3 @@ def ecrire_calendrier(p: Publication) -> None:
             "mois": [{"mois": nom, "evenements": len(evenements)}
                      for nom, evenements in sorted(mois.items())],
         })
-

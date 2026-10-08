@@ -236,6 +236,28 @@ def debats_par_amendement(cx: sqlite3.Connection, dossier_uid: str) -> dict[tupl
                 (dossier_uid,))}
 
 
+def chiffres_de_l_amendement(numero: str | None, votes: dict, debats: dict,
+                             document: str | None, fenetre: tuple | None) -> dict:
+    """Le scrutin et le débat de cet amendement, s'ils existent.
+
+    Le numéro de la base porte parfois une mention — « 885 (Rect) » — que
+    ni le scrutin ni la séance ne reprennent à l'identique. On le réduit
+    donc à ses chiffres. Un numéro de commission, « CL755 », n'a jamais de
+    scrutin en séance : il ne trouvera rien, et c'est juste.
+    """
+    chiffre = re.match(r"\s*(\d+)", numero or "")
+    if not chiffre:
+        return {}
+    cle = chiffre.group(1)
+    # Le scrutin doit tomber dans la fenêtre du document : sinon c'est
+    # celui d'une autre lecture, qui numérote ses amendements pareil.
+    candidats = [v for v in votes.get(cle, ())
+                 if not fenetre or fenetre[0] <= v["date"] <= fenetre[1]]
+    return {**({"vote": candidats[0]} if len(candidats) == 1 else {}),
+            **({"debat": debats[(document, cle)]}
+               if (document, cle) in debats else {})}
+
+
 def amendements_adoptes(cx: sqlite3.Connection, ref: str,
                         votes: dict[str, list[dict]] | None = None,
                         debats: dict[tuple, dict] | None = None,
@@ -272,26 +294,6 @@ def amendements_adoptes(cx: sqlite3.Connection, ref: str,
         " WHERE a.texte_ref = ? AND a.sort = 'Adopté'"
         " ORDER BY a.ordre", (ref,)).fetchall())
 
-    def chiffres(numero: str | None) -> dict:
-        """Le scrutin et le débat de cet amendement, s'ils existent.
-
-        Le numéro de la base porte parfois une mention — « 885 (Rect) » — que
-        ni le scrutin ni la séance ne reprennent à l'identique. On le réduit
-        donc à ses chiffres. Un numéro de commission, « CL755 », n'a jamais de
-        scrutin en séance : il ne trouvera rien, et c'est juste.
-        """
-        chiffre = re.match(r"\s*(\d+)", numero or "")
-        if not chiffre:
-            return {}
-        cle = chiffre.group(1)
-        # Le scrutin doit tomber dans la fenêtre du document : sinon c'est
-        # celui d'une autre lecture, qui numérote ses amendements pareil.
-        candidats = [v for v in votes.get(cle, ())
-                     if not fenetre or fenetre[0] <= v["date"] <= fenetre[1]]
-        return {**({"vote": candidats[0]} if len(candidats) == 1 else {}),
-                **({"debat": debats[(document, cle)]}
-                   if (document, cle) in debats else {})}
-
     return textes_mod.amendements_du_document(
         [{"uid": l["uid"], "numero": l["numero"],
           "nom": " ".join(x for x in (l["prenom"], l["nom"]) if x) or None,
@@ -300,5 +302,5 @@ def amendements_adoptes(cx: sqlite3.Connection, ref: str,
           # ce champ, sa ligne n'affiche qu'un numéro et personne.
           "typeAuteur": l["type_auteur"],
           "division": {"article": l["article"], "ou": l["ou"], "type": l["division"]},
-          **chiffres(l["numero"])}
+          **chiffres_de_l_amendement(l["numero"], votes, debats, document, fenetre)}
          for l in lignes])

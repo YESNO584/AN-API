@@ -24,6 +24,58 @@ import senat as senat_mod
 from publication.contexte import Publication
 
 
+def pont_avec_le_senat(cx: sqlite3.Connection) -> tuple[dict, dict]:
+    """Le signet du Sénat de chaque texte, et son titre : la seule colonne
+    publiée des deux côtés. 730 de nos 731 textes passés au Sénat s'y retrouvent."""
+    signets, titres = {}, {}
+    for l in cx.execute("SELECT uid, titre, url_senat FROM dossier"
+                        " WHERE est_loi = 1 AND url_senat IS NOT NULL"):
+        sig = senat_mod.signet_de(l["url_senat"])
+        if sig:
+            signets[sig] = l["uid"]
+            titres[l["uid"]] = l["titre"]
+    return signets, titres
+
+
+def etapes_au_senat(cx: sqlite3.Connection) -> tuple[dict, set]:
+    """Où chaque texte en est au Sénat — sa dernière étape, selon les moments
+    que le Sénat nomme lui-même — et lesquels y sont encore en cours."""
+    etape_senat = {}
+    en_cours_au_senat = {l["uid"] for l in cx.execute(
+        "SELECT uid FROM dossier WHERE est_loi = 1 AND statut = ?",
+        (extraction.EN_COURS,))}
+    for l in cx.execute(
+            "SELECT dossier_uid, code, libelle, lecture, date, conclusion"
+            " FROM etape WHERE chambre = 'senat' ORDER BY date, rang"):
+        moment = affichage.moment_au_senat(l["code"])
+        if not moment:
+            continue
+        etape_senat[l["dossier_uid"]] = {
+            "moment": moment, "code": l["code"], "libelle": l["libelle"],
+            "lecture": l["lecture"], "date": l["date"],
+            "conclusion": l["conclusion"],
+        }
+    return etape_senat, en_cours_au_senat
+
+
+def comptes_de_base(cx: sqlite3.Connection) -> tuple[dict, dict, dict, dict]:
+    """Les comptes que plusieurs étapes relisent : amendements et paroles par
+    texte, textes par statut, textes en cours par étape."""
+    compte_amendements = {l["dossier_uid"]: l["n"] for l in cx.execute(
+        "SELECT dossier_uid, COUNT(*) n FROM amendement GROUP BY dossier_uid")}
+    # Combien de prises de parole par texte, pour que la carte du fil puisse
+    # annoncer la rubrique sans charger le fichier.
+    compte_paroles = {l["dossier_uid"]: l["n"] for l in cx.execute(
+        "SELECT dossier_uid, COUNT(*) n FROM parole GROUP BY dossier_uid")}
+
+    comptes = {l["statut"]: l["n"] for l in cx.execute(
+        "SELECT statut, COUNT(*) n FROM dossier WHERE est_loi = 1 GROUP BY statut")}
+    par_etape = {l["etape"]: l["n"] for l in cx.execute(
+        "SELECT etape, COUNT(*) n FROM dossier"
+        " WHERE statut='en_cours' AND est_loi=1 AND etape IS NOT NULL GROUP BY etape")}
+    return compte_amendements, compte_paroles, comptes, par_etape
+
+
 def preparer(cx: sqlite3.Connection, sortie: pathlib.Path) -> Publication:
     """Lit une fois ce que plusieurs étapes vont relire."""
     genere_le = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
@@ -42,44 +94,11 @@ def preparer(cx: sqlite3.Connection, sortie: pathlib.Path) -> Publication:
     # Le pont avec la base du Sénat : une seule colonne, publiée des deux
     # côtés. 730 de nos 731 textes passés au Sénat s'y retrouvent.
     senat_cx = ouvrir_senat()
-    signets, titres = {}, {}
-    for l in cx.execute("SELECT uid, titre, url_senat FROM dossier"
-                        " WHERE est_loi = 1 AND url_senat IS NOT NULL"):
-        sig = senat_mod.signet_de(l["url_senat"])
-        if sig:
-            signets[sig] = l["uid"]
-            titres[l["uid"]] = l["titre"]
+    signets, titres = pont_avec_le_senat(cx)
     votes_senat = votes_du_senat(senat_cx, signets)
     themes = themes_par_texte(senat_cx, signets)
-
-    etape_senat = {}
-    en_cours_au_senat = {l["uid"] for l in cx.execute(
-        "SELECT uid FROM dossier WHERE est_loi = 1 AND statut = ?",
-        (extraction.EN_COURS,))}
-    for l in cx.execute(
-            "SELECT dossier_uid, code, libelle, lecture, date, conclusion"
-            " FROM etape WHERE chambre = 'senat' ORDER BY date, rang"):
-        moment = affichage.moment_au_senat(l["code"])
-        if not moment:
-            continue
-        etape_senat[l["dossier_uid"]] = {
-            "moment": moment, "code": l["code"], "libelle": l["libelle"],
-            "lecture": l["lecture"], "date": l["date"],
-            "conclusion": l["conclusion"],
-        }
-
-    compte_amendements = {l["dossier_uid"]: l["n"] for l in cx.execute(
-        "SELECT dossier_uid, COUNT(*) n FROM amendement GROUP BY dossier_uid")}
-    # Combien de prises de parole par texte, pour que la carte du fil puisse
-    # annoncer la rubrique sans charger le fichier.
-    compte_paroles = {l["dossier_uid"]: l["n"] for l in cx.execute(
-        "SELECT dossier_uid, COUNT(*) n FROM parole GROUP BY dossier_uid")}
-
-    comptes = {l["statut"]: l["n"] for l in cx.execute(
-        "SELECT statut, COUNT(*) n FROM dossier WHERE est_loi = 1 GROUP BY statut")}
-    par_etape = {l["etape"]: l["n"] for l in cx.execute(
-        "SELECT etape, COUNT(*) n FROM dossier"
-        " WHERE statut='en_cours' AND est_loi=1 AND etape IS NOT NULL GROUP BY etape")}
+    etape_senat, en_cours_au_senat = etapes_au_senat(cx)
+    compte_amendements, compte_paroles, comptes, par_etape = comptes_de_base(cx)
     return Publication(
         cx=cx, sortie=sortie, genere_le=genere_le, tailles={},
         votes=votes, descriptions=descriptions, resumes_debats=resumes_debats,

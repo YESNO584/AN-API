@@ -11,85 +11,91 @@ import extraction
 from publication.contexte import Publication
 
 
+def provenance_et_fraicheur(p: Publication, chargement) -> dict:
+    """D'où viennent les données, de quand, et ce qui manque aujourd'hui."""
+    cx, genere_le, senat_cx, comptes = p.cx, p.genere_le, p.senat_cx, p.comptes
+    return {
+    "genereLe": genere_le,
+    "source": extraction.URL_ARCHIVE,
+    "licence": "Licence Ouverte (Etalab)",
+    "legislature": extraction.LEGISLATURE,
+    "dernierChargement": dict(chargement) if chargement else None,
+    "dossiers": cx.execute("SELECT COUNT(*) n FROM dossier").fetchone()["n"],
+    "etapesEnregistrees": cx.execute("SELECT COUNT(*) n FROM etape").fetchone()["n"],
+    # Ce que la page doit savoir taire plutôt que d'afficher un zéro faux :
+    # une rubrique dont la source n'est jamais arrivée.
+    "amendementsIndisponibles":
+        cx.execute("SELECT COUNT(*) n FROM amendement").fetchone()["n"] == 0,
+    # **Et quand elle date.** Une archive qui n'arrive pas ce matin ne vide
+    # plus la base : les amendements de la veille restent affichés. Encore
+    # faut-il le dire, sans quoi la page se donnerait pour plus fraîche
+    # qu'elle n'est. C'est l'horodatage du dernier téléchargement réussi.
+    "amendementsVusLe": vu_le(cx, extraction.URL_AMENDEMENTS),
+    # Et de quand datent les données du Sénat. Même raison : une
+    # reconstruction qui échoue n'efface plus la base de la veille — mais
+    # la page ne doit pas se donner pour plus fraîche qu'elle n'est.
+    "senatVuLe": vu_le(senat_cx, "senat.db") if senat_cx else None,
+    "textesEnCours": comptes.get(extraction.EN_COURS, 0),
+    "promulgues": comptes.get(extraction.PROMULGUE, 0),
+    "scrutins": cx.execute("SELECT COUNT(*) n FROM vote").fetchone()["n"],
+    "textesAvecVote": cx.execute(
+        "SELECT COUNT(DISTINCT d.uid) n FROM dossier d JOIN vote v ON v.dossier_uid = d.uid"
+        " WHERE d.est_loi = 1").fetchone()["n"],
+    "arretes": sum(comptes.get(x, 0) for x in ARRETES),
+    "travaux": cx.execute(
+        "SELECT COUNT(*) n FROM dossier WHERE est_loi = 0").fetchone()["n"],
+    }
+
+
+def comptes_publies(p: Publication) -> dict:
+    """Combien de tout, pour que la page puisse le dire sans tout charger."""
+    cx, legi_cx, change, senat_cx, votes_senat = (
+        p.cx, p.legi_cx, p.change, p.senat_cx, p.votes_senat)
+    descriptions, resumes_debats, comptes = p.descriptions, p.resumes_debats, p.comptes
+    return {
+    # Le droit consolidé est facultatif : sans lui, tout le reste se publie
+    # et l'application n'affiche simplement pas ce que les lois changent.
+    "droitConsolideIndisponible": legi_cx is None,
+    "loisAvecChangements": len(change),
+    "articlesChanges": sum(c["total"] for c in change.values()),
+    # Compté à part de `articlesChanges` : ce sont les articles que les
+    # lois ont écrits pour elles-mêmes, pas ce qu'elles ont modifié.
+    "articlesAjoutes": sum(c["ajouts"] for c in change.values()),
+    "amendements": cx.execute("SELECT COUNT(*) n FROM amendement").fetchone()["n"],
+    "textesAvecAmendements": cx.execute(
+        "SELECT COUNT(DISTINCT dossier_uid) n FROM amendement").fetchone()["n"],
+    "amendementsMaxParTexte": AMENDEMENTS_MAX,
+    # Les débats sont facultatifs eux aussi : leur archive pèse 55,8 Mo.
+    # Sans eux, la fiche s'affiche sans les argumentaires plutôt que de
+    # laisser croire que personne n'a parlé du texte.
+    "debatsIndisponibles":
+        cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"] == 0,
+    "debatsVusLe": vu_le(cx, extraction.URL_DEBATS),
+    # Le Sénat est une source facultative, comme le droit consolidé : sans
+    # elle, tout le reste se publie et l'application n'affiche ni ses
+    # votes, ni sa composition, ni son calendrier.
+    "senatIndisponible": senat_cx is None,
+    "senatTextesAvecVote": len(votes_senat),
+    "senatScrutins": sum(len(v) for v in votes_senat.values()),
+    "paroles": cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"],
+    "descriptions": len(descriptions),
+    "resumesDebats": len(resumes_debats),
+    "textesAvecParoles": cx.execute(
+        "SELECT COUNT(DISTINCT dossier_uid) n FROM parole").fetchone()["n"],
+    }
+
+
 def ecrire_etat(p: Publication) -> None:
     """`etat.json` : d'où viennent les données, de quand, et ce qu'il y a dedans."""
-    cx = p.cx
-    sortie = p.sortie
-    genere_le = p.genere_le
-    tailles = p.tailles
-    descriptions = p.descriptions
-    resumes_debats = p.resumes_debats
-    legi_cx = p.legi_cx
-    change = p.change
-    senat_cx = p.senat_cx
-    votes_senat = p.votes_senat
-    comptes = p.comptes
-
+    cx, sortie, tailles, comptes = p.cx, p.sortie, p.tailles, p.comptes
     # « partiel » : le rangement a réussi, mais une source facultative a
     # manqué. C'est un chargement valable, et la page doit pouvoir le dire.
     chargement = cx.execute(
         "SELECT * FROM journal WHERE statut IN ('succes', 'partiel')"
         " ORDER BY id DESC LIMIT 1").fetchone()
-
     tailles["etat.json"] = ecrire(sortie / "etat.json", {
-        "genereLe": genere_le,
-        "source": extraction.URL_ARCHIVE,
-        "licence": "Licence Ouverte (Etalab)",
-        "legislature": extraction.LEGISLATURE,
-        "dernierChargement": dict(chargement) if chargement else None,
-        "dossiers": cx.execute("SELECT COUNT(*) n FROM dossier").fetchone()["n"],
-        "etapesEnregistrees": cx.execute("SELECT COUNT(*) n FROM etape").fetchone()["n"],
-        # Ce que la page doit savoir taire plutôt que d'afficher un zéro faux :
-        # une rubrique dont la source n'est jamais arrivée.
-        "amendementsIndisponibles":
-            cx.execute("SELECT COUNT(*) n FROM amendement").fetchone()["n"] == 0,
-        # **Et quand elle date.** Une archive qui n'arrive pas ce matin ne vide
-        # plus la base : les amendements de la veille restent affichés. Encore
-        # faut-il le dire, sans quoi la page se donnerait pour plus fraîche
-        # qu'elle n'est. C'est l'horodatage du dernier téléchargement réussi.
-        "amendementsVusLe": vu_le(cx, extraction.URL_AMENDEMENTS),
-        # Et de quand datent les données du Sénat. Même raison : une
-        # reconstruction qui échoue n'efface plus la base de la veille — mais
-        # la page ne doit pas se donner pour plus fraîche qu'elle n'est.
-        "senatVuLe": vu_le(senat_cx, "senat.db") if senat_cx else None,
-        "textesEnCours": comptes.get(extraction.EN_COURS, 0),
-        "promulgues": comptes.get(extraction.PROMULGUE, 0),
-        "scrutins": cx.execute("SELECT COUNT(*) n FROM vote").fetchone()["n"],
-        "textesAvecVote": cx.execute(
-            "SELECT COUNT(DISTINCT d.uid) n FROM dossier d JOIN vote v ON v.dossier_uid = d.uid"
-            " WHERE d.est_loi = 1").fetchone()["n"],
-        "arretes": sum(comptes.get(x, 0) for x in ARRETES),
-        "travaux": cx.execute(
-            "SELECT COUNT(*) n FROM dossier WHERE est_loi = 0").fetchone()["n"],
-        # Le droit consolidé est facultatif : sans lui, tout le reste se publie
-        # et l'application n'affiche simplement pas ce que les lois changent.
-        "droitConsolideIndisponible": legi_cx is None,
-        "loisAvecChangements": len(change),
-        "articlesChanges": sum(c["total"] for c in change.values()),
-        # Compté à part de `articlesChanges` : ce sont les articles que les
-        # lois ont écrits pour elles-mêmes, pas ce qu'elles ont modifié.
-        "articlesAjoutes": sum(c["ajouts"] for c in change.values()),
-        "amendements": cx.execute("SELECT COUNT(*) n FROM amendement").fetchone()["n"],
-        "textesAvecAmendements": cx.execute(
-            "SELECT COUNT(DISTINCT dossier_uid) n FROM amendement").fetchone()["n"],
-        "amendementsMaxParTexte": AMENDEMENTS_MAX,
-        # Les débats sont facultatifs eux aussi : leur archive pèse 55,8 Mo.
-        # Sans eux, la fiche s'affiche sans les argumentaires plutôt que de
-        # laisser croire que personne n'a parlé du texte.
-        "debatsIndisponibles":
-            cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"] == 0,
-        "debatsVusLe": vu_le(cx, extraction.URL_DEBATS),
-        # Le Sénat est une source facultative, comme le droit consolidé : sans
-        # elle, tout le reste se publie et l'application n'affiche ni ses
-        # votes, ni sa composition, ni son calendrier.
-        "senatIndisponible": senat_cx is None,
-        "senatTextesAvecVote": len(votes_senat),
-        "senatScrutins": sum(len(v) for v in votes_senat.values()),
-        "paroles": cx.execute("SELECT COUNT(*) n FROM parole").fetchone()["n"],
-        "descriptions": len(descriptions),
-        "resumesDebats": len(resumes_debats),
-        "textesAvecParoles": cx.execute(
-            "SELECT COUNT(DISTINCT dossier_uid) n FROM parole").fetchone()["n"],
+        **provenance_et_fraicheur(p, chargement),
+        **comptes_publies(p),
         "issues": {cle: {"nom": nom, "quoi": quoi, "textes": comptes.get(cle, 0)}
                    for cle, (nom, quoi) in affichage.FINS.items()},
         "fichiers": ["etapes.json", "groupes.json", "textes.json", "promulgues.json",
@@ -99,7 +105,6 @@ def ecrire_etat(p: Publication) -> None:
                      "changements/<uid>/<LEGIARTI>.json",
                      "groupes/<ref>.json"],
     })
-
 
 
 def ecrire_groupes(p: Publication) -> None:
@@ -201,5 +206,3 @@ def ecrire_etapes(p: Publication) -> None:
         # Mais un lecteur qui compte les textes doit les retrouver quelque part.
         "promulguees": comptes.get(extraction.PROMULGUE, 0),
     })
-
-

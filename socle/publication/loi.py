@@ -123,6 +123,39 @@ def par_numero_d_article(numero: str | None) -> tuple:
     return tuple((1, int(m)) if m.isdigit() else (0, m) for m in morceaux if m)
 
 
+def article_publie(ligne, quoi: str, actions: list[str]) -> dict:
+    """Ce qu'on publie d'un article dans la liste d'une loi : de quoi choisir,
+    jamais le texte lui-même."""
+    avant, apres = ligne["avant"], ligne["texte"] or ""
+    return {
+        "id": ligne["id"], "numero": ligne["numero"], "quoi": quoi,
+        "action": ACTIONS.get(quoi, quoi),
+        "actions": [ACTIONS.get(a, a) for a in actions] if len(actions) > 1 else None,
+        "effet": legi.date_d_effet(quoi, ligne["debut"], ligne["fin"]),
+        "mots": len(apres.split()),
+        "commun": legi.part_commune(avant, apres) if avant else None,
+        "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
+        # Six rédactions sur 5 091 n'ont aucun numéro : les états et
+        # annexes des lois de finances. On leur donne pour nom le début de
+        # leur propre texte — c'est la liste qui, sinon, afficherait
+        # « Article » suivi de rien. Écrit seulement dans ce cas.
+        **({"intitule": legi.intitule_de_secours(apres)}
+           if not ligne["numero"] else {}),
+        # La source publie parfois l'article avant d'en avoir saisi le
+        # texte. Le drapeau ne s'écrit que dans ce cas — rare — pour ne pas
+        # ajouter un « false » à chacun des 5 880 articles publiés.
+        #
+        # **Il vaut pour tous les articles, pas seulement les nouveaux.**
+        # Si la source livrait ainsi une rédaction *modifiée*, la
+        # comparaison opposerait le texte d'avant à cette phrase d'attente
+        # et annoncerait un article entièrement réécrit. Jamais vu — 0 sur
+        # 605 rédactions changées, mesuré le 2026-09-03 — et c'est
+        # exactement le genre de cas qu'il ne faut pas laisser dépendre
+        # d'une mesure sur deux archives.
+        **({"enAttente": True} if legi.est_en_attente(apres) else {}),
+    }
+
+
 def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str,
                        forme_seule: set[str] | None = None
                        ) -> tuple[list[dict], list[dict], list[dict]]:
@@ -155,33 +188,7 @@ def articles_de_la_loi(legi_cx: sqlite3.Connection, numero: str,
         # parlant, et l'ordre de PRIORITE dit lequel.
         actions = (ligne["actions"] or "").split(",")
         quoi = action_retenue(actions)
-        article = {
-            "id": ligne["id"], "numero": ligne["numero"], "quoi": quoi,
-            "action": ACTIONS.get(quoi, quoi),
-            "actions": [ACTIONS.get(a, a) for a in actions] if len(actions) > 1 else None,
-            "effet": legi.date_d_effet(quoi, ligne["debut"], ligne["fin"]),
-            "mots": len(apres.split()),
-            "commun": legi.part_commune(avant, apres) if avant else None,
-            "avant": legi.etat_du_precedent(ligne["precedent"], ligne["avant"]),
-            # Six rédactions sur 5 091 n'ont aucun numéro : les états et
-            # annexes des lois de finances. On leur donne pour nom le début de
-            # leur propre texte — c'est la liste qui, sinon, afficherait
-            # « Article » suivi de rien. Écrit seulement dans ce cas.
-            **({"intitule": legi.intitule_de_secours(apres)}
-               if not ligne["numero"] else {}),
-            # La source publie parfois l'article avant d'en avoir saisi le
-            # texte. Le drapeau ne s'écrit que dans ce cas — rare — pour ne pas
-            # ajouter un « false » à chacun des 5 880 articles publiés.
-            #
-            # **Il vaut pour tous les articles, pas seulement les nouveaux.**
-            # Si la source livrait ainsi une rédaction *modifiée*, la
-            # comparaison opposerait le texte d'avant à cette phrase d'attente
-            # et annoncerait un article entièrement réécrit. Jamais vu — 0 sur
-            # 605 rédactions changées, mesuré le 2026-09-03 — et c'est
-            # exactement le genre de cas qu'il ne faut pas laisser dépendre
-            # d'une mesure sur deux archives.
-            **({"enAttente": True} if legi.est_en_attente(apres) else {}),
-        }
+        article = article_publie(ligne, quoi, actions)
         if legi.AJOUTE in actions:
             ajouts.append({**article, "ou": ligne["ou"] or "Textes non codifiés"})
         elif ligne["id"] in ecartes:
@@ -273,4 +280,3 @@ def ecrire_changements(p: Publication) -> None:
             print(f"{len(change) - lois_couvertes} lois du droit consolidé sans "
                   "dossier correspondant : la base du Parlement est-elle à jour ?",
                   file=sys.stderr)
-

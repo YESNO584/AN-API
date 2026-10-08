@@ -127,20 +127,47 @@ def procedure_acceleree(cx: sqlite3.Connection, uid: str) -> dict | None:
     return {"date": ligne["date"], "chambre": ligne["chambre"]} if ligne else None
 
 
+def ligne_de_liste(p: Publication, l) -> dict:
+    """Ce que la carte du fil doit savoir d'un texte sans l'ouvrir."""
+    votes, legi_cx, change, themes, etape_senat = (
+        p.votes, p.legi_cx, p.change, p.themes, p.etape_senat)
+    compte_amendements, compte_paroles, mesurables = (
+        p.compte_amendements, p.compte_paroles, p.mesurables)
+    texte = {c: l[c] for c in CHAMPS_LISTE}
+    for c in ("auteur_sigle", "auteur_groupe", "auteur_couleur"):
+        if l[c]:
+            texte[c] = l[c]
+    texte.update(votes.get(l["uid"], {"votes": 0, "votesEnsemble": 0,
+                                      "dernierVote": None, "voteEnsemble": None}))
+    texte["amendements"] = compte_amendements.get(l["uid"], 0)
+    texte["paroles"] = compte_paroles.get(l["uid"], 0)
+    if l["uid"] in themes:
+        texte["themes"] = themes[l["uid"]]
+    # Absent plutôt que vide : deux textes sur trois ne sont jamais
+    # allés au Sénat, et ce n'est pas un trou.
+    if l["uid"] in etape_senat:
+        texte["senat"] = etape_senat[l["uid"]]
+    # Absent plutôt que vide : la grande majorité des textes n'a aucun
+    # amendement mesurable, et une liste vide par texte pèserait pour
+    # rien dans un fichier chargé d'un coup.
+    if l["uid"] in mesurables:
+        texte["amendementsMesurables"] = mesurables[l["uid"]]
+    if l["statut"] == extraction.PROMULGUE:
+        texte.update(loiNumero=l["loi_numero"], loiDate=l["loi_date"],
+                     loiUrlJO=l["loi_url_jo"])
+        # Ce que la loi change au droit, ce qu'elle y ajoute, et quand
+        # elle s'applique : la carte le dit sans qu'on ait à l'ouvrir.
+        # Une loi absente de `change` ne touche à rien et n'écrit aucun
+        # article — ce n'est pas une donnée manquante, c'est un fait, et
+        # la carte le dira.
+        if legi_cx is not None:
+            texte["change"] = change.get(l["loi_numero"])
+    return texte
+
+
 def ecrire_listes(p: Publication) -> None:
     """Les trois listes du fil, écrites après les fiches parce qu'elles en dépendent."""
-    cx = p.cx
-    sortie = p.sortie
-    genere_le = p.genere_le
-    tailles = p.tailles
-    votes = p.votes
-    legi_cx = p.legi_cx
-    change = p.change
-    themes = p.themes
-    etape_senat = p.etape_senat
-    compte_amendements = p.compte_amendements
-    compte_paroles = p.compte_paroles
-    mesurables = p.mesurables
+    cx, sortie, genere_le, tailles = p.cx, p.sortie, p.genere_le, p.tailles
     # Les trois listes s'écrivent **après** le détail, et non avant : elles
     # portent, pour chaque texte, les amendements dont on connaît à la fois le
     # scrutin et le débat — et ce rapprochement-là n'est résolu que par la
@@ -166,42 +193,10 @@ def ecrire_listes(p: Publication) -> None:
             statuts).fetchall()
         textes = []
         for l in lignes:
-            texte = {c: l[c] for c in CHAMPS_LISTE}
-            for c in ("auteur_sigle", "auteur_groupe", "auteur_couleur"):
-                if l[c]:
-                    texte[c] = l[c]
-            texte.update(votes.get(l["uid"], {"votes": 0, "votesEnsemble": 0,
-                                              "dernierVote": None, "voteEnsemble": None}))
-            texte["amendements"] = compte_amendements.get(l["uid"], 0)
-            texte["paroles"] = compte_paroles.get(l["uid"], 0)
-            if l["uid"] in themes:
-                texte["themes"] = themes[l["uid"]]
-            # Absent plutôt que vide : deux textes sur trois ne sont jamais
-            # allés au Sénat, et ce n'est pas un trou.
-            if l["uid"] in etape_senat:
-                texte["senat"] = etape_senat[l["uid"]]
-            # Absent plutôt que vide : la grande majorité des textes n'a aucun
-            # amendement mesurable, et une liste vide par texte pèserait pour
-            # rien dans un fichier chargé d'un coup.
-            if l["uid"] in mesurables:
-                texte["amendementsMesurables"] = mesurables[l["uid"]]
-            if l["statut"] == extraction.PROMULGUE:
-                texte.update(loiNumero=l["loi_numero"], loiDate=l["loi_date"],
-                             loiUrlJO=l["loi_url_jo"])
-                # Ce que la loi change au droit, ce qu'elle y ajoute, et quand
-                # elle s'applique : la carte le dit sans qu'on ait à l'ouvrir.
-                # Une loi absente de `change` ne touche à rien et n'écrit aucun
-                # article — ce n'est pas une donnée manquante, c'est un fait, et
-                # la carte le dira.
-                if legi_cx is not None:
-                    texte["change"] = change.get(l["loi_numero"])
-            textes.append(texte)
+            textes.append(ligne_de_liste(p, l))
         tailles[nom_fichier] = ecrire(sortie / nom_fichier,
                                       {"genereLe": genere_le, "total": len(textes),
                                        "textes": textes})
-
-
-
 def ecrire_travaux(p: Publication) -> None:
     """`travaux.json` : les dossiers qui n'aboutissent à aucune loi, par catégorie."""
     cx, sortie, genere_le, tailles = p.cx, p.sortie, p.genere_le, p.tailles
@@ -226,4 +221,3 @@ def ecrire_travaux(p: Publication) -> None:
                        if any(t["type"] == nom for t in travaux)],
         "travaux": travaux,
     })
-
