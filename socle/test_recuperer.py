@@ -18,7 +18,8 @@ import sqlite3
 import sys
 import unittest
 
-import recuperer
+from recuperation import reprise
+from recuperation import telechargement
 
 SCHEMA = pathlib.Path(__file__).resolve().parent / "schema.sql"
 
@@ -71,14 +72,14 @@ class RedemanderUneSourceFacultative(unittest.TestCase):
 
     def insister(self, nom, reponses):
         faux, essais = self.telecharger(reponses)
-        vrai = recuperer.extraction.telecharger
-        recuperer.extraction.telecharger = faux
+        vrai = telechargement.extraction.telecharger
+        telechargement.extraction.telecharger = faux
         dodos = []
         try:
-            return recuperer.telecharger_en_insistant(
+            return telechargement.telecharger_en_insistant(
                 nom, pathlib.Path("/rien"), {}, "u", dormir=dodos.append), essais, dodos
         finally:
-            recuperer.extraction.telecharger = vrai
+            telechargement.extraction.telecharger = vrai
 
     def test_une_source_obligatoire_est_redemandee_elle_aussi(self):
         """La publication n° 114 a échoué trois fois sur un « 504 » touchant une
@@ -94,14 +95,14 @@ class RedemanderUneSourceFacultative(unittest.TestCase):
             "amendements", [OSError("504"), {"statut": 200}])
         self.assertEqual(reponse, {"statut": 200})
         self.assertEqual(len(essais), 2)
-        self.assertEqual(dodos, [recuperer.PAUSE_ENTRE_ESSAIS])
+        self.assertEqual(dodos, [telechargement.PAUSE_ENTRE_ESSAIS])
 
     def test_aucune_n_est_redemandee_indefiniment(self):
         """Obligatoire ou non : trois essais, puis l'erreur remonte. Ce qui les
         sépare est ce que l'appelant en fait ensuite, pas le nombre d'essais."""
         for nom in ("debats", "dossiers"):
             with self.assertRaises(OSError):
-                self.insister(nom, [OSError("504")] * recuperer.ESSAIS)
+                self.insister(nom, [OSError("504")] * telechargement.ESSAIS)
 
     def test_le_premier_essai_reussi_est_le_dernier(self):
         """Ce qui marche du premier coup ne se redemande pas."""
@@ -114,19 +115,19 @@ class GarderLesLignesDeLaVeille(unittest.TestCase):
     """La base se reconstruit de fond en comble ; une archive absente n'a rien
     pour réécrire ce qu'on vient d'effacer."""
 
-    ARCHIVES = {n: pathlib.Path("/rien") for n in recuperer.SOURCES}
+    ARCHIVES = {n: pathlib.Path("/rien") for n in telechargement.SOURCES}
 
     def test_rien_n_est_repris_quand_tout_est_arrive(self):
         cx = base()
         amendement(cx, "AM1")
-        self.assertEqual(recuperer.a_reprendre(cx, self.ARCHIVES), {})
+        self.assertEqual(reprise.a_reprendre(cx, self.ARCHIVES), {})
 
     def test_l_archive_des_amendements_absente_les_met_de_cote(self):
         cx = base()
         amendement(cx, "AM1")
         parole(cx, 1)
         archives = {n: c for n, c in self.ARCHIVES.items() if n != "amendements"}
-        repris = recuperer.a_reprendre(cx, archives)
+        repris = reprise.a_reprendre(cx, archives)
         self.assertEqual(list(repris), ["amendement"])
         self.assertEqual(len(repris["amendement"]), 1)
 
@@ -137,16 +138,16 @@ class GarderLesLignesDeLaVeille(unittest.TestCase):
         parole(cx, 1)
         debat(cx, "885")
         archives = {n: c for n, c in self.ARCHIVES.items() if n != "debats"}
-        repris = recuperer.a_reprendre(cx, archives)
+        repris = reprise.a_reprendre(cx, archives)
         self.assertEqual(sorted(repris), ["debat_amendement", "parole"])
 
     def test_les_lignes_reviennent_apres_l_effacement(self):
         cx = base()
         amendement(cx, "AM1")
-        repris = recuperer.a_reprendre(
+        repris = reprise.a_reprendre(
             cx, {n: c for n, c in self.ARCHIVES.items() if n != "amendements"})
         cx.execute("DELETE FROM amendement")
-        recuperer.reposer(cx, repris, {"D1"})
+        reprise.reposer(cx, repris, {"D1"})
         self.assertEqual(
             [l["uid"] for l in cx.execute("SELECT uid FROM amendement")], ["AM1"])
 
@@ -155,11 +156,11 @@ class GarderLesLignesDeLaVeille(unittest.TestCase):
         cx = base(("D1", "D2"))
         amendement(cx, "AM1", "D1")
         amendement(cx, "AM2", "D2")
-        repris = recuperer.a_reprendre(
+        repris = reprise.a_reprendre(
             cx, {n: c for n, c in self.ARCHIVES.items() if n != "amendements"})
         cx.execute("DELETE FROM dossier WHERE uid = 'D2'")
         cx.execute("DELETE FROM amendement")
-        gardees = recuperer.reposer(cx, repris, {"D1"})
+        gardees = reprise.reposer(cx, repris, {"D1"})
         self.assertEqual([l["uid"] for l in cx.execute("SELECT uid FROM amendement")],
                          ["AM1"])
         self.assertEqual(len(gardees["amendement"]), 1)

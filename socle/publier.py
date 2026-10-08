@@ -35,7 +35,6 @@ import extraction
 import senat as senat_mod
 from publication.amendements import AMENDEMENTS_MAX, amendements_adoptes_en_entier, amendements_du_texte, debats_par_amendement, votes_par_amendement
 from publication.calendrier import calendrier
-from publication.commun import BASE, MAQUETTE, SORTIE, ecrire, sans_accent
 from publication.debats import lire_descriptions, lire_resumes_debats, paroles_du_texte, vu_le
 from publication.listes import ARRETES, CHAMPS_LISTE, TRAVAUX, procedure_acceleree, resume_votes, signataires, votes_du_texte
 from publication.loi import article_compare, articles_de_la_loi, changements_par_loi, ouvrir_legi
@@ -80,6 +79,13 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     if MAQUETTE.exists():
         p.tailles["index.html"] = ecrire(p.sortie / "index.html", None,
                                        MAQUETTE.read_bytes())
+        # Et ce qu'elle charge : son style et ses scripts, un fichier par
+        # responsabilité, servis tels quels à côté d'elle. Pas d'étape de
+        # construction — la page les demande par leur chemin relatif.
+        p.tailles["style.css + js/*.js"] = sum(
+            ecrire(p.sortie / f.relative_to(MAQUETTE.parent), None, f.read_bytes())
+            for f in [MAQUETTE.parent / "style.css"]
+                     + sorted((MAQUETTE.parent / "js").glob("*.js")))
     else:
         print(f"Maquette introuvable ({MAQUETTE}) : pas de page d'accueil.",
               file=sys.stderr)

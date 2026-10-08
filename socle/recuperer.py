@@ -16,376 +16,40 @@ Usage :
     17 6 * * *  cd /chemin/socle && ./recuperer.py >> recuperer.log 2>&1
 """
 from __future__ import annotations
+
 import argparse
-import collections
 import datetime as dt
-import hashlib
-import json
 import pathlib
 import sqlite3
 import sys
 import tempfile
-import time
 import extraction
+from recuperation.journal import afficher_journal
+from recuperation.rangement import ranger
+from recuperation.telechargement import FACULTATIVES, SOURCES, connue, empreinte, entetes_conditionnelles, telecharger_en_insistant
+
+
 RACINE = pathlib.Path(__file__).resolve().parent
+
+
 BASE = RACINE / "parlement.db"
+
+
 SCHEMA = RACINE / "schema.sql"
+
+
 def maintenant() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+
+
 def ouvrir(chemin: pathlib.Path) -> sqlite3.Connection:
     connexion = sqlite3.connect(chemin)
     connexion.row_factory = sqlite3.Row
     connexion.executescript(SCHEMA.read_text(encoding="utf-8"))
     return connexion
-# Les trois jeux dont le socle a besoin. Les groupes politiques ne sont pas un
-# supplément : les scrutins ne nomment pas les groupes, ils y renvoient par un
-# identifiant. Sans cette table, « PO845401 a voté contre » n'apprend rien.
-SOURCES = {
-    "dossiers": extraction.URL_ARCHIVE,
-    "scrutins": extraction.URL_SCRUTINS,
-    "groupes": extraction.URL_ORGANES,
-    "senat": extraction.URL_SENAT,
-    "amendements": extraction.URL_AMENDEMENTS,
-    # L'agenda ne sert qu'à départager deux actes du même jour, mais sans lui
-    # 296 groupes d'actes s'affichent à l'identique. Voir precision_acte.
-    "agenda": extraction.URL_AGENDA,
-    # Sans elle, 716 textes ont un auteur sans nom : un ministre ou un
-    # sénateur n'est pas un député en exercice. Voir URL_ACTEURS_LARGE.
-    "acteurs": extraction.URL_ACTEURS_LARGE,
-    # Les comptes rendus de séance : la seule source où un député explique un
-    # texte avec ses propres phrases. Voir URL_DEBATS.
-    "debats": extraction.URL_DEBATS,
-}
-
-# Les amendements pèsent 297 Mo à eux seuls, contre 45 Mo pour les cinq autres
-# sources réunies. Ce sont eux qui cassent : trois publications d'affilée ont
-# échoué dessus le 2026-08-31, le transfert coupé à 2,6 Mo, 51,7 Mo puis
-# 3,2 Mo. Les rendre bloquants revenait à figer tout le site — le parcours des
-# textes, les votes, les lois promulguées — pour une rubrique secondaire.
-#
-# Ils sont donc facultatifs : leur absence est publiée, pas dissimulée. La
-# page dit qu'ils manquent plutôt que d'afficher « 0 amendement », ce qui
-# serait faux.
-# Les débats pèsent 55,8 Mo, et ils ne portent que les argumentaires : sans
-# eux le parcours, les votes et les lois s'affichent normalement. Ils sont
-# donc facultatifs au même titre, et leur absence est publiée, pas dissimulée.
-FACULTATIVES = frozenset({"amendements", "debats"})
-
-# Combien de fois redemander une source avant de renoncer, et combien de temps
-# attendre entre deux essais.
-#
-# **La panne est passagère, et elle vient de chez eux.** Mesuré le 2026-09-23 :
-# l'archive des amendements a répondu `HTTP Error 504: Gateway Time-out` après
-# 50 secondes d'attente — le serveur de l'Assemblée n'a pas fini de préparer
-# son plus gros fichier à temps. Le même fichier s'est téléchargé sans
-# difficulté vingt minutes plus tard, 300 Mo en 103 secondes.
-#
-# Une reprise existait bien dans la publication — trois essais du programme
-# entier — mais elle ne pouvait pas se déclencher : une exécution où une source
-# facultative manque **réussit**, par construction. Elle doit donc se jouer
-# ici, sur la source elle-même, et non dehors.
-#
-# **Elle vaut pour toutes les sources depuis le 2026-10-04, et pas seulement
-# pour les facultatives.** Le raisonnement d'avant disait : « sans une source
-# obligatoire il n'y a rien à publier, insister ne ferait que retarder
-# l'erreur. » La publication n° 114 l'a démenti. Trois essais, trois `504`,
-# chaque fois sur une source obligatoire — l'agenda deux fois, les acteurs une
-# fois — et chaque essai avait retéléchargé les 310 Mo d'amendements avant d'y
-# arriver. Un gigaoctet et neuf minutes dépensés pour éviter de redemander un
-# fichier de 2,6 Mo. Le fichier des acteurs mettait alors 84 secondes pour ces
-# 2,6 Mo : c'est la lenteur du serveur, pas l'absence du fichier.
-#
-# Une source obligatoire qui échoue **trois fois** fait toujours échouer la
-# publication. Elle ne la fait plus échouer une seule fois.
-ESSAIS = 3
-PAUSE_ENTRE_ESSAIS = 20         # secondes
-def telecharger_en_insistant(nom: str, chemin: pathlib.Path,
-                             entetes: dict[str, str], url: str,
-                             dormir=time.sleep) -> dict:
-    """Télécharge, en redemandant jusqu'à `ESSAIS` fois.
-
-    Ce qui distingue une source facultative d'une obligatoire n'est pas le
-    nombre d'essais — c'est ce qui arrive **après** le dernier : l'appelant
-    passe outre pour une facultative, et renonce pour une obligatoire.
-    """
-    for essai in range(1, ESSAIS + 1):
-        try:
-            return extraction.telecharger(chemin, entetes, url)
-        except Exception as erreur:
-            if essai == ESSAIS:
-                raise
-            print(f"  {nom:<10} essai {essai} sur {ESSAIS} :"
-                  f" {erreur} — on réessaie", file=sys.stderr)
-            dormir(PAUSE_ENTRE_ESSAIS)
-    raise AssertionError("inatteignable")            # pragma: no cover
 
 
-def connue(connexion: sqlite3.Connection, url: str) -> sqlite3.Row | None:
-    return connexion.execute("SELECT * FROM source WHERE url = ?", (url,)).fetchone()
-def entetes_conditionnelles(ligne: sqlite3.Row | None) -> dict[str, str]:
-    """De quoi demander « seulement si ça a changé » et économiser 10 Mo."""
-    if not ligne:
-        return {}
-    entetes = {}
-    if ligne["etag"]:
-        entetes["If-None-Match"] = ligne["etag"]
-    if ligne["modifie_le"]:
-        entetes["If-Modified-Since"] = ligne["modifie_le"]
-    return entetes
-def empreinte(fichier: pathlib.Path) -> str:
-    """Le sha256 de l'archive, lu par morceaux pour ne pas la charger en mémoire."""
-    condensat = hashlib.sha256()
-    with fichier.open("rb") as flux:
-        for morceau in iter(lambda: flux.read(1 << 20), b""):
-            condensat.update(morceau)
-    return condensat.hexdigest()
-# Les tables qu'une archive facultative remplit à elle seule, et l'archive dont
-# chacune dépend. Ce sont exactement celles qu'une absence viderait.
-REPRISES = {
-    "amendements": ("amendement",),
-    "debats": ("parole", "debat_amendement"),
-}
-
-
-def a_reprendre(connexion: sqlite3.Connection,
-                archives: dict[str, pathlib.Path]) -> dict[str, list[sqlite3.Row]]:
-    """Les lignes de la veille à remettre en place, archive absente par archive
-    absente. Lues avant la transaction, puisque celle-ci les effacera."""
-    repris = {}
-    for source, tables in REPRISES.items():
-        if source in archives:
-            continue
-        for table in tables:
-            repris[table] = connexion.execute(f"SELECT * FROM {table}").fetchall()
-    return repris
-
-
-def reposer(connexion: sqlite3.Connection, repris: dict[str, list[sqlite3.Row]],
-            connus: set[str]) -> dict[str, list[tuple]]:
-    """Repose les lignes de la veille, **dans la transaction qui vient de les
-    effacer**. Seules reviennent celles dont le dossier existe encore : un
-    dossier que l'archive ne porte plus n'a pas à ressusciter par ses
-    amendements."""
-    gardees = {}
-    for table, anciennes in repris.items():
-        lignes = [tuple(l) for l in anciennes if l["dossier_uid"] in connus]
-        gardees[table] = lignes
-        if lignes:
-            trous = ",".join("?" * len(lignes[0]))
-            connexion.executemany(f"INSERT INTO {table} VALUES ({trous})", lignes)
-    return gardees
-
-
-def ranger(connexion: sqlite3.Connection, archives: dict[str, pathlib.Path],
-           aujourdhui: str) -> tuple[int, int, int, int, int]:
-    """Remplace le contenu de la base par celui des archives. Tout ou rien."""
-    groupes = extraction.lire_groupes(archives["groupes"])
-    organes = extraction.lire_organes(archives["groupes"])
-    # Les députés en exercice d'abord — ils apportent le groupe et la photo —
-    # puis les autres, qui n'apportent qu'un nom mais le portent seuls.
-    acteurs = extraction.lire_acteurs(archives["acteurs"], groupe_et_photo=False)
-    acteurs.update(extraction.lire_acteurs(archives["groupes"]))
-    documents = extraction.lire_documents(archives["dossiers"])
-    reunions = extraction.lire_reunions(archives["agenda"])
-    etats_senat = extraction.lire_senat(archives["senat"])
-    # Les scrutins d'abord : on a besoin de savoir, pour chaque dossier, quels
-    # votes le concernent — et le lien se lit dans les deux sens.
-    # Les numéros de siège se comptent par millions sur une législature : on
-    # les compte au vol, valeur par valeur, plutôt que de les empiler.
-    sieges: dict[str, collections.Counter] = collections.defaultdict(collections.Counter)
-    votes, par_ref = [], {}
-    for brut in extraction.lire_scrutins(archives["scrutins"]):
-        v = extraction.analyser_scrutin(brut, groupes)
-        votes.append(v)
-        par_ref[v["uid"]] = v
-        for ref, place in extraction.places_du_scrutin(brut):
-            sieges[ref][place] += 1
-    rangs = extraction.ordonner_groupes(sieges, groupes)
-    dossiers, etapes = [], []
-    for brut in extraction.lire_archive(archives["dossiers"]):
-        dp = brut["dossierParlementaire"]
-        # Le dossier cite parfois ses scrutins ; le scrutin nomme parfois son
-        # dossier. Aucun des deux sens ne suffit seul : réunis, ils font passer
-        # la couverture de 34 et 68 textes à 71 (mesuré le 2026-08-31).
-        for ref in extraction.refs_de_vote(dp):
-            if ref in par_ref and not par_ref[ref]["dossier"]:
-                par_ref[ref]["dossier"] = dp["uid"]
-        d = extraction.analyser(brut, aujourdhui, etats_senat,
-                                reunions, organes, documents, acteurs)
-        courant = d["etapeCourante"] or {}
-        prochaine = next((e for e in d["etapes"] if e["future"]), None)
-        # Le document de dépôt porte la description du texte et son auteur.
-        depot = next((a for a in extraction.aplatir(dp.get("actesLegislatifs") or {})
-                      if a.get("@xsi:type") == "DepotInitiative_Type"), None)
-        doc = documents.get((depot or {}).get("texteAssocie")) or {}
-        auteur = (doc.get("auteurs") or [{}])[0].get("ref")
-        cosign = json.dumps([c["ref"] for c in doc.get("cosignataires") or []],
-                            ensure_ascii=False)
-        dossiers.append((
-            d["uid"], d["legislature"], d["titre"], d["titreChemin"], d["type"],
-            int(d["estLoi"]), d["chambreInitiale"], d["statut"], d["etatSenat"],
-            d["etape"], d["dateDernierMouvement"],
-            courant.get("chambre"), courant.get("lecture"),
-            courant.get("libelle"), courant.get("conclusion"),
-            (prochaine or {}).get("date"), (prochaine or {}).get("libelle"),
-            d["urlAN"], d["urlSenat"],
-            doc.get("description"), auteur, doc.get("type"), cosign,
-            d["loiNumero"], d["loiDate"], d["loiUrlJO"],
-        ))
-        etapes += [(
-            d["uid"], e["uid"], e["code"], e["lecture"], e["libelle"], e["chambre"],
-            e["date"], e["rang"], e["numero"], e["conclusion"], int(e["future"]),
-            e["precision"],
-            json.dumps(e["details"], ensure_ascii=False) if e["details"] else None,
-        ) for e in d["etapes"]]
-    connus = {d[0] for d in dossiers}
-    # Un scrutin peut nommer un dossier d'une autre législature, ou disparu :
-    # la clé étrangère refuserait la ligne. On coupe le lien plutôt que de
-    # perdre le vote, qui reste exact en lui-même.
-    lignes_vote, lignes_groupe = [], []
-    for v in votes:
-        dossier = v["dossier"] if v["dossier"] in connus else None
-        lignes_vote.append((
-            v["uid"], dossier, v["date"], v["numero"], v["type"], v["portee"],
-            v["objet"], v["sort"], v["annonce"], v["demandeur"], v["votants"],
-            v["requis"], v["pour"], v["contre"], v["abstentions"], v["nonVotants"],
-        ))
-        lignes_groupe += [(
-            v["uid"], g["ref"], g["sigle"], g["nom"], g["membres"], g["position"],
-            g["pour"], g["contre"], g["abstentions"], g["nonVotants"],
-        ) for g in v["groupes"]]
-    # Les amendements : 110 000 sur 289 dossiers, lus au vol depuis l'archive.
-    # Elle est facultative — voir FACULTATIVES — donc elle peut manquer.
-    lignes_amdt = []
-    for a in extraction.lire_amendements(archives["amendements"]) \
-            if "amendements" in archives else ():
-        if a["dossier"] not in connus:
-            continue
-        lignes_amdt.append((
-            a["uid"], a["dossier"], a["numero"], a["ordre"], a["article"],
-            a["texte"], a["ou"], a["divisionType"],
-            a["auteurRef"], a["groupeRef"], a["typeAuteur"], a["dateDepot"],
-            a["etat"], a["sort"], a["dispositif"], a["expose"],
-            json.dumps(a["morceaux"], ensure_ascii=False),
-        ))
-    # Les argumentaires : ce que les groupes ont dit du texte en séance,
-    # recopié mot pour mot. Le compte rendu ne cite aucun identifiant de
-    # dossier — il cite le numéro de dépôt du texte, qu'il faut rapprocher des
-    # documents, la date de séance départageant les numéros ambigus.
-    lignes_parole = []
-    debats_amdt: dict[tuple, tuple] = {}
-    if "debats" in archives:
-        sigles = {g["sigle"] for g in rangs if g["sigle"]}
-        par_numero = {n: refs & connus for n, refs
-                      in extraction.documents_par_numero(documents).items()}
-        dates_du_dossier: dict[str, set[str]] = {}
-        for e in etapes:
-            dates_du_dossier.setdefault(e[0], set()).add(e[6])
-        for parole in extraction.lire_debats(archives["debats"], sigles):
-            uid = extraction.dossier_des_numeros(
-                parole["numeros"], parole["date"], par_numero, dates_du_dossier)
-            if not uid:
-                continue
-            lignes_parole.append((
-                uid, parole["seance"], parole["date"], parole["section"],
-                parole["ordre"], parole["acteur_ref"], parole["nom"],
-                parole["qualite"], parole["sigle"], parole["texte"],
-            ))
-        # Et, dans la même archive, l'ampleur du débat de chaque amendement
-        # discuté seul. Le dossier se trouve comme pour une parole ; le numéro
-        # de dépôt, lui, est gardé tel quel — c'est lui qui rattachera le
-        # compte au bon document amendé, donc à la bonne lecture.
-        for bloc in extraction.lire_debats_par_amendement(archives["debats"]):
-            uid = extraction.dossier_des_numeros(
-                bloc["numeros"], bloc["date"], par_numero, dates_du_dossier)
-            if not uid:
-                continue
-            for numero_texte in bloc["numeros"]:
-                cle = (uid, numero_texte, bloc["amendement"], bloc["seance"])
-                # Un amendement peut revenir dans la même séance — après une
-                # suspension, ou en seconde délibération. On garde le débat le
-                # plus fourni plutôt que d'additionner des orateurs qui sont
-                # peut-être les mêmes.
-                vu = debats_amdt.get(cle)
-                if not vu or bloc["orateurs"] > vu[0]:
-                    debats_amdt[cle] = (bloc["orateurs"], bloc["paragraphes"],
-                                        bloc["date"])
-
-    # **Ce qu'une source absente ne doit pas emporter avec elle.** La base est
-    # reconstruite de fond en comble à chaque exécution — c'est ce qui garantit
-    # qu'un amendement retiré par l'Assemblée disparaisse aussi de chez nous.
-    # Mais quand l'archive n'arrive pas, il n'y a rien pour réécrire ce qu'on
-    # vient d'effacer, et une minute d'indisponibilité chez eux effaçait les
-    # amendements de toute la journée. Mesuré : trois publications sur six, du
-    # 2026-09-20 au 2026-09-23.
-    #
-    # On garde donc les lignes de la veille, et on les repose après la
-    # reconstruction. **Effacer ligne à ligne ne suffirait pas** : les
-    # amendements, les paroles et les comptes d'orateurs pendent au dossier par
-    # une clé étrangère en cascade, si bien que `DELETE FROM dossier` les
-    # emporte de toute façon (vérifié le 2026-09-23 sur une base neuve).
-    #
-    # Seules reviennent les lignes dont le dossier existe encore : un dossier
-    # que l'archive ne porte plus n'a pas à ressusciter par ses amendements.
-    repris = a_reprendre(connexion, archives)
-    for table, lignes in repris.items():
-        print(f"  {table:<18} {len(lignes):>7,} lignes de la veille gardées",
-              file=sys.stderr)
-
-    with connexion:                     # une transaction, ouverte et refermée ici
-        connexion.execute("DELETE FROM debat_amendement")
-        connexion.execute("DELETE FROM parole")
-        connexion.execute("DELETE FROM amendement")
-        connexion.execute("DELETE FROM acteur")
-        connexion.executemany(
-            "INSERT INTO acteur VALUES (?,?,?,?,?,?,?,?,?)",
-            [(x["ref"], x["civilite"], x["prenom"], x["nom"], x["groupeRef"],
-              x["departement"], x["circo"], x["siege"], x["photo"])
-             for x in acteurs.values()])
-        connexion.execute("DELETE FROM groupe")
-        connexion.executemany(
-            "INSERT INTO groupe VALUES (?,?,?,?,?,?)",
-            [(g["ref"], g["sigle"], g["nom"], g["rang"], g["siegeMedian"], g["couleur"])
-             for g in rangs])
-        connexion.execute("DELETE FROM vote_groupe")
-        connexion.execute("DELETE FROM vote")
-        connexion.execute("DELETE FROM etape")
-        connexion.execute("DELETE FROM dossier")
-        connexion.executemany(
-            "INSERT INTO dossier VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", dossiers)
-        connexion.executemany(
-            "INSERT INTO etape VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", etapes)
-        connexion.executemany(
-            "INSERT INTO vote VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", lignes_vote)
-        connexion.executemany(
-            "INSERT INTO vote_groupe VALUES (?,?,?,?,?,?,?,?,?,?)", lignes_groupe)
-        connexion.executemany(
-            "INSERT INTO amendement VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", lignes_amdt)
-        connexion.executemany(
-            "INSERT INTO parole VALUES (?,?,?,?,?,?,?,?,?,?)", lignes_parole)
-        connexion.executemany(
-            "INSERT INTO debat_amendement VALUES (?,?,?,?,?,?,?)",
-            [(uid, numero_texte, numero, seance, date, orateurs, paragraphes)
-             for (uid, numero_texte, numero, seance), (orateurs, paragraphes, date)
-             in debats_amdt.items()])
-        # Les lignes de la veille, reposées dans la même transaction : la base
-        # reste « tout ou rien », et l'application affiche les amendements
-        # d'hier plutôt qu'un zéro qui serait faux.
-        gardees = reposer(connexion, repris, connus)
-        lignes_amdt = gardees.get("amendement", lignes_amdt)
-        lignes_parole = gardees.get("parole", lignes_parole)
-    return len(dossiers), len(etapes), len(lignes_vote), len(lignes_amdt), len(lignes_parole)
-def afficher_journal(connexion: sqlite3.Connection, combien: int = 10) -> None:
-    lignes = connexion.execute(
-        "SELECT * FROM journal ORDER BY id DESC LIMIT ?", (combien,)).fetchall()
-    if not lignes:
-        print("Le journal est vide : le programme n'a encore jamais tourné.")
-        return
-    print(f"{'début':<27}{'statut':<10}{'dossiers':>9}{'étapes':>9}  message")
-    for l in lignes:
-        print(f"{l['debut']:<27}{l['statut']:<10}"
-              f"{l['dossiers_lus'] or 0:>9}{l['etapes_ecrites'] or 0:>9}  {l['message'] or ''}")
-def main() -> int:
+def arguments() -> argparse.Namespace:
     analyseur = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     analyseur.add_argument("--forcer", action="store_true",
@@ -401,94 +65,88 @@ def main() -> int:
     options = analyseur.parse_args()
     if options.zip:
         options.zip = dict(zip(SOURCES, options.zip))
-    connexion = ouvrir(options.base)
-    if options.journal:
-        afficher_journal(connexion)
-        return 0
-    debut = maintenant()
-    aujourdhui = dt.date.today().isoformat()
-    curseur = connexion.execute(
-        "INSERT INTO journal (debut, statut) VALUES (?, 'en_cours')", (debut,))
-    execution = curseur.lastrowid
-    connexion.commit()
-    def clore(statut: str, *, octets=None, dossiers=None, etapes=None, message=None) -> None:
+    return options
+
+
+def archives_locales(options: argparse.Namespace) -> tuple[dict, dict]:
+    """Des fichiers déjà là, au lieu de télécharger : pour rejouer un jour."""
+    archives, comptes_rendus = {}, {}
+    for nom, chemin in options.zip.items():
+        if not chemin.exists():
+            raise FileNotFoundError(f"archive introuvable : {chemin}")
+        archives[nom] = chemin
+        comptes_rendus[nom] = {"octets": chemin.stat().st_size}
+        print(f"Archive locale ({nom}) : {chemin}", file=sys.stderr)
+    return archives, comptes_rendus
+
+
+def telecharger_les_sources(connexion: sqlite3.Connection,
+                            options: argparse.Namespace, travail: str
+                            ) -> tuple[dict, dict, dict, bool]:
+    """Chaque archive, demandée seulement si elle a changé, facultative ou non.
+
+    Rend les archives, leurs comptes rendus, les facultatives manquantes, et
+    si **rien** n'a changé — auquel cas la base est laissée telle quelle.
+    """
+    archives, comptes_rendus, manquantes = {}, {}, {}
+    inchangees = 0
+    for nom, url in SOURCES.items():
+        precedente = None if options.forcer else connue(connexion, url)
+        chemin = pathlib.Path(travail) / f"{nom}.zip"
+        try:
+            cr = telecharger_en_insistant(
+                nom, chemin, entetes_conditionnelles(precedente), url)
+        except Exception as erreur:
+            if nom not in FACULTATIVES:
+                raise
+            manquantes[nom] = f"{type(erreur).__name__}: {erreur}"
+            print(f"  {nom:<10} indisponible : {erreur}", file=sys.stderr)
+            continue
+        if not cr["modifie"]:
+            # Le serveur dit « rien de neuf » : on garde la copie de
+            # la fois précédente. Elle n'existe pas ici — la machine
+            # est neuve à chaque exécution — donc on retélécharge
+            # sans condition plutôt que de travailler sans elle.
+            cr = extraction.telecharger(chemin, None, url)
+            inchangees += 1
+        cr["empreinte"] = empreinte(chemin)
+        if precedente and cr["empreinte"] == precedente["empreinte"]:
+            inchangees += 1
+        archives[nom], comptes_rendus[nom] = chemin, cr
+        print(f"  {nom:<10} {cr['octets']:>12,} octets", file=sys.stderr)
+    rien_de_neuf = (inchangees == len(SOURCES) and not manquantes
+                    and not options.forcer)
+    return archives, comptes_rendus, manquantes, rien_de_neuf
+
+
+def marquer_les_sources_inchangees(connexion: sqlite3.Connection,
+                                   comptes_rendus: dict) -> None:
+    """Rien n'a changé : on note seulement qu'on a regardé."""
+    for nom, url in SOURCES.items():
         connexion.execute(
-            "UPDATE journal SET fin=?, statut=?, octets=?, dossiers_lus=?,"
-            " etapes_ecrites=?, message=? WHERE id=?",
-            (maintenant(), statut, octets, dossiers, etapes, message, execution))
-        connexion.commit()
-    try:
-        with tempfile.TemporaryDirectory() as travail:
-            archives, comptes_rendus, manquantes = {}, {}, {}
-            if options.zip:
-                for nom, chemin in options.zip.items():
-                    if not chemin.exists():
-                        raise FileNotFoundError(f"archive introuvable : {chemin}")
-                    archives[nom] = chemin
-                    comptes_rendus[nom] = {"octets": chemin.stat().st_size}
-                    print(f"Archive locale ({nom}) : {chemin}", file=sys.stderr)
-            else:
-                inchangees = 0
-                for nom, url in SOURCES.items():
-                    precedente = None if options.forcer else connue(connexion, url)
-                    chemin = pathlib.Path(travail) / f"{nom}.zip"
-                    try:
-                        cr = telecharger_en_insistant(
-                            nom, chemin, entetes_conditionnelles(precedente), url)
-                    except Exception as erreur:
-                        if nom not in FACULTATIVES:
-                            raise
-                        manquantes[nom] = f"{type(erreur).__name__}: {erreur}"
-                        print(f"  {nom:<10} indisponible : {erreur}", file=sys.stderr)
-                        continue
-                    if not cr["modifie"]:
-                        # Le serveur dit « rien de neuf » : on garde la copie de
-                        # la fois précédente. Elle n'existe pas ici — la machine
-                        # est neuve à chaque exécution — donc on retélécharge
-                        # sans condition plutôt que de travailler sans elle.
-                        cr = extraction.telecharger(chemin, None, url)
-                        inchangees += 1
-                    cr["empreinte"] = empreinte(chemin)
-                    if precedente and cr["empreinte"] == precedente["empreinte"]:
-                        inchangees += 1
-                    archives[nom], comptes_rendus[nom] = chemin, cr
-                    print(f"  {nom:<10} {cr['octets']:>12,} octets", file=sys.stderr)
-                if inchangees == len(SOURCES) and not manquantes and not options.forcer:
-                    for nom, url in SOURCES.items():
-                        connexion.execute(
-                            "UPDATE source SET etag=?, modifie_le=?, vu_le=? WHERE url=?",
-                            (comptes_rendus[nom]["etag"], comptes_rendus[nom]["modifieLe"],
-                             maintenant(), url))
-                    clore("inchange",
-                          octets=sum(c["octets"] for c in comptes_rendus.values()),
-                          message="aucune des trois sources n'a changé")
-                    print("Rien n'a changé côté Assemblée : base laissée telle quelle.",
-                          file=sys.stderr)
-                    return 0
-            dossiers, etapes, votes, amendements, paroles = ranger(
-                connexion, archives, aujourdhui)
-        if not options.zip:
-            for nom, url in SOURCES.items():
-                cr = comptes_rendus.get(nom)
-                if cr is None:
-                    continue
-                connexion.execute(
-                    "INSERT INTO source (url, etag, modifie_le, empreinte, vu_le)"
-                    " VALUES (?,?,?,?,?)"
-                    " ON CONFLICT(url) DO UPDATE SET etag=excluded.etag,"
-                    " modifie_le=excluded.modifie_le, empreinte=excluded.empreinte,"
-                    " vu_le=excluded.vu_le",
-                    (url, cr["etag"], cr["modifieLe"], cr["empreinte"], maintenant()))
-        message = f"{votes} scrutins, {amendements} amendements, {paroles} paroles"
-        if manquantes:
-            message += " — source indisponible : " + ", ".join(sorted(manquantes))
-        clore("succes" if not manquantes else "partiel",
-              octets=sum(c["octets"] for c in comptes_rendus.values()),
-              dossiers=dossiers, etapes=etapes, message=message)
-    except Exception as erreur:                       # noqa: BLE001 — on veut tout journaliser
-        clore("echec", message=f"{type(erreur).__name__}: {erreur}")
-        print(f"Échec : {type(erreur).__name__}: {erreur}", file=sys.stderr)
-        return 1
+            "UPDATE source SET etag=?, modifie_le=?, vu_le=? WHERE url=?",
+            (comptes_rendus[nom]["etag"], comptes_rendus[nom]["modifieLe"],
+             maintenant(), url))
+
+
+def enregistrer_les_sources(connexion: sqlite3.Connection, comptes_rendus: dict) -> None:
+    """Ce qu'on sait de chaque archive, pour ne pas la redemander demain."""
+    for nom, url in SOURCES.items():
+        cr = comptes_rendus.get(nom)
+        if cr is None:
+            continue
+        connexion.execute(
+            "INSERT INTO source (url, etag, modifie_le, empreinte, vu_le)"
+            " VALUES (?,?,?,?,?)"
+            " ON CONFLICT(url) DO UPDATE SET etag=excluded.etag,"
+            " modifie_le=excluded.modifie_le, empreinte=excluded.empreinte,"
+            " vu_le=excluded.vu_le",
+            (url, cr["etag"], cr["modifieLe"], cr["empreinte"], maintenant()))
+
+
+def resumer(connexion: sqlite3.Connection, dossiers: int, etapes: int,
+            votes: int, amendements: int) -> None:
+    """Ce que l'exécution affiche en finissant."""
     print("Textes de loi, par issue :", file=sys.stderr)
     for l in connexion.execute(
             "SELECT statut, COUNT(*) n FROM dossier WHERE est_loi = 1"
@@ -513,6 +171,65 @@ def main() -> int:
     for numero, nom, _ in extraction.ETAPES:
         n = next((l["n"] for l in resume if l["etape"] == numero), 0)
         print(f"     {n:5d}  {numero}. {nom}", file=sys.stderr)
+
+
+def ouvrir_execution(connexion: sqlite3.Connection):
+    """Ouvre une ligne du journal, et rend de quoi la clore."""
+    debut = maintenant()
+    curseur = connexion.execute(
+        "INSERT INTO journal (debut, statut) VALUES (?, 'en_cours')", (debut,))
+    execution = curseur.lastrowid
+    connexion.commit()
+    def clore(statut: str, *, octets=None, dossiers=None, etapes=None, message=None) -> None:
+        connexion.execute(
+            "UPDATE journal SET fin=?, statut=?, octets=?, dossiers_lus=?,"
+            " etapes_ecrites=?, message=? WHERE id=?",
+            (maintenant(), statut, octets, dossiers, etapes, message, execution))
+        connexion.commit()
+    return clore
+
+
+def main() -> int:
+    options = arguments()
+    connexion = ouvrir(options.base)
+    if options.journal:
+        afficher_journal(connexion)
+        return 0
+    aujourdhui = dt.date.today().isoformat()
+    clore = ouvrir_execution(connexion)
+    try:
+        with tempfile.TemporaryDirectory() as travail:
+            manquantes = {}
+            if options.zip:
+                archives, comptes_rendus = archives_locales(options)
+            else:
+                archives, comptes_rendus, manquantes, rien_de_neuf = (
+                    telecharger_les_sources(connexion, options, travail))
+                if rien_de_neuf:
+                    marquer_les_sources_inchangees(connexion, comptes_rendus)
+                    clore("inchange",
+                          octets=sum(c["octets"] for c in comptes_rendus.values()),
+                          message="aucune des trois sources n'a changé")
+                    print("Rien n'a changé côté Assemblée : base laissée telle quelle.",
+                          file=sys.stderr)
+                    return 0
+            dossiers, etapes, votes, amendements, paroles = ranger(
+                connexion, archives, aujourdhui)
+        if not options.zip:
+            enregistrer_les_sources(connexion, comptes_rendus)
+        message = f"{votes} scrutins, {amendements} amendements, {paroles} paroles"
+        if manquantes:
+            message += " — source indisponible : " + ", ".join(sorted(manquantes))
+        clore("succes" if not manquantes else "partiel",
+              octets=sum(c["octets"] for c in comptes_rendus.values()),
+              dossiers=dossiers, etapes=etapes, message=message)
+    except Exception as erreur:                       # noqa: BLE001 — on veut tout journaliser
+        clore("echec", message=f"{type(erreur).__name__}: {erreur}")
+        print(f"Échec : {type(erreur).__name__}: {erreur}", file=sys.stderr)
+        return 1
+    resumer(connexion, dossiers, etapes, votes, amendements)
     return 0
+
+
 if __name__ == "__main__":
     sys.exit(main())
