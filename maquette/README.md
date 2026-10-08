@@ -3,8 +3,13 @@
 **Étape 1 du plan** (`../docs/PLAN.md`, §6). Un écran qu'on peut mettre entre
 les mains de quelqu'un pour regarder s'il comprend.
 
-Un seul fichier : **`feed.html`**. Il s'ouvre dans un navigateur, au format
-téléphone.
+Une page, **`feed.html`**, qui charge ses feuilles de style (`css/`, une par
+écran) et ses scripts (`js/`, un fichier par responsabilité — le vocabulaire,
+les filtres, les cartes, le fil, la fiche et ses onglets, les écrans de la
+loi, du Sénat, du calendrier et de l'hémicycle). Rien d'extérieur au dépôt,
+aucune étape de construction : ce sont des scripts classiques, chargés dans
+l'ordre de la page et partageant la même portée. Elle s'ouvre dans un
+navigateur, au format téléphone.
 
 **En ligne : <https://yesno584.github.io/AN-API/>** — le socle la publie
 comme page d'accueil à chaque mise à jour des données. C'est la façon la plus
@@ -20,8 +25,8 @@ commission, rapport déposé, en séance, décidé.
 **On ne les aligne pas sur les six étapes de l'Assemblée**, et c'est voulu :
 les deux chambres ne découpent pas le parcours pareil, et les faire
 correspondre inventerait un découpage que personne ne publie. Les règles de
-lecture vivent dans `socle/extraction.py` (`ETAPES_SENAT`, `moment_au_senat`) ;
-la formulation à l'écran est dans `feed.html`, comme pour l'Assemblée.
+lecture vivent dans `socle/affichage.py` (`ETAPES_SENAT`, `moment_au_senat`) ;
+la formulation à l'écran est dans `js/vocabulaire.js`, comme pour l'Assemblée.
 
 Trois choses à savoir :
 
@@ -438,7 +443,8 @@ corrélation de rang de −0,07, c'est-à-dire rien. Un amendement voté 54 cont
 54 a eu 48 paragraphes de débat, un autre voté 50 contre 50 en a eu 12 ; et le
 plus discuté de la législature — 358 paragraphes, 90 orateurs — a été rejeté
 161 contre 67, sans suspense. Le repère dit donc exactement ce qu'il compte, et
-rien de plus. Les deux seuils sont dans `feed.html`, nommés, parce que c'est un
+rien de plus. Les deux seuils sont dans `js/versions.js` (`ECART_DEBATTU`,
+`ORATEURS_DEBATTU`), nommés, parce que c'est un
 choix d'affichage : le socle publie les chiffres bruts et ne tranche rien.
 
 **L'absence du repère ne veut rien dire.** 97 % des amendements adoptés le sont
@@ -936,7 +942,7 @@ renvoie au dossier officiel. Ce sont les étapes suivantes du plan.
 
 ## Les trois règles qui font que le fil est juste
 
-Elles ne sont pas ici : elles vivent dans `../socle/extraction.py`, avec
+Elles ne sont pas ici : elles vivent dans `../socle/extraction/`, avec
 leurs tests. En résumé — les dossiers qui ne fabriquent pas de loi sont
 écartés, une saisine de commission le jour du dépôt n'est pas un examen, et
 un texte se classe sur les actes de son jour le plus récent, pas sur l'étape

@@ -19,6 +19,57 @@ Loaded every session via the root `CLAUDE.md`.
 
 ---
 
+## 2026-10-08 — Découper 9 000 lignes sans rien casser : ce qui l'a prouvé, et ce qui a failli
+
+- **La règle est née ici : aucun fichier au-dessus de 500 lignes, aucune
+  fonction au-dessus de 60.** Mesuré avant de choisir : la bibliothèque standard
+  de Python a une médiane de 475 lignes par fichier et 44 % de fichiers sous
+  350 ; le projet était à 330 de médiane, avec un `publier.py` de 1 778 lignes
+  et une fonction de 538. `.claude/scripts/longueurs.py` mesure, la CI refuse ;
+  le palier 350 reste affiché (`--fichier 350`) tant qu'il n'est pas tranché.
+- **Trois preuves, et il a fallu les trois.** (1) La publication comparée à
+  l'octet près, hors horodatage, sur 15 581 fichiers : c'est elle qui a vu un
+  `return` perdu dans `comparaison_d_une_etape` et une ligne collée dans
+  `amendements_adoptes` — deux fautes du découpage par numéros de ligne que les
+  tests ne voyaient pas. (2) `parlement.db` reconstruite sur les mêmes huit
+  archives par le code d'avant (`git stash`) et par le code d'après, comparée
+  table par table. (3) La maquette d'avant et celle d'après publiées sur les
+  mêmes données, servies sur deux ports, et **le DOM de 46 écrans comparé**
+  dans un navigateur (`tmp/compare_dom.mjs`) — les écrans sans données locales
+  (le droit consolidé, sans `legi.db` ici) sur des articles synthétiques, en
+  appelant les fonctions directement.
+- **Découper par repère textuel, jamais par numéro de ligne.** Les premiers
+  trancheurs prenaient des numéros ; un décalage de quatre caractères dans un
+  `dedent` et un bloc entier partait sans sa dernière ligne. Les suivants
+  cherchent un repère unique (`assert s.count(a) == 1`) et refusent sinon :
+  une fois le repère de fin `}\n` a pris l'accolade d'un `if` intérieur, et
+  une fois le même en-tête de fonction s'est retrouvé deux fois — `node
+  --check` l'a vu, parce qu'une déclaration en double ne manque pas une
+  accolade, elle en attend une de plus.
+- **`node --check` ne voit pas deux fonctions du même nom.** JavaScript
+  redéclare sans se plaindre, et la seconde gagne en silence. Avant de créer
+  des aides nommées dans la maquette, chercher chaque nom dans `js/*.js`.
+- **`git stash` pendant une comparaison en arrière-plan gèle l'arbre.** Tant
+  que la base « d'avant » se construit, les fichiers modifiés ne sont plus là :
+  ne rien lire ni écrire dans le socle pendant ce temps, et vérifier le `pop`
+  à la fin (`git stash list` vide, `git status` plein).
+- **`decouper.py` (`.claude/scripts/`) déplace des définitions Python d'un
+  fichier vers les modules d'un paquet**, avec leurs commentaires, les imports
+  qu'elles emploient et les emprunts entre modules. Deux limites : il ne voit
+  pas un cycle (un nom oublié dans le plan en crée un — refaire le plan
+  complet depuis la source d'origine plutôt que de rafistoler), et le module
+  d'origine est importé par son seul nom (`from dossiers import …`) : ne rien
+  laisser dans la source dont les modules neufs auraient besoin.
+- **Une fermeture (`def` dans un `def`) compte dans la longueur de la
+  fonction qui la porte**, et c'est souvent elle qu'il faut sortir — en lui
+  passant ce qu'elle lisait de l'extérieur. Quand plusieurs gestes se passent
+  le même état (les onglets d'une fiche), un objet d'état et une fonction par
+  geste remplacent proprement un paquet de fermetures.
+- **La mention d'origine d'une rubrique écrite par une IA et la ligne d'un
+  groupe sous l'hémicycle existaient en deux copies**, à quelques mots près.
+  Elles sont une fonction chacune (`boutonOrigine`, `ligneDeGroupe`) : la
+  découpe a aussi servi à ça.
+
 ## 2026-09-14 — Vérifier la maquette sans réseau : le bouchon coûte dix minutes, pas plus
 
 - **La maquette se vérifie pour de bon dans un navigateur sans tête, sans

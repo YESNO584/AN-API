@@ -87,7 +87,7 @@ texte de loi** — rien à suivre jusqu'à une promulgation.
 | **Pétitions** | 1 | Une demande adressée à l'Assemblée par des citoyens |
 
 La règle qui les écarte est écrite à un seul endroit : `TYPES_DE_LOI` dans
-`socle/extraction.py`. Les dossiers restent en base, marqués `est_loi = 0`,
+`socle/extraction/dossiers.py`. Les dossiers restent en base, marqués `est_loi = 0`,
 pour que le compte reste vérifiable.
 
 ## Où en sont les 2 151 textes

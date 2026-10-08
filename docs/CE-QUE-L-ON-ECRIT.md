@@ -1,7 +1,11 @@
 # Ce que l'on écrit, et ce que l'on recopie
 
 **Relevé le 2026-09-10** sur `maquette/feed.html`, `socle/extraction.py`,
-`socle/legi.py`, `socle/publier.py` et `socle/descriptions.json`. Écrit pour
+`socle/legi.py`, `socle/publier.py` et `socle/descriptions.json`. *Depuis le
+2026-10-08, ces trois fichiers sont les paquets `socle/extraction/`,
+`socle/legi/` et `socle/publication/`, et `feed.html` charge `maquette/css/`
+et `maquette/js/` : les noms cités ci-dessous désignent les mêmes règles, à
+chercher dans ces dossiers.* Écrit pour
 répondre à une question simple : dans tout ce que l'application affiche,
 qu'est-ce qui vient du Parlement, et qu'est-ce qui vient de nous ?
 
@@ -533,4 +537,4 @@ range et publie les données —, refaits le 2026-09-10 :
 | Noms de fournisseurs et de bibliothèques cherchés dans `socle/`, `maquette/`, `.github/` et `docs/` | 0 occurrence |
 | Modules importés par les 8 fichiers Python de `socle/` | 24 modules, **tous de la bibliothèque standard**, plus `extraction` et `legi` du projet |
 | Fichier de dépendances (`requirements.txt`, `pyproject.toml`, `package.json`…) | Aucun dans le dépôt ; la publication n'exécute aucun `pip install` |
-| Fichiers extérieurs chargés par la maquette (`<script src>`, `<link href>`) | Aucun : `feed.html` est un seul fichier |
+| Fichiers extérieurs chargés par la maquette (`<script src>`, `<link href>`) | Aucun hors du dépôt : `feed.html` ne charge que ses propres `css/*.css` et `js/*.js`, publiés à côté d'elle (depuis le 2026-10-08 ; c'était un seul fichier) |

@@ -17,27 +17,43 @@ a pas encore d'application, de base de données ni de dépendances.
 |---|---|
 | `docs/` | Le plan, les fiches de sources, la note d'accès réseau, et trois inventaires : `CE-QUE-L-ON-SUIT.md` (ce que le projet suit, chiffré), `CE-QUE-LA-LOI-CHANGE.md` (montrer l'avant/après du droit) et `CE-QUE-L-ON-ECRIT.md` (qui a écrit chaque texte affiché : la source, nous, ou un calcul — et la preuve qu'aucune IA n'intervient). Documents, pas du code |
 | `docs/sources/` | Ce que valent les sources de données, **mesuré** (étape 0, faite le 2026-08-31) |
-| `socle/` | **Le cœur du code.** Récupère, range, publie. `extraction.py` (les règles, testées), `recuperer.py` (le programme quotidien), `publier.py` (écrit les fichiers mis en ligne), `serveur.py` (développement local seulement), `schema.sql`, `descriptions.json` et `resumes_debats.json` (les deux seules données non publiques du projet, écrites hors ligne — voir la règle ci-dessous). Et pour le droit consolidé : `legi.py` (les règles, testées) et `recuperer_legi.py`. Voir `socle/README.md` |
+| `socle/` | **Le cœur du code.** Récupère, range, publie. `extraction/` (les règles de lecture, un module par source, testées), `recuperer.py` et ses étapes dans `recuperation/` (le programme quotidien), `publier.py` et ses étapes dans `publication/` (écrit les fichiers mis en ligne), `serveur.py` (développement local seulement), `schema.sql`, `descriptions.json` et `resumes_debats.json` (les deux seules données non publiques du projet, écrites hors ligne — voir la règle ci-dessous). Pour le droit consolidé : `legi/` (les règles, testées) et `recuperer_legi.py`. Pour le Sénat : `senat.py`, `recuperer_senat.py` et ses étapes dans `recuperation_senat/`. Voir `socle/README.md` |
 | `.github/workflows/` | La publication quotidienne des données, exécutée par GitHub |
-| `maquette/` | La maquette de l'étape 1 : `feed.html`, un seul fichier, qui **lit les données publiées par le socle**. Voir `maquette/README.md` |
+| `maquette/` | La maquette de l'étape 1 : `feed.html` (la coquille), `css/` (une feuille par écran) et `js/` (un fichier par responsabilité, des scripts classiques qui partagent la même portée), qui **lit les données publiées par le socle**. Voir `maquette/README.md` |
 | `.claude/` | La configuration Claude Code |
 
 - **La source de vérité des données est l'open data de l'Assemblée
   nationale.** Elle contient le parcours d'un texte dans *les deux* chambres,
   y compris les étapes passées au Sénat. Ne pas écrire de code de rapprochement
   entre les deux chambres : l'Assemblée publie déjà le lien.
-- **Les règles de lecture des dossiers vivent dans `socle/extraction.py`, à
-  un seul endroit.** Ne pas les recopier ailleurs : la maquette les importe.
-  Toute modification doit passer par `socle/test_extraction.py`.
+- **Les règles de lecture des dossiers vivent dans `socle/extraction/`, à
+  un seul endroit.** Un module par source (`dossiers`, `actes`, `scrutins`,
+  `acteurs`, `amendements`, `debats`), et `extraction/__init__.py` réexporte
+  tout : le reste du projet écrit `extraction.analyser` comme avant. Ne pas
+  les recopier ailleurs : la maquette les importe. Toute modification doit
+  passer par `socle/test_extraction_*.py`, un fichier de tests par module.
 - **Et les règles d'affichage vivent dans `socle/affichage.py`, séparées
   exprès** (2026-10-04). La frontière : une règle qui décide de ce qui **entre
-  en base** va dans `extraction.py` ; une règle qui décide de ce qui **sort à
+  en base** va dans `extraction/` ; une règle qui décide de ce qui **sort à
   l'écran** va dans `affichage.py`. La raison n'est pas esthétique : la clé du
-  cache de `parlement.db` empreinte `extraction.py` en entier, si bien qu'une
+  cache de `parlement.db` empreinte `extraction/*.py` en entier, si bien qu'une
   formulation d'écran y faisait retélécharger 412 Mo. Mesuré : sur 127 commits,
   19 ont jeté ce cache et **2 l'ont fait pour rien**, dont celui qui a cassé la
   publication n° 114. **Ne pas ajouter `affichage.py` à la clé du cache**, et
   `affichage.py` peut importer `extraction`, jamais l'inverse.
+- **Aucun fichier de plus de 500 lignes, aucune fonction de plus de 60 lignes**
+  (règle générale, décidée le 2026-10-08). `.claude/scripts/longueurs.py` la
+  mesure et un pas de la CI la refuse ; `--fichier 350` montre le palier bas,
+  en attente d'une décision. **On découpe par responsabilité, jamais par
+  longueur** : `extraction/`, `legi/`, `publication/`, `recuperation/` et
+  `recuperation_senat/` sont des paquets dont `__init__.py` ou l'orchestrateur
+  (`publier.py`, `recuperer.py`) porte les noms publics, et une fonction
+  longue devient des étapes nommées qui se passent un état (`Publication`).
+  Ce qui a tenu la découpe sans rien casser : la publication comparée à
+  l'octet près, la base reconstruite sur les mêmes archives et comparée
+  table par table, et la maquette comparée écran par écran dans un
+  navigateur (46 écrans, même DOM). `.claude/scripts/decouper.py` déplace des
+  définitions Python d'un fichier à un paquet avec leurs imports.
 - **Aucune donnée du Parlement n'est versionnée.** Les bases
   `socle/parlement.db` et `socle/legi.db`, le dossier `socle/public/` et les
   archives téléchargées sont ignorés par git — ils se reconstruisent avec
@@ -165,7 +181,7 @@ a pas encore d'application, de base de données ni de dépendances.
   l'attribut `adt` du compte rendu.** Celui-ci traîne d'un amendement au
   suivant : il contredit 837 des 13 665 annonces vérifiables et manque sur
   1 590 — sur l'amendement 885 de la loi Ripost, il annonce 605. Deux règles
-  vont avec, et `socle/test_extraction.py` les tient : **une discussion commune
+  vont avec, et `socle/test_extraction_debats.py` les tient : **une discussion commune
   ne se découpe pas** (27 % des blocs portent plusieurs amendements défendus à
   la suite, et ce qui s'y dit vaut pour l'ensemble), et **un bloc sans sort
   annoncé n'est pas gardé**.
@@ -417,13 +433,14 @@ a pas encore d'application, de base de données ni de dépendances.
 | Code rules, one unit | `cd .claude/scripts && ./code_rule_checker.py <unit_id>` | console |
 | Unit discovery | `cd .claude/scripts && ./discover_units.py` | console |
 | Les tests du droit consolidé voient-ils casser les règles ? | `cd .claude/scripts && ./mutations_legi.py` | console |
+| Longueur des fichiers et des fonctions | `python3 .claude/scripts/longueurs.py` (`--fichier 350` pour le palier bas, `--tout` pour la liste entière) | console ; la CI refuse au-dessus des seuils |
 
 **When it MUST be run:** before any commit that adds or changes source files,
 and again before opening a pull request. It is not wired into a git hook —
 nothing runs it for you.
 
-**`mutations_legi.py` est le seul de ces trois qui mesure quelque chose de
-réel** aujourd'hui : il défait une à une les règles de `socle/legi.py` et exige
+**`mutations_legi.py` et `longueurs.py` sont les deux qui mesurent quelque
+chose de réel** aujourd'hui. Le premier défait une à une les règles de `socle/legi/` et exige
 qu'un test nommé le voie. À lancer après toute modification de ces règles, et à
 tenir à jour — un motif introuvable y est signalé comme un manque. Il a trouvé
 deux vrais trous le 2026-09-03, dont **un test qui passait avec ou sans la règle

@@ -9,16 +9,16 @@ lire aucune donnée.
 
 | Fichier | Ce qu'il fait |
 |---|---|
-| `extraction.py` | Lit l'archive de l'Assemblée et classe chaque dossier. **Ne télécharge rien, n'écrit nulle part.** C'est ici que vivent les règles, et elles sont testées |
-| `recuperer.py` | Le programme quotidien : télécharge si ça a changé, range dans la base, écrit au journal |
-| `publier.py` | Écrit la base en fichiers tout prêts — **c'est ce qui est mis en ligne** |
+| `extraction/` | Lit l'archive de l'Assemblée et classe chaque dossier — un module par source : `sources`, `archives`, `dossiers`, `actes`, `scrutins`, `acteurs`, `amendements`, `debats`, et `__init__.py` qui réexporte tout sous `extraction.X`. **Ne télécharge rien de sa propre initiative, n'écrit nulle part.** C'est ici que vivent les règles, et elles sont testées |
+| `recuperer.py` | Le programme quotidien : télécharge si ça a changé, range dans la base, écrit au journal. Ses étapes sont dans `recuperation/` (`telechargement`, `reprise`, `rangement`, `journal`) |
+| `publier.py` | Écrit la base en fichiers tout prêts — **c'est ce qui est mis en ligne**. Enchaîne les étapes de `publication/`, une par module (`etat`, `listes`, `fiches`, `versions`, `amendements`, `debats`, `calendrier`, `loi`, `senat`), qui se passent un même état `Publication` (`contexte.py`) |
 | `serveur.py` | Sert la base en direct. **Outil de développement local**, pas ce qui tourne en production |
 | `schema.sql` | Le modèle de données |
-| `test_extraction.py` | 136 tests sur les règles de lecture |
-| `test_publier.py` | 17 tests sur le rattachement d'un scrutin et d'un débat à un amendement adopté, et sur sa fiche |
-| `legi.py` | Lit le droit consolidé et compare deux rédactions d'un article. **Ne télécharge rien, n'écrit nulle part.** |
+| `test_extraction_*.py` | 131 tests sur les règles de lecture, un fichier par module ; le décor commun est dans `decor_extraction.py` |
+| `test_publier.py` | 25 tests sur le rattachement d'un scrutin et d'un débat à un amendement adopté, et sur sa fiche |
+| `legi/` | Lit le droit consolidé et compare deux rédactions d'un article : `depot`, `balises`, `ajouts`, `redactions`, `forme`, et les états partagés dans `etats`. **Ne télécharge rien, n'écrit nulle part.** |
 | `recuperer_legi.py` | Va chercher, dans le droit consolidé, ce que nos lois y ont changé. Écrit dans `legi.db` |
-| `test_legi.py` | 86 tests sur ces règles-là |
+| `test_legi_*.py` | 86 tests sur ces règles-là (`versions`, `archives`), le décor dans `decor_legi.py` |
 | `affichage.py` | Les règles qui décident de ce qui **sort à l'écran**, jamais de ce qui entre en base. Séparées pour que le cache de `parlement.db` cesse de se jeter quand une formulation change |
 | `test_affichage.py` | 11 tests sur ces règles-là |
 
@@ -38,7 +38,7 @@ d'articles que nos lois ont changées. Elle est donc **gardée d'un jour sur
 l'autre** (mise en cache par la publication), et on n'y ajoute ensuite que les
 archives quotidiennes, de 1 à 4 Mo.
 
-**La clé de ce cache porte l'empreinte de `legi.py` et de `recuperer_legi.py`**
+**La clé de ce cache porte l'empreinte de `legi/*.py` et de `recuperer_legi.py`**
 (`.github/workflows/donnees.yml`). Sans cela, changer une règle ne changerait
 rien pour les lois anciennes : la base d'hier ne contient que ce que les règles
 retenaient hier, et la règle nouvelle ne s'appliquerait qu'aux archives du jour.
@@ -188,10 +188,10 @@ non celui de LEGI (voir ci-dessus).
 restituée dans « 222-33,222-33-2 », un « Etat-membre » devenu « Etat membre »,
 un « I. - En » devenu « I.-En ».
 
-Deux conséquences, dans `legi.py` :
+Deux conséquences, dans `legi/` :
 
 - **Un article dont *tout* est de cette nature sort du compte des articles
-  modifiés** (`articles_de_pure_forme` dans `publier.py`). 5 articles sur
+  modifiés** (`articles_de_pure_forme` dans `publication/versions.py`). 5 articles sur
   4 431 comparables. Ils ne disparaissent pas : l'écran les range à part,
   sous « articles retouchés sans changement de fond ».
 - **Dans les autres, le mot ne s'écrit qu'une fois**, découpé au caractère :
@@ -213,8 +213,8 @@ côtés **une fois la forme retirée** : `remplacement_de_forme`.
 ./recuperer.py      # construit parlement.db (~3 Mo). Compter une minute
 ./publier.py        # écrit public/ — ce qui sera mis en ligne
 ./serveur.py        # http://127.0.0.1:8000, pour travailler en local
-./test_extraction.py
-./test_publier.py
+python3 -m unittest discover -p "test_*.py"   # les 384 tests, comme la CI
+python3 ../.claude/scripts/longueurs.py        # aucun fichier > 500 lignes, aucune fonction > 60
 ```
 
 La base **n'est pas versionnée** : c'est un fichier de données, reconstruit en
@@ -360,7 +360,7 @@ saisine du Conseil constitutionnel, le numéro de la loi.
 
 **Rien n'y est rédigé.** Chaque valeur est recopiée de l'open data ou d'un
 référentiel qu'il désigne. Une clé absente veut dire que la source ne dit
-rien — pas qu'il n'y a rien à dire. `socle/test_extraction.py` en fait un
+rien — pas qu'il n'y a rien à dire. `socle/test_extraction_dossiers.py` en fait un
 test, pour que personne n'y glisse plus tard une phrase inventée.
 
 ### Nommer un auteur qui n'est pas député
@@ -880,7 +880,7 @@ législature.
 
 **La couleur.** L'open data n'en publie aucune. Celles du socle sont une
 **convention d'affichage**, rassemblées dans `COULEURS_GROUPES`
-(`extraction.py`) — **le seul endroit à corriger** si un choix ne convient
+(`extraction/acteurs.py`) — **le seul endroit à corriger** si un choix ne convient
 pas. Un groupe absent de cette table, passé ou futur, reçoit une couleur
 calculée sur sa position, du rouge à gauche au bleu à droite.
 
@@ -973,7 +973,7 @@ de code           →  la base de la veille, reprise du cache
 
 **`./recuperer.py` ne tourne donc que le matin**, à la main, ou faute de cache
 — sinon il n'y aurait rien à publier. Trois cas, et le troisième compte : la
-clé du cache porte l'empreinte de `schema.sql`, `extraction.py` et
+clé du cache porte l'empreinte de `schema.sql`, `extraction/*.py` et
 `recuperer.py`, si bien que **changer une règle de lecture refait la
 récupération complète d'elle-même**. Mesuré le 2026-09-19 : une publication de
 maquette prenait 3 min 45, dont 1 min 40 de téléchargement.
@@ -1016,7 +1016,7 @@ en commission, une nomination de rapporteur n'y sont pas — ce sont des actes
 administratifs, sans heure ni public. Et sur les 2 748 votes rattachés à un
 texte, **2 260 portent sur un amendement** : les afficher noierait le calendrier
 sous des scrutins de détail, alors que la séance du jour est déjà là pour les
-porter. Voir `genre_d_evenement` et `VOTES_AU_CALENDRIER` dans `extraction.py`.
+porter. Voir `genre_d_evenement` et `VOTES_AU_CALENDRIER` dans `affichage.py`.
 
 ### Ce que les groupes ont dit : recopié, jamais résumé
 
