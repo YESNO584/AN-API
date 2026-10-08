@@ -103,7 +103,7 @@ jobs:
         id: cache-parlement
         uses: actions/cache/restore@v4
         env:
-          REGLES: ${{ hashFiles('socle/schema.sql', 'socle/extraction.py',
+          REGLES: ${{ hashFiles('socle/schema.sql', 'socle/extraction/*.py',
                                 'socle/recuperer.py') }}
         with:
           path: socle/parlement.db
@@ -146,7 +146,7 @@ jobs:
         if: ${{ steps.recuperation.outcome == 'success' }}
         uses: actions/cache/save@v4
         env:
-          REGLES: ${{ hashFiles('socle/schema.sql', 'socle/extraction.py',
+          REGLES: ${{ hashFiles('socle/schema.sql', 'socle/extraction/*.py',
                                 'socle/recuperer.py') }}
         with:
           path: socle/parlement.db
