@@ -128,16 +128,14 @@ def procedure_acceleree(cx: sqlite3.Connection, uid: str) -> dict | None:
     return {"date": ligne["date"], "chambre": ligne["chambre"]} if ligne else None
 
 
-def ligne_de_liste(p: Publication, l) -> dict:
+def ligne_de_liste(p: Publication, l, auteur: dict | None = None) -> dict:
     """Ce que la carte du fil doit savoir d'un texte sans l'ouvrir."""
     votes, legi_cx, change, themes, etape_senat = (
         p.votes, p.legi_cx, p.change, p.themes, p.etape_senat)
     compte_amendements, compte_paroles, mesurables = (
         p.compte_amendements, p.compte_paroles, p.mesurables)
     texte = {c: l[c] for c in CHAMPS_LISTE}
-    for c in ("auteur_sigle", "auteur_groupe", "auteur_couleur"):
-        if l[c]:
-            texte[c] = l[c]
+    signer(texte, auteur)
     texte.update(votes.get(l["uid"], {"votes": 0, "votesEnsemble": 0,
                                       "dernierVote": None, "voteEnsemble": None}))
     texte["amendements"] = compte_amendements.get(l["uid"], 0)
@@ -166,9 +164,25 @@ def ligne_de_liste(p: Publication, l) -> dict:
     return texte
 
 
+def signer(element: dict, auteur: dict | None) -> None:
+    """Le groupe de l'auteur, quand il en a un : la carte du fil le montre en
+    couleur, et l'ouvrir pour le savoir serait absurde.
+
+    La règle est celle de `publication/auteurs.py`, celle du calendrier : **un
+    projet de loi est celui du Gouvernement** et ne porte aucun groupe, même
+    signé par un Premier ministre qui siège aujourd'hui à l'Assemblée. Joindre
+    le signataire à son groupe donnait un groupe à 15 projets de loi — 5 en
+    cours, 8 promulgués, 2 arrêtés (mesuré le 2026-10-09).
+    """
+    if auteur and auteur.get("sigle"):
+        element.update(auteur_sigle=auteur["sigle"], auteur_groupe=auteur["groupe"],
+                       auteur_couleur=auteur["couleur"])
+
+
 def ecrire_listes(p: Publication) -> None:
     """Les trois listes du fil, écrites après les fiches parce qu'elles en dépendent."""
     cx, sortie, genere_le, tailles = p.cx, p.sortie, p.genere_le, p.tailles
+    auteurs = auteurs_des_textes(cx)
     # Les trois listes s'écrivent **après** le détail, et non avant : elles
     # portent, pour chaque texte, les amendements dont on connaît à la fois le
     # scrutin et le débat — et ce rapprochement-là n'est résolu que par la
@@ -181,20 +195,15 @@ def ecrire_listes(p: Publication) -> None:
         # sont l'immense majorité.
         trous = ",".join("?" * len(statuts))
         lignes = cx.execute(
-            # Le groupe de l'auteur voyage avec le texte : la carte du fil le
-            # montre en couleur, et l'ouvrir pour le savoir serait absurde.
             f"SELECT {', '.join('d.' + c for c in CHAMPS_LISTE)},"
-            " d.loi_numero, d.loi_date, d.loi_url_jo,"
-            " g.sigle auteur_sigle, g.nom auteur_groupe, g.couleur auteur_couleur"
+            " d.loi_numero, d.loi_date, d.loi_url_jo"
             " FROM dossier d"
-            " LEFT JOIN acteur a ON a.ref = d.auteur_ref"
-            " LEFT JOIN groupe g ON g.ref = a.groupe_ref"
             f" WHERE d.statut IN ({trous}) AND d.est_loi = 1"
             " ORDER BY d.etape DESC, d.date_dernier_mouvement DESC, d.uid",
             statuts).fetchall()
         textes = []
         for l in lignes:
-            textes.append(ligne_de_liste(p, l))
+            textes.append(ligne_de_liste(p, l, auteurs.get(l["uid"])))
         tailles[nom_fichier] = ecrire(sortie / nom_fichier,
                                       {"genereLe": genere_le, "total": len(textes),
                                        "textes": textes})
@@ -217,10 +226,7 @@ def ecrire_travaux(p: Publication) -> None:
             " FROM dossier WHERE est_loi = 0"
             " ORDER BY date_dernier_mouvement DESC, uid"):
         travail = dict(l)
-        auteur = auteurs.get(l["uid"]) or {}
-        if auteur.get("sigle"):
-            travail.update(auteur_sigle=auteur["sigle"], auteur_groupe=auteur["groupe"],
-                           auteur_couleur=auteur["couleur"])
+        signer(travail, auteurs.get(l["uid"]))
         travaux.append(travail)
     tailles["travaux.json"] = ecrire(sortie / "travaux.json", {
         "genereLe": genere_le, "total": len(travaux),

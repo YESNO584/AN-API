@@ -743,6 +743,63 @@ le dira retiré.
 
 La mention « (Conforme) » **n'était pas reconnue** avant cette date : elle
 restait dans le corps de l'article, qui s'affichait donc réduit à ce seul mot.
+
+### Le gabarit des lois de finances
+
+**Les projets de loi de finances déposés ne suivent pas le gabarit des autres
+textes** (mesuré le 2026-10-09 sur les 28 versions des textes budgétaires de
+la législature). Le titre d'un article est une cellule de tableau (« ARTICLE
+2 : Soutenir le travail… »), la source encadre le dispositif entre deux
+paragraphes vides, `assnatFPFdebutartexte` et `assnatFPFfinartexte`, et
+l'exposé des motifs de l'article suit la fin. Lus avec la règle générale :
+
+| Document | Articles vides, avant | Après |
+|---|---:|---:|
+| Projet de loi de finances pour 2027 | 69 sur 89 | 0 sur 90 |
+| Projet de loi de finances pour 2026 | 60 sur 81 | 0 sur 82 |
+| Projet de loi de finances pour 2025 | 49 sur 64 | 0 sur 65 |
+| Loi de finances de fin de gestion pour 2025 | 4 sur 11 | 0 sur 9 |
+| Loi de finances rectificative pour 2024 | 3 sur 7 | 0 sur 7 |
+
+Les articles « en plus » d'avant étaient des lignes du **sommaire** — le seul
+endroit où « ARTICLE » apparaissait hors d'un tableau — et des renvois de
+l'exposé général (« Article 156 de la loi de finances pour 2024. »). Trois
+règles, toutes portées par la structure :
+
+- un article commence au **premier bloc du dispositif**, et son titre est le
+  bloc non vide qui le précède. Le repère de début manque parfois (l'article 4
+  de la fin de gestion 2025) ; celui de fin, jamais ;
+- les alinéas de 2025 et 2026 sont des **éléments de liste** (`<li>`), dont la
+  puce est le numéro d'alinéa. Seul ce gabarit lit les listes : ajoutées à la
+  règle générale, elles grossissaient trois autres documents de texte qui
+  n'était pas de la loi ;
+- le numéro d'alinéa imprimé en marge (`assnatPastille`, « (1) ») n'est pas du
+  texte.
+
+**Le numéro d'un article s'arrête à son intitulé** — aux deux-points, ou au
+premier mot à majuscule (la source les oublie : « ARTICLE 23 Instauration… »)
+— et **« 1 » vaut « 1er »** : le dépôt écrit « ARTICLE 1 », les versions
+suivantes « Article 1er ». Sans ces deux règles, aucun article d'une loi de
+finances ne s'appariait d'une version à l'autre : la loi de finances
+rectificative pour 2024 montrait 7 articles retirés et 7 nouveaux ; elle en
+montre 6 modifiés et 1 identique.
+
+**Deux gabarits restent mal découpés, et c'est su** : le projet de loi de
+financement de la sécurité sociale déposé, où l'exposé des motifs se colle
+à chacun des 49 articles (la source ne le marque que par ses mots, dans un
+paragraphe ordinaire), et les projets de loi relatifs aux résultats de la
+gestion, où la moitié des articles sort vide.
+
+### Relire quand les règles changent, sans rien effacer
+
+`textes.db` garde le **résultat** de la lecture, pas le document. Chaque
+document y porte l'empreinte des règles qui l'ont lu
+(`textes.empreinte_de_lecture`) ; `recuperer_textes.py` lit d'abord ce qui
+manque, puis relit, les plus récents d'abord, ce que d'anciennes règles ont
+lu. La lecture d'avant reste affichée jusque-là, et **une relecture qui
+échoue ne remplace rien**. Avant le 2026-10-09, la clé du cache portait
+l'empreinte de `textes.py` entier : la moindre modification repartait d'une
+base vide, et il fallait trois publications pour tout relire.
 Elle a rejoint `MENTION` avec « nouveau », « supprimé » et « non modifié ».
 
 Cette comparaison-là — **du texte déposé à la version à jour** — est publiée à

@@ -118,6 +118,15 @@ La seconde n'est pas un pis-aller de lecture : les **« petites lois » des
 textes budgétaires** suivent un autre gabarit Word, sans classes. Le repère y
 est le mot lui-même.
 
+**Un troisième gabarit manquait à cette mesure, et il cassait** (constaté le
+2026-10-09) : celui des **projets de loi de finances déposés**
+(`assnatFPF…`), absent des 149 documents mesurés ici. Le titre d'un article y
+est une cellule de tableau, le dispositif est encadré par
+`assnatFPFdebutartexte` et `assnatFPFfinartexte`, et ses alinéas sont souvent
+des `<li>`. La règle « le mot Article » n'y trouvait que le sommaire : 69
+articles vides sur 89 dans le projet de loi de finances pour 2027. Voir
+`../../socle/README.md`, § « Le gabarit des lois de finances ».
+
 Résultat sur 149 documents lus :
 
 | | |

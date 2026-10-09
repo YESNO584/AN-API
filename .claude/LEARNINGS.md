@@ -1406,12 +1406,16 @@ veille à comparer.
   que la clé du cache de `parlement.db` porte l'empreinte de `schema.sql` : une
   base d'avant n'est jamais restituée. Une base locale, elle, doit être
   reconstruite — `tmp/ab/` l'a été.
-- **Les cartes du fil pour un projet de loi affichent encore le groupe du
-  signataire** : `publication/listes.ecrire_listes` joint l'auteur à son groupe
-  sans la règle de `publication/auteurs.py`. 12 cartes de projet de loi
-  s'affichent ainsi « DR » dans l'onglet « Textes » (mesuré sur la publication
-  locale du 2026-10-08), alors que le calendrier les dit du Gouvernement.
-  Signalé à l'utilisateur, pas corrigé.
+- **Les cartes du fil pour un projet de loi affichaient le groupe du
+  signataire** : `publication/listes.ecrire_listes` joignait l'auteur à son
+  groupe sans la règle de `publication/auteurs.py`. Corrigé le 2026-10-09
+  (`listes.signer`) — et le compte annoncé la veille était faux : **15**
+  cartes, pas 12 (5 en cours, 8 promulguées, 2 arrêtées), soit exactement
+  les 15 projets signés par un Premier ministre qui siège aujourd'hui dans
+  un groupe. Le chiffre de la veille ne comptait qu'un onglet. **La fiche
+  d'un projet de loi a le même défaut** (« M. Michel Barnier, Auteur du
+  texte, Droite Républicaine », `fiches.py` → `signataires`) : signalé, pas
+  corrigé.
 - **Une base de la veille n'a pas la table neuve** : le cache peut restituer
   une `parlement.db` construite avant elle. La publication teste donc la
   présence de `point_agenda` plutôt que de supposer le schéma à jour.
@@ -1462,3 +1466,36 @@ codé. Les scripts sont dans `tmp/niches/`.
 - **Le calendrier cache les résolutions des niches** : il filtre
   `est_loi = 1`, si bien que la résolution sur les accords franco-algériens du
   2025-10-30, adoptée à une voix près, n'y figure pas.
+
+## 2026-10-09 — Les articles vides du budget : un gabarit que la mesure n'avait pas vu
+
+- **Le symptôme était à l'écran, la cause dans un gabarit jamais mesuré.** La
+  mesure du 2026-09-18 portait sur 149 documents, dont aucun projet de loi de
+  finances déposé. Leur gabarit (`assnatFPF…`) met le titre d'un article dans
+  un tableau ; la règle « un paragraphe qui commence par Article » ne trouvait
+  donc que le **sommaire**, dont chaque ligne devenait un article vide. Une
+  mesure sur un échantillon ne couvre que les gabarits de l'échantillon :
+  **regarder les textes budgétaires à part**, ils ont toujours le leur.
+- **Le texte « manquant » était dans des `<li>`.** Les projets de 2025 et 2026
+  écrivent leurs alinéas en listes ; `BALISE` ne lisait que `p`, `h*` et
+  `table`. Ajouter `li` à la règle générale changeait trois autres documents
+  pour le pire — d'où une balise à part, pour ce gabarit seul. **Mesurer une
+  règle élargie sur tous les documents, pas sur celui qu'elle répare.**
+- **Un correctif de lecture ne vaut rien sans la relecture.** `textes.db` garde
+  le résultat, pas le document, et la clé du cache hachait `textes.py` entier :
+  corriger la règle aurait vidé la base, et le site aurait perdu le texte de
+  toutes ses fiches pendant trois jours. C'est la leçon `extraction/` contre
+  `affichage.py`, retrouvée ailleurs : **une clé de cache ne doit hacher que ce
+  qui change le contenu caché.** Chaque document porte maintenant l'empreinte
+  des seules règles de découpage, et se relit sans être effacé.
+- **Le numéro d'article comptait autant que le découpage.** Sans « s'arrêter à
+  l'intitulé » et « 1 vaut 1er », aucun article budgétaire ne s'appariait
+  d'une version à l'autre : tout sortait « retiré » et « nouveau ». La
+  comparaison publiée l'a montré, pas les tests.
+- **Le décor d'un test peut inventer une forme que la source n'a pas** : une
+  pastille posée avant le premier alinéa a été prise pour le titre. La source
+  ne le fait pas, mais la règle a été rendue sûre plutôt que le décor corrigé
+  — une pastille n'est jamais un titre.
+- **Le script de garde refuse `rm -rf` et certaines redirections** dans une
+  commande composée : écrire les scripts avec `Write`, nettoyer avec
+  `shutil.rmtree` depuis Python.

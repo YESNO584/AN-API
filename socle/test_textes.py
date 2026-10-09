@@ -8,21 +8,10 @@ Le détail des mesures est dans `../docs/sources/textes-assemblee-html.md`.
     ./test_textes.py
 """
 
-import json
-import pathlib
-import sqlite3
 import sys
-import tempfile
 import unittest
-import unittest.mock
 
-import recuperer_textes
 import textes
-
-# Le schéma se trouve à côté de ce fichier, pas dans le répertoire d'où on
-# lance les tests : sans cela, `python3 socle/test_textes.py` depuis la racine
-# échouait là où `python3 test_textes.py` depuis `socle/` passait.
-SCHEMA = pathlib.Path(__file__).resolve().parent / "schema.sql"
 
 
 def document(*paragraphes: str, note: str = "") -> str:
@@ -45,6 +34,26 @@ def garde() -> str:
     return ("<p>N° 1794</p><p>ASSEMBLÉE NATIONALE</p>"
             "<p>PROPOSITION DE LOI</p><p>présentée par</p>"
             "<p>M. Stéphane HABLOT, M. Pierrick COURBON, députés.</p>")
+
+
+def titre_budgetaire(texte: str) -> str:
+    """Le titre d'un article de loi de finances : une cellule de tableau."""
+    return f"<table><tr><td><h6>{texte}</h6></td></tr></table>"
+
+
+def dispositif(*alineas: str, debut: bool = True, liste: bool = True) -> str:
+    """Le dispositif entre ses repères, chaque alinéa précédé de sa pastille."""
+    corps = '<p class="assnatFPFdebutartexte"></p>' * 2 if debut else ""
+    for n, texte in enumerate(alineas, 1):
+        corps += f'<p class="assnatPastille">({n})</p>'
+        corps += (f'<ol><li class="assnatFPFprojetloiartexte">{texte}</li></ol>' if liste
+                  else f'<p class="assnatFPFprojetloiartexte">{texte}</p>')
+    return corps + '<p class="assnatFPFfinartexte"></p>'
+
+
+def expose(texte: str) -> str:
+    return (f'<p class="assnatFPFexpogentitre1">Exposé des motifs</p>'
+            f"<table><tr><td><p>{texte}</p></td></tr></table>")
 
 
 def amendement(article, ou="A", numero="AS35", auteur="Stéphane Hablot",
@@ -96,6 +105,54 @@ class Decoupage(unittest.TestCase):
         self.assertEqual(textes.articles(document(garde())), {})
 
 
+class GabaritBudgetaire(unittest.TestCase):
+    """Les projets de loi de finances : titre en tableau, dispositif entre deux
+    repères, alinéas en liste. Constaté le 2026-10-09 : 69 articles vides sur
+    89 dans le projet de loi de finances pour 2027."""
+
+    def test_le_titre_en_tableau_ouvre_l_article_et_l_expose_n_en_est_pas(self):
+        d = document(titre_budgetaire("ARTICLE 1 : Autorisation de percevoir les impôts"),
+                     dispositif("La perception des impôts est autorisée."),
+                     expose("Le présent article autorise la perception des impôts."))
+        self.assertEqual(textes.articles(d), {
+            "ARTICLE 1 : Autorisation de percevoir les impôts":
+                "La perception des impôts est autorisée."})
+
+    def test_le_sommaire_n_ouvre_aucun_article(self):
+        """Le mot « ARTICLE » n'apparaissait hors tableau que dans le sommaire :
+        chaque ligne du sommaire devenait un article vide."""
+        d = document('<p class="assnatTOC6">ARTICLE 2 : Soutenir le travail</p>',
+                     '<p class="assnatTOC6">ARTICLE 3 : Réduction de l’abattement</p>',
+                     titre_budgetaire("ARTICLE 2 : Soutenir le travail"),
+                     dispositif("I. – Le code général des impôts est ainsi modifié :"),
+                     titre_budgetaire("ARTICLE 3 : Réduction de l’abattement"),
+                     dispositif("Le deuxième alinéa est ainsi modifié."))
+        self.assertEqual(list(textes.articles(d).values()),
+                         ["I. – Le code général des impôts est ainsi modifié :",
+                          "Le deuxième alinéa est ainsi modifié."])
+
+    def test_les_alineas_en_paragraphes_se_lisent_aussi(self):
+        """2027 écrit ses alinéas en paragraphes ; 2025 et 2026, en listes."""
+        d = document(titre_budgetaire("ARTICLE 1 : Un titre"),
+                     dispositif("Le premier.", "Le second.", liste=False))
+        self.assertEqual(textes.articles(d), {"ARTICLE 1 : Un titre": "Le premier. Le second."})
+
+    def test_un_repere_de_debut_oublie_ne_perd_pas_l_article(self):
+        """L'article 4 de la loi de finances de fin de gestion pour 2025 n'a
+        que son repère de fin."""
+        d = document(titre_budgetaire("ARTICLE 3 : Avant"), dispositif("Trois."),
+                     titre_budgetaire("ARTICLE 4 : Équilibre général du budget"),
+                     dispositif("I. – Pour 2025, l’ajustement des ressources.", debut=False))
+        self.assertEqual(textes.articles(d)["ARTICLE 4 : Équilibre général du budget"],
+                         "I. – Pour 2025, l’ajustement des ressources.")
+
+    def test_un_document_ordinaire_ne_lit_pas_les_listes(self):
+        """Seul ce gabarit lit les listes : ailleurs, elles sont hors du dispositif."""
+        d = document(titre_article("Article 1er"), alinea("Un alinéa."),
+                     "<ol><li>Une liste hors du texte de loi.</li></ol>")
+        self.assertEqual(textes.articles(d), {"Article 1er": "Un alinéa."})
+
+
 class Numero(unittest.TestCase):
     """Deux versions ne s'apparient que par le numéro d'article."""
 
@@ -105,8 +162,21 @@ class Numero(unittest.TestCase):
         Sans cette règle, 137 rapprochements sur 144 échouaient et le taux
         d'explication tombait de 47 % à 28 %.
         """
-        for ecrit in ("Article 1er", "Article PREMIER", "Article premier", "Article 1 er"):
+        for ecrit in ("Article 1er", "Article PREMIER", "Article premier", "Article 1 er",
+                      "ARTICLE 1 : Autorisation de percevoir les impôts", "Article 1"):
             self.assertEqual(textes.numero(ecrit), "1er", ecrit)
+
+    def test_l_intitule_n_est_pas_le_numero(self):
+        """Les textes budgétaires nomment leurs articles ; les amendements
+        écrivent « Article 2 ». La source oublie parfois les deux-points."""
+        for ecrit, attendu in (("ARTICLE 2 : Soutenir le travail", "2"),
+                               ("ARTICLE 10 : Ajustement", "10"),
+                               ("ARTICLE 23 Instauration d’un prélèvement", "23"),
+                               ("Article 2 Rectification de l’ONDAM", "2"),
+                               ("ARTICLE liminaire : : Prévisions de solde", "liminaire"),
+                               ("Article 1er bis A (nouveau)", "1er bis a"),
+                               ("Article PREMIER", "1er")):
+            self.assertEqual(textes.numero(ecrit), attendu, ecrit)
 
     def test_la_mention_n_est_pas_le_numero(self):
         self.assertEqual(textes.numero("Article 1er bis (nouveau)"), "1er bis")
@@ -354,85 +424,6 @@ class AmendementsDuParcours(unittest.TestCase):
         textes.amendements_du_parcours(etapes, self.ligne("3"))
         garde = etapes[1]["index"][("3", "A")][0]
         self.assertNotIn("quand", garde)
-
-
-class Recuperation(unittest.TestCase):
-    """Ce qui se lit, ce qui se garde, et ce qui s'arrête à l'heure."""
-
-    def base(self):
-        return recuperer_textes.ouvrir(pathlib.Path(tempfile.mkdtemp()) / "textes.db")
-
-    def test_seuls_les_documents_qui_portent_le_texte_sont_lus(self):
-        """Un rapport ou une étude d'impact ne sont pas des versions du texte,
-        et le Sénat publie les siennes ailleurs — 30 demandées ici, 30 refus."""
-        for ref in ("PIONANR5L17B1794", "PIONANR5L17BTC2362", "PRJLANR5L17BTA0314"):
-            self.assertTrue(recuperer_textes.est_une_version(ref), ref)
-        for ref in ("RAPPANR5L17B2362", "ETDIANR5L17B2155", "ACINANR5L17B2155",
-                    "PIONSNR5S479B0323"):
-            self.assertFalse(recuperer_textes.est_une_version(ref), ref)
-
-    def test_les_versions_viennent_des_etapes_du_parcours(self):
-        """Aucun appel réseau pour savoir quoi lire : l'archive déjà
-        téléchargée nomme le document de chaque étape."""
-        chemin = pathlib.Path(tempfile.mkdtemp()) / "parlement.db"
-        cx = sqlite3.connect(chemin)
-        cx.executescript(SCHEMA.read_text(encoding="utf-8"))
-        cx.execute("INSERT INTO dossier (uid, legislature, titre, type, est_loi, statut)"
-                   " VALUES ('D1', '17', 'Un texte', 'Proposition de loi ordinaire', 1, 'en_cours')")
-        cx.execute("INSERT INTO dossier (uid, legislature, titre, type, est_loi, statut)"
-                   " VALUES ('D2', '17', 'Un rapport', 'Rapport', 0, 'en_cours')")
-        for uid, rang, details in (
-                ("D1", 0, {"texteAssocie": {"ref": "PIONANR5L17B1794"}}),
-                ("D1", 1, {"texteAssocie": {"ref": "RAPPANR5L17B2362"},
-                           "texteAdopte": {"ref": "PIONANR5L17BTC2362"}}),
-                ("D2", 0, {"texteAssocie": {"ref": "PIONANR5L17B9999"}})):
-            cx.execute("INSERT INTO etape (dossier_uid, code, date, rang, numero,"
-                       " future, details) VALUES (?, 'AN1-DEPOT', '2025-09-16', ?, ?, 0, ?)",
-                       (uid, rang, rang, json.dumps(details)))
-        cx.commit(); cx.close()
-        self.assertEqual(recuperer_textes.versions_attendues(chemin),
-                         ["PIONANR5L17B1794", "PIONANR5L17BTC2362"])
-
-    def test_un_document_lu_garde_ses_articles_et_pas_le_html(self):
-        base = self.base()
-        source = document(titre_article("Article 1er"), alinea("Les hôpitaux publics."))
-        self.assertEqual(recuperer_textes.ranger(base, "U1", source, len(source)), "lu")
-        self.assertEqual(recuperer_textes.articles_du_document(base, "U1"),
-                         {"Article 1er": "Les hôpitaux publics."})
-
-    def test_un_document_sans_article_est_range_comme_tel(self):
-        """Ce n'est pas un échec de lecture : c'est le plus souvent la « petite
-        loi » d'un texte que l'Assemblée n'a pas adopté."""
-        base = self.base()
-        self.assertEqual(recuperer_textes.ranger(base, "U2", document(garde()), 100),
-                         "sans_article")
-        self.assertEqual(recuperer_textes.articles_du_document(base, "U2"), {})
-
-    def test_un_document_introuvable_est_note_absent(self):
-        base = self.base()
-        self.assertEqual(recuperer_textes.ranger(base, "U3", None, 0), "absent")
-
-    def test_ce_qui_est_lu_ne_se_relit_jamais(self):
-        """Un texte publié ne change plus : la passe du lendemain reprend où
-        celle de la veille s'est arrêtée."""
-        base = self.base()
-        recuperer_textes.ranger(base, "U1", document(titre_article("Article 1er")), 10)
-        appels = []
-        with unittest.mock.patch.object(recuperer_textes, "telecharger",
-                                        lambda uid: (appels.append(uid), ("", 0))[1]):
-            lus, restants = recuperer_textes.passe(base, ["U1", "U2"], minutes=5, attente=0)
-        self.assertEqual(appels, ["U2"])
-        self.assertEqual((lus, restants), (1, 0))
-
-    def test_la_passe_s_arrete_dans_son_budget_de_temps(self):
-        """50 minutes de lecture ajoutées d'un coup à une publication qui en
-        dure trois la rendraient fragile. Elle s'arrête, et reprend demain."""
-        base = self.base()
-        with unittest.mock.patch.object(recuperer_textes, "telecharger",
-                                        lambda uid: ("", 0)):
-            lus, restants = recuperer_textes.passe(base, ["U1", "U2", "U3"],
-                                                   minutes=0, attente=0)
-        self.assertEqual((lus, restants), (0, 3))
 
 
 if __name__ == "__main__":

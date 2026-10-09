@@ -14,6 +14,7 @@ import unittest
 
 from publication import auteurs
 from publication import calendrier as cal
+from publication import listes
 
 SCHEMA = pathlib.Path(__file__).resolve().parent / "schema.sql"
 
@@ -75,6 +76,33 @@ class QuiSigne(unittest.TestCase):
     def test_un_texte_sans_auteur_connu_n_en_porte_aucun(self):
         dossier(self.cx, "D4", "Proposition de loi ordinaire", "Proposition de loi", "PA9")
         self.assertIsNone(self.auteur("D4"))
+
+
+class LaCarteDuFil(unittest.TestCase):
+    """Les cartes des textes et des travaux suivent la même règle que le
+    calendrier : un projet de loi ne porte pas le groupe de son signataire."""
+
+    def setUp(self):
+        self.cx = base()
+
+    def carte(self, uid):
+        carte = {}
+        listes.signer(carte, auteurs.auteurs_des_textes(self.cx).get(uid))
+        return carte
+
+    def test_un_projet_signe_par_un_depute_d_aujourd_hui_n_a_pas_de_groupe(self):
+        dossier(self.cx, "D1", "Projet de loi ordinaire", "Projet de loi", "PA1")
+        self.assertEqual(self.carte("D1"), {})
+
+    def test_une_proposition_porte_le_groupe_de_son_auteur(self):
+        dossier(self.cx, "D2", "Proposition de loi ordinaire", "Proposition de loi", "PA2")
+        self.assertEqual(self.carte("D2"), {"auteur_sigle": "DR",
+                                            "auteur_groupe": "Droite républicaine",
+                                            "auteur_couleur": "#123456"})
+
+    def test_un_auteur_sans_groupe_ne_donne_rien_a_la_carte(self):
+        dossier(self.cx, "D3", "Proposition de loi ordinaire", "Proposition de loi", "PA3")
+        self.assertEqual(self.carte("D3"), {})
 
 
 class CeQuiEntre(unittest.TestCase):

@@ -16,7 +16,9 @@ garde donc d'un jour sur l'autre, et on n'y ajoute que ce qui manque.
 coup à une publication qui dure trois minutes la rendrait fragile pour une
 rubrique qui peut arriver en trois jours. Chaque exécution prend donc un budget
 de temps, s'arrête dedans, et reprend le lendemain là où elle en était. **Un
-texte publié ne change plus** : ce qui est lu ne se relit jamais.
+texte publié ne change plus** : ce qui est lu ne se relit que si les règles
+de lecture changent (`textes.empreinte_de_lecture`), et la lecture d'avant
+reste en place jusque-là.
 
 **Le rythme, et pourquoi il est ce qu'il est.** Un appel par seconde, en
 s'annonçant par un `User-Agent` qui nomme le projet. Le `robots.txt` de
@@ -61,7 +63,8 @@ CREATE TABLE IF NOT EXISTS document (
     lu_le    TEXT NOT NULL,
     statut   TEXT NOT NULL,         -- lu | sans_article | absent
     octets   INTEGER NOT NULL DEFAULT 0,
-    articles TEXT                   -- JSON {titre: texte}, dans l'ordre du texte
+    articles TEXT,                  -- JSON {titre: texte}, dans l'ordre du texte
+    lecture  TEXT                   -- l'empreinte des règles qui l'ont lu
 );
 
 CREATE TABLE IF NOT EXISTS journal (
@@ -83,6 +86,12 @@ def ouvrir(chemin: pathlib.Path = BASE) -> sqlite3.Connection:
     connexion = sqlite3.connect(chemin)
     connexion.row_factory = sqlite3.Row
     connexion.executescript(SCHEMA)
+    # Une base d'avant l'empreinte n'a pas la colonne : `CREATE TABLE IF NOT
+    # EXISTS` ne la lui ajoute pas. Ses documents valent « lus par d'anciennes
+    # règles », et se relisent comme tels.
+    colonnes = {l["name"] for l in connexion.execute("PRAGMA table_info(document)")}
+    if "lecture" not in colonnes:
+        connexion.execute("ALTER TABLE document ADD COLUMN lecture TEXT")
     return connexion
 
 
@@ -124,7 +133,16 @@ def versions_attendues(chemin: pathlib.Path = PARLEMENT) -> list[str]:
 
 
 def deja_lus(base: sqlite3.Connection) -> set[str]:
-    return {l["uid"] for l in base.execute("SELECT uid FROM document")}
+    """Les documents lus par les règles d'aujourd'hui."""
+    return {l["uid"] for l in base.execute(
+        "SELECT uid FROM document WHERE lecture = ?", (textes.empreinte_de_lecture(),))}
+
+
+def a_relire(base: sqlite3.Connection) -> set[str]:
+    """Les documents lus par d'anciennes règles : leur lecture reste en place,
+    et s'affiche, jusqu'à ce qu'ils soient relus."""
+    return {l["uid"] for l in base.execute(
+        "SELECT uid FROM document WHERE lecture IS NOT ?", (textes.empreinte_de_lecture(),))}
 
 
 def telecharger(uid: str) -> tuple[str | None, int]:
@@ -164,8 +182,10 @@ def ranger(base: sqlite3.Connection, uid: str, source: str | None, octets: int) 
         # page de garde par l'Assemblée elle-même.
         statut = "lu" if trouves else "sans_article"
         articles = json.dumps(trouves, ensure_ascii=False) if trouves else None
-    base.execute("INSERT OR REPLACE INTO document VALUES (?,?,?,?,?)",
-                 (uid, maintenant(), statut, octets, articles))
+    base.execute("INSERT OR REPLACE INTO document"
+                 " (uid, lu_le, statut, octets, articles, lecture) VALUES (?,?,?,?,?,?)",
+                 (uid, maintenant(), statut, octets, articles,
+                  textes.empreinte_de_lecture()))
     return statut
 
 
@@ -176,15 +196,26 @@ def articles_du_document(base: sqlite3.Connection, uid: str) -> dict[str, str]:
 
 def passe(base: sqlite3.Connection, attendus: list[str], minutes: float,
           attente: float = ATTENTE) -> tuple[int, int]:
-    """Lit ce qui manque, dans la limite du temps donné."""
-    connus = deja_lus(base)
-    restants = [u for u in attendus if u not in connus]
+    """Lit ce qui manque, puis relit ce que d'anciennes règles ont lu, dans la
+    limite du temps donné.
+
+    Ce qui manque passe d'abord : un texte sans aucune lecture n'a rien à
+    afficher. Les relectures viennent ensuite, **les plus récentes d'abord** —
+    `attendus` suit l'ordre des étapes, et un texte en cours intéresse plus
+    qu'un texte de 2024. Une relecture qui échoue **ne remplace rien** : la
+    lecture d'avant vaut mieux qu'un document noté absent parce que le serveur
+    a coupé la connexion ce matin-là.
+    """
+    connus, vieux = deja_lus(base), a_relire(base)
+    manquants = [u for u in attendus if u not in connus and u not in vieux]
+    restants = manquants + [u for u in reversed(attendus) if u in vieux]
     debut, lus = time.monotonic(), 0
     for uid in restants:
         if (time.monotonic() - debut) / 60 >= minutes:
             break
         source, octets = telecharger(uid)
-        ranger(base, uid, source, octets)
+        if source is not None or uid not in vieux:
+            ranger(base, uid, source, octets)
         base.commit()
         lus += 1
         time.sleep(attente)

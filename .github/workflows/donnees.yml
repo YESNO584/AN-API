@@ -278,15 +278,19 @@ jobs:
       # exécution n'ajoute que ce qui manque. Tout lire demande 50 minutes
       # (2 295 documents, un appel par seconde) ; on en prend 20 par jour,
       # donc tout est là au bout de trois publications. Un texte publié ne
-      # change plus : ce qui est lu ne se relit jamais.
+      # change plus : ce qui est lu ne se relit que si les règles de lecture
+      # changent. **La clé ne porte plus l'empreinte des règles** (2026-10-09) :
+      # elle faisait repartir d'une base vide à chaque modification de
+      # `textes.py`, comparaison comprise, et les fiches perdaient leur texte
+      # pendant trois jours. Chaque document porte maintenant l'empreinte des
+      # règles qui l'ont lu, et `recuperer_textes.py` relit les anciens peu à
+      # peu, sans effacer leur lecture d'avant.
       - name: Retrouver les textes lus les jours précédents
         uses: actions/cache@v4
-        env:
-          REGLES: ${{ hashFiles('socle/textes.py', 'socle/recuperer_textes.py') }}
         with:
           path: socle/textes.db
-          key: textes-${{ env.REGLES }}-${{ github.run_id }}
-          restore-keys: textes-${{ env.REGLES }}-
+          key: textes-${{ github.run_id }}
+          restore-keys: textes-
 
       # Facultatif au même titre : sans lui, la fiche d'un texte s'affiche
       # sans ses versions, et le dit.

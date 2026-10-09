@@ -192,6 +192,31 @@ a pas encore d'application, de base de données ni de dépendances.
   source, pas reconstituer du texte. Un « (Supprimé) » reste supprimé. La
   mention « conforme » a rejoint `MENTION` : sans elle, l'article s'affichait
   réduit à ce seul mot.
+- **Les projets de loi de finances ont leur propre gabarit, et la source le
+  dit** (2026-10-09). Le titre d'un article y est une cellule de **tableau**,
+  le dispositif est encadré par `assnatFPFdebutartexte` et
+  `assnatFPFfinartexte`, et ses alinéas sont souvent des **listes** (`<li>`).
+  Lus avec la règle générale, les articles sortaient vides — 69 sur 89 pour
+  2027 — parce que le mot « ARTICLE » n'apparaissait hors tableau que dans le
+  sommaire. `textes.articles_budgetaires` lit ce gabarit-là, et lui seul lit
+  les listes. Le numéro s'arrête à l'intitulé (« ARTICLE 2 : Soutenir… »,
+  « Article 2 Rectification… ») et « ARTICLE 1 » vaut « 1er ».
+  **Restent mal découpés, et signalés** : le projet de loi de financement de
+  la sécurité sociale déposé (l'exposé des motifs se colle à chaque article —
+  la source ne le marque que par ses mots) et les lois relatives aux
+  résultats de la gestion (un troisième gabarit).
+- **`textes.db` garde ce que les règles ont lu, et chaque document porte
+  l'empreinte de ces règles** (`textes.empreinte_de_lecture`, 2026-10-09).
+  La clé du cache portait l'empreinte de `textes.py` entier : toute
+  modification, comparaison comprise, repartait d'une base vide, et les
+  fiches perdaient leur texte pendant trois jours. Maintenant la clé ne porte
+  plus rien, et `recuperer_textes.py` relit peu à peu — ce qui manque
+  d'abord, puis les plus récents — ce que d'anciennes règles ont lu, **sans
+  effacer la lecture d'avant**, même quand la relecture échoue. L'empreinte
+  ne couvre que le découpage (`blocs`, `articles`, `articles_budgetaires` et
+  leurs constantes) : le numéro, les mentions, la comparaison se calculent à
+  la publication et ne relisent rien. **Une règle de découpage qui appelle
+  une nouvelle fonction doit l'ajouter à l'empreinte.**
 - **Chaque amendement adopté a sa fiche, dans son propre fichier.**
   `amendements/<uid>/<amendement>.json` — 12 521 fichiers, **2 Ko de médiane**.
   Un fichier par *texte* a été essayé et rejeté : 4,5 Mo au pire, et le prix
