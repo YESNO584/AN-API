@@ -11,6 +11,7 @@ Le détail des mesures est dans `../docs/sources/textes-assemblee-html.md`.
 import sys
 import unittest
 
+import legi
 import textes
 
 
@@ -135,7 +136,7 @@ class GabaritBudgetaire(unittest.TestCase):
         """2027 écrit ses alinéas en paragraphes ; 2025 et 2026, en listes."""
         d = document(titre_budgetaire("ARTICLE 1 : Un titre"),
                      dispositif("Le premier.", "Le second.", liste=False))
-        self.assertEqual(textes.articles(d), {"ARTICLE 1 : Un titre": "Le premier. Le second."})
+        self.assertEqual(textes.articles(d), {"ARTICLE 1 : Un titre": "Le premier.\nLe second."})
 
     def test_un_repere_de_debut_oublie_ne_perd_pas_l_article(self):
         """L'article 4 de la loi de finances de fin de gestion pour 2025 n'a
@@ -211,6 +212,56 @@ class Mentions(unittest.TestCase):
 
     def test_un_article_sans_mention_n_invente_rien(self):
         self.assertIsNone(textes.etat("Article 2", "Le texte."))
+
+
+class Alineas(unittest.TestCase):
+    """Un alinéa par ligne — à la lecture, et jusque dans la comparaison."""
+
+    def test_chaque_paragraphe_est_un_alinea(self):
+        """Recollés par une espace, « I. – », « A. – » et « 1° » se suivaient
+        sur la même ligne."""
+        d = document(titre_article("Article 1er"),
+                     alinea("I. – Le code est ainsi modifié :"), alinea("1° Au 1 :"))
+        self.assertEqual(textes.articles(d)["Article 1er"],
+                         "I. – Le code est ainsi modifié :\n1° Au 1 :")
+
+    def test_seuls_les_sauts_qui_different_ne_font_pas_un_changement(self):
+        """Pendant la relecture, un document lu avec les anciennes règles n'a
+        pas de sauts : comparé à un document relu, rien n'a changé."""
+        (l,) = textes.comparer({"Article 2": "I. – Un. 1° Deux."},
+                               {"Article 2": "I. – Un.\n1° Deux."})
+        self.assertEqual(l["quoi"], "identique")
+
+    def test_la_comparaison_garde_les_sauts_sans_changer_de_verdict(self):
+        avant = "I. – Le code est modifié :\nA. – L’article 72 est abrogé."
+        apres = "I. – Le code général est modifié :\nA. – L’article 72 est abrogé.\nB. – Neuf."
+        decoupe = textes.avec_les_alineas(legi.morceaux(avant, apres), avant, apres)
+        self.assertEqual([(m["role"], m["texte"].replace("\n", " ")) for m in decoupe],
+                         [(m["role"], m["texte"]) for m in legi.morceaux(avant, apres)],
+                         "les mêmes morceaux, dans le même ordre")
+        relu = "".join(("\n" if m.get("saut") else " " if i else "") + m["texte"]
+                       for i, m in enumerate(decoupe))
+        self.assertEqual(relu, apres)
+
+    def test_une_retouche_au_caractere_reste_collee(self):
+        """« I-Sont » → « I- Sont » : une espace ajoutée, pas un alinéa."""
+        avant, apres = "I-Sont abrogés :\nle 1° ;", "I- Sont abrogés :\nle 1° ;"
+        decoupe = textes.avec_les_alineas(legi.morceaux(avant, apres), avant, apres)
+        self.assertEqual([m["texte"] for m in decoupe], ["I-", " ", "Sont", "abrogés :\nle 1° ;"])
+        self.assertFalse(any(m.get("saut") for m in decoupe))
+
+
+    def test_une_retouche_qui_commence_par_un_retrait_ne_decale_rien(self):
+        """« Le « Bulletin » → « Le “Bulletin » : le retrait ne lit que le texte
+        d'avant, l'ajout collé qui le suit doit sauter son espace dans celui
+        d'après. Sans cela, tout se décalait d'un caractère, et un saut tombait
+        au milieu d'un mot — « b⏎s » pour « bis » sur 82 articles budgétaires."""
+        avant = "III. – Le « Bulletin officiel » :\nIV bis. – Le texte."
+        apres = "III. – Le “Bulletin officiel » :\nIV bis. – Le texte."
+        decoupe = textes.avec_les_alineas(legi.morceaux(avant, apres), avant, apres)
+        self.assertEqual([m["texte"].replace("\n", " ") for m in decoupe],
+                         [m["texte"] for m in legi.morceaux(avant, apres)])
+        self.assertIn("officiel » :\nIV bis.", "".join(m["texte"] for m in decoupe))
 
 
 class Comparaison(unittest.TestCase):

@@ -64,7 +64,9 @@
   .legende-diff u.forme { color: var(--forme-ajout); background: var(--forme-ajout-fond); }
   .texte-loi { background: var(--carte); border: 1px solid var(--trait);
     border-radius: var(--rayon); padding: .9rem; font-size: .88rem; line-height: 1.65;
-    overflow-wrap: anywhere; margin-bottom: .8rem; }
+    overflow-wrap: anywhere; margin-bottom: .8rem;
+    /* Un alinéa par ligne : le socle les sépare par un saut de ligne. */
+    white-space: pre-line; }
   .texte-loi del { color: var(--retire); background: var(--retire-fond);
                    border-radius: 3px; padding: 0 .12rem; }
   .texte-loi ins { color: var(--ajoute); background: var(--ajoute-fond);

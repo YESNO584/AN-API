@@ -216,7 +216,28 @@ a pas encore d'application, de base de données ni de dépendances.
   ne couvre que le découpage (`blocs`, `articles`, `articles_budgetaires` et
   leurs constantes) : le numéro, les mentions, la comparaison se calculent à
   la publication et ne relisent rien. **Une règle de découpage qui appelle
-  une nouvelle fonction doit l'ajouter à l'empreinte.**
+  une nouvelle fonction doit l'ajouter à l'empreinte.** Depuis le 2026-10-10,
+  `textes` est un paquet qui le dit : `textes/lecture.py` porte le découpage
+  (et l'empreinte), `textes/comparaison.py` tout ce qui se calcule à la
+  publication.
+- **Un alinéa par ligne, et la source ne marque aucun retrait** (2026-10-10).
+  Les alinéas étaient recollés par une espace : un article s'affichait en un
+  seul bloc, « I. – », « A. – », « 1° », « a) » sur la même ligne. Ils sont
+  séparés par un saut (`textes.lecture.ALINEA`), et `.texte-loi` les garde
+  (`white-space: pre-line`). **Pas de décalage par niveau** : tous les
+  alinéas d'un article ont la même classe et le même style dans la source —
+  le déduire de la numérotation serait deviner. **La comparaison n'a pas
+  changé** : `legi.morceaux` compare toujours mot à mot, et
+  `textes.avec_les_alineas` replace les sauts **après coup** sur ses
+  morceaux (`saut` : le morceau ouvre un alinéa). Deux règles à ne pas
+  perdre : deux versions qui ne diffèrent que par leurs sauts sont
+  **identiques** (`comparer` compare les mots), et une retouche au caractère
+  qui commence par un retrait ne lit que le texte d'avant — chaque côté doit
+  sauter **son** espace à sa première lecture dans le groupe, sans quoi un
+  saut tombait au milieu d'un mot (« b⏎s » pour « bis », 82 articles).
+  Contrôle : sur 1 609 articles comparés, les morceaux, sauts remis en
+  espaces, sont exactement ceux d'avant. Le droit consolidé n'est pas
+  touché : son texte est mis à plat à la lecture, sans saut.
 - **Chaque amendement adopté a sa fiche, dans son propre fichier.**
   `amendements/<uid>/<amendement>.json` — 12 521 fichiers, **2 Ko de médiane**.
   Un fichier par *texte* a été essayé et rejeté : 4,5 Mo au pire, et le prix

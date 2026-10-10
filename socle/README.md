@@ -800,6 +800,40 @@ lu. La lecture d'avant reste affichée jusque-là, et **une relecture qui
 échoue ne remplace rien**. Avant le 2026-10-09, la clé du cache portait
 l'empreinte de `textes.py` entier : la moindre modification repartait d'une
 base vide, et il fallait trois publications pour tout relire.
+
+Depuis le 2026-10-10, `textes` est un **paquet** qui sépare les deux :
+`textes/lecture.py` porte le découpage et son empreinte, `textes/comparaison.py`
+tout ce qui se calcule à la publication. Le reste du projet écrit
+`textes.articles` ou `textes.comparer` comme avant.
+
+### Un alinéa par ligne
+
+Les alinéas d'un article étaient recollés par une espace : l'onglet « Texte »
+montrait chaque article en un seul bloc, « I. – », « A. – », « 1° » et « a) »
+à la suite. Chaque paragraphe, élément de liste ou tableau de la source est
+maintenant un alinéa, séparé du suivant par un saut de ligne
+(`textes.lecture.ALINEA`), que la maquette garde (`white-space: pre-line`).
+**Aucun retrait par niveau** : la source donne à tous les alinéas d'un article
+la même classe et le même style ; décaler « a) » sous « 1° » demanderait de
+lire la numérotation, c'est-à-dire de deviner.
+
+**La comparaison, elle, n'a pas bougé.** `legi.morceaux` compare toujours mot
+à mot — c'est aussi celle du droit consolidé — et `textes.avec_les_alineas`
+replace les sauts **après coup** : chaque morceau est un extrait, dans l'ordre,
+du texte d'avant, du texte d'après ou des deux, et une espace y redevient un
+saut là où l'original en portait un. Mesuré sur les 377 versions de la
+publication locale : aucun verdict ne change, aucun mot non plus, et sur
+1 609 articles comparés les morceaux sont ceux d'avant, sauts remis en
+espaces. Deux règles vont avec :
+
+- deux versions qui ne diffèrent que par leurs sauts sont **identiques** —
+  c'est le cas, pendant la relecture, d'un document relu comparé à un
+  document qui ne l'est pas encore ;
+- une retouche au caractère (`au_caractere`) peut commencer par un retrait,
+  qui ne lit que le texte d'avant : chaque côté saute **son** espace à sa
+  première lecture dans le groupe. Sans cela, la lecture d'après se décalait
+  d'un caractère, et un saut tombait au milieu d'un mot — « b⏎s » pour
+  « bis », sur 82 articles budgétaires.
 Elle a rejoint `MENTION` avec « nouveau », « supprimé » et « non modifié ».
 
 Cette comparaison-là — **du texte déposé à la version à jour** — est publiée à

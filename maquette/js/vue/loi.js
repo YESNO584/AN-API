@@ -225,7 +225,9 @@ function texteCompare(morceaux, mode, texte) {
     // Une retouche de forme est découpée au caractère : « I- », l'espace
     // ajoutée, « Sont ». Ces morceaux se collent au précédent — sinon on
     // insérerait des espaces au milieu des mots.
-    if (!m.colle && !debut) corps.append(document.createTextNode(" "));
+    // `saut` : le morceau ouvre un alinéa (textes de loi en navette, voir
+    // `textes.avec_les_alineas`) — la feuille garde les sauts de ligne.
+    if (!m.colle && !debut) corps.append(document.createTextNode(m.saut ? "\n" : " "));
     const classe = mode === "diff" && m.forme ? "forme" : null;
     corps.append(el(balise, classe, m.texte));
     debut = false;

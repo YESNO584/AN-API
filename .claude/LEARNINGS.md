@@ -1499,3 +1499,32 @@ codé. Les scripts sont dans `tmp/niches/`.
 - **Le script de garde refuse `rm -rf` et certaines redirections** dans une
   commande composée : écrire les scripts avec `Write`, nettoyer avec
   `shutil.rmtree` depuis Python.
+
+## 2026-10-10 — Un alinéa par ligne, sans toucher à la comparaison
+
+- **Le défaut était à la lecture, pas à l'écran.** `" ".join(morceaux)`
+  recollait les alinéas ; aucun style ne pouvait les rendre. La source ne
+  marque aucun niveau de retrait (même classe, même style pour tous) : la
+  réponse honnête à « les indentations ne sont pas respectées » est « un
+  alinéa par ligne, et pas de décalage », dit tel quel à l'utilisateur.
+- **Garder la comparaison et replacer les sauts après coup** plutôt que de
+  faire des sauts un mot de la comparaison : les verdicts ne peuvent pas
+  changer, le droit consolidé n'est pas touché, et un document relu se
+  compare encore à un document qui ne l'est pas. La preuve qui tient : les
+  morceaux, sauts remis en espaces, identiques à ceux d'avant — 1 609 sur
+  1 609.
+- **Cette preuve a trouvé un vrai défaut que les tests ne voyaient pas** : une
+  retouche au caractère qui commence par un retrait laisse le côté « après »
+  sans avoir sauté son espace, et tout se décale d'un caractère. Un test de
+  reconstruction naïf l'avait signalé sous une autre forme (88 « différences »
+  qui venaient de la méthode, pas du code) : **comparer à la sortie d'avant,
+  pas à une reconstruction écrite pour l'occasion.**
+- **Un test « prouvé » en mettant le code de côté avec `git stash` ne prouve
+  rien quand le test est mis de côté avec lui** : retirer le seul correctif,
+  lancer, remettre.
+- **`git stash` sans `-u` laisse les fichiers neufs en place** : après une
+  découpe en paquet, la publication « de HEAD » tournait avec un dossier
+  `textes/` à moitié présent. `git stash -u`.
+- **Le site en ligne ne se charge pas jusqu'au bout derrière le proxy de la
+  session** (certificat, puis attente sans fin) : prendre la capture « avant »
+  sur une publication locale, avec les fichiers en ligne copiés dedans.

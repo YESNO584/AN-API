@@ -1,74 +1,11 @@
-"""Le texte d'un projet ou d'une proposition de loi, version par version.
-
-**Ce que ce module lit.** L'Assemblée publie le texte intégral de chaque
-version d'un texte — celui qui est déposé, celui qui sort de la commission,
-celui qui est adopté en séance — à une adresse qui se déduit de l'identifiant
-du document :
-
-    https://www.assemblee-nationale.fr/dyn/docs/PIONANR5L17B1794.raw
-
-C'est le document Word de l'Assemblée converti en HTML. **Ce n'est pas du
-JSON, et il n'en existe pas** : le JSON que publie l'Assemblée pour un document
-est une fiche signalétique, dont le champ `divisions` est vide (mesuré le
-2026-09-18 sur six documents de natures différentes). Mais ce HTML-ci est
-*structuré*, ce qui est la seule chose qui compte : la classe du paragraphe dit
-où commence un article, et les tableaux restent des tableaux.
-
-**Les identifiants viennent de l'archive déjà téléchargée chaque matin.** Chaque
-étape du parcours nomme le document qu'elle produit ou qu'elle examine
-(`texteAssocie`, `texteAdopte`) : aucune devinette sur l'étape à laquelle
-rattacher une version, et aucun appel réseau pour le savoir.
-
-**Ce que ça couvre**, mesuré le 2026-09-18 sur les 2 219 textes de loi de la
-législature : 1 749 ont au moins une version publiée par l'Assemblée — donc un
-texte à lire — et **249 en ont au moins deux**, donc une comparaison possible.
-Les 470 autres sont nés au Sénat, qui publie ses textes ailleurs.
-
-**Les règles ci-dessous viennent toutes d'un défaut constaté**, jamais d'une
-supposition. Voir `../docs/sources/textes-assemblee-html.md` pour les mesures.
+"""Comparer deux versions d'un texte, article par article : le numéro, les mentions, les sauts d'alinéa, les amendements rapprochés, la version à jour — tout ce qui se calcule à la publication, et ne relit rien.
 """
-
 from __future__ import annotations
 
 import collections
-import functools
-import hashlib
-import html
-import inspect
 import re
-
 import legi
 
-# L'adresse d'un document. L'identifiant est celui de l'open data.
-URL_DOCUMENT = "https://www.assemblee-nationale.fr/dyn/docs/{}.raw"
-
-# On s'annonce : le site est public, les documents sont sous Licence Ouverte,
-# et rien n'oblige à se cacher. Un appel par seconde reste en dessous de ce que
-# fait un navigateur qui ouvre une seule page du même site.
-ENTETES = {
-    "User-Agent": ("AN-API/0.1 (maquette « Qui vote quoi » ; "
-                   "https://github.com/yesno584/AN-API)"),
-    "Accept-Encoding": "gzip",
-}
-
-# Un début d'article se reconnaît d'abord à la **classe** du paragraphe : c'est
-# la source elle-même qui le dit. 139 documents sur 149 suffisent avec elle.
-CLASSE_ARTICLE = "assnat9ArticleNum"
-
-# À défaut de classe, le texte. Les « petites lois » des textes budgétaires
-# suivent un autre gabarit Word, sans classes : le repère y est le mot.
-DEBUT_ARTICLE = re.compile(r"^Articles?\s+(unique|premier|1er|\d+)", re.I)
-
-# La note de bas de page porte la composition du groupe de l'auteur — jusqu'à
-# 130 noms de députés — et se collait au dernier article, qui ressortait alors
-# comme massivement supprimé par la commission. **La source la marque
-# elle-même** : c'est la structure qui tranche, pas les mots.
-FIN_DU_TEXTE = re.compile(r"^assnatEndnote", re.I)
-
-# Les classes qui portent du texte de loi. Une classe inconnue n'est pas
-# écartée : les gabarits varient d'un document à l'autre, et perdre un alinéa
-# serait pire que d'en garder un de trop.
-HORS_TEXTE = ("assnatHeader", "assnatFooter", "assnat1Tome", "assnat2Partie")
 
 # « (Nouveau) », « (Supprimé) », « (Non modifié) », « (Conforme) » : la source
 # annonce l'état de l'article, soit dans son titre, soit dans un paragraphe
@@ -82,8 +19,11 @@ HORS_TEXTE = ("assnatHeader", "assnatFooter", "assnat1Tome", "assnat2Partie")
 # sur 75 de la dernière version étaient dans ce cas.
 MENTION = re.compile(
     r"^\(\s*(non modifiés?|supprimés?|nouveaux?|conformes?)[^)]*\)\s*", re.I)
+
+
 MENTION_TITRE = re.compile(
     r"\(\s*(non modifiés?|supprimés?|nouveaux?|conformes?)[^)]*\)", re.I)
+
 
 # Les mentions qui disent « cet article ne change pas, et je ne le réimprime
 # pas ». Sa rédaction est celle de la version d'avant, et il faut aller la
@@ -91,130 +31,12 @@ MENTION_TITRE = re.compile(
 # supprimé, c'est-à-dire l'inverse de ce que la source dit.
 NON_REPRODUIT = ("conforme", "non modifié")
 
-# **Le gabarit des projets de loi de finances** (`assnatFPF…`) n'a ni classe
-# d'article ni paragraphe « Article » : le titre de l'article est une cellule
-# de **tableau** (« ARTICLE 2 : Soutenir le travail… »), puis la source encadre
-# elle-même le dispositif entre deux paragraphes vides, `assnatFPFdebutartexte`
-# et `assnatFPFfinartexte`. Ce qui suit la fin est l'exposé des motifs de
-# l'article, qui n'est pas du texte de loi. Mesuré le 2026-10-09 sur le projet
-# de loi de finances pour 2027 : 90 titres, 90 débuts, 90 fins, et rien d'autre
-# entre deux repères que le dispositif, ses tableaux et ses notes. Lu avec la
-# règle générale, le même document rendait 69 articles vides sur 89 : le mot
-# « ARTICLE » n'y apparaissait hors tableau que dans le **sommaire**.
-DEBUT_DU_DISPOSITIF = "assnatFPFdebutartexte"
-FIN_DU_DISPOSITIF = "assnatFPFfinartexte"
-# Le repère de début manque parfois — l'article 4 de la loi de finances de fin
-# de gestion pour 2025 n'en a pas, alors que sa fin est marquée : l'article
-# commence donc aussi au premier alinéa du dispositif.
-DISPOSITIF = (DEBUT_DU_DISPOSITIF, "assnatFPFprojetloiartexte")
-# Le numéro d'alinéa, « (1) », imprimé dans la marge : ce n'est pas du texte,
-# et le gabarit général ne l'imprime pas.
-PASTILLE = "assnatPastille"
-# Et ses alinéas sont des **éléments de liste** (`<li>`), dont la puce est le
-# numéro d'alinéa. Le projet de loi de finances pour 2027 les écrit encore en
-# paragraphes ; ceux de 2025 et de 2026, et les deux lois de finances
-# rectificatives, en listes — lus sans elles, leurs articles sortaient vides
-# (49 sur 64, 60 sur 81). Seul ce gabarit lit les listes : ajoutées à la règle
-# générale, elles grossissaient trois autres documents budgétaires de texte qui
-# n'était pas de la loi (mesuré sur les 28 versions des textes budgétaires).
-BALISE_BUDGETAIRE = re.compile(r"<(p|h\d|table|li)([^>]*)>(.*?)</\1>", re.S)
 
 # Où commence l'intitulé d'un article, après son numéro : aux deux-points, ou
 # au premier mot qui commence par une capitale suivie de minuscules. « bis »,
 # « A », « PREMIER » ne sont pas des intitulés ; « Rectification » en est un.
 # La source oublie parfois les deux-points (« ARTICLE 23 Instauration… »).
 INTITULE = re.compile(r"\s+(?::|(?=[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ’']))")
-
-BALISE = re.compile(r"<(p|h\d|table)([^>]*)>(.*?)</\1>", re.S)
-CLASSE = re.compile(r'class="([^"]*)"')
-
-
-def blocs(source: str, balise: re.Pattern = BALISE) -> list[tuple[str, str, str]]:
-    """Le document, paragraphe par paragraphe : (classe, texte, balise)."""
-    corps = source[source.index("<body"):] if "<body" in source else source
-    sortie = []
-    for m in balise.finditer(corps):
-        classe = CLASSE.search(m.group(2))
-        texte = re.sub(r"<[^>]+>", " ", m.group(3))
-        texte = html.unescape(texte).replace(" ", " ")
-        texte = re.sub(r"[ \t\r\n]+", " ", texte).strip()
-        sortie.append((classe.group(1) if classe else "", texte, m.group(1)))
-    return sortie
-
-
-def articles(source: str) -> dict[str, str]:
-    """Le dispositif : {titre de l'article: son texte}, dans l'ordre du texte.
-
-    L'exposé des motifs, la page de garde et la note de fin n'en font pas
-    partie : tout ce qui précède le premier titre d'article est ignoré. Le
-    document dit lui-même son gabarit : un seul repère `assnatFPF…` suffit à
-    le lire comme un projet de loi de finances.
-    """
-    tous = blocs(source)
-    if any(classe.startswith(DEBUT_DU_DISPOSITIF) for classe, _, _ in tous):
-        return articles_budgetaires(blocs(source, BALISE_BUDGETAIRE))
-    trouves: dict[str, str] = {}
-    titre, morceaux = None, []
-    for classe, texte, balise in tous:
-        if FIN_DU_TEXTE.match(classe):
-            break
-        debut = (classe.startswith(CLASSE_ARTICLE)
-                 or (balise != "table" and DEBUT_ARTICLE.match(texte)))
-        if debut:
-            if titre is not None:
-                trouves[titre] = " ".join(x for x in morceaux if x).strip()
-            titre, morceaux = texte, []
-        elif titre is not None and not classe.startswith(HORS_TEXTE):
-            morceaux.append(texte)
-    if titre is not None:
-        trouves[titre] = " ".join(x for x in morceaux if x).strip()
-    return trouves
-
-
-def articles_budgetaires(tous: list[tuple[str, str, str]]) -> dict[str, str]:
-    """Le dispositif d'un projet de loi de finances, entre les repères de la
-    source : il commence au premier bloc du dispositif, son titre est le bloc
-    non vide qui le précède, et il s'arrête au `…finartexte`. Le sommaire, les
-    rapports et les exposés des motifs restent hors de tout article, quels que
-    soient leurs mots."""
-    trouves: dict[str, str] = {}
-    titre, precedent, morceaux = None, None, []
-    for classe, texte, _ in tous:
-        if FIN_DU_TEXTE.match(classe):
-            break
-        if titre is None:
-            if not (classe.startswith(DISPOSITIF) and precedent):
-                if texte and not classe.startswith(HORS_TEXTE + (PASTILLE,)):
-                    precedent = texte
-                continue
-            titre, morceaux = precedent, []
-        if classe.startswith(FIN_DU_DISPOSITIF):
-            trouves[titre] = " ".join(x for x in morceaux if x).strip()
-            titre, precedent = None, None
-        elif not classe.startswith(HORS_TEXTE + (PASTILLE, DEBUT_DU_DISPOSITIF)):
-            morceaux.append(texte)
-    return trouves
-
-
-@functools.lru_cache(maxsize=None)
-def empreinte_de_lecture() -> str:
-    """L'empreinte des règles qui découpent un document en articles — et
-    d'elles seules.
-
-    `textes.db` garde le **résultat** de la lecture, pas le document : quand
-    ces règles changent, ce qui a été lu avant doit être relu. Chaque document
-    porte donc l'empreinte des règles qui l'ont lu, et `recuperer_textes` relit
-    peu à peu ceux dont l'empreinte a vieilli, **sans effacer leur lecture
-    d'avant** en attendant. La comparaison, le numéro, les mentions se
-    calculent à la publication et n'en font pas partie : les changer ne relit
-    rien. C'est la règle de `extraction/` et `affichage.py`, appliquée ici.
-    """
-    regles = [inspect.getsource(f) for f in (blocs, articles, articles_budgetaires)]
-    regles += [repr(x) for x in (CLASSE_ARTICLE, DEBUT_ARTICLE.pattern, FIN_DU_TEXTE.pattern,
-                                 HORS_TEXTE, DEBUT_DU_DISPOSITIF, FIN_DU_DISPOSITIF,
-                                 DISPOSITIF, PASTILLE, BALISE.pattern,
-                                 BALISE_BUDGETAIRE.pattern, CLASSE.pattern)]
-    return hashlib.sha256("\n".join(regles).encode("utf-8")).hexdigest()[:16]
 
 
 def numero(titre: str | None) -> str:
@@ -285,6 +107,67 @@ def sans_mention(texte: str) -> str:
     return MENTION.sub("", (texte or "").strip(), count=1).strip()
 
 
+def _espaces_de_saut(texte: str) -> tuple[str, set[int]]:
+    """Le texte tel que `legi.morceaux` le compare — ses mots séparés par une
+    espace — et la position des espaces qui, dans l'original, étaient un saut
+    d'alinéa."""
+    mots, sauts, pos, fin = [], set(), 0, 0
+    for m in re.finditer(r"\S+", texte):
+        if mots:
+            if "\n" in texte[fin:m.start()]:
+                sauts.add(pos)
+            pos += 1
+        mots.append(m.group(0))
+        pos += len(m.group(0))
+        fin = m.end()
+    return " ".join(mots), sauts
+
+
+def avec_les_alineas(decoupe: list[dict], avant: str, apres: str) -> list[dict]:
+    """Les sauts d'alinéa remis dans une comparaison qui les ignore.
+
+    `legi.morceaux` compare mot à mot, et c'est voulu : un alinéa coupé
+    autrement n'est pas un changement de fond, et la comparaison du droit
+    consolidé reste celle qu'elle était. Mais l'écran perdait les sauts de
+    ligne. On les replace ici **sans rien changer à la comparaison** : chaque
+    morceau est un extrait, dans l'ordre, du texte d'avant (un retrait), du
+    texte d'après (un ajout) ou des deux (un passage égal) ; on le suit
+    caractère par caractère, et une espace redevient un saut là où l'original
+    en portait un — celui d'après pour un passage égal. `saut` dit qu'un
+    morceau ouvre un alinéa.
+    """
+    cotes = {"avant": _espaces_de_saut(avant), "apres": _espaces_de_saut(apres)}
+    lu = {"avant": 0, "apres": 0}
+    dette: set[str] = set()
+    sortie = []
+    for m in decoupe:
+        m = dict(m)
+        lus = (("avant", "apres") if m["role"] == "egal"
+               else ("avant",) if m["role"] == "retire" else ("apres",))
+        ref = lus[-1]
+        texte, sauts = cotes[ref]
+        # Entre deux groupes de morceaux, la comparaison a mangé l'espace qui
+        # séparait leurs mots — **de chaque côté**, et chaque côté la doit à
+        # la première lecture qu'il fait dans le groupe : une retouche au
+        # caractère peut commencer par un retrait, que suit un ajout collé.
+        if not m.get("colle"):
+            dette = {"avant", "apres"}
+        for cote in lus:
+            if cote in dette:
+                dette.discard(cote)
+                if lu[cote] and cotes[cote][0][lu[cote]:lu[cote] + 1] == " ":
+                    if cote == ref and lu[cote] in sauts and not m.get("colle"):
+                        m["saut"] = True
+                    lu[cote] += 1
+        debut = lu[ref]
+        m["texte"] = "".join("\n" if debut + k in sauts else c
+                             for k, c in enumerate(m["texte"]))
+        for cote in lus:
+            lu[cote] += len(m["texte"])
+        sortie.append(m)
+    return sortie
+
+
 def comparer(avant: dict[str, str], apres: dict[str, str]) -> list[dict]:
     """Deux versions d'un texte → une ligne par article, avec ce qui a changé.
 
@@ -298,7 +181,10 @@ def comparer(avant: dict[str, str], apres: dict[str, str]) -> list[dict]:
         ancien = precedent.get(num)
         if ancien is None:
             quoi = "nouveau"
-        elif ancien == texte:
+        elif ancien.split() == texte.split():
+            # Les mots, pas les espaces : un document relu par les règles d'un
+            # alinéa par ligne, comparé à un document qui ne l'est pas encore,
+            # ne diffère que par ses sauts de ligne — ce n'est pas un changement.
             quoi = "identique"
         else:
             quoi = "modifie"
@@ -308,7 +194,8 @@ def comparer(avant: dict[str, str], apres: dict[str, str]) -> list[dict]:
             "quoi": quoi,
             "etat": etat(titre, brut),
             "texte": texte,
-            "morceaux": legi.morceaux(ancien, texte) if quoi == "modifie" else [],
+            "morceaux": (avec_les_alineas(legi.morceaux(ancien, texte), ancien, texte)
+                         if quoi == "modifie" else []),
             "commun": legi.part_commune(ancien, texte) if quoi == "modifie" else None,
         })
     vus = {l["numero"] for l in lignes}
