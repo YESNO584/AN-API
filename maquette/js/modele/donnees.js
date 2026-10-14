@@ -121,3 +121,23 @@ async function moisCharge(mois) {
   MOIS_EN_CACHE.set(mois, evenements);
   return evenements;
 }
+
+/* Les mots de la description de chaque texte, que la recherche lit en plus du
+   titre (`recherche.json`). Lus à la première frappe seulement — 356 textes
+   en ont une, et la liste du démarrage n'a pas à les porter — puis normalisés
+   une fois, avec la règle du titre. Si le fichier manque, la recherche ne lit
+   que les titres, comme avant. */
+let DESCRIPTIONS_CHERCHABLES = null;
+
+let rechercheDemandee = null;
+
+function descriptionsCherchables() {
+  if (!rechercheDemandee) {
+    rechercheDemandee = lire("recherche.json").then((d) => {
+      DESCRIPTIONS_CHERCHABLES = new Map(Object.entries(d?.descriptions || {})
+        .map(([uid, mots]) => [uid, normaliser(mots)]));
+      return DESCRIPTIONS_CHERCHABLES;
+    });
+  }
+  return rechercheDemandee;
+}

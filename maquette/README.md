@@ -286,7 +286,7 @@ place — ce qui donnait l'impression qu'il rétrécissait.
 | **Dernier mouvement** | Cette semaine, ce mois-ci, ces trois mois — ou à l'arrêt | ✓ | ✓ | ✓ |
 | **Votes** | A fait l'objet d'un vote, voté sur l'ensemble, adopté, rejeté | ✓ | | |
 | **Calendrier** | Les textes dont une séance est déjà programmée | ✓ | | |
-| **Recherche** | Dans les titres | ✓ | ✓ | ✓ |
+| **Recherche** | Dans les titres, et dans les descriptions des textes qui en ont une | ✓ | ✓ | ✓ |
 
 Ils se combinent, chacun affiche son nombre de textes, ceux qui ne mèneraient
 à rien sont grisés, et un bouton efface tout — **y compris les filtres des
@@ -329,6 +329,14 @@ puis les apostrophes.
 **L'apostrophe est celle qui comptait le plus** : la source écrit l'apostrophe
 typographique `’` dans **729 titres sur 2 218**, et aucun clavier ne la donne
 au premier coup. Avant, chercher « l'effectivité » ne trouvait rien.
+
+**Elle lit aussi les descriptions** (2026-10-14) : le nom d'usage,
+l'accroche, le contexte et les points de chaque texte qui en a une — 356.
+Elles viennent de `recherche.json`, que `descriptionsCherchables`
+(`js/modele/donnees.js`) ne lit qu'à la première frappe, une seule fois ; le
+fil se redessine quand le fichier arrive. Sans lui, la recherche ne lit que
+les titres, comme avant. La carte ne dit pas si le texte est sorti par son
+titre ou par sa description : c'est voulu.
 
 #### Le filtre « Sujet », et ce qu'il doit avouer
 

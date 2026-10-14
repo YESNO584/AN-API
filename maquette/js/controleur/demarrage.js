@@ -77,6 +77,14 @@ $("bascule").addEventListener("click", () => {
 });
 $("recherche").addEventListener("input", (e) => {
   clearTimeout(minuterie);
-  minuterie = setTimeout(() => { filtres.mots = e.target.value; dessiner(); }, 180);
+  minuterie = setTimeout(() => {
+    filtres.mots = e.target.value;
+    dessiner();
+    // La première recherche va chercher les descriptions ; le fil se
+    // redessine quand elles arrivent, sans attendre une autre frappe.
+    if (filtres.mots.trim() && !DESCRIPTIONS_CHERCHABLES) {
+      descriptionsCherchables().then(() => { if (filtres.mots.trim()) dessiner(); });
+    }
+  }, 180);
 });
 charger();

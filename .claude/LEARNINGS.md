@@ -1528,3 +1528,19 @@ codé. Les scripts sont dans `tmp/niches/`.
 - **Le site en ligne ne se charge pas jusqu'au bout derrière le proxy de la
   session** (certificat, puis attente sans fin) : prendre la capture « avant »
   sur une publication locale, avec les fichiers en ligne copiés dedans.
+
+## 2026-10-14 — La recherche lit les descriptions
+
+- **« oui, toute la description » ne répondait à aucune question posée** : le
+  message suivant précisait « le filtre doit chercher dans les descriptions ».
+  Proposer des lectures possibles plutôt que d'en choisir une a évité de
+  rédiger 356 descriptions pour rien.
+- **Un fichier à part, lu à la première frappe**, plutôt qu'un champ de
+  `textes.json` : même raison que pour garder la description hors de la liste.
+  La normalisation reste côté maquette — une seule règle, celle du titre.
+- **L'utilisateur a refusé le repère « trouvé dans la description »**, alors
+  que la description est écrite par une IA. Décision notée dans
+  `docs/CE-QUE-L-ON-ECRIT.md` comme le seul endroit où cette écriture agit
+  sans mention — ne pas le « corriger » sans lui demander.
+- **`pkill -f` sur le serveur local tue aussi le shell de la commande**
+  (code 144) : le lancer seul, jamais enchaîné à autre chose.

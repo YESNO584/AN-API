@@ -806,6 +806,17 @@ Depuis le 2026-10-10, `textes` est un **paquet** qui sépare les deux :
 tout ce qui se calcule à la publication. Le reste du projet écrit
 `textes.articles` ou `textes.comparer` comme avant.
 
+### Ce que la recherche lit
+
+`recherche.json` (`publication/recherche.py`, 2026-10-14) porte, pour chaque
+texte qui a une description, tout ce que la fiche en affiche : nom d'usage,
+accroche, contexte et points, à la suite. 356 textes, 408 Ko. C'est un
+fichier à part, et non un champ de `textes.json`, parce que la liste est lue
+en entier au démarrage ; la maquette ne lit celui-ci qu'à la première
+recherche. Le texte est publié tel quel : accents, casse et apostrophes sont
+ignorés par la maquette, avec la règle du titre — une seule règle, pas deux.
+Une description dont le dossier a disparu de la base n'y entre pas.
+
 ### Un alinéa par ligne
 
 Les alinéas d'un article étaient recollés par une espace : l'onglet « Texte »

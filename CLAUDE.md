@@ -378,6 +378,16 @@ a pas encore d'application, de base de données ni de dépendances.
   clavier ne la donne au premier coup — chercher « l'effectivité » ne trouvait
   rien. Les ligatures `œ` et `æ` se défont **avant** la décomposition Unicode,
   qui ne les touche pas.
+  **Elle lit aussi les descriptions** (2026-10-14) : nom d'usage, accroche,
+  contexte et points, publiés à part dans `recherche.json`
+  (`publication/recherche.py`) et lus à la **première frappe** seulement —
+  la liste du démarrage ne les porte pas, pour la raison qui garde la
+  description hors de `textes.json`. Le texte est publié tel quel et
+  normalisé par la maquette, avec la règle du titre. **L'écran ne dit pas
+  pourquoi un texte est sorti** — titre ou description — : décidé par
+  l'utilisateur, bien que la description soit écrite par une IA. Mesuré :
+  « ripost » ne trouvait rien, il trouve la loi Ripost ; « redevance »
+  passe de 1 texte à 5.
 - **Le sujet d'un texte vient du Sénat, et de lui seul** (2026-10-04).
   L'Assemblée ne classe pas ses dossiers par thème ; le Sénat le fait, dans la
   colonne `THEMES` de `dossiers-legislatifs.csv`. 30 sujets, **729 textes sur

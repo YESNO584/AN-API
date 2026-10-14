@@ -48,6 +48,7 @@ from publication.preparation import preparer
 from publication.etat import ecrire_etapes, ecrire_etat, ecrire_groupes
 from publication.fiches import ecrire_fiches
 from publication.listes import ecrire_listes, ecrire_travaux
+from publication.recherche import ecrire_recherche
 from publication.loi import ecrire_changements
 from publication.senat import ecrire_senat
 
@@ -69,6 +70,7 @@ def publier(cx: sqlite3.Connection, sortie: pathlib.Path) -> dict[str, int]:
     ecrire_etapes(p)
     ecrire_fiches(p)
     ecrire_listes(p)
+    ecrire_recherche(p)
     ecrire_calendrier(p)
     ecrire_travaux(p)
     ecrire_changements(p)

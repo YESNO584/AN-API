@@ -140,7 +140,10 @@ function retenus(v = ONGLET) {
       const age = jours(t.date_dernier_mouvement);
       if (seuil > 0 ? age > seuil : age < -seuil) return false;
     }
-    if (mots && !normaliser(t.titre).includes(mots)) return false;
+    // Le titre, ou la description quand le texte en a une. L'écran ne dit pas
+    // lequel des deux a trouvé : décidé le 2026-10-14.
+    if (mots && !normaliser(t.titre).includes(mots)
+        && !(DESCRIPTIONS_CHERCHABLES?.get(t.uid) || "").includes(mots)) return false;
     return true;
   });
 }
