@@ -47,17 +47,35 @@ PORTEES = {
 }
 
 
+# Le vote sur le texte entier ne s'intitule pas toujours « l'ensemble de… » :
+# le 13 octobre 2026, le vote solennel sur la proposition de loi « apportant une
+# réponse intégrale au phénomène des violences sexuelles et sexistes » s'écrit
+# « la proposition de loi apportant… », et la carte du texte n'affichait aucun
+# résultat. Un vote sur une proposition de résolution, qui n'a pas d'articles,
+# porte aussi sur le texte entier. Mesuré le 2026-10-20 sur les 8 894 scrutins de
+# la législature : 26 votes sur l'ensemble manqués, dont 10 pour la seule
+# apostrophe typographique (« l’ensemble »), que la source emploie aussi.
+TEXTE_ENTIER = ("l'ensemble", "la proposition de loi", "le projet de loi",
+                "la proposition de résolution")
+PARTIES = ("l'article", "les articles", "la première partie", "la deuxième partie",
+           "la seconde partie", "la troisième partie")
+
+
 def classer_portee(libelle: str) -> str:
-    """Sur quoi porte un scrutin, d'après la façon dont l'Assemblée l'intitule."""
-    debut = (libelle or "").strip().lower()[:60]
-    if debut.startswith("l'ensemble"):
+    """Sur quoi porte un scrutin, d'après la façon dont l'Assemblée l'intitule.
+
+    Les deux apostrophes se valent : la source écrit « l'article » ou
+    « l’article » selon le jour. Ses fautes de frappe (« l'aticle »,
+    « l'amenedement ») ne sont pas devinées : ces scrutins restent « autre ».
+    """
+    debut = (libelle or "").strip().lower().replace("’", "'")[:60]
+    if debut.startswith(TEXTE_ENTIER):
         return ENSEMBLE
     if "motion" in debut or "censure" in debut:
         return MOTION
     if "amendement" in debut:
         return AMENDEMENT
-    if debut.startswith(("l'article", "les articles", "la première partie",
-                         "la deuxième partie", "la seconde partie")):
+    if debut.startswith(PARTIES):
         return ARTICLE
     return AUTRE
 

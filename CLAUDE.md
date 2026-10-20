@@ -468,6 +468,15 @@ a pas encore d'application, de base de données ni de dépendances.
   **Les deux calendriers partagent `MOIS_VU` et `JOUR_VU`** : le jour retenu
   doit porter quelque chose **dans le calendrier qu'on dessine**, sans quoi
   revenir de l'un à l'autre donne une liste vide sous une grille pleine.
+- **Ce sur quoi porte un vote se lit au début de son intitulé, et la source
+  a plusieurs formes pour le texte entier** (corrigé le 2026-10-20) :
+  « l'ensemble de… », mais aussi « la proposition de loi… », « le projet de
+  loi… », « la proposition de résolution… », et deux apostrophes (`'` et
+  `’`) qui se valent (`extraction.scrutins.TEXTE_ENTIER`). Sans elles,
+  26 votes sur le texte entier sur 241 tombaient dans « autre », et la carte
+  de cinq textes n'affichait aucun résultat. Contrôle : sur les 8 894
+  scrutins, ces 33 lignes de `vote` et elles seules changent. Les fautes de
+  frappe de la source ne sont pas devinées.
 - **Un numéro d'amendement ne suffit pas à désigner un amendement dans un
   dossier :** deux lectures y portent les mêmes numéros. Ce qui les sépare est
   le **numéro de dépôt du document amendé** (`debat_amendement.texte_numero`,

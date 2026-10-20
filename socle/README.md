@@ -680,7 +680,17 @@ décompte par groupe politique. Trois choses à savoir avant de s'en servir :
 2. **7 216 scrutins portent sur un amendement**, 212 seulement sur un texte
    entier. D'où la colonne `portee` : sans elle, un affichage laisserait
    croire qu'un texte a été adopté alors qu'un seul de ses amendements l'a
-   été.
+   été. **La portée se lit sur le début de l'intitulé, et la source en a
+   plusieurs formes** (corrigé le 2026-10-20) : « l'ensemble de… », mais
+   aussi « la proposition de loi… », « le projet de loi… » ou « la
+   proposition de résolution… », et l'apostrophe est tantôt droite, tantôt
+   typographique (« l’ensemble », « l’article »). Ne lire que « l'ensemble »
+   faisait manquer **26 votes sur le texte entier sur 241** et 7 votes sur
+   un article : cinq textes n'affichaient aucun résultat — dont la
+   proposition de loi sur les violences sexuelles et sexistes, adoptée par
+   503 voix contre 0 — et trois lois montraient un vote plus ancien que le
+   dernier. Les fautes de frappe de la source (« l'aticle »,
+   « l'amenedement ») ne sont pas devinées : elles restent « autre ».
 3. **La position annoncée d'un groupe n'est pas fiable** — elle contredit
    son propre décompte dans 3 % des cas. `vote_groupe.position` est donc
    **recalculée** sur les voix. Détail et chiffres dans

@@ -38,6 +38,52 @@ class PorteeDuVote(unittest.TestCase):
                          "« l'ensemble » plus loin dans la phrase ne doit pas tromper")
 
 
+class LeVoteSurLeTexteEntier(unittest.TestCase):
+    """Les intitulés réels qui échappaient à « l'ensemble de… » — mesuré le
+    2026-10-20 : 26 votes sur l'ensemble manqués sur 8 894 scrutins, et cinq
+    textes dont la carte n'affichait aucun résultat."""
+
+    def test_la_source_n_ecrit_pas_toujours_l_ensemble(self):
+        """Le vote solennel du 13 octobre 2026, adopté par 503 voix contre 0."""
+        for libelle in (
+                "la proposition de loi apportant une réponse intégrale au phénomène "
+                "des violences sexuelles et sexistes contre les femmes et les enfants "
+                "(première lecture).",
+                "le projet de loi autorisant l'approbation de l'accord entre le "
+                "Gouvernement de la République française et la Communauté des Caraïbes",
+                "la proposition de résolution visant à dénoncer les accords "
+                "franco-algériens du 27 décembre 1968 (article 34-1 de la Constitution)."):
+            with self.subTest(libelle=libelle[:40]):
+                self.assertEqual(extraction.classer_portee(libelle), extraction.ENSEMBLE)
+
+    def test_les_deux_apostrophes_se_valent(self):
+        """« l’ensemble » : la loi contre les fraudes aux moyens de paiement
+        n'avait aucun vote sur l'ensemble à l'écran."""
+        self.assertEqual(extraction.classer_portee(
+            "l’ensemble de la proposition de loi contre les fraudes aux moyens de "
+            "paiement scripturaux (première lecture)."), extraction.ENSEMBLE)
+        self.assertEqual(extraction.classer_portee(
+            "l’article 15 (examen prioritaire) du projet de loi de simplification"),
+            extraction.ARTICLE)
+
+    def test_la_troisieme_partie_est_un_vote_sur_une_partie(self):
+        self.assertEqual(extraction.classer_portee(
+            "la troisième partie du projet de loi de financement de la sécurité "
+            "sociale pour 2026 (nouvelle lecture)."), extraction.ARTICLE)
+
+    def test_ce_qui_n_est_pas_un_texte_reste_autre(self):
+        """Une demande de prolongation commence aussi par « la proposition »,
+        et une faute de frappe de la source n'est pas devinée."""
+        for libelle in ("la proposition du Gouvernement de prolonger la séance en "
+                        "cours au-delà de vingt heures",
+                        "la demande de suspension de séance présentée par M. Lachaud",
+                        "la déclaration du Gouvernement portant sur la stratégie de "
+                        "défense nationale",
+                        "l'aticle 6 du projet de loi sur la justice criminelle"):
+            with self.subTest(libelle=libelle[:40]):
+                self.assertEqual(extraction.classer_portee(libelle), extraction.AUTRE)
+
+
 class PositionDesGroupes(unittest.TestCase):
     """La position annoncée par la source contredit son propre décompte dans
     3 % des cas (3 033 sur 101 208, mesuré le 2026-08-31). On la recalcule."""

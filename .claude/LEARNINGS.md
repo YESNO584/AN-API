@@ -1544,3 +1544,23 @@ codé. Les scripts sont dans `tmp/niches/`.
   sans mention — ne pas le « corriger » sans lui demander.
 - **`pkill -f` sur le serveur local tue aussi le shell de la commande**
   (code 144) : le lancer seul, jamais enchaîné à autre chose.
+
+## 2026-10-20 — Les votes sur le texte entier qu'on rangeait dans « autre »
+
+- **Une règle qui lit le début d'un intitulé doit être mesurée sur tous les
+  intitulés, pas sur les cas qu'on a en tête.** `classer_portee` n'attendait
+  que « l'ensemble », apostrophe droite. La source écrit aussi « la
+  proposition de loi… » pour un vote solennel, et met l'apostrophe
+  typographique un jour sur deux. Le tri des 57 « autre » a suffi à tout voir.
+- **L'apostrophe typographique, encore** : c'était déjà le piège de la
+  recherche (729 titres). Chercher `’` partout où une règle compare du texte
+  de la source.
+- **Un affichage tronqué m'a fait annoncer un défaut qui n'existait pas** :
+  « le vote du 27 mai 2025 sur l'aide à mourir n'est pas rattaché » venait
+  d'un `[:4]` dans ma propre commande — le vote était le cinquième. Il était
+  bien rattaché, seulement rangé dans « autre ». **Ne jamais conclure à une
+  absence sur une liste qu'on a soi-même coupée.**
+- **Une session neuve n'a aucune base locale** : `tmp/` est vide. Les huit
+  archives se téléchargent en deux minutes (`tmp/votes/telecharger.sh`), puis
+  `recuperer.py --zip` deux fois, avant et après, et la comparaison table par
+  table.
