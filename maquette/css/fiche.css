@@ -26,6 +26,7 @@
   .auteur .grp { display: inline-flex; align-items: center; gap: .3rem;
                  font-size: .78rem; margin-top: .25rem; }
   .auteur .grp i { width: .5rem; height: .9rem; border-radius: 2px; display: block; }
+  .auteur .grp.gouvernement i { background: var(--gouvernement); }
 
   .bloc { margin-top: 1.6rem; }
   .bloc > h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em;

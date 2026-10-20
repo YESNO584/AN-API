@@ -31,7 +31,10 @@ async function ouvrirFiche(uid) {
   const sources = sourcesDeLaFiche(d);
   if (sources) f.append(sources);
 
-  if (d.auteur) f.append(personne(d.auteur, "Auteur du texte"));
+  if (d.auteur) {
+    f.append(personne(d.auteur, d.auteur.gouvernement
+      ? "A signé le projet au nom du Gouvernement" : "Auteur du texte"));
+  }
   if (d.cosignatairesTotal) f.append(blocCosignataires(d));
 
   f.append(...ongletsDeFiche(await rubriquesDeLaFiche(uid, d, loi)));

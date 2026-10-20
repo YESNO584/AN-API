@@ -28,6 +28,12 @@ const EXPLICATIONS = {
     "détail est publié. C'est rare — la plupart des textes sont adoptés à main " +
     "levée, sans que le vote de chacun soit enregistré. Sur les textes en cours, " +
     "moins d'un sur vingt en a un."],
+  gouvernement: ["Déposé par le Gouvernement",
+    "Un projet de loi est déposé par le Gouvernement, et signé en son nom par le " +
+    "Premier ministre. Même quand celui-ci siège aujourd'hui dans un groupe de " +
+    "l'Assemblée, ce groupe n'a pas déposé le texte : la carte ne l'affiche pas. " +
+    "La couleur est une convention d'affichage, choisie pour ne ressembler à " +
+    "celle d'aucun groupe."],
   voteEnsemble: ["Le vote sur le texte entier",
     "La chambre s'est prononcée sur l'ensemble du texte. C'est ce vote-là qui " +
     "décide si le texte poursuit son chemin ou s'arrête. Touchez-le pour voir " +

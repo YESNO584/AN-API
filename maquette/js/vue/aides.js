@@ -121,6 +121,12 @@ function personne(p, role) {
     g.append(teinte);
     g.append(document.createTextNode(p.nom_groupe || p.sigle));
     qui.append(g);
+  } else if (p.gouvernement) {
+    // Le signataire d'un projet de loi : son nom et sa photo, pas son groupe,
+    // qui n'a pas déposé le texte. La couleur est celle du Gouvernement.
+    const g = el("div", "grp gouvernement");
+    g.append(el("i"), document.createTextNode("Gouvernement"));
+    qui.append(g);
   }
   bloc.append(qui);
   return bloc;

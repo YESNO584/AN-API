@@ -75,7 +75,7 @@ function listeDuJour(evenements, source) {
 function auteurDeLEvenement(a) {
   const ligne = el("div", "depose-par");
   if (a.gouvernement) {
-    ligne.append(document.createTextNode("Déposé par le Gouvernement"));
+    ligne.append(document.createTextNode("Déposé par"), etiquetteGouvernement());
     return ligne;
   }
   ligne.append(document.createTextNode("Déposé par " + a.nom));

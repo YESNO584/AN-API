@@ -5,6 +5,7 @@ from publication.amendements import amendements_adoptes_en_entier
 from publication.amendements import amendements_du_texte
 from publication.amendements import debats_par_amendement
 from publication.amendements import votes_par_amendement
+from publication.auteurs import est_un_projet, signataire_du_gouvernement
 from publication.commun import ecrire
 from publication.debats import paroles_du_texte
 from publication.listes import procedure_acceleree
@@ -87,6 +88,12 @@ def fiche_du_texte(p: Publication, l, parcours, cosign, comparaisons,
     descriptions, resumes_debats, votes_senat = (
         p.descriptions, p.resumes_debats, p.votes_senat)
     ligne = {k: v for k, v in dict(l).items() if k != "description"}
+    # Un projet de loi garde le nom et la photo de son signataire, sans son
+    # groupe : 15 projets sont signés par un Premier ministre qui siège
+    # aujourd'hui dans un groupe, et ce groupe ne les a pas déposés.
+    auteur = (signataires(cx, [l["auteur_ref"]]) or [None])[0]
+    if est_un_projet(l["type"], l["type_document"]):
+        auteur = signataire_du_gouvernement(auteur)
     return ecrire(sortie / "textes" / f'{l["uid"]}.json', {
         **ligne,
         # Les scrutins du Sénat, à côté de ceux de l'Assemblée et jamais
@@ -96,7 +103,7 @@ def fiche_du_texte(p: Publication, l, parcours, cosign, comparaisons,
            if l["uid"] in votes_senat else {}),
         "cosignataires": signataires(cx, cosign[:40]),
         "cosignatairesTotal": len(cosign),
-        "auteur": (signataires(cx, [l["auteur_ref"]]) or [None])[0],
+        "auteur": auteur,
         "parcours": parcours,
         "versions": [{k: c[k] for k in ("ref", "nom", "date", "etape", "resume")}
                      for c in comparaisons],

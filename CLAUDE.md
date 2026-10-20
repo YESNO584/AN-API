@@ -91,6 +91,15 @@ a pas encore d'application, de base de données ni de dépendances.
   l'auteur s'affiche aussi sur les cartes « Travaux » : seules les
   propositions de résolution et de destitution en ont un. La règle de
   l'auteur vit dans `publication/auteurs.py`, partagée.
+  **Le Gouvernement a son étiquette, partout** (2026-10-20) : carte du fil
+  (`auteur_gouvernement`), ligne du calendrier, et fiche, où le signataire
+  d'un projet de loi garde **son nom et sa photo mais pas son groupe**
+  (`auteurs.signataire_du_gouvernement`) — « A signé le projet au nom du
+  Gouvernement ». Sa couleur, le bronze `--gouvernement` (`#8b6b3d`, et
+  `#a8834e` en sombre), est une convention de la maquette, choisie la plus
+  éloignée de toutes celles des groupes des deux chambres (écart CIE76
+  ≥ 33) pour qu'on ne la prenne pas pour un groupe. Contrôle : 120 fiches
+  changent, toutes des projets de loi, et seulement par leur bloc auteur.
 - **Aucune donnée du Parlement n'est versionnée.** Les bases
   `socle/parlement.db` et `socle/legi.db`, le dossier `socle/public/` et les
   archives téléchargées sont ignorés par git — ils se reconstruisent avec

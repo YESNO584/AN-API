@@ -16,11 +16,27 @@ function etiquetteGroupe(t) {
     expliquer("Le groupe politique de l'auteur",
       "Le groupe auquel appartient le parlementaire qui a déposé le texte. Les " +
       "couleurs sont une convention d'affichage : l'open data n'en publie aucune. " +
-      "Un texte déposé par le Gouvernement ou par un sénateur n'a pas de groupe " +
-      "à l'Assemblée, et n'affiche donc rien ici. C'est le groupe du " +
+      "Un projet de loi porte à la place l'étiquette « Gouvernement ». Un texte " +
+      "déposé par un sénateur n'a pas de groupe à l'Assemblée, et n'affiche donc " +
+      "rien ici. C'est le groupe du " +
       "parlementaire aujourd'hui : s'il en a changé depuis le dépôt, la source " +
       "ne garde pas celui d'alors.",
       t.auteur_groupe || t.auteur_sigle);
+  });
+  return b;
+}
+
+/* Le Gouvernement, à la place d'un groupe, quand c'est lui qui dépose le
+   texte : un projet de loi. Sa couleur (`--gouvernement`) est une convention de
+   la maquette, choisie loin de celles des groupes pour qu'on ne le prenne pas
+   pour l'un d'eux. */
+function etiquetteGouvernement() {
+  const b = el("button", "etiq grp gouvernement");
+  b.append(el("i"), document.createTextNode("Gouvernement"));
+  b.addEventListener("click", (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    expliquer(...EXPLICATIONS.gouvernement, "Projet de loi");
   });
   return b;
 }
@@ -123,6 +139,7 @@ function etiquettesDeLaCarte(t) {
   l.append(etiquette("chambre-" + (ch || "aucune"), CHAMBRES[ch][0], CHAMBRES[ch]));
   l.append(etiquette("", typeCourt(t.type), TYPES[t.type] || [typeCourt(t.type), ""]));
   if (t.auteur_sigle) l.append(etiquetteGroupe(t));
+  else if (t.auteur_gouvernement) l.append(etiquetteGouvernement());
   // Le sujet, classé par le Sénat — le seul des deux à en publier un. Un seul
   // s'affiche : un texte en porte deux en médiane, et la carte ne doit pas
   // devenir une liste de mots-clés.

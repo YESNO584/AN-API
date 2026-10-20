@@ -5,6 +5,26 @@ from __future__ import annotations
 import sqlite3
 
 
+def est_un_projet(type_dossier: str | None, type_document: str | None) -> bool:
+    """Un projet de loi — déposé par le Gouvernement, quel que soit son
+    signataire. Le type du document tranche, pas celui du dossier : « Projet
+    ou proposition de loi organique » ne dit pas lequel des deux."""
+    projet = type_document or ("Projet de loi" if (type_dossier or "").startswith(
+        "Projet de loi") else "")
+    return projet.startswith("Projet de loi")
+
+
+def signataire_du_gouvernement(signataire: dict | None) -> dict | None:
+    """Le signataire d'un projet de loi, tel que la fiche le montre : son nom
+    et sa photo — la source le désigne —, mais **pas son groupe**, qui n'a pas
+    déposé le texte. `gouvernement` dit au lecteur au nom de qui il signe."""
+    if not signataire:
+        return None
+    sans_groupe = {k: v for k, v in signataire.items()
+                   if k not in ("sigle", "nom_groupe", "couleur")}
+    return {**sans_groupe, "gouvernement": True}
+
+
 def auteur_du_texte(l) -> dict | None:
     """Qui a déposé le texte, et son groupe quand on le connaît.
 
@@ -19,9 +39,7 @@ def auteur_du_texte(l) -> dict | None:
     celui du jour du dépôt. Un sénateur, un ancien député, un député sans
     groupe a son nom sans groupe — rien n'est rapproché par le nom.
     """
-    projet = l["type_document"] or ("Projet de loi" if (l["type"] or "").startswith(
-        "Projet de loi") else "")
-    if projet.startswith("Projet de loi"):
+    if est_un_projet(l["type"], l["type_document"]):
         return {"gouvernement": True}
     if not l["nom"]:
         return None

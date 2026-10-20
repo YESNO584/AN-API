@@ -1564,3 +1564,18 @@ codé. Les scripts sont dans `tmp/niches/`.
   archives se téléchargent en deux minutes (`tmp/votes/telecharger.sh`), puis
   `recuperer.py --zip` deux fois, avant et après, et la comparaison table par
   table.
+
+## 2026-10-20 — L'étiquette « Gouvernement »
+
+- **Choisir une couleur par la mesure, pas au goût** : l'Assemblée occupe déjà
+  presque toutes les teintes (rouges, verts, jaunes, roses, orangés, quatre
+  bleus, un gris), et le Sénat en ajoute huit. L'écart CIE76 aux couleurs des
+  deux chambres a départagé huit candidats ; le bronze l'a emporté (≥ 33), les
+  gris-bleus et prunes tombaient à 14-16 d'un groupe ou d'une chambre.
+- **La fiche montrait le groupe par un autre chemin que la carte** :
+  `fiches.py` prenait l'auteur dans `signataires`, sans la règle de
+  `auteurs.py`. Deux chemins pour une même donnée, deux règles qui divergent :
+  la règle partagée doit être appelée partout où l'auteur se publie.
+- **Les cartes changées (123) ne sont pas les fiches changées (120)** : trois
+  projets n'ont aucun signataire connu — ils reçoivent l'étiquette, pas de
+  bloc auteur. Un écart de compte se lit avant d'être annoncé.

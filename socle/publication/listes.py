@@ -177,6 +177,10 @@ def signer(element: dict, auteur: dict | None) -> None:
     if auteur and auteur.get("sigle"):
         element.update(auteur_sigle=auteur["sigle"], auteur_groupe=auteur["groupe"],
                        auteur_couleur=auteur["couleur"])
+    # Le Gouvernement a son étiquette sur la carte, à la place du groupe
+    # (2026-10-20). Sa couleur est celle de la maquette, pas une donnée.
+    elif auteur and auteur.get("gouvernement"):
+        element["auteur_gouvernement"] = True
 
 
 def ecrire_listes(p: Publication) -> None:

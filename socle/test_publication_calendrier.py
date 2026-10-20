@@ -90,9 +90,9 @@ class LaCarteDuFil(unittest.TestCase):
         listes.signer(carte, auteurs.auteurs_des_textes(self.cx).get(uid))
         return carte
 
-    def test_un_projet_signe_par_un_depute_d_aujourd_hui_n_a_pas_de_groupe(self):
+    def test_un_projet_porte_l_etiquette_du_gouvernement_pas_un_groupe(self):
         dossier(self.cx, "D1", "Projet de loi ordinaire", "Projet de loi", "PA1")
-        self.assertEqual(self.carte("D1"), {})
+        self.assertEqual(self.carte("D1"), {"auteur_gouvernement": True})
 
     def test_une_proposition_porte_le_groupe_de_son_auteur(self):
         dossier(self.cx, "D2", "Proposition de loi ordinaire", "Proposition de loi", "PA2")
@@ -103,6 +103,28 @@ class LaCarteDuFil(unittest.TestCase):
     def test_un_auteur_sans_groupe_ne_donne_rien_a_la_carte(self):
         dossier(self.cx, "D3", "Proposition de loi ordinaire", "Proposition de loi", "PA3")
         self.assertEqual(self.carte("D3"), {})
+
+
+class LaFicheDUnProjet(unittest.TestCase):
+    """La fiche garde le nom et la photo du signataire, pas son groupe."""
+
+    def test_le_signataire_perd_son_groupe_et_signe_pour_le_gouvernement(self):
+        barnier = {"ref": "PA1", "civilite": "M.", "prenom": "Michel", "nom": "Barnier",
+                   "photo": "368.jpg", "sigle": "DR", "nom_groupe": "Droite Républicaine",
+                   "couleur": "#2a6bb5"}
+        self.assertEqual(auteurs.signataire_du_gouvernement(barnier),
+                         {"ref": "PA1", "civilite": "M.", "prenom": "Michel",
+                          "nom": "Barnier", "photo": "368.jpg", "gouvernement": True})
+
+    def test_un_projet_sans_signataire_connu_n_en_invente_pas(self):
+        self.assertIsNone(auteurs.signataire_du_gouvernement(None))
+
+    def test_le_type_du_document_tranche(self):
+        self.assertTrue(auteurs.est_un_projet("Projet de loi ordinaire", None))
+        self.assertTrue(auteurs.est_un_projet("Projet ou proposition de loi organique",
+                                              "Projet de loi"))
+        self.assertFalse(auteurs.est_un_projet("Projet ou proposition de loi organique",
+                                               "Proposition de loi"))
 
 
 class CeQuiEntre(unittest.TestCase):

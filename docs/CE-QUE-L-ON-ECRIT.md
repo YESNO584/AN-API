@@ -399,7 +399,9 @@ différente partageaient un seul nom. Elles ont désormais chacune le leur.
 | « Séance publique », « Commission », « Décision », « Scrutin public », « Promulgation » | **N** — notre classement des codes d'actes |
 | « Questions », « Débat », « Vote solennel » (depuis le 2026-10-08) | **N** — notre classement des types de point de l'agenda |
 | L'intitulé d'une question ou d'un débat (« Débat sur le thème : … ») | **S**, mot pour mot |
-| « Déposé par le Gouvernement », « Déposé par » suivi du nom | **N** (les mots) + **S** (le nom) |
+| « Déposé par » suivi de l'étiquette « Gouvernement » ou du nom | **N** (les mots) + **S** (le nom) |
+| L'étiquette « Gouvernement » et sa couleur (carte, calendrier, fiche — depuis le 2026-10-20) | **N** — la règle « un projet de loi est celui du Gouvernement » vient du type de document publié par la source ; la couleur, un bronze, est notre convention, choisie loin de celles des groupes, et l'explication au toucher le dit |
+| « A signé le projet au nom du Gouvernement », sous le nom du signataire d'un projet de loi | **N** (les mots) + **S** (le nom, la photo) |
 | L'étiquette du groupe de l'auteur | **S** (le sigle) + **C** (le groupe d'aujourd'hui, rapproché par l'identifiant de l'auteur) |
 | La catégorie d'une résolution (« Résolution Article 34-1 ») | **S** |
 | Le titre du texte de chaque événement | **S** |

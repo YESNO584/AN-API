@@ -85,11 +85,19 @@ tient lieu de titre. Les **résolutions** y figurent avec leurs séances et leur
 décisions ; elles n'ont pas de fiche, et leur ligne ouvre leur dossier sur le
 site de l'Assemblée, comme leur carte dans l'onglet « Travaux ».
 
-**Chaque ligne de texte dit qui l'a déposé** : « Déposé par le Gouvernement »
-pour un projet de loi, sinon le nom de l'auteur et l'étiquette de son groupe —
+**Chaque ligne de texte dit qui l'a déposé** : « Déposé par » suivi de
+l'étiquette « Gouvernement » pour un projet de loi, sinon le nom de l'auteur
+et l'étiquette de son groupe —
 la même que sur la carte du fil. Le groupe est celui d'aujourd'hui, et
 l'explication au toucher le dit. Un sénateur ou un député sans groupe a son nom
 seul.
+
+**Le Gouvernement a sa couleur** (2026-10-20), `--gouvernement` dans
+`css/base.css` : un bronze, choisi le plus loin possible des couleurs des
+groupes des deux chambres. Son étiquette (`etiquetteGouvernement`,
+`js/vue/cartes.js`) s'affiche à la place du groupe sur la carte d'un projet
+de loi, dans le calendrier, et sur la fiche, où le signataire garde son nom
+et sa photo : « A signé le projet au nom du Gouvernement ».
 
 **Les votes solennels annoncés** ont leur ligne, « Vote solennel ». Ceux qui
 sont encore à venir n'ont que leur intitulé dans la source, sans lien vers le

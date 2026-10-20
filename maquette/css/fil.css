@@ -80,6 +80,7 @@
   .etiq.sujet { color: var(--senat); background: transparent;
                 border-color: currentColor; }
   .etiq.grp { display: inline-flex; align-items: center; gap: .3rem; }
+  .etiq.grp.gouvernement i { background: var(--gouvernement); }
   .etiq.grp i { width: .45rem; height: .45rem; border-radius: 50%; display: block;
                 flex: 0 0 auto; }
   .etiq::after { content: " ⓘ"; font-size: .8em; opacity: .5; font-style: normal; }
