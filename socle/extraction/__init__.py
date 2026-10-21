@@ -56,5 +56,5 @@ from extraction.debats import (  # noqa: F401
     est_la_presidence, sigle_d_orateur, numeros_de_texte, prises_de_parole,
     lire_debats, sigles_nommes, completer_les_sigles, SOUTENIR_AMENDEMENT,
     SORT_AMENDEMENT, debats_par_amendement, lire_debats_par_amendement,
-    PREFIXE_DOCUMENT_AN, documents_par_numero, dossier_des_numeros,
+    PREFIXE_DOCUMENT_AN, documents_par_numero, dossier_des_numeros, dossiers_des_numeros,
 )

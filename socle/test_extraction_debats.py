@@ -118,6 +118,37 @@ class LeTexteDontOnParle(unittest.TestCase):
         self.assertIsNone(extraction.dossier_des_numeros(["1191"], "2026-02-25", {}, {}))
 
 
+class LaDiscussionCommune(unittest.TestCase):
+    """« Discussion générale commune » des n° 3190 et 3191, le 1er octobre
+    2026 : la proposition de loi sur les violences sexuelles et sexistes et
+    la loi organique sur l'autorité judiciaire. Ni l'une ni l'autre n'avait
+    de débat à l'écran."""
+
+    def setUp(self):
+        self.par_numero = {"3190": {"VSS"}, "3191": {"ORGANIQUE"}, "698": {"D1", "D2"}}
+        self.dates = {"VSS": {"2026-10-01"}, "ORGANIQUE": {"2026-10-01"},
+                      "D1": {"2026-10-01"}, "D2": {"2026-10-01"}}
+
+    def test_la_parole_va_a_chacun_des_textes(self):
+        self.assertEqual(extraction.dossiers_des_numeros(
+            ["3190", "3191"], "2026-10-01", self.par_numero, self.dates),
+            ["ORGANIQUE", "VSS"])
+
+    def test_un_numero_ambigu_ne_rattache_toujours_rien(self):
+        """Un seul numéro, deux dossiers le même jour : une ambiguïté de la
+        source, pas une discussion commune."""
+        self.assertEqual(extraction.dossiers_des_numeros(
+            ["698"], "2026-10-01", self.par_numero, self.dates), [])
+        self.assertEqual(extraction.dossiers_des_numeros(
+            ["3190", "698"], "2026-10-01", self.par_numero, self.dates), ["VSS"])
+
+    def test_le_debat_d_un_amendement_reste_a_un_seul_texte(self):
+        """Un amendement porte sur un texte : deux dossiers, c'est ne pas
+        savoir lequel."""
+        self.assertIsNone(extraction.dossier_des_numeros(
+            ["3190", "3191"], "2026-10-01", self.par_numero, self.dates))
+
+
 class LesPrisesDeParole(unittest.TestCase):
     def paroles(self, corps, **kw):
         return list(extraction.prises_de_parole(seance(corps, **kw), SIGLES))

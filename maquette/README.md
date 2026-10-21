@@ -93,8 +93,8 @@ l'explication au toucher le dit. Un sénateur ou un député sans groupe a son n
 seul.
 
 **Le Gouvernement a sa couleur** (2026-10-20), `--gouvernement` dans
-`css/base.css` : un bronze, choisi le plus loin possible des couleurs des
-groupes des deux chambres. Son étiquette (`etiquetteGouvernement`,
+`css/base.css` : une ardoise, tenue à distance des couleurs des groupes des
+deux chambres. Son étiquette (`etiquetteGouvernement`,
 `js/vue/cartes.js`) s'affiche à la place du groupe sur la carte d'un projet
 de loi, dans le calendrier, et sur la fiche, où le signataire garde son nom
 et sa photo : « A signé le projet au nom du Gouvernement ».

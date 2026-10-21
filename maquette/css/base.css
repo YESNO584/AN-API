@@ -15,9 +15,10 @@
     --assemblee: #24607f;
     --senat: #6a4a7c;
     --ok: #2f6b46;
-    /* Le Gouvernement, quand il dépose un texte : une convention, choisie loin
-       des couleurs des groupes (écart mesuré ≥ 33 sur l'échelle CIE76). */
-    --gouvernement: #8b6b3d;
+    /* Le Gouvernement, quand il dépose un texte : une convention, une ardoise
+       choisie avec l'utilisateur, à un écart d'au moins 20 de chaque couleur de
+       groupe des deux chambres (échelle CIE76). */
+    --gouvernement: #5b6475;
     /* Ce qu'une loi retire et ce qu'elle ajoute. Deux couleurs, pas une : le
        rouge seul ne dirait pas si le texte disparaît ou s'il arrive. */
     --retire: #9b2226;
@@ -39,7 +40,7 @@
       --fond: #131211; --carte: #1e1c1a; --doux: #26241f; --trait: #322f2a;
       --trait-fort: #4b463e; --texte: #eeebe5; --gris: #a49d92; --faible: #7a736a;
       --accent: #e79aa5; --accent-doux: #382226; --assemblee: #7db6d6;
-      --senat: #b795c8; --ok: #7cc79b; --gouvernement: #a8834e;
+      --senat: #b795c8; --ok: #7cc79b; --gouvernement: #8a9cc4;
       --retire: #f0a0a4; --retire-fond: #3a2224;
       --ajoute: #86d3a6; --ajoute-fond: #1d3328;
       --forme-ajout: #8fbde6; --forme-ajout-fond: #1e2c39;
@@ -50,7 +51,7 @@
     --fond: #131211; --carte: #1e1c1a; --doux: #26241f; --trait: #322f2a;
     --trait-fort: #4b463e; --texte: #eeebe5; --gris: #a49d92; --faible: #7a736a;
     --accent: #e79aa5; --accent-doux: #382226; --assemblee: #7db6d6;
-    --senat: #b795c8; --ok: #7cc79b; --gouvernement: #a8834e;
+    --senat: #b795c8; --ok: #7cc79b; --gouvernement: #8a9cc4;
     --retire: #f0a0a4; --retire-fond: #3a2224;
     --ajoute: #86d3a6; --ajoute-fond: #1d3328;
     --forme-ajout: #8fbde6; --forme-ajout-fond: #1e2c39;

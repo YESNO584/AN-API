@@ -1579,3 +1579,17 @@ codé. Les scripts sont dans `tmp/niches/`.
 - **Les cartes changées (123) ne sont pas les fiches changées (120)** : trois
   projets n'ont aucun signataire connu — ils reçoivent l'étiquette, pas de
   bloc auteur. Un écart de compte se lit avant d'être annoncé.
+
+## 2026-10-20 — Les discussions communes perdues, et l'ardoise
+
+- **« Ne rattacher qu'à un seul dossier » mélangeait deux cas** : un numéro
+  ambigu (une vraie incertitude, à refuser) et deux numéros nets cités
+  ensemble (une discussion commune, que la source déclare). Le second perdait
+  222 prises de parole et vidait l'onglet « Débats » de 10 textes. La règle
+  se résout maintenant numéro par numéro. Le test qui tenait le premier cas
+  est resté vert — c'est lui qui a imposé la bonne forme.
+- **La couleur du Gouvernement est passée du bronze à l'ardoise à la demande
+  de l'utilisateur**, qui avait retenu la première proposition. La variante
+  sombre annoncée (`#8e98ab`) tombait à 12 du gris des non-inscrits : mesurer
+  la variante sombre aussi, avant de l'annoncer.
+

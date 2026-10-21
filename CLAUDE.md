@@ -95,11 +95,12 @@ a pas encore d'application, de base de données ni de dépendances.
   (`auteur_gouvernement`), ligne du calendrier, et fiche, où le signataire
   d'un projet de loi garde **son nom et sa photo mais pas son groupe**
   (`auteurs.signataire_du_gouvernement`) — « A signé le projet au nom du
-  Gouvernement ». Sa couleur, le bronze `--gouvernement` (`#8b6b3d`, et
-  `#a8834e` en sombre), est une convention de la maquette, choisie la plus
-  éloignée de toutes celles des groupes des deux chambres (écart CIE76
-  ≥ 33) pour qu'on ne la prenne pas pour un groupe. Contrôle : 120 fiches
-  changent, toutes des projets de loi, et seulement par leur bloc auteur.
+  Gouvernement ». Sa couleur, l'ardoise `--gouvernement` (`#5b6475`, et
+  `#8a9cc4` en sombre), est une convention de la maquette, choisie avec
+  l'utilisateur et tenue à un écart CIE76 d'au moins 20 de chaque couleur de
+  groupe des deux chambres — le bronze, plus éloigné (≥ 33), a été préféré
+  puis abandonné pour elle. Contrôle : 120 fiches changent, toutes des
+  projets de loi, et seulement par leur bloc auteur.
 - **Aucune donnée du Parlement n'est versionnée.** Les bases
   `socle/parlement.db` et `socle/legi.db`, le dossier `socle/public/` et les
   archives téléchargées sont ignorés par git — ils se reconstruisent avec
@@ -137,7 +138,14 @@ a pas encore d'application, de base de données ni de dépendances.
   sont des textes de la 16e législature. Le groupe de l'orateur est celui
   imprimé par le compte rendu — donc celui du jour du débat — et se cherche
   dans **toute** la séance, pas dans les seules sections publiées (85,7 %
-  d'attribution contre 95,6 %).
+  d'attribution contre 95,6 %). **Une discussion commune va à chacun de ses
+  textes** (2026-10-20, `extraction.dossiers_des_numeros`) : « Discussion
+  générale commune » cite deux numéros, et la règle d'avant n'en rattachait
+  aucun — 222 prises de parole perdues, 10 textes sans débat à l'écran, dont
+  les soins palliatifs et la proposition de loi sur les violences sexuelles
+  et sexistes. Chaque numéro se résout à part : un numéro qui désigne encore
+  deux dossiers après la date ne rattache toujours rien, et le débat d'un
+  amendement reste à un seul texte (`dossier_des_numeros`).
 - **Deux pièges du droit consolidé, mesurés, à ne pas redécouvrir.** La
   rédaction « d'avant » n'est **pas** la précédente dans la liste des versions :
   celle-ci contient des rédactions **mort-nées**, votées mais jamais entrées en

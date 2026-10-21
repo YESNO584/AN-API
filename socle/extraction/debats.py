@@ -416,13 +416,44 @@ def documents_par_numero(documents: dict[str, dict]) -> dict[str, set[str]]:
     return par_numero
 
 
+def dossiers_des_numeros(numeros: list[str], jour: str | None,
+                         par_numero: dict[str, set[str]],
+                         dates: dict[str, set[str]]) -> list[str]:
+    """Les dossiers que la section désigne, une fois la date passée par là.
+
+    **Une discussion commune porte sur chacun de ses textes** (2026-10-20) :
+    le compte rendu l'intitule « Discussion générale commune » et cite leurs
+    deux numéros — c'est la source qui dit que la parole vaut pour les deux.
+    La règle d'avant n'en rattachait aucun : 222 prises de parole sur 4 240
+    étaient perdues, et 10 textes n'avaient aucun débat à l'écran, dont la
+    proposition de loi sur les violences sexuelles et sexistes et sa loi
+    organique, ou les soins palliatifs, débattus avec la fin de vie.
+
+    **Chaque numéro se résout à part.** Deux numéros qui désignent chacun un
+    dossier, c'est une discussion commune ; un seul numéro qui en désigne
+    encore deux après la date, c'est une ambiguïté de la source, et ce numéro
+    ne rattache rien — mieux vaut ne rien montrer que d'attribuer un discours
+    au mauvais texte.
+    """
+    trouves: set[str] = set()
+    for numero in numeros:
+        dossiers = set(par_numero.get(numero, set()))
+        if len(dossiers) > 1 and jour:
+            dossiers = {uid for uid in dossiers if jour in dates.get(uid, ())}
+        if len(dossiers) == 1:
+            trouves |= dossiers
+    return sorted(trouves)
+
+
 def dossier_des_numeros(numeros: list[str], jour: str | None,
                         par_numero: dict[str, set[str]],
                         dates: dict[str, set[str]]) -> str | None:
-    """Le dossier discuté, ou rien du tout.
+    """Le dossier discuté, ou rien du tout — pour le débat d'un amendement,
+    qui porte sur un seul texte : deux dossiers ce jour-là, c'est ne pas
+    savoir lequel.
 
-    Deux textes discutés ensemble donnent deux numéros ; on ne rattache la
-    parole qu'à un seul dossier, celui qui reste après la date. Mesuré le
+    Deux textes discutés ensemble donnent deux numéros ; on ne rattache le
+    débat qu'à un seul dossier, celui qui reste après la date. Mesuré le
     2026-09-02 : 614 des 693 numéros cités désignent un seul dossier,
     **aucun n'en désigne deux**, et les 79 restants appartiennent à des
     dossiers de la 16e législature, que le projet ne suit pas.

@@ -155,15 +155,14 @@ def lignes_de_parole(archives: dict[str, pathlib.Path], documents: dict,
         for e in etapes:
             dates_du_dossier.setdefault(e[0], set()).add(e[6])
         for parole in extraction.lire_debats(archives["debats"], sigles):
-            uid = extraction.dossier_des_numeros(
-                parole["numeros"], parole["date"], par_numero, dates_du_dossier)
-            if not uid:
-                continue
-            lignes_parole.append((
-                uid, parole["seance"], parole["date"], parole["section"],
-                parole["ordre"], parole["acteur_ref"], parole["nom"],
-                parole["qualite"], parole["sigle"], parole["texte"],
-            ))
+            # Une discussion commune va à chacun de ses textes.
+            for uid in extraction.dossiers_des_numeros(
+                    parole["numeros"], parole["date"], par_numero, dates_du_dossier):
+                lignes_parole.append((
+                    uid, parole["seance"], parole["date"], parole["section"],
+                    parole["ordre"], parole["acteur_ref"], parole["nom"],
+                    parole["qualite"], parole["sigle"], parole["texte"],
+                ))
         # Et, dans la même archive, l'ampleur du débat de chaque amendement
         # discuté seul. Le dossier se trouve comme pour une parole ; le numéro
         # de dépôt, lui, est gardé tel quel — c'est lui qui rattachera le

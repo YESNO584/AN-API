@@ -1206,6 +1206,22 @@ documents dans l'archive, dont deux du Sénat. La seconde : **départager par la
 date de séance**, car un dossier discuté ce jour-là a forcément une étape datée
 de ce jour-là. Sans elle, 97 numéros désignaient encore deux à quatre dossiers.
 
+**Une discussion commune va à chacun de ses textes** (2026-10-20). Quand
+l'Assemblée débat de deux textes ensemble, la section s'intitule « Discussion
+générale commune » ou « Explications de vote communes » et cite leurs deux
+numéros. La règle d'avant ne rattachait une parole qu'à un seul dossier : ici
+elle n'en rattachait aucun, et **222 prises de parole sur 4 240** étaient
+perdues — dix textes n'avaient aucun débat à l'écran, dont les soins palliatifs
+(débattus avec la fin de vie), les deux textes sur Mayotte, et la proposition
+de loi sur les violences sexuelles et sexistes avec sa loi organique.
+`extraction.dossiers_des_numeros` résout chaque numéro à part et rend tous ceux
+qui désignent un dossier net : la parole s'enregistre une fois par texte. Un
+numéro qui désigne encore deux dossiers après la date ne rattache toujours
+rien, et le débat d'un amendement, qui porte sur un seul texte, garde la règle
+d'avant (`dossier_des_numeros`). Contrôle sur les mêmes archives : la table
+`parole` gagne 444 lignes — ces 222 paroles, deux fois — et rien d'autre ne
+change.
+
 **Le groupe est celui du jour du débat.** Le compte rendu l'imprime après le
 nom : « M. Éric Martineau (Dem) ». C'est mieux que notre table `acteur`, qui ne
 connaît que le groupe d'aujourd'hui. Deux précautions, l'une et l'autre
