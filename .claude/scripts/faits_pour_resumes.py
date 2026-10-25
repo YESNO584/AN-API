@@ -46,6 +46,9 @@ LISTES = ("textes.json", "promulgues.json", "arretes.json", "travaux.json")
 # ce fichier-ci ne sert qu'à écrire.
 CARACTERES_PAR_PAROLE = 2500
 # Pourquoi les paroles sans sigle sont mises à part, et pas dans les groupes.
+# La consigne a suivi l'assembleur, qui accepte depuis un orateur sous son nom :
+# l'ancienne (« n'écris aucun argument à partir d'elles ») contredisait l'agent
+# de rédaction, et deux rédacteurs sur cinq l'ont relevé le 2026-10-25.
 # Sans cette séparation, un rédacteur écrivait les arguments d'un « groupe sans
 # groupe » que `assembler_resumes.py` refusait ensuite un par un : il contrôle
 # les sigles contre `paroles/<uid>.json`, qui n'en porte que douze — les onze
@@ -55,9 +58,12 @@ SANS_GROUPE = (
     "groupe politique mais un reste. Mesuré le 2026-09-20 : 128 paroles sur "
     "2 976, dans 91 textes, chez 60 orateurs — des ministres, des non-inscrits, "
     "et des députés d'un vrai groupe que le rapprochement a manqués "
-    "(95,6 % d'attribution). **N'écris aucun argument à partir d'elles** : "
-    "assembler_resumes.py les refuserait, et elles mêlent des orateurs de bords "
-    "différents. Elles sont ici pour que tu saches ce qui a été dit d'autre.")
+    "(95,6 % d'attribution). **N'écris jamais d'argument sous une étiquette "
+    "« sans groupe »** : elle mêlerait des orateurs de bords différents. Un "
+    "orateur qui revendique un groupe va sous le sigle de ce groupe ; les autres, "
+    "ministres compris, vont sous leur nom tel que le compte rendu l'imprime "
+    "(« M. Philippe Fait »), et assembler_resumes.py les range à part, sans "
+    "position de vote.")
 
 
 def lire(socle: str, chemin: str):
