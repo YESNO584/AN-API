@@ -1593,3 +1593,24 @@ codé. Les scripts sont dans `tmp/niches/`.
   sombre annoncée (`#8e98ab`) tombait à 12 du gris des non-inscrits : mesurer
   la variante sombre aussi, avant de l'annoncer.
 
+
+## 2026-10-25 — Les résumés de débats ne suivent pas les débats
+
+- **Un texte qui gagne des débats ne gagne pas de résumé** : la rubrique
+  s'écrit hors ligne, par lots, et rien ne signale l'écart. Dix-sept textes
+  étaient débattus sans résumé, dont la loi intégrale contre les violences
+  sexuelles et sexistes — les uns débattus après la série du 2026-09-20, les
+  autres rattachés à leurs débats par la règle des discussions communes du
+  2026-10-20. **Corriger une règle qui ajoute des paroles appelle une passe de
+  résumés** : `faits_pour_resumes.py --manquants` les liste, et marche sur le
+  socle en ligne (`--socle https://yesno584.github.io/AN-API`).
+- **`textes.json` ne porte que les textes en cours** : les lois promulguées et
+  les textes arrêtés sont dans `promulgues.json` et `arretes.json`. Compter
+  sur la seule première liste faisait croire à 94 résumés « orphelins ».
+- **`assembler_resumes.py` lit `socle/public/` en local, sans repli en
+  ligne** : sans base reconstruite, déposer `textes/<uid>.json` et
+  `paroles/<uid>.json` des textes à traiter suffit (le dossier est ignoré par
+  git).
+- **Une discussion commune donne les mêmes paroles à deux textes** : la
+  rédaction doit trier ce qui porte sur chacun. Pour les soins palliatifs,
+  débattus avec l'aide à mourir, c'est exactement le piège de l'UDR de 2026-09.

@@ -16,6 +16,8 @@ politique, dans l'ordre de l'hémicycle.
     ./faits_pour_resumes.py --sortie /tmp/debats [--textes DLR5L17N52922,…]
     ./faits_pour_resumes.py --sortie /tmp/debats --combien 10
     ./faits_pour_resumes.py --liste            # ce qui est disponible, et où
+    ./faits_pour_resumes.py --manquants        # débattus, mais sans résumé
+    ./faits_pour_resumes.py --sortie /tmp/debats --manquants
 
 **Le vote n'est pas à écrire, il est relevé.** Le fichier de faits porte le
 scrutin sur l'ensemble le plus récent, avec la position de chaque groupe, pour
@@ -35,6 +37,10 @@ import urllib.error
 import urllib.request
 
 SOCLE = "https://yesno584.github.io/AN-API"
+RESUMES = pathlib.Path(__file__).resolve().parents[2] / "socle" / "resumes_debats.json"
+# Les listes publiées qui ouvrent une fiche : un texte débattu qui n'est dans
+# aucune n'a pas d'onglet « Débats » où afficher un résumé.
+LISTES = ("textes.json", "promulgues.json", "arretes.json", "travaux.json")
 # De quoi reconnaître un argument sans recopier un discours de dix minutes.
 # Les paroles complètes restent affichées dans l'application, mot pour mot :
 # ce fichier-ci ne sert qu'à écrire.
@@ -155,6 +161,28 @@ def disponibles(socle: str) -> list[dict]:
     return sorted(rangs, key=lambda x: -x["paroles"])
 
 
+def sans_resume(socle: str) -> list[dict]:
+    """Les textes qui ont des paroles publiées, mais aucun résumé.
+
+    Rien ne prévient quand un texte gagne des débats : le résumé ne s'écrit
+    pas tout seul, et la fiche n'affiche simplement pas la rubrique. Mesuré le
+    2026-10-25 : 17 textes dans ce cas, dont la loi intégrale contre les
+    violences sexuelles et sexistes — les uns débattus après la dernière série
+    de résumés, les autres rattachés à leurs débats par la règle des
+    discussions communes (2026-10-20). Marche aussi sur le socle en ligne.
+    """
+    ecrits = (json.loads(RESUMES.read_text(encoding="utf-8")).get("resumes") or {}
+              if RESUMES.exists() else {})
+    manquants = {}
+    for liste in LISTES:
+        for t in (lire(socle, liste) or {}).get("textes") or []:
+            if t.get("paroles") and t["uid"] not in ecrits:
+                manquants[t["uid"]] = {"uid": t["uid"], "paroles": t["paroles"],
+                                       "liste": liste,
+                                       "titre": (t.get("titre") or "")[:70]}
+    return sorted(manquants.values(), key=lambda x: -x["paroles"])
+
+
 def main(argv: list[str] | None = None) -> int:
     a = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -168,6 +196,9 @@ def main(argv: list[str] | None = None) -> int:
                    help="caractères gardés par prise de parole (2500 par défaut)")
     a.add_argument("--liste", action="store_true",
                    help="afficher ce qui est disponible, sans rien écrire")
+    a.add_argument("--manquants", action="store_true",
+                   help="les textes débattus qui n'ont pas de résumé ; avec "
+                        "--sortie, en récolter les faits")
     o = a.parse_args(argv)
 
     if o.liste:
@@ -176,14 +207,21 @@ def main(argv: list[str] | None = None) -> int:
                   f'  {"vote" if x["vote"] else "    "}  {x["titre"]}')
         return 0
 
+    if o.manquants and not o.sortie:
+        for x in sans_resume(o.socle):
+            print(f'{x["uid"]}  {x["paroles"]:3d} paroles  {x["liste"]:15s}  {x["titre"]}')
+        return 0
+
     if not o.sortie:
         sys.exit("--sortie est nécessaire")
-    if o.textes:
+    if o.manquants:
+        uids = [x["uid"] for x in sans_resume(o.socle)]
+    elif o.textes:
         uids = [x.strip() for x in o.textes.split(",") if x.strip()]
     elif o.combien:
         uids = [x["uid"] for x in disponibles(o.socle)[:o.combien]]
     else:
-        sys.exit("--textes ou --combien")
+        sys.exit("--textes, --combien ou --manquants")
 
     o.sortie.mkdir(parents=True, exist_ok=True)
     ecrits = 0
